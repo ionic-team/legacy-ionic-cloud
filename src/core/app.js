@@ -1,5 +1,11 @@
 import { Logger } from "./logger";
 
+var privateData = {};
+
+function privateVar(key) {
+  return privateData[key] || null;
+}
+
 export class App {
 
   constructor(appId, apiKey) {
@@ -16,14 +22,8 @@ export class App {
       return false;
     }
 
-    var privateData = {
-      'id': appId,
-      'apiKey': apiKey
-    };
-
-    this.privateVar = function(name) {
-      return privateData[name] || null;
-    };
+    privateData.id = appId;
+    privateData.apiKey = apiKey;
 
     // other config value reference
     this.devPush = null;
@@ -31,11 +31,11 @@ export class App {
   }
 
   get id() {
-    return this.privateVar('id');
+    return privateVar('id');
   }
 
   get apiKey() {
-    return this.privateVar('apiKey');
+    return privateVar('apiKey');
   }
 
   toString() {

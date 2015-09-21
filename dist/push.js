@@ -1874,6 +1874,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _logger = require("./logger");
 
+var privateData = {};
+
+function privateVar(key) {
+  return privateData[key] || null;
+}
+
 var App = (function () {
   function App(appId, apiKey) {
     _classCallCheck(this, App);
@@ -1891,14 +1897,8 @@ var App = (function () {
       return false;
     }
 
-    var privateData = {
-      'id': appId,
-      'apiKey': apiKey
-    };
-
-    this.privateVar = function (name) {
-      return privateData[name] || null;
-    };
+    privateData.id = appId;
+    privateData.apiKey = apiKey;
 
     // other config value reference
     this.devPush = null;
@@ -1913,12 +1913,12 @@ var App = (function () {
   }, {
     key: 'id',
     get: function get() {
-      return this.privateVar('id');
+      return privateVar('id');
     }
   }, {
     key: 'apiKey',
     get: function get() {
-      return this.privateVar('apiKey');
+      return privateVar('apiKey');
     }
   }]);
 
