@@ -3048,7 +3048,7 @@ var Push = (function () {
       return false;
     }
 
-    this.app = _coreApp.App;
+    this.app = IonicApp;
     this.registerCallback = false;
     this.notificationCallback = false;
     this.errorCallback = false;
@@ -3180,7 +3180,7 @@ var Push = (function () {
           self._plugin = PushNotification.init(self._config.pluginConfig);
           self._plugin.on('registration', function (data) {
             self._blockRegistration = false;
-            self._token = new _pushToken.Token(data.registrationId);
+            self._token = new _pushToken.PushToken(data.registrationId);
             self._tokenReady = true;
             if (typeof callback === 'function') {
               callback(self._token);
@@ -3289,7 +3289,7 @@ var Push = (function () {
       var self = this;
       if (this._config.debug) {
         this._plugin.on('registration', function (data) {
-          self._token = new _pushToken.Token(data.registrationId);
+          self._token = new _pushToken.PushToken(data.registrationId);
           self.logger.info('device token registered', self._token);
         });
 
@@ -3315,7 +3315,7 @@ var Push = (function () {
     value: function _callbackRegistration() {
       var self = this;
       this._plugin.on('registration', function (data) {
-        self._token = new _pushToken.Token(data.registrationId);
+        self._token = new _pushToken.PushToken(data.registrationId);
         if (self.registerCallback) {
           return self.registerCallback(data);
         }

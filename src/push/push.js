@@ -3,7 +3,7 @@ import { Settings } from "../core/settings";
 import { IonicPlatform } from "../core/core";
 import { Logger } from "../core/logger";
 
-import { Token } from "./push-token";
+import { PushToken } from "./push-token";
 import { PushDevService } from "./push-dev";
 
 var settings = new Settings();
@@ -56,7 +56,7 @@ export class Push {
       return false;
     }
 
-    this.app = App;
+    this.app = IonicApp;
     this.registerCallback = false;
     this.notificationCallback = false;
     this.errorCallback = false;
@@ -165,7 +165,7 @@ export class Push {
         self._plugin = PushNotification.init(self._config.pluginConfig);
         self._plugin.on('registration', function(data) {
           self._blockRegistration = false;
-          self._token = new Token(data.registrationId);
+          self._token = new PushToken(data.registrationId);
           self._tokenReady = true;
           if ((typeof callback === 'function')) {
             callback(self._token);
@@ -260,7 +260,7 @@ export class Push {
     var self = this;
     if (this._config.debug) {
       this._plugin.on('registration', function(data) {
-        self._token = new Token(data.registrationId);
+        self._token = new PushToken(data.registrationId);
         self.logger.info('device token registered', self._token);
       });
 
@@ -284,7 +284,7 @@ export class Push {
   _callbackRegistration() {
     var self = this;
     this._plugin.on('registration', function(data) {
-      self._token = new Token(data.registrationId);
+      self._token = new PushToken(data.registrationId);
       if (self.registerCallback) {
         return self.registerCallback(data);
       }
