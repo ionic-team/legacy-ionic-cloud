@@ -4791,7 +4791,7 @@ var Push = (function () {
     this._emitter = _coreCore.IonicPlatform.getEmitter();
     if (config !== DEFER_INIT) {
       var self = this;
-      this.onReady(function () {
+      self._emitter.on('ionic_core:plugins_ready', function () {
         self.init(config);
       });
     }
