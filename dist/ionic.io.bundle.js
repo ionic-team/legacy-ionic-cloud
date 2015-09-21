@@ -4790,7 +4790,10 @@ var Push = (function () {
     this._blockRegistration = false;
     this._emitter = _coreCore.IonicPlatform.getEmitter();
     if (config !== DEFER_INIT) {
-      this.init(config);
+      var self = this;
+      this.onReady(function () {
+        self.init(config);
+      });
     }
   }
 

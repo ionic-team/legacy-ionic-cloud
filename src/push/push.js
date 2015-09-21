@@ -68,7 +68,10 @@ export class Push {
     this._blockRegistration = false;
     this._emitter = IonicPlatform.getEmitter();
     if (config !== DEFER_INIT) {
-      this.init(config);
+      var self = this;
+      this.onReady(function() {
+        self.init(config);
+      });
     }
   }
 
