@@ -3093,23 +3093,9 @@ var BaseSettings = (function () {
   return BaseSettings;
 })();
 
-var temp = new BaseSettings()
-
-// Auto-generated configuration factory
-.factory('$ionicCoreSettings', function () {
-  var settings = {};
-  return {
-    "get": function get(setting) {
-      if (settings[setting]) {
-        return settings[setting];
-      }
-      return null;
-    }
-  };
-})
-// Auto-generated configuration factory
-
-.finish();
+var temp = new BaseSettings().factory('$ionicCoreSettings', function () {
+  'IONIC_SETTINGS_STRING';
+}).finish();
 
 var Settings = (function () {
   function Settings() {

@@ -19,21 +19,9 @@ class BaseSettings {
   }
 }
 
-var temp = new BaseSettings()
-
-// Auto-generated configuration factory
-.factory('$ionicCoreSettings', function() {
-  var settings = {};
-  return {
-    "get": function(setting) {
-      if (settings[setting]) {
-        return settings[setting];
-      }
-      return null;
-    }
-  };
+var temp = new BaseSettings().factory('$ionicCoreSettings', function() {
+  'IONIC_SETTINGS_STRING';
 })
-// Auto-generated configuration factory
 
 .finish();
 
