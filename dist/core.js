@@ -2538,7 +2538,7 @@ var BaseSettings = (function () {
 })();
 
 var temp = new BaseSettings().factory('$ionicCoreSettings', function () {
-  'IONIC_SETTINGS_STRING';
+  'IONIC_SETTINGS_STRING_START';'IONIC_SETTINGS_STRING_END';
 }).finish();
 
 var Settings = (function () {
