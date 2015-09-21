@@ -2,6 +2,8 @@ import { EventEmitter } from "./events";
 import { Storage } from "./storage";
 import { Logger } from "./logger";
 
+var eventEmitter = new EventEmitter();
+
 export class IonicPlatform {
 
   constructor() {
@@ -31,7 +33,7 @@ export class IonicPlatform {
   }
 
   static getEmitter() {
-    return EventEmitter;
+    return eventEmitter;
   }
 
   static getStorage() {

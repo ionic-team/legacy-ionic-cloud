@@ -2701,6 +2701,8 @@ var _storage = require("./storage");
 
 var _logger = require("./logger");
 
+var eventEmitter = new _events.EventEmitter();
+
 var IonicPlatform = (function () {
   function IonicPlatform() {
     _classCallCheck(this, IonicPlatform);
@@ -2836,7 +2838,7 @@ var IonicPlatform = (function () {
   }], [{
     key: "getEmitter",
     value: function getEmitter() {
-      return _events.EventEmitter;
+      return eventEmitter;
     }
   }, {
     key: "getStorage",
