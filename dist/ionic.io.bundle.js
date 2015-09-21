@@ -2979,7 +2979,7 @@ var serviceStorage = {};
 
 Ionic.io = function () {
   if (typeof Ionic.IO.main === 'undefined') {
-    Ionic.IO.main = new Ionic.IO.Core();
+    Ionic.IO.main = new Ionic.Core();
   }
   return Ionic.IO.main;
 };
