@@ -321,11 +321,12 @@ export class Push {
    * @return {PushNotification} PushNotification instance
    */
   _getPushPlugin() {
+    var self = this;
     var PushPlugin = false;
     try {
       PushPlugin = window.PushNotification;
     } catch (e) {
-      this.logger.info('something went wrong looking for the PushNotification plugin');
+      self.logger.info('something went wrong looking for the PushNotification plugin');
     }
 
     if (!PushPlugin && (IonicPlatform.isIOSDevice() || IonicPlatform.isAndroidDevice()) ) {

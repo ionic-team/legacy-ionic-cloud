@@ -3354,11 +3354,12 @@ var Push = (function () {
   }, {
     key: "_getPushPlugin",
     value: function _getPushPlugin() {
+      var self = this;
       var PushPlugin = false;
       try {
         PushPlugin = window.PushNotification;
       } catch (e) {
-        this.logger.info('something went wrong looking for the PushNotification plugin');
+        self.logger.info('something went wrong looking for the PushNotification plugin');
       }
 
       if (!PushPlugin && (_coreCore.IonicPlatform.isIOSDevice() || _coreCore.IonicPlatform.isAndroidDevice())) {
