@@ -77,7 +77,7 @@ gulp.task('test', function() {
 
 });
 
-gulp.task('build-bundle', ['build-analytics-module'], function () {
+gulp.task('build-bundle', ['clean'], function () {
   return browserify({
     entries: buildConfig.sourceFiles.bundle,
     debug: false,
