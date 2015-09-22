@@ -38,7 +38,6 @@ var DEFER_INIT = "DEFER_INIT";
 export class Push {
 
   constructor(config) {
-
     this.logger = new Logger({
       'prefix': 'Ionic Push:'
     });
@@ -69,7 +68,7 @@ export class Push {
     this._emitter = IonicPlatform.getEmitter();
     if (config !== DEFER_INIT) {
       var self = this;
-      self._emitter.on('ionic_core:plugins_ready', function() {
+      Ionic.Core.getMain().onReady(function() {
         self.init(config);
       });
     }
@@ -111,7 +110,7 @@ export class Push {
     if (config.onNotification) { this.setNotificationCallback(config.onNotification); }
     if (config.onError) { this.setErrorCallback(config.onError); }
 
-    this._config = JSON.parse(JSON.stringify(config));
+    this._config = config;
     this._isReady = true;
 
     this._emitter.emit('ionic_push:ready', { "config": this._config });

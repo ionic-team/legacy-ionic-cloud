@@ -2749,6 +2749,16 @@ var IonicPlatform = (function () {
       return _storage.Storage;
     }
   }, {
+    key: "getMain",
+    value: function getMain() {
+      if (typeof Ionic !== 'undefined') {
+        if (Ionic.IO && Ionic.IO.main) {
+          return Ionic.IO.main;
+        }
+      }
+      return null;
+    }
+  }, {
     key: "getDeviceTypeByNavigator",
     value: function getDeviceTypeByNavigator() {
       var agent = navigator.userAgent;

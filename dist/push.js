@@ -2089,6 +2089,16 @@ var IonicPlatform = (function () {
       return _storage.Storage;
     }
   }, {
+    key: "getMain",
+    value: function getMain() {
+      if (typeof Ionic !== 'undefined') {
+        if (Ionic.IO && Ionic.IO.main) {
+          return Ionic.IO.main;
+        }
+      }
+      return null;
+    }
+  }, {
     key: "getDeviceTypeByNavigator",
     value: function getDeviceTypeByNavigator() {
       var agent = navigator.userAgent;
@@ -3061,7 +3071,7 @@ var Push = (function () {
     this._emitter = _coreCore.IonicPlatform.getEmitter();
     if (config !== DEFER_INIT) {
       var self = this;
-      self._emitter.on('ionic_core:plugins_ready', function () {
+      Ionic.Core.getMain().onReady(function () {
         self.init(config);
       });
     }
@@ -3122,7 +3132,7 @@ var Push = (function () {
         this.setErrorCallback(config.onError);
       }
 
-      this._config = JSON.parse(JSON.stringify(config));
+      this._config = config;
       this._isReady = true;
 
       this._emitter.emit('ionic_push:ready', { "config": this._config });

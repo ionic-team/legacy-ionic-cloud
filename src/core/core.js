@@ -40,6 +40,15 @@ export class IonicPlatform {
     return Storage;
   }
 
+  static getMain() {
+    if (typeof Ionic !== 'undefined') {
+      if (Ionic.IO && Ionic.IO.main) {
+        return Ionic.IO.main;
+      }
+    }
+    return null;
+  }
+
   _isCordovaAvailable() {
     var self = this;
     this.logger.info('searching for cordova.js');
