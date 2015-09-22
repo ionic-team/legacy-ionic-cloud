@@ -9,7 +9,10 @@ Using the latest [Ionic CLI](https://github.com/driftyco/ionic-cli):
 Run the following commands in terminal:
 
 ```bash
+# first you need to install the web client
 $ ionic add ionic-platform-web-client
+
+# now you can register your app with the platform
 $ ionic io init
 ```
 
