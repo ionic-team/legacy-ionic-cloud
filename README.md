@@ -7,14 +7,25 @@ Check out our [docs](http://docs.ionic.io/docs/io-introduction) for more detaile
 Using the latest [Ionic CLI](https://github.com/driftyco/ionic-cli):
 
 Run `ionic add ionic-platform-web-client` in your terminal.
+Now you can register your app with the platform by running `ionic io init` in the terminal.
 
 ## Usage
 
 ```javascript
 // You need to initialize the platform before you can start using any of the services
-Ionic.io();
+var io = Ionic.io();
 
+// You can now setup the current app user
+// If no user has been previously saved, a fresh user object is returned,
+// otherwise the last [current] saved user will be returned.
+var user = Ionic.User.current();
 ```
+
+Head over to our [docs](http://docs.ionic.io/docs/io-introduction) when you're ready to integrate services like analytics, push, or deploy.
+
+## Get Help
+
+Head over to our [gitter.im](http://gitter.im/driftyco/ionic-io-testers) channel if you require assistance or have any questions about the platform services. 
 
 ## Development
 
