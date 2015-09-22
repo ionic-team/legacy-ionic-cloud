@@ -6,8 +6,12 @@ Check out our [docs](http://docs.ionic.io/docs/io-introduction) for more detaile
 
 Using the latest [Ionic CLI](https://github.com/driftyco/ionic-cli):
 
-Run `ionic add ionic-platform-web-client` in your terminal.
-Now you can register your app with the platform by running `ionic io init` in the terminal.
+Run the following commands in terminal:
+
+```bash
+$ ionic add ionic-platform-web-client
+$ ionic io init
+```
 
 ## Usage
 
