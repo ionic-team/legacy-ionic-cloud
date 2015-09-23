@@ -5,6 +5,7 @@ import { IonicPlatform } from "./core";
 import { Storage } from "./storage";
 import { Logger } from "./logger";
 import { PushToken } from "../push/push-token";
+import { DataType } from "./data-types.js";
 
 var Core = IonicPlatform;
 var AppUserContext = null;
@@ -144,6 +145,25 @@ class UserData {
     this.data = {};
     if ((typeof data === 'object')) {
       this.data = data;
+      this.deserializerDataTypes();
+    }
+  }
+
+  deserializerDataTypes() {
+    for (var x in this.data) {
+      // if we have an object, let's check for custom data types
+      if (typeof this.data[x] === 'object') {
+        // do we have a custom type?
+        if (this.data[x].__Ionic_DataTypeSchema) {
+          var name = this.data[x].__Ionic_DataTypeSchema;
+          var mapping = DataType.getMapping();
+          if (mapping[name]) {
+            // we have a custom type and a registered class, give the custom data type
+            // from storage
+            this.data[x] = mapping[name].fromStorage(this.data[x].value);
+          }
+        }
+      }
     }
   }
 
@@ -161,10 +181,6 @@ class UserData {
     } else {
       return defaultValue || null;
     }
-  }
-
-  toString() {
-    return JSON.stringify(this.data);
   }
 }
 
@@ -205,7 +221,7 @@ export class User {
   static fromContext(data) {
     var user = new User();
     user.id = data._id;
-    user.data = new UserData(data.data);
+    user.data = new UserData(data.data.data);
     user.push = new PushData(data.push.tokens);
     user._fresh = data._fresh;
     user._dirty = data._dirty;
@@ -346,6 +362,7 @@ export class User {
 
     if (!self._blockSave) {
       self._blockSave = true;
+      self._store();
       new APIRequest({
         'uri': userAPIEndpoints.save(this),
         'method': 'POST',
@@ -357,15 +374,14 @@ export class User {
       }).then(function(result) {
         self._dirty = false;
         self._fresh = false;
+        self._blockSave = false;
         self.logger.info('saved user');
         deferred.resolve(result);
       }, function(error) {
         self._dirty = true;
+        self._blockSave = false;
         self.logger.error(error);
         deferred.reject(error);
-      }).then(function() {
-        self._blockSave = false;
-        self._store();
       });
     } else {
       self.logger.info("a save operation is already in progress for " + this + ".");
@@ -404,14 +420,14 @@ export class User {
   }
 
   set(key, value) {
-    return this.data.set(key,value);
+    return this.data.set(key, value);
   }
 
   get(key, defaultValue) {
     return this.data.get(key, defaultValue);
   }
 
-  remove(key) {
+  unset(key) {
     return this.data.unset(key);
   }
 }

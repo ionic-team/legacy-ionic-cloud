@@ -7,6 +7,7 @@ import { Request, Response, APIRequest, APIResponse } from "./request";
 import { Settings } from "./settings";
 import { Storage } from "./storage";
 import { User } from "./user";
+import { DataType } from "./data-types";
 
 
 // Declare the window object
@@ -15,6 +16,10 @@ window.Ionic = window.Ionic || {};
 // Ionic Namespace
 Ionic.Core = IonicPlatform;
 Ionic.User = User;
+
+// DataType Namespace
+Ionic.DataType = DataType;
+Ionic.DataTypes = DataType.getMapping();
 
 // IO Namespace
 Ionic.IO = {};
@@ -29,7 +34,6 @@ Ionic.IO.APIRequest = APIRequest;
 Ionic.IO.APIResponse = APIResponse;
 Ionic.IO.Storage = Storage;
 Ionic.IO.Settings = Settings;
-
 
 
 // Provider a single storage for services that have previously been registered

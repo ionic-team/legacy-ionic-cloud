@@ -2259,7 +2259,7 @@ var Analytics = (function () {
 
 exports.Analytics = Analytics;
 
-},{"../core/core":12,"../core/logger":15,"../core/promise":16,"../core/request":17,"../core/settings":18,"../core/user":20,"./storage":9}],6:[function(require,module,exports){
+},{"../core/core":12,"../core/logger":16,"../core/promise":17,"../core/request":18,"../core/settings":19,"../core/user":21,"./storage":9}],6:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -2587,7 +2587,7 @@ var BucketStorage = (function () {
 
 exports.BucketStorage = BucketStorage;
 
-},{"../core/settings":18}],10:[function(require,module,exports){
+},{"../core/settings":19}],10:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -2684,7 +2684,7 @@ var App = (function () {
 
 exports.App = App;
 
-},{"./logger":15}],12:[function(require,module,exports){
+},{"./logger":16}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2944,7 +2944,140 @@ var IonicPlatform = (function () {
 
 exports.IonicPlatform = IonicPlatform;
 
-},{"./events":14,"./logger":15,"./storage":19}],13:[function(require,module,exports){
+},{"./events":15,"./logger":16,"./storage":20}],13:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var dataTypeMapping = {};
+
+var DataTypeSchema = (function () {
+  function DataTypeSchema(properties) {
+    _classCallCheck(this, DataTypeSchema);
+
+    this.data = {};
+    this.setProperties(properties);
+  }
+
+  _createClass(DataTypeSchema, [{
+    key: 'setProperties',
+    value: function setProperties(properties) {
+      if (properties instanceof Object) {
+        for (var x in properties) {
+          this.data[x] = properties[x];
+        }
+      }
+    }
+  }, {
+    key: 'toJSON',
+    value: function toJSON() {
+      var data = this.data;
+      return {
+        '__Ionic_DataTypeSchema': data.name,
+        'value': data.value
+      };
+    }
+  }, {
+    key: 'isValid',
+    value: function isValid() {
+      if (this.data.name && this.data.value) {
+        return true;
+      }
+      return false;
+    }
+  }]);
+
+  return DataTypeSchema;
+})();
+
+var DataType = (function () {
+  function DataType() {
+    _classCallCheck(this, DataType);
+  }
+
+  _createClass(DataType, null, [{
+    key: 'get',
+    value: function get(name, value) {
+      if (dataTypeMapping[name]) {
+        return new dataTypeMapping[name](value);
+      }
+      return false;
+    }
+  }, {
+    key: 'getMapping',
+    value: function getMapping() {
+      return dataTypeMapping;
+    }
+  }, {
+    key: 'register',
+    value: function register(name, cls) {
+      dataTypeMapping[name] = cls;
+    }
+  }, {
+    key: 'Schema',
+    get: function get() {
+      return DataTypeSchema;
+    }
+  }]);
+
+  return DataType;
+})();
+
+exports.DataType = DataType;
+
+var UniqueArray = (function () {
+  function UniqueArray(value) {
+    _classCallCheck(this, UniqueArray);
+
+    this.data = [];
+    if (value instanceof Array) {
+      for (var x in value) {
+        this.push(value[x]);
+      }
+    }
+  }
+
+  _createClass(UniqueArray, [{
+    key: 'toJSON',
+    value: function toJSON() {
+      var data = this.data;
+      var schema = new DataTypeSchema({ 'name': 'UniqueArray', 'value': data });
+      return schema.toJSON();
+    }
+  }, {
+    key: 'push',
+    value: function push(value) {
+      if (this.data.indexOf(value) === -1) {
+        this.data.push(value);
+      }
+    }
+  }, {
+    key: 'pull',
+    value: function pull(value) {
+      var index = this.data.indexOf(value);
+      this.data.splice(index, 1);
+    }
+  }], [{
+    key: 'fromStorage',
+    value: function fromStorage(value) {
+      return new UniqueArray(value);
+    }
+  }]);
+
+  return UniqueArray;
+})();
+
+exports.UniqueArray = UniqueArray;
+
+DataType.register('UniqueArray', UniqueArray);
+
+},{}],14:[function(require,module,exports){
 "use strict";
 
 var _app = require("./app");
@@ -2965,12 +3098,18 @@ var _storage = require("./storage");
 
 var _user = require("./user");
 
+var _dataTypes = require("./data-types");
+
 // Declare the window object
 window.Ionic = window.Ionic || {};
 
 // Ionic Namespace
 Ionic.Core = _core.IonicPlatform;
 Ionic.User = _user.User;
+
+// DataType Namespace
+Ionic.DataType = _dataTypes.DataType;
+Ionic.DataTypes = _dataTypes.DataType.getMapping();
 
 // IO Namespace
 Ionic.IO = {};
@@ -3017,7 +3156,7 @@ Ionic.removeService = function (name) {
   }
 };
 
-},{"./app":11,"./core":12,"./events":14,"./logger":15,"./promise":16,"./request":17,"./settings":18,"./storage":19,"./user":20}],14:[function(require,module,exports){
+},{"./app":11,"./core":12,"./data-types":13,"./events":15,"./logger":16,"./promise":17,"./request":18,"./settings":19,"./storage":20,"./user":21}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3054,7 +3193,7 @@ var EventEmitter = (function () {
 
 exports.EventEmitter = EventEmitter;
 
-},{"events":2}],15:[function(require,module,exports){
+},{"events":2}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3110,7 +3249,7 @@ var Logger = (function () {
 
 exports.Logger = Logger;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3158,7 +3297,7 @@ var DeferredPromise = (function () {
 
 exports.DeferredPromise = DeferredPromise;
 
-},{"es6-promise":4}],17:[function(require,module,exports){
+},{"es6-promise":4}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3235,7 +3374,7 @@ var APIRequest = (function (_Request) {
 
 exports.APIRequest = APIRequest;
 
-},{"./promise":16,"browser-request":1}],18:[function(require,module,exports){
+},{"./promise":17,"browser-request":1}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3317,7 +3456,7 @@ var Settings = (function () {
 
 exports.Settings = Settings;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3475,7 +3614,7 @@ var Storage = (function () {
 
 exports.Storage = Storage;
 
-},{"./promise":16}],20:[function(require,module,exports){
+},{"./promise":17}],21:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3499,6 +3638,8 @@ var _storage = require("./storage");
 var _logger = require("./logger");
 
 var _pushPushToken = require("../push/push-token");
+
+var _dataTypesJs = require("./data-types.js");
 
 var Core = _core.IonicPlatform;
 var AppUserContext = null;
@@ -3663,10 +3804,30 @@ var UserData = (function () {
     this.data = {};
     if (typeof data === 'object') {
       this.data = data;
+      this.deserializerDataTypes();
     }
   }
 
   _createClass(UserData, [{
+    key: "deserializerDataTypes",
+    value: function deserializerDataTypes() {
+      for (var x in this.data) {
+        // if we have an object, let's check for custom data types
+        if (typeof this.data[x] === 'object') {
+          // do we have a custom type?
+          if (this.data[x].__Ionic_DataTypeSchema) {
+            var name = this.data[x].__Ionic_DataTypeSchema;
+            var mapping = _dataTypesJs.DataType.getMapping();
+            if (mapping[name]) {
+              // we have a custom type and a registered class, give the custom data type
+              // from storage
+              this.data[x] = mapping[name].fromStorage(this.data[x].value);
+            }
+          }
+        }
+      }
+    }
+  }, {
     key: "set",
     value: function set(key, value) {
       this.data[key] = value;
@@ -3684,11 +3845,6 @@ var UserData = (function () {
       } else {
         return defaultValue || null;
       }
-    }
-  }, {
-    key: "toString",
-    value: function toString() {
-      return JSON.stringify(this.data);
     }
   }]);
 
@@ -3794,6 +3950,7 @@ var User = (function () {
 
       if (!self._blockSave) {
         self._blockSave = true;
+        self._store();
         new _request.APIRequest({
           'uri': userAPIEndpoints.save(this),
           'method': 'POST',
@@ -3805,15 +3962,14 @@ var User = (function () {
         }).then(function (result) {
           self._dirty = false;
           self._fresh = false;
+          self._blockSave = false;
           self.logger.info('saved user');
           deferred.resolve(result);
         }, function (error) {
           self._dirty = true;
+          self._blockSave = false;
           self.logger.error(error);
           deferred.reject(error);
-        }).then(function () {
-          self._blockSave = false;
-          self._store();
         });
       } else {
         self.logger.info("a save operation is already in progress for " + this + ".");
@@ -3851,8 +4007,8 @@ var User = (function () {
       return this.data.get(key, defaultValue);
     }
   }, {
-    key: "remove",
-    value: function remove(key) {
+    key: "unset",
+    value: function unset(key) {
       return this.data.unset(key);
     }
   }, {
@@ -3898,7 +4054,7 @@ var User = (function () {
     value: function fromContext(data) {
       var user = new User();
       user.id = data._id;
-      user.data = new UserData(data.data);
+      user.data = new UserData(data.data.data);
       user.push = new PushData(data.push.tokens);
       user._fresh = data._fresh;
       user._dirty = data._dirty;
@@ -3970,7 +4126,7 @@ var User = (function () {
 
 exports.User = User;
 
-},{"../push/push-token":27,"./core":12,"./logger":15,"./promise":16,"./request":17,"./settings":18,"./storage":19}],21:[function(require,module,exports){
+},{"../push/push-token":28,"./core":12,"./data-types.js":13,"./logger":16,"./promise":17,"./request":18,"./settings":19,"./storage":20}],22:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -3986,7 +4142,7 @@ if (typeof angular === 'object' && angular.module) {
   }]);
 }
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4364,7 +4520,7 @@ var Deploy = (function () {
 
 exports.Deploy = Deploy;
 
-},{"../core/core":12,"../core/logger":15,"../core/promise":16,"../core/settings":18}],23:[function(require,module,exports){
+},{"../core/core":12,"../core/logger":16,"../core/promise":17,"../core/settings":19}],24:[function(require,module,exports){
 "use strict";
 
 var _deploy = require("./deploy");
@@ -4375,7 +4531,7 @@ window.Ionic = window.Ionic || {};
 // Ionic Namespace
 Ionic.Deploy = _deploy.Deploy;
 
-},{"./deploy":22}],24:[function(require,module,exports){
+},{"./deploy":23}],25:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -4458,7 +4614,7 @@ if (typeof angular === 'object' && angular.module) {
   });
 }
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
 
 var _push = require("./push");
@@ -4472,7 +4628,7 @@ window.Ionic = window.Ionic || {};
 Ionic.Push = _push.Push;
 Ionic.PushToken = _pushToken.PushToken;
 
-},{"./push":28,"./push-token":27}],26:[function(require,module,exports){
+},{"./push":29,"./push-token":28}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4675,7 +4831,7 @@ var PushDevService = (function () {
 
 exports.PushDevService = PushDevService;
 
-},{"../core/core":12,"../core/logger":15,"../core/request":17,"../core/settings":18}],27:[function(require,module,exports){
+},{"../core/core":12,"../core/logger":16,"../core/request":18,"../core/settings":19}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4714,7 +4870,7 @@ var PushToken = (function () {
 
 exports.PushToken = PushToken;
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5139,4 +5295,4 @@ var Push = (function () {
 
 exports.Push = Push;
 
-},{"../core/app":11,"../core/core":12,"../core/logger":15,"../core/settings":18,"./push-dev":26,"./push-token":27}]},{},[16,17,14,15,19,18,12,20,11,13,10,27,26,28,25,24,22,23,21,9,8,5,7,6]);
+},{"../core/app":11,"../core/core":12,"../core/logger":16,"../core/settings":19,"./push-dev":27,"./push-token":28}]},{},[17,18,15,16,20,19,13,12,21,11,14,10,28,27,29,26,25,23,24,22,9,8,5,7,6]);

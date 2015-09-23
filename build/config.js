@@ -9,6 +9,7 @@ var src = {
     'src/core/logger.js',
     'src/core/storage.js',
     'src/core/settings.js',
+    'src/core/data-types.js',
     'src/core/core.js',
     'src/core/user.js',
     'src/core/app.js',
