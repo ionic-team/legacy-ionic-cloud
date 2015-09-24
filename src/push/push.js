@@ -157,7 +157,7 @@ export class Push {
     this.onReady(function() {
       if (self.app.devPush) {
         var IonicDevPush = new PushDevService();
-        IonicDevPush.init(self);
+        IonicDevPush.init(self, callback);
         self._blockRegistration = false;
         self._tokenReady = true;
       } else {

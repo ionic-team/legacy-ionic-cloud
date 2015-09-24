@@ -4650,6 +4650,8 @@ var _coreCore = require("../core/core");
 
 var _coreLogger = require("../core/logger");
 
+var _pushToken = require("./push-token");
+
 var settings = new _coreSettings.Settings();
 
 /**
@@ -4715,11 +4717,12 @@ var PushDevService = (function () {
      * Registers a development token with the Ionic Push service
      *
      * @param {IonicPushService} ionicPush Instantiated Push Service
+     * @param {function} callback Registration Callback
      * @return {void}
      */
   }, {
     key: "init",
-    value: function init(ionicPush) {
+    value: function init(ionicPush, callback) {
       this._push = ionicPush;
       var token = this._token;
       var self = this;
@@ -4742,10 +4745,13 @@ var PushDevService = (function () {
       new _coreRequest.APIRequest(requestOptions).then(function () {
         self.logger.info('registered with development push service', token);
         self._emitter.emit("ionic_push:token", { "token": token });
-        if (self.registerCallback) {
-          self.registerCallback({
+        if (self._push.registerCallback) {
+          self._push.registerCallback({
             "registrationId": token
           });
+        }
+        if (typeof callback === 'function') {
+          callback(new _pushToken.PushToken(self._token));
         }
         self.watch();
       }, function (error) {
@@ -4834,7 +4840,7 @@ var PushDevService = (function () {
 
 exports.PushDevService = PushDevService;
 
-},{"../core/core":12,"../core/logger":16,"../core/request":18,"../core/settings":19}],28:[function(require,module,exports){
+},{"../core/core":12,"../core/logger":16,"../core/request":18,"../core/settings":19,"./push-token":28}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5072,7 +5078,7 @@ var Push = (function () {
       this.onReady(function () {
         if (self.app.devPush) {
           var IonicDevPush = new _pushDev.PushDevService();
-          IonicDevPush.init(self);
+          IonicDevPush.init(self, callback);
           self._blockRegistration = false;
           self._tokenReady = true;
         } else {

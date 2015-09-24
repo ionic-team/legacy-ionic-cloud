@@ -2,6 +2,7 @@ import { APIRequest } from "../core/request";
 import { Settings } from "../core/settings";
 import { IonicPlatform } from "../core/core";
 import { Logger } from "../core/logger";
+import { PushToken } from "./push-token";
 
 var settings = new Settings();
 
@@ -62,9 +63,10 @@ export class PushDevService {
    * Registers a development token with the Ionic Push service
    *
    * @param {IonicPushService} ionicPush Instantiated Push Service
+   * @param {function} callback Registration Callback
    * @return {void}
    */
-  init(ionicPush) {
+  init(ionicPush, callback) {
     this._push = ionicPush;
     var token = this._token;
     var self = this;
@@ -87,10 +89,13 @@ export class PushDevService {
     new APIRequest(requestOptions).then(function() {
       self.logger.info('registered with development push service', token);
       self._emitter.emit("ionic_push:token", { "token": token });
-      if (self.registerCallback) {
-        self.registerCallback({
+      if (self._push.registerCallback) {
+        self._push.registerCallback({
           "registrationId": token
         });
+      }
+      if ((typeof callback === 'function')) {
+        callback(new PushToken(self._token));
       }
       self.watch();
     }, function(error) {
