@@ -98,7 +98,10 @@ class PushData {
     }
 
     if (platform === null || !this.tokens.hasOwnProperty(platform)) {
-      this.logger.info('cannot determine the token platform. Are you running on an Android or iOS device?');
+      // only log a message if this isn't a dev token
+      if (token.slice(0,3) !== "DEV") {
+        this.logger.info('cannot determine the token platform. Are you running on an Android or iOS device?');
+      }
       return false;
     }
 

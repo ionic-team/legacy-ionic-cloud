@@ -2718,17 +2718,23 @@ var IonicPlatform = (function () {
     this._pluginsReady = false;
     this.emitter = IonicPlatform.getEmitter();
 
-    try {
-      document.addEventListener("deviceready", function () {
-        self.logger.info('plugins are ready');
-        self._pluginsReady = true;
-        self.emitter.emit('ionic_core:plugins_ready');
-      }, false);
-    } catch (e) {
-      self.logger.info('unable to listen for cordova plugins to be ready');
-    }
-
     this._bootstrap();
+
+    if (self.cordovaPlatformUnknown) {
+      self.logger.info('attempting to mock plugins');
+      self._pluginsReady = true;
+      self.emitter.emit('ionic_core:plugins_ready');
+    } else {
+      try {
+        document.addEventListener("deviceready", function () {
+          self.logger.info('plugins are ready');
+          self._pluginsReady = true;
+          self.emitter.emit('ionic_core:plugins_ready');
+        }, false);
+      } catch (e) {
+        self.logger.info('unable to listen for cordova plugins to be ready');
+      }
+    }
   }
 
   _createClass(IonicPlatform, [{
@@ -2791,6 +2797,7 @@ var IonicPlatform = (function () {
             break;
 
           case 'unknown':
+            self.cordovaPlatformUnknown = true;
             return false;
 
           default:
@@ -3753,7 +3760,10 @@ var PushData = (function () {
       }
 
       if (platform === null || !this.tokens.hasOwnProperty(platform)) {
-        this.logger.info('cannot determine the token platform. Are you running on an Android or iOS device?');
+        // only log a message if this isn't a dev token
+        if (token.slice(0, 3) !== "DEV") {
+          this.logger.info('cannot determine the token platform. Are you running on an Android or iOS device?');
+        }
         return false;
       }
 
@@ -4989,10 +4999,7 @@ var Push = (function () {
   _createClass(Push, [{
     key: "init",
     value: function init(config) {
-      var PushPlugin = this._getPushPlugin();
-      if (!PushPlugin) {
-        return false;
-      }
+      this._getPushPlugin();
       if (typeof config === 'undefined') {
         config = {};
       }

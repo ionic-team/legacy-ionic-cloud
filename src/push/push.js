@@ -88,8 +88,7 @@ export class Push {
    * @return {Push} returns the called Push instantiation
    */
   init(config) {
-    var PushPlugin = this._getPushPlugin();
-    if (!PushPlugin) { return false; }
+    this._getPushPlugin();
     if (typeof config === 'undefined') { config = {}; }
     if (typeof config !== 'object') {
       this.logger.error('init() requires a valid config object.');
