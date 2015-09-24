@@ -68,7 +68,7 @@ export class Push {
     this._emitter = IonicPlatform.getEmitter();
     if (config !== DEFER_INIT) {
       var self = this;
-      Ionic.Core.getMain().onReady(function() {
+      IonicPlatform.getMain().onReady(function() {
         self.init(config);
       });
     }

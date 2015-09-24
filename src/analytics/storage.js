@@ -1,11 +1,12 @@
 import { Settings } from "../core/settings";
+import { IonicPlatform } from "../core/core";
 
 var settings = new Settings();
 
 export class BucketStorage {
   constructor(name) {
     this.name = name;
-    this.baseStorage = Ionic.IO.Core.getStorage();
+    this.baseStorage = IonicPlatform.getStorage();
   }
 
   get(key) {

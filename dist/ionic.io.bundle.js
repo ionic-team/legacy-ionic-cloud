@@ -2543,17 +2543,19 @@ var DOMSerializer = (function () {
 exports.DOMSerializer = DOMSerializer;
 
 },{}],9:[function(require,module,exports){
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _coreSettings = require("../core/settings");
+
+var _coreCore = require("../core/core");
 
 var settings = new _coreSettings.Settings();
 
@@ -2562,21 +2564,21 @@ var BucketStorage = (function () {
     _classCallCheck(this, BucketStorage);
 
     this.name = name;
-    this.baseStorage = Ionic.IO.Core.getStorage();
+    this.baseStorage = _coreCore.IonicPlatform.getStorage();
   }
 
   _createClass(BucketStorage, [{
-    key: 'get',
+    key: "get",
     value: function get(key) {
       return this.baseStorage.retrieveObject(this.scopedKey(key));
     }
   }, {
-    key: 'set',
+    key: "set",
     value: function set(key, value) {
       return this.baseStorage.storeObject(this.scopedKey(key), value);
     }
   }, {
-    key: 'scopedKey',
+    key: "scopedKey",
     value: function scopedKey(key) {
       return this.name + '_' + key + '_' + settings.get('app_id');
     }
@@ -2587,7 +2589,7 @@ var BucketStorage = (function () {
 
 exports.BucketStorage = BucketStorage;
 
-},{"../core/settings":19}],10:[function(require,module,exports){
+},{"../core/core":12,"../core/settings":19}],10:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -2702,6 +2704,7 @@ var _storage = require("./storage");
 var _logger = require("./logger");
 
 var eventEmitter = new _events.EventEmitter();
+var mainStorage = new _storage.Storage();
 
 var IonicPlatform = (function () {
   function IonicPlatform() {
@@ -2843,7 +2846,7 @@ var IonicPlatform = (function () {
   }, {
     key: "getStorage",
     value: function getStorage() {
-      return _storage.Storage;
+      return mainStorage;
     }
   }, {
     key: "getMain",
@@ -4198,7 +4201,7 @@ var Deploy = (function () {
     this._channelTag = 'production';
     this._emitter = _coreCore.IonicPlatform.getEmitter();
     this.logger.info("init");
-    this._emitter.on('ionic_core:ready', function () {
+    _coreCore.IonicPlatform.getMain().onReady(function () {
       self._isReady = true;
       self._emitter.emit('ionic_deploy:ready');
     });
@@ -4957,7 +4960,7 @@ var Push = (function () {
     this._emitter = _coreCore.IonicPlatform.getEmitter();
     if (config !== DEFER_INIT) {
       var self = this;
-      Ionic.Core.getMain().onReady(function () {
+      _coreCore.IonicPlatform.getMain().onReady(function () {
         self.init(config);
       });
     }

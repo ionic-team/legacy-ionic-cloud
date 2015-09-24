@@ -37,7 +37,7 @@ export class Deploy {
     this._channelTag = 'production';
     this._emitter = IonicPlatform.getEmitter();
     this.logger.info("init");
-    this._emitter.on('ionic_core:ready', function() {
+    IonicPlatform.getMain().onReady(function() {
       self._isReady = true;
       self._emitter.emit('ionic_deploy:ready');
     });
