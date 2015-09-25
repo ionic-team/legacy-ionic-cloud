@@ -87,13 +87,9 @@ export class PushDevService {
     };
 
     new APIRequest(requestOptions).then(function() {
+      var data = { "registrationId": token };
       self.logger.info('registered with development push service', token);
-      self._emitter.emit("ionic_push:token", { "token": token });
-      if (self._push.registerCallback) {
-        self._push.registerCallback({
-          "registrationId": token
-        });
-      }
+      self._emitter.emit("ionic_push:token", data);
       if ((typeof callback === 'function')) {
         callback(new PushToken(self._token));
       }
@@ -132,15 +128,7 @@ export class PushDevService {
         };
 
         console.warn("Ionic Push: Development Push received. Development pushes will not contain payload data.");
-
-        var callbackRet = self._push.notificationCallback && self._push.notificationCallback(notification);
-        // If the custom handler returns false, don't handle this at all in our code
-        if (callbackRet === false) {
-          return;
-        }
-
-        // If the user callback did not return false, prompt an alert to show the notification
-        alert(notification.message);
+        self._emitter.emit("ionic_push:notification", notification);
       }
     }, function(error) {
       self.logger.error("unable to check for development pushes.", error);

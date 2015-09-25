@@ -4753,13 +4753,9 @@ var PushDevService = (function () {
       };
 
       new _coreRequest.APIRequest(requestOptions).then(function () {
+        var data = { "registrationId": token };
         self.logger.info('registered with development push service', token);
-        self._emitter.emit("ionic_push:token", { "token": token });
-        if (self._push.registerCallback) {
-          self._push.registerCallback({
-            "registrationId": token
-          });
-        }
+        self._emitter.emit("ionic_push:token", data);
         if (typeof callback === 'function') {
           callback(new _pushToken.PushToken(self._token));
         }
@@ -4800,15 +4796,7 @@ var PushDevService = (function () {
           };
 
           console.warn("Ionic Push: Development Push received. Development pushes will not contain payload data.");
-
-          var callbackRet = self._push.notificationCallback && self._push.notificationCallback(notification);
-          // If the custom handler returns false, don't handle this at all in our code
-          if (callbackRet === false) {
-            return;
-          }
-
-          // If the user callback did not return false, prompt an alert to show the notification
-          alert(notification.message);
+          self._emitter.emit("ionic_push:notification", notification);
         }
       }, function (error) {
         self.logger.error("unable to check for development pushes.", error);
@@ -5085,6 +5073,8 @@ var Push = (function () {
       this.onReady(function () {
         if (self.app.devPush) {
           var IonicDevPush = new _pushDev.PushDevService();
+          self._debugCallbackRegistration();
+          self._callbackRegistration();
           IonicDevPush.init(self, callback);
           self._blockRegistration = false;
           self._tokenReady = true;
@@ -5188,6 +5178,74 @@ var Push = (function () {
       this.errorCallback = callback;
       return true;
     }
+  }, {
+    key: "_debugRegistrationCallback",
+    value: function _debugRegistrationCallback() {
+      var self = this;
+      function callback(data) {
+        self._token = new _pushToken.PushToken(data.registrationId);
+        self.logger.info('(debug) device token registered: ' + self._token);
+      }
+      return callback;
+    }
+  }, {
+    key: "_debugNotificationCallback",
+    value: function _debugNotificationCallback() {
+      var self = this;
+      function callback(notification) {
+        self._processNotification(notification);
+        self.logger.info('(debug) notification received: ' + JSON.stringify(self._notification));
+        if (!self.notificationCallback && self.app.devPush) {
+          alert(self._notification);
+        }
+      }
+      return callback;
+    }
+  }, {
+    key: "_debugErrorCallback",
+    value: function _debugErrorCallback() {
+      var self = this;
+      function callback(err) {
+        self.logger.error('(debug) unexpected error occured.');
+        self.logger.error(err);
+      }
+      return callback;
+    }
+  }, {
+    key: "_registerCallback",
+    value: function _registerCallback() {
+      var self = this;
+      function callback(data) {
+        self._token = new _pushToken.PushToken(data.registrationId);
+        if (self.registerCallback) {
+          return self.registerCallback(self._token);
+        }
+      }
+      return callback;
+    }
+  }, {
+    key: "_notificationCallback",
+    value: function _notificationCallback() {
+      var self = this;
+      function callback(notification) {
+        self._processNotification(notification);
+        if (self.notificationCallback) {
+          return self.notificationCallback(notification);
+        }
+      }
+      return callback;
+    }
+  }, {
+    key: "_errorCallback",
+    value: function _errorCallback() {
+      var self = this;
+      function callback(err) {
+        if (self.errorCallback) {
+          return self.errorCallback(err);
+        }
+      }
+      return callback;
+    }
 
     /**
      * Registers the default debug callbacks with the PushPlugin when debug is enabled
@@ -5198,22 +5256,16 @@ var Push = (function () {
   }, {
     key: "_debugCallbackRegistration",
     value: function _debugCallbackRegistration() {
-      var self = this;
       if (this._config.debug) {
-        this._plugin.on('registration', function (data) {
-          self._token = new _pushToken.PushToken(data.registrationId);
-          self.logger.info('device token registered', self._token);
-        });
-
-        this._plugin.on('notification', function (notification) {
-          self._processNotification(notification);
-          self.logger.info('notification received', self._notification);
-        });
-
-        this._plugin.on('error', function (err) {
-          self.logger.error('unexpected error occured.');
-          self.logger.error(err);
-        });
+        if (!this.app.devPush) {
+          this._plugin.on('registration', this._debugRegistrationCallback());
+          this._plugin.on('notification', this._debugNotificationCallback());
+          this._plugin.on('error', this._debugErrorCallback());
+        } else {
+          this._emitter.on('ionic_push:token', this._debugRegistrationCallback());
+          this._emitter.on('ionic_push:notification', this._debugNotificationCallback());
+          this._emitter.on('ionic_push:error', this._debugErrorCallback());
+        }
       }
     }
 
@@ -5225,26 +5277,15 @@ var Push = (function () {
   }, {
     key: "_callbackRegistration",
     value: function _callbackRegistration() {
-      var self = this;
-      this._plugin.on('registration', function (data) {
-        self._token = new _pushToken.PushToken(data.registrationId);
-        if (self.registerCallback) {
-          return self.registerCallback(data);
-        }
-      });
-
-      this._plugin.on('notification', function (notification) {
-        self._processNotification(notification);
-        if (self.notificationCallback) {
-          return self.notificationCallback(notification);
-        }
-      });
-
-      this._plugin.on('error', function () {
-        if (self.errorCallback) {
-          return self.errorCallback();
-        }
-      });
+      if (!this.app.devPush) {
+        this._plugin.on('registration', this._registerCallback());
+        this._plugin.on('notification', this._notificationCallback());
+        this._plugin.on('error', this._errorCallback());
+      } else {
+        this._emitter.on('ionic_push:token', this._registerCallback());
+        this._emitter.on('ionic_push:notification', this._notificationCallback());
+        this._emitter.on('ionic_push:error', this._errorCallback());
+      }
     }
 
     /**
