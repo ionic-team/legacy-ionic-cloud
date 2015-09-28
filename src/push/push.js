@@ -4,6 +4,7 @@ import { IonicPlatform } from "../core/core";
 import { Logger } from "../core/logger";
 
 import { PushToken } from "./push-token";
+import { PushMessage } from "./push-message";
 import { PushDevService } from "./push-dev";
 
 var settings = new Settings();
@@ -263,9 +264,10 @@ export class Push {
     var self = this;
     function callback(notification) {
       self._processNotification(notification);
-      self.logger.info('(debug) notification received: ' + JSON.stringify(self._notification));
+      var message = PushMessage.fromPluginJSON(notification);
+      self.logger.info('(debug) notification received: ' + message);
       if (!self.notificationCallback && self.app.devPush) {
-        alert(self._notification);
+        alert(message.text);
       }
     }
     return callback;
@@ -295,8 +297,9 @@ export class Push {
     var self = this;
     function callback(notification) {
       self._processNotification(notification);
+      var message = PushMessage.fromPluginJSON(notification);
       if (self.notificationCallback) {
-        return self.notificationCallback(notification);
+        return self.notificationCallback(message);
       }
     }
     return callback;

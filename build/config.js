@@ -19,6 +19,7 @@ var src = {
 
   'push': [
     'src/push/push-token.js',
+    'src/push/push-message.js',
     'src/push/push-dev.js',
     'src/push/push.js',
     'src/push/es5.js',

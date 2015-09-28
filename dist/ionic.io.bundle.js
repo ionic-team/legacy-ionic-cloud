@@ -3244,6 +3244,17 @@ var Logger = (function () {
       }
     }
   }, {
+    key: "warn",
+    value: function warn(data) {
+      if (!this._silence) {
+        if (this._prefix) {
+          console.log(this._prefix, data);
+        } else {
+          console.log(data);
+        }
+      }
+    }
+  }, {
     key: "error",
     value: function error(data) {
       if (this._prefix) {
@@ -4139,7 +4150,7 @@ var User = (function () {
 
 exports.User = User;
 
-},{"../push/push-token":28,"./core":12,"./data-types.js":13,"./logger":16,"./promise":17,"./request":18,"./settings":19,"./storage":20}],22:[function(require,module,exports){
+},{"../push/push-token":29,"./core":12,"./data-types.js":13,"./logger":16,"./promise":17,"./request":18,"./settings":19,"./storage":20}],22:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -4641,7 +4652,7 @@ window.Ionic = window.Ionic || {};
 Ionic.Push = _push.Push;
 Ionic.PushToken = _pushToken.PushToken;
 
-},{"./push":29,"./push-token":28}],27:[function(require,module,exports){
+},{"./push":30,"./push-token":29}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4661,6 +4672,8 @@ var _coreCore = require("../core/core");
 var _coreLogger = require("../core/logger");
 
 var _pushToken = require("./push-token");
+
+var _pushMessage = require("./push-message");
 
 var settings = new _coreSettings.Settings();
 
@@ -4790,13 +4803,13 @@ var PushDevService = (function () {
 
       new _coreRequest.APIRequest(requestOptions).then(function (result) {
         if (result.payload.messages.length > 0) {
-          var notification = {
+          var message = _pushMessage.PushMessage.fromPluginJSON({
             'message': result.payload.messages[0],
             'title': 'DEVELOPMENT PUSH'
-          };
+          });
 
-          console.warn("Ionic Push: Development Push received. Development pushes will not contain payload data.");
-          self._emitter.emit("ionic_push:notification", notification);
+          self.logger.warn("Ionic Push: Development Push received. Development pushes will not contain payload data.");
+          self._emitter.emit("ionic_push:notification", message);
         }
       }, function (error) {
         self.logger.error("unable to check for development pushes.", error);
@@ -4838,7 +4851,115 @@ var PushDevService = (function () {
 
 exports.PushDevService = PushDevService;
 
-},{"../core/core":12,"../core/logger":16,"../core/request":18,"../core/settings":19,"./push-token":28}],28:[function(require,module,exports){
+},{"../core/core":12,"../core/logger":16,"../core/request":18,"../core/settings":19,"./push-message":28,"./push-token":29}],28:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var PushMessageAppStatus = (function () {
+  function PushMessageAppStatus() {
+    _classCallCheck(this, PushMessageAppStatus);
+
+    this.asleep = false;
+    this.closed = false;
+  }
+
+  _createClass(PushMessageAppStatus, [{
+    key: 'wasAsleep',
+    get: function get() {
+      return this.asleep;
+    }
+  }, {
+    key: 'wasClosed',
+    get: function get() {
+      return this.closed;
+    }
+  }]);
+
+  return PushMessageAppStatus;
+})();
+
+var PushMessage = (function () {
+  function PushMessage(raw) {
+    _classCallCheck(this, PushMessage);
+
+    this._raw = raw || {};
+
+    if (!this._raw.additionalData) {
+      // this should only hit if we are serving up a development push
+      this._raw.additionalData = {
+        'coldstart': false,
+        'foreground': true
+      };
+    }
+
+    this._payload = null;
+    this.app = null;
+    this.text = null;
+    this.title = null;
+    this.count = null;
+    this.sound = null;
+    this.image = null;
+  }
+
+  _createClass(PushMessage, [{
+    key: 'processRaw',
+    value: function processRaw() {
+      this.text = this._raw.message || null;
+      this.title = this._raw.title || null;
+      this.count = this._raw.count || null;
+      this.sound = this._raw.sound || null;
+      this.image = this._raw.image || null;
+      this.app = new PushMessageAppStatus();
+
+      if (!this._raw.additionalData.foreground) {
+        this.app.asleep = true;
+      }
+
+      if (this._raw.additionalData.coldstart) {
+        this.app.closed = true;
+      }
+
+      if (this._raw.additionalData.payload) {
+        this._payload = this._raw.additionalData.payload;
+      }
+    }
+  }, {
+    key: 'getRawVersion',
+    value: function getRawVersion() {
+      return this._raw;
+    }
+  }, {
+    key: 'toString',
+    value: function toString() {
+      return '<PushMessage [\'' + this.title + '\']>';
+    }
+  }, {
+    key: 'payload',
+    get: function get() {
+      return this._payload;
+    }
+  }], [{
+    key: 'fromPluginJSON',
+    value: function fromPluginJSON(json) {
+      var message = new PushMessage(json);
+      message.processRaw();
+      return message;
+    }
+  }]);
+
+  return PushMessage;
+})();
+
+exports.PushMessage = PushMessage;
+
+},{}],29:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4877,7 +4998,7 @@ var PushToken = (function () {
 
 exports.PushToken = PushToken;
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4897,6 +5018,8 @@ var _coreCore = require("../core/core");
 var _coreLogger = require("../core/logger");
 
 var _pushToken = require("./push-token");
+
+var _pushMessage = require("./push-message");
 
 var _pushDev = require("./push-dev");
 
@@ -5194,9 +5317,10 @@ var Push = (function () {
       var self = this;
       function callback(notification) {
         self._processNotification(notification);
-        self.logger.info('(debug) notification received: ' + JSON.stringify(self._notification));
+        var message = _pushMessage.PushMessage.fromPluginJSON(notification);
+        self.logger.info('(debug) notification received: ' + message);
         if (!self.notificationCallback && self.app.devPush) {
-          alert(self._notification);
+          alert(message.text);
         }
       }
       return callback;
@@ -5229,8 +5353,9 @@ var Push = (function () {
       var self = this;
       function callback(notification) {
         self._processNotification(notification);
+        var message = _pushMessage.PushMessage.fromPluginJSON(notification);
         if (self.notificationCallback) {
-          return self.notificationCallback(notification);
+          return self.notificationCallback(message);
         }
       }
       return callback;
@@ -5352,4 +5477,4 @@ var Push = (function () {
 
 exports.Push = Push;
 
-},{"../core/app":11,"../core/core":12,"../core/logger":16,"../core/settings":19,"./push-dev":27,"./push-token":28}]},{},[17,18,15,16,20,19,13,12,21,11,14,10,28,27,29,26,25,23,24,22,9,8,5,7,6]);
+},{"../core/app":11,"../core/core":12,"../core/logger":16,"../core/settings":19,"./push-dev":27,"./push-message":28,"./push-token":29}]},{},[17,18,15,16,20,19,13,12,21,11,14,10,29,28,27,30,26,25,23,24,22,9,8,5,7,6]);

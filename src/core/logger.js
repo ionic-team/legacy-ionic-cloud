@@ -23,6 +23,16 @@ export class Logger {
     }
   }
 
+  warn(data) {
+    if (!this._silence) {
+      if (this._prefix) {
+        console.log(this._prefix, data);
+      } else {
+        console.log(data);
+      }
+    }
+  }
+
   error(data) {
     if (this._prefix) {
       console.error(this._prefix, data);
