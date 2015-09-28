@@ -3902,6 +3902,14 @@ var User = (function () {
       return this._fresh;
     }
   }, {
+    key: "isValid",
+    value: function isValid() {
+      if (this.id) {
+        return true;
+      }
+      return false;
+    }
+  }, {
     key: "getAPIFormat",
     value: function getAPIFormat() {
       var data = this.data.data;
@@ -3930,7 +3938,7 @@ var User = (function () {
       var self = this;
       var deferred = new _promise.DeferredPromise();
 
-      if (!self.valid) {
+      if (!self.isValid()) {
         return false;
       }
 
@@ -4034,14 +4042,6 @@ var User = (function () {
     key: "unset",
     value: function unset(key) {
       return this.data.unset(key);
-    }
-  }, {
-    key: "valid",
-    get: function get() {
-      if (this.id) {
-        return true;
-      }
-      return false;
     }
   }, {
     key: "id",

@@ -283,7 +283,7 @@ export class User {
     return this._fresh;
   }
 
-  get valid() {
+  isValid() {
     if (this.id) {
       return true;
     }
@@ -323,7 +323,7 @@ export class User {
     var self = this;
     var deferred = new DeferredPromise();
 
-    if (!self.valid) {
+    if (!self.isValid()) {
       return false;
     }
 
