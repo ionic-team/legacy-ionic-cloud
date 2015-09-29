@@ -3542,6 +3542,12 @@ var Storage = (function () {
       // Then store it in the object cache
       objectCache[key] = object;
     }
+  }, {
+    key: 'deleteObject',
+    value: function deleteObject(key) {
+      this.strategy.remove(key);
+      delete objectCache[key];
+    }
 
     /**
      * Either retrieves the cached copy of an object,
@@ -3689,6 +3695,11 @@ var UserContext = (function () {
   }
 
   _createClass(UserContext, null, [{
+    key: "delete",
+    value: function _delete() {
+      storage.deleteObject(UserContext.label);
+    }
+  }, {
     key: "store",
     value: function store() {
       storage.storeObject(UserContext.label, User.current());
@@ -3944,6 +3955,7 @@ var User = (function () {
 
       if (!self._blockDelete) {
         self._blockDelete = true;
+        self._delete();
         new _request.APIRequest({
           'uri': userAPIEndpoints.remove(this),
           'method': 'DELETE',
@@ -3972,6 +3984,13 @@ var User = (function () {
     value: function _store() {
       if (this === User.current()) {
         UserContext.store();
+      }
+    }
+  }, {
+    key: "_delete",
+    value: function _delete() {
+      if (this === User.current()) {
+        UserContext["delete"]();
       }
     }
   }, {
@@ -4185,6 +4204,8 @@ var _coreLogger = require("../core/logger");
 
 var _coreCore = require("../core/core");
 
+var _coreEvents = require("../core/events");
+
 var settings = new _coreSettings.Settings();
 
 var NO_PLUGIN = "IONIC_DEPLOY_MISSING_PLUGIN";
@@ -4220,7 +4241,7 @@ var Deploy = (function () {
     this._plugin = false;
     this._isReady = false;
     this._channelTag = 'production';
-    this._emitter = _coreCore.IonicPlatform.getEmitter();
+    this._emitter = new _coreEvents.EventEmitter();
     this.logger.info("init");
     _coreCore.IonicPlatform.getMain().onReady(function () {
       self._isReady = true;
@@ -4544,7 +4565,7 @@ var Deploy = (function () {
 
 exports.Deploy = Deploy;
 
-},{"../core/core":12,"../core/logger":16,"../core/promise":17,"../core/settings":19}],24:[function(require,module,exports){
+},{"../core/core":12,"../core/events":15,"../core/logger":16,"../core/promise":17,"../core/settings":19}],24:[function(require,module,exports){
 "use strict";
 
 var _deploy = require("./deploy");
@@ -4628,9 +4649,9 @@ if (typeof angular === 'object' && angular.module) {
       IonicAngularPush = new Ionic.Push("DEFER_INIT");
     }
     return IonicAngularPush;
-  }]).run(function ($ionicPushAction) {
+  }]).run(function ($ionicPush, $ionicPushAction) {
     // This is what kicks off the state redirection when a push notificaiton has the relevant details
-    Ionic.IO.Core.getEmitter().on('ionic_push:processNotification', function (notification) {
+    $ionicPush._emitter.on('ionic_push:processNotification', function (notification) {
       if (notification.additionalData.foreground === false) {
         $ionicPushAction.notificationNavigation(notification);
       }
@@ -4666,8 +4687,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var _coreRequest = require("../core/request");
 
 var _coreSettings = require("../core/settings");
-
-var _coreCore = require("../core/core");
 
 var _coreLogger = require("../core/logger");
 
@@ -4714,7 +4733,6 @@ var PushDevService = (function () {
     this._serviceHost = settings.getURL('push');
     this._token = false;
     this._watch = false;
-    this._emitter = _coreCore.IonicPlatform.getEmitter();
   }
 
   /**
@@ -4747,6 +4765,7 @@ var PushDevService = (function () {
     key: "init",
     value: function init(ionicPush, callback) {
       this._push = ionicPush;
+      this._emitter = this._push._emitter;
       var token = this._token;
       var self = this;
       if (!token) {
@@ -4851,7 +4870,7 @@ var PushDevService = (function () {
 
 exports.PushDevService = PushDevService;
 
-},{"../core/core":12,"../core/logger":16,"../core/request":18,"../core/settings":19,"./push-message":28,"./push-token":29}],28:[function(require,module,exports){
+},{"../core/logger":16,"../core/request":18,"../core/settings":19,"./push-message":28,"./push-token":29}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5017,6 +5036,8 @@ var _coreCore = require("../core/core");
 
 var _coreLogger = require("../core/logger");
 
+var _coreEvents = require("../core/events");
+
 var _pushToken = require("./push-token");
 
 var _pushMessage = require("./push-message");
@@ -5084,7 +5105,7 @@ var Push = (function () {
     this._isReady = false;
     this._tokenReady = false;
     this._blockRegistration = false;
-    this._emitter = _coreCore.IonicPlatform.getEmitter();
+    this._emitter = new _coreEvents.EventEmitter();
     if (config !== DEFER_INIT) {
       var self = this;
       _coreCore.IonicPlatform.getMain().onReady(function () {
@@ -5477,4 +5498,4 @@ var Push = (function () {
 
 exports.Push = Push;
 
-},{"../core/app":11,"../core/core":12,"../core/logger":16,"../core/settings":19,"./push-dev":27,"./push-message":28,"./push-token":29}]},{},[17,18,15,16,20,19,13,12,21,11,14,10,29,28,27,30,26,25,23,24,22,9,8,5,7,6]);
+},{"../core/app":11,"../core/core":12,"../core/events":15,"../core/logger":16,"../core/settings":19,"./push-dev":27,"./push-message":28,"./push-token":29}]},{},[17,18,15,16,20,19,13,12,21,11,14,10,29,28,27,30,26,25,23,24,22,9,8,5,7,6]);

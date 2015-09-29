@@ -1,6 +1,5 @@
 import { APIRequest } from "../core/request";
 import { Settings } from "../core/settings";
-import { IonicPlatform } from "../core/core";
 import { Logger } from "../core/logger";
 import { PushToken } from "./push-token";
 import { PushMessage } from "./push-message";
