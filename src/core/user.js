@@ -33,6 +33,10 @@ class UserContext {
     return "ionic_io_user_" + settings.get('app_id');
   }
 
+  static delete() {
+    storage.deleteObject(UserContext.label);
+  }
+
   static store() {
     storage.storeObject(UserContext.label, User.current());
   }
@@ -329,6 +333,7 @@ export class User {
 
     if (!self._blockDelete) {
       self._blockDelete = true;
+      self._delete();
       new APIRequest({
         'uri': userAPIEndpoints.remove(this),
         'method': 'DELETE',
@@ -356,6 +361,12 @@ export class User {
   _store() {
     if (this === User.current()) {
       UserContext.store();
+    }
+  }
+
+  _delete() {
+    if (this === User.current()) {
+      UserContext.delete();
     }
   }
 

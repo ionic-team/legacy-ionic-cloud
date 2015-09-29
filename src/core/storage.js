@@ -41,6 +41,11 @@ export class Storage {
     objectCache[key] = object;
   }
 
+  deleteObject(key) {
+    this.strategy.remove(key);
+    delete objectCache[key];
+  }
+
   /**
    * Either retrieves the cached copy of an object,
    * or the object itself from localStorage.
