@@ -381,7 +381,7 @@ export class Push {
       self.logger.info('something went wrong looking for the PushNotification plugin');
     }
 
-    if (!PushPlugin && (IonicPlatform.isIOSDevice() || IonicPlatform.isAndroidDevice()) ) {
+    if (!self.app.devPush && !PushPlugin && (IonicPlatform.isIOSDevice() || IonicPlatform.isAndroidDevice()) ) {
       self.logger.error("PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?");
     }
     return PushPlugin;
