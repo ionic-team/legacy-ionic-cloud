@@ -60,7 +60,7 @@ if ((typeof angular === 'object') && angular.module) {
     return IonicAngularPush;
   }])
 
-  .run(function($ionicPush, $ionicPushAction) {
+  .run(['$ionicPush', '$ionicPushAction', function($ionicPush, $ionicPushAction) {
     // This is what kicks off the state redirection when a push notificaiton has the relevant details
     $ionicPush._emitter.on('ionic_push:processNotification', function(notification) {
       if (notification.additionalData.foreground === false) {
@@ -68,5 +68,5 @@ if ((typeof angular === 'object') && angular.module) {
       }
     });
 
-  });
+  }]);
 }
