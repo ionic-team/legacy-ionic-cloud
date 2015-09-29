@@ -2,6 +2,7 @@ import { App } from "../core/app";
 import { Settings } from "../core/settings";
 import { IonicPlatform } from "../core/core";
 import { Logger } from "../core/logger";
+import { EventEmitter } from "../core/events";
 
 import { PushToken } from "./push-token";
 import { PushMessage } from "./push-message";
@@ -66,7 +67,7 @@ export class Push {
     this._isReady = false;
     this._tokenReady = false;
     this._blockRegistration = false;
-    this._emitter = IonicPlatform.getEmitter();
+    this._emitter = new EventEmitter();
     if (config !== DEFER_INIT) {
       var self = this;
       IonicPlatform.getMain().onReady(function() {

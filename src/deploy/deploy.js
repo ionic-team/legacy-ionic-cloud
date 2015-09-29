@@ -2,6 +2,7 @@ import { Settings } from "../core/settings";
 import { DeferredPromise } from "../core/promise";
 import { Logger } from "../core/logger";
 import { IonicPlatform } from "../core/core";
+import { EventEmitter } from "../core/events";
 
 var settings = new Settings();
 
@@ -35,7 +36,7 @@ export class Deploy {
     this._plugin = false;
     this._isReady = false;
     this._channelTag = 'production';
-    this._emitter = IonicPlatform.getEmitter();
+    this._emitter = new EventEmitter();
     this.logger.info("init");
     IonicPlatform.getMain().onReady(function() {
       self._isReady = true;

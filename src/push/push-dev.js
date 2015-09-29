@@ -41,7 +41,6 @@ export class PushDevService {
     this._serviceHost = settings.getURL('push');
     this._token = false;
     this._watch = false;
-    this._emitter = IonicPlatform.getEmitter();
   }
 
   /**
@@ -69,6 +68,7 @@ export class PushDevService {
    */
   init(ionicPush, callback) {
     this._push = ionicPush;
+    this._emitter = this._push._emitter;
     var token = this._token;
     var self = this;
     if (!token) {

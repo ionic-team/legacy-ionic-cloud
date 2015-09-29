@@ -60,9 +60,9 @@ if ((typeof angular === 'object') && angular.module) {
     return IonicAngularPush;
   }])
 
-  .run(function($ionicPushAction) {
+  .run(function($ionicPush, $ionicPushAction) {
     // This is what kicks off the state redirection when a push notificaiton has the relevant details
-    Ionic.IO.Core.getEmitter().on('ionic_push:processNotification', function(notification) {
+    $ionicPush._emitter.on('ionic_push:processNotification', function(notification) {
       if (notification.additionalData.foreground === false) {
         $ionicPushAction.notificationNavigation(notification);
       }
