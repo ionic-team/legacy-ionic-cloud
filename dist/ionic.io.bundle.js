@@ -3396,15 +3396,15 @@ var APIRequest = (function (_Request) {
 exports.APIRequest = APIRequest;
 
 },{"./promise":17,"browser-request":1}],19:[function(require,module,exports){
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var BaseSettings = (function () {
   function BaseSettings() {
@@ -3415,18 +3415,18 @@ var BaseSettings = (function () {
   }
 
   _createClass(BaseSettings, [{
-    key: 'factory',
+    key: "factory",
     value: function factory(name, func) {
       this._settings = func();
       return this;
     }
   }, {
-    key: 'get',
+    key: "get",
     value: function get(name) {
       return this._settings.get(name);
     }
   }, {
-    key: 'finish',
+    key: "finish",
     value: function finish() {
       return this;
     }
@@ -3436,7 +3436,7 @@ var BaseSettings = (function () {
 })();
 
 var temp = new BaseSettings().factory('$ionicCoreSettings', function () {
-  'IONIC_SETTINGS_STRING_START';'IONIC_SETTINGS_STRING_END';
+  "IONIC_SETTINGS_STRING_START";"IONIC_SETTINGS_STRING_END";
 }).finish();
 
 var Settings = (function () {
@@ -3455,12 +3455,12 @@ var Settings = (function () {
   }
 
   _createClass(Settings, [{
-    key: 'get',
+    key: "get",
     value: function get(name) {
       return temp.get(name);
     }
   }, {
-    key: 'getURL',
+    key: "getURL",
     value: function getURL(name) {
       if (this._devLocations[name]) {
         return this._devLocations[name];

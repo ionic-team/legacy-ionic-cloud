@@ -20,7 +20,7 @@ class BaseSettings {
 }
 
 var temp = new BaseSettings().factory('$ionicCoreSettings', function() {
-  'IONIC_SETTINGS_STRING_START';'IONIC_SETTINGS_STRING_END';
+  "IONIC_SETTINGS_STRING_START";"IONIC_SETTINGS_STRING_END";
 })
 
 .finish();
