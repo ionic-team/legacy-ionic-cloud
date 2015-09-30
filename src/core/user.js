@@ -20,7 +20,10 @@ var userAPIEndpoints = {
   'remove': function(userModel) {
     return userAPIBase + '/' + userModel.id;
   },
-  'save': function() {
+  'save': function(userModel) {
+    return userAPIBase + '/' + userModel.id;
+  },
+  'identify': function() {
     return userAPIBase + '/identify';
   },
   'addToken': function() {
@@ -201,6 +204,7 @@ export class User {
     this._blockDelete = false;
     this._dirty = false;
     this._fresh = true;
+    this._unset = {};
     this.push = new PushData();
     this.data = new UserData();
   }
@@ -295,12 +299,17 @@ export class User {
   }
 
   getAPIFormat() {
+    var self = this;
     var data = this.data.data;
     data.user_id = this.id; // eslint-disable-line camelcase
     data._push = {
       'android_tokens': this.push.tokens.android,
       'ios_tokens': this.push.tokens.ios
     };
+
+    if (!this.isFresh()) {
+      return { 'update': data, 'remove': self._unset };
+    }
     return data;
   }
 
@@ -377,9 +386,15 @@ export class User {
     if (!self._blockSave) {
       self._blockSave = true;
       self._store();
+      var saveURL = userAPIEndpoints.save(this);
+      var saveMethod = 'PUT';
+      if (self.isFresh()) {
+        saveURL = userAPIEndpoints.identify(this);
+        saveMethod = 'POST';
+      }
       new APIRequest({
-        'uri': userAPIEndpoints.save(this),
-        'method': 'POST',
+        'uri': saveURL,
+        'method': saveMethod,
         'headers': {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
@@ -387,6 +402,9 @@ export class User {
         'body': JSON.stringify(self.getFormat('api'))
       }).then(function(result) {
         self._dirty = false;
+        if (!self.isFresh()) {
+          self._unset = {};
+        }
         self._fresh = false;
         self._blockSave = false;
         self.logger.info('saved user');
@@ -434,6 +452,7 @@ export class User {
   }
 
   set(key, value) {
+    delete this._unset[key];
     return this.data.set(key, value);
   }
 
@@ -442,6 +461,7 @@ export class User {
   }
 
   unset(key) {
+    this._unset[key] = true;
     return this.data.unset(key);
   }
 }

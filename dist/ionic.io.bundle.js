@@ -3681,7 +3681,10 @@ var userAPIEndpoints = {
   'remove': function remove(userModel) {
     return userAPIBase + '/' + userModel.id;
   },
-  'save': function save() {
+  'save': function save(userModel) {
+    return userAPIBase + '/' + userModel.id;
+  },
+  'identify': function identify() {
     return userAPIBase + '/identify';
   },
   'addToken': function addToken() {
@@ -3898,6 +3901,7 @@ var User = (function () {
     this._blockDelete = false;
     this._dirty = false;
     this._fresh = true;
+    this._unset = {};
     this.push = new PushData();
     this.data = new UserData();
   }
@@ -3923,12 +3927,17 @@ var User = (function () {
   }, {
     key: "getAPIFormat",
     value: function getAPIFormat() {
+      var self = this;
       var data = this.data.data;
       data.user_id = this.id; // eslint-disable-line camelcase
       data._push = {
         'android_tokens': this.push.tokens.android,
         'ios_tokens': this.push.tokens.ios
       };
+
+      if (!this.isFresh()) {
+        return { 'update': data, 'remove': self._unset };
+      }
       return data;
     }
   }, {
@@ -4002,9 +4011,15 @@ var User = (function () {
       if (!self._blockSave) {
         self._blockSave = true;
         self._store();
+        var saveURL = userAPIEndpoints.save(this);
+        var saveMethod = 'PUT';
+        if (self.isFresh()) {
+          saveURL = userAPIEndpoints.identify(this);
+          saveMethod = 'POST';
+        }
         new _request.APIRequest({
-          'uri': userAPIEndpoints.save(this),
-          'method': 'POST',
+          'uri': saveURL,
+          'method': saveMethod,
           'headers': {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -4012,6 +4027,9 @@ var User = (function () {
           'body': JSON.stringify(self.getFormat('api'))
         }).then(function (result) {
           self._dirty = false;
+          if (!self.isFresh()) {
+            self._unset = {};
+          }
           self._fresh = false;
           self._blockSave = false;
           self.logger.info('saved user');
@@ -4050,6 +4068,7 @@ var User = (function () {
   }, {
     key: "set",
     value: function set(key, value) {
+      delete this._unset[key];
       return this.data.set(key, value);
     }
   }, {
@@ -4060,6 +4079,7 @@ var User = (function () {
   }, {
     key: "unset",
     value: function unset(key) {
+      this._unset[key] = true;
       return this.data.unset(key);
     }
   }, {
