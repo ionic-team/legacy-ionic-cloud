@@ -3,6 +3,8 @@ import { Settings } from "../core/settings";
 import { IonicPlatform } from "../core/core";
 import { Logger } from "../core/logger";
 import { EventEmitter } from "../core/events";
+import { APIRequest } from "../core/request";
+import { DeferredPromise } from "../core/promise";
 
 import { PushToken } from "./push-token";
 import { PushMessage } from "./push-message";
@@ -11,6 +13,13 @@ import { PushDevService } from "./push-dev";
 var settings = new Settings();
 
 var DEFER_INIT = "DEFER_INIT";
+
+var pushAPIBase = settings.getURL('api') + '/api/v1/app/' + settings.get('app_id') + '/push';
+var pushAPIEndpoints = {
+  'invalidateToken': function() {
+    return pushAPIBase + '/invalidate-token';
+  }
+};
 
 /**
  * Push Service
@@ -74,6 +83,28 @@ export class Push {
         self.init(config);
       });
     }
+  }
+
+  set token(val) {
+    var storage = IonicPlatform.getStorage();
+    if (val instanceof PushToken) {
+      storage.storeObject('ionic_io_push_token', { 'token': val.token });
+    }
+    this._token = val;
+  }
+
+  getStorageToken() {
+    var storage = IonicPlatform.getStorage();
+    var token = storage.retrieveObject('ionic_io_push_token');
+    if (token) {
+      return new PushToken(token.token);
+    }
+    return null;
+  }
+
+  clearStorageToken() {
+    var storage = IonicPlatform.getStorage();
+    storage.deleteObject('ionic_io_push_token');
   }
 
   /**
@@ -167,7 +198,7 @@ export class Push {
         self._plugin = PushNotification.init(self._config.pluginConfig);
         self._plugin.on('registration', function(data) {
           self._blockRegistration = false;
-          self._token = new PushToken(data.registrationId);
+          self.token = new PushToken(data.registrationId);
           self._tokenReady = true;
           if ((typeof callback === 'function')) {
             callback(self._token);
@@ -182,13 +213,54 @@ export class Push {
   /**
    * Invalidate the current GCM/APNS token
    *
-   * @param {function} callback Success Callback
-   * @param {function} errorCallback Error Callback
-   * @return {mixed} plugin unregister response
+   * @return {Promise} the unregister result
    */
-  unregister(callback, errorCallback) {
-    if (!this._plugin) { return false; }
-    return this._plugin.unregister(callback, errorCallback);
+  unregister() {
+    var self = this;
+    var deferred = new DeferredPromise();
+    var platform = null;
+
+    if (IonicPlatform.isAndroidDevice()) {
+      platform = 'android';
+    } else if (IonicPlatform.isIOSDevice()) {
+      platform = 'ios';
+    }
+
+    if (!platform) {
+      deferred.reject("Could not detect the platform, are you on a device?");
+    }
+
+    if (!self._blockUnregister) {
+      if (this._plugin) {
+        this._plugin.unregister(function() {}, function() {});
+      }
+      new APIRequest({
+        'uri': pushAPIEndpoints.invalidateToken(self),
+        'method': 'POST',
+        'headers': {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        'body': JSON.stringify({
+          'platform': platform,
+          'token': self.getStorageToken().token
+        })
+      }).then(function(result) {
+        self._blockUnregister = false;
+        self.logger.info('unregistered push token: ' + self.getStorageToken().token);
+        self.clearStorageToken();
+        deferred.resolve(result);
+      }, function(error) {
+        self._blockUnregister = false;
+        self.logger.error(error);
+        deferred.reject(error);
+      });
+    } else {
+      self.logger.info("an unregister operation is already in progress.");
+      deferred.reject(false);
+    }
+
+    return deferred.promise;
   }
 
   /**
@@ -255,7 +327,7 @@ export class Push {
   _debugRegistrationCallback() {
     var self = this;
     function callback(data) {
-      self._token = new PushToken(data.registrationId);
+      self.token = new PushToken(data.registrationId);
       self.logger.info('(debug) device token registered: ' + self._token);
     }
     return callback;
@@ -286,7 +358,7 @@ export class Push {
   _registerCallback() {
     var self = this;
     function callback(data) {
-      self._token = new PushToken(data.registrationId);
+      self.token = new PushToken(data.registrationId);
       if (self.registerCallback) {
         return self.registerCallback(self._token);
       }

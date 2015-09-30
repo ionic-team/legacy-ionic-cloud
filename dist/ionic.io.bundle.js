@@ -5058,6 +5058,10 @@ var _coreLogger = require("../core/logger");
 
 var _coreEvents = require("../core/events");
 
+var _coreRequest = require("../core/request");
+
+var _corePromise = require("../core/promise");
+
 var _pushToken = require("./push-token");
 
 var _pushMessage = require("./push-message");
@@ -5067,6 +5071,13 @@ var _pushDev = require("./push-dev");
 var settings = new _coreSettings.Settings();
 
 var DEFER_INIT = "DEFER_INIT";
+
+var pushAPIBase = settings.getURL('api') + '/api/v1/app/' + settings.get('app_id') + '/push';
+var pushAPIEndpoints = {
+  'invalidateToken': function invalidateToken() {
+    return pushAPIBase + '/invalidate-token';
+  }
+};
 
 /**
  * Push Service
@@ -5134,21 +5145,37 @@ var Push = (function () {
     }
   }
 
-  /**
-   * Init method to setup push behavior/options
-   *
-   * The config supports the following properties:
-   *   - debug {Boolean} Enables some extra logging as well as some default callback handlers
-   *   - onNotification {Function} Callback function that is passed the notification object
-   *   - onRegister {Function} Callback function that is passed the registration object
-   *   - onError {Function} Callback function that is passed the error object
-   *   - pluginConfig {Object} Plugin configuration: https://github.com/phonegap/phonegap-plugin-push
-   *
-   * @param {object} config Configuration object
-   * @return {Push} returns the called Push instantiation
-   */
-
   _createClass(Push, [{
+    key: "getStorageToken",
+    value: function getStorageToken() {
+      var storage = _coreCore.IonicPlatform.getStorage();
+      var token = storage.retrieveObject('ionic_io_push_token');
+      if (token) {
+        return new _pushToken.PushToken(token.token);
+      }
+      return null;
+    }
+  }, {
+    key: "clearStorageToken",
+    value: function clearStorageToken() {
+      var storage = _coreCore.IonicPlatform.getStorage();
+      storage.deleteObject('ionic_io_push_token');
+    }
+
+    /**
+     * Init method to setup push behavior/options
+     *
+     * The config supports the following properties:
+     *   - debug {Boolean} Enables some extra logging as well as some default callback handlers
+     *   - onNotification {Function} Callback function that is passed the notification object
+     *   - onRegister {Function} Callback function that is passed the registration object
+     *   - onError {Function} Callback function that is passed the error object
+     *   - pluginConfig {Object} Plugin configuration: https://github.com/phonegap/phonegap-plugin-push
+     *
+     * @param {object} config Configuration object
+     * @return {Push} returns the called Push instantiation
+     */
+  }, {
     key: "init",
     value: function init(config) {
       this._getPushPlugin();
@@ -5246,7 +5273,7 @@ var Push = (function () {
           self._plugin = PushNotification.init(self._config.pluginConfig);
           self._plugin.on('registration', function (data) {
             self._blockRegistration = false;
-            self._token = new _pushToken.PushToken(data.registrationId);
+            self.token = new _pushToken.PushToken(data.registrationId);
             self._tokenReady = true;
             if (typeof callback === 'function') {
               callback(self._token);
@@ -5261,17 +5288,56 @@ var Push = (function () {
     /**
      * Invalidate the current GCM/APNS token
      *
-     * @param {function} callback Success Callback
-     * @param {function} errorCallback Error Callback
-     * @return {mixed} plugin unregister response
+     * @return {Promise} the unregister result
      */
   }, {
     key: "unregister",
-    value: function unregister(callback, errorCallback) {
-      if (!this._plugin) {
-        return false;
+    value: function unregister() {
+      var self = this;
+      var deferred = new _corePromise.DeferredPromise();
+      var platform = null;
+
+      if (_coreCore.IonicPlatform.isAndroidDevice()) {
+        platform = 'android';
+      } else if (_coreCore.IonicPlatform.isIOSDevice()) {
+        platform = 'ios';
       }
-      return this._plugin.unregister(callback, errorCallback);
+
+      if (!platform) {
+        deferred.reject("Could not detect the platform, are you on a device?");
+      }
+
+      if (!self._blockUnregister) {
+        if (this._plugin) {
+          this._plugin.unregister(function () {}, function () {});
+        }
+        new _coreRequest.APIRequest({
+          'uri': pushAPIEndpoints.invalidateToken(self),
+          'method': 'POST',
+          'headers': {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          'body': JSON.stringify({
+            'platform': platform,
+            'token': self.getStorageToken().token
+          })
+        }).then(function (result) {
+          self._blockUnregister = false;
+          self.logger.info('unregistered push token: ' + self.getStorageToken().token);
+          self.clearStorageToken();
+          deferred.resolve(result);
+        }, function (error) {
+          self._blockUnregister = false;
+          self.logger.error(error);
+          deferred.reject(error);
+        });
+      } else {
+        self.logger.info("an unregister operation is already in progress.");
+        deferred.reject(false);
+      }
+
+      return deferred.promise;
     }
 
     /**
@@ -5347,7 +5413,7 @@ var Push = (function () {
     value: function _debugRegistrationCallback() {
       var self = this;
       function callback(data) {
-        self._token = new _pushToken.PushToken(data.registrationId);
+        self.token = new _pushToken.PushToken(data.registrationId);
         self.logger.info('(debug) device token registered: ' + self._token);
       }
       return callback;
@@ -5381,7 +5447,7 @@ var Push = (function () {
     value: function _registerCallback() {
       var self = this;
       function callback(data) {
-        self._token = new _pushToken.PushToken(data.registrationId);
+        self.token = new _pushToken.PushToken(data.registrationId);
         if (self.registerCallback) {
           return self.registerCallback(self._token);
         }
@@ -5511,6 +5577,15 @@ var Push = (function () {
         });
       }
     }
+  }, {
+    key: "token",
+    set: function set(val) {
+      var storage = _coreCore.IonicPlatform.getStorage();
+      if (val instanceof _pushToken.PushToken) {
+        storage.storeObject('ionic_io_push_token', { 'token': val.token });
+      }
+      this._token = val;
+    }
   }]);
 
   return Push;
@@ -5518,4 +5593,4 @@ var Push = (function () {
 
 exports.Push = Push;
 
-},{"../core/app":11,"../core/core":12,"../core/events":15,"../core/logger":16,"../core/settings":19,"./push-dev":27,"./push-message":28,"./push-token":29}]},{},[17,18,15,16,20,19,13,12,21,11,14,10,29,28,27,30,26,25,23,24,22,9,8,5,7,6]);
+},{"../core/app":11,"../core/core":12,"../core/events":15,"../core/logger":16,"../core/promise":17,"../core/request":18,"../core/settings":19,"./push-dev":27,"./push-message":28,"./push-token":29}]},{},[17,18,15,16,20,19,13,12,21,11,14,10,29,28,27,30,26,25,23,24,22,9,8,5,7,6]);
