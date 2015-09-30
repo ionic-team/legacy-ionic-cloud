@@ -138,7 +138,7 @@ class PushData {
       var platform = this.tokens[x];
       var testToken;
       for (testToken in platform) {
-        if (platform[testToken] === token) {
+        if (platform[testToken] === token.token) {
           platform.splice(testToken, 1);
         }
       }
