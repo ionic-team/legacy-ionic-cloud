@@ -2085,8 +2085,8 @@ var Analytics = (function () {
           break;
 
         default:
-          self.logger.log('Unable to request analytics key.');
-          self.logger.log(error);
+          self.logger.error('Unable to request analytics key.');
+          self.logger.error(error);
           break;
       }
     }
@@ -2117,7 +2117,7 @@ var Analytics = (function () {
       }
 
       if (options.dryRun) {
-        this.logger.log('dryRun mode is active. Analytics will not send any events.');
+        this.logger.info('dryRun mode is active. Analytics will not send any events.');
       }
 
       this._requestAnalyticsKey().then(function (result) {
