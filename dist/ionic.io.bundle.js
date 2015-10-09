@@ -2945,11 +2945,7 @@ var IonicPlatform = (function () {
   }, {
     key: "Version",
     get: function get() {
-<<<<<<< HEAD
       return '0.2.0';
-=======
-      return '0.1.1';
->>>>>>> development
     }
   }]);
 
