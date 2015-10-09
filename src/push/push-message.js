@@ -42,7 +42,7 @@ export class PushMessage {
   }
 
   get payload() {
-    return this._payload;
+    return this._payload || {};
   }
 
   processRaw() {
