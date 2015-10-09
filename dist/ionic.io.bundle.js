@@ -2945,7 +2945,7 @@ var IonicPlatform = (function () {
   }, {
     key: "Version",
     get: function get() {
-      return '0.1.0';
+      return '0.2.0';
     }
   }]);
 
@@ -3165,6 +3165,9 @@ Ionic.removeService = function (name) {
     delete serviceStorage[name];
   }
 };
+
+// Kickstart Ionic Platform
+Ionic.io();
 
 },{"./app":11,"./core":12,"./data-types":13,"./events":15,"./logger":16,"./promise":17,"./request":18,"./settings":19,"./storage":20,"./user":21}],15:[function(require,module,exports){
 "use strict";
@@ -3446,7 +3449,8 @@ var Settings = (function () {
     this._locations = {
       'api': 'https://apps.ionic.io',
       'push': 'https://push.ionic.io',
-      'analytics': 'https://analytics.ionic.io'
+      'analytics': 'https://analytics.ionic.io',
+      'deploy': 'https://apps.ionic.io'
     };
     this._devLocations = this.get('dev_locations');
     if (!this._devLocations) {
@@ -4264,6 +4268,7 @@ var Deploy = (function () {
     this._emitter = new _coreEvents.EventEmitter();
     this.logger.info("init");
     _coreCore.IonicPlatform.getMain().onReady(function () {
+      self.initialize();
       self._isReady = true;
       self._emitter.emit('ionic_deploy:ready');
     });
@@ -4300,7 +4305,7 @@ var Deploy = (function () {
     key: "initialize",
     value: function initialize() {
       if (this._getPlugin()) {
-        this._plugin.initialize(settings.get('app_id'));
+        this._plugin.init(settings.get('app_id'), settings.getURL('deploy'));
       }
     }
 
@@ -4510,14 +4515,19 @@ var Deploy = (function () {
 
     /**
      * Update app with the latest deploy
-     *
+     * @param {boolean} deferLoad Defer loading the applied update after the installation
      * @return {Promise} A promise result
      */
   }, {
     key: "update",
-    value: function update() {
+    value: function update(deferLoad) {
       var deferred = new _corePromise.DeferredPromise();
       var self = this;
+      var deferLoading = false;
+
+      if (typeof deferLoad !== 'undefined') {
+        deferLoading = deferLoad;
+      }
 
       if (this._getPlugin()) {
         // Check for updates
@@ -4533,7 +4543,12 @@ var Deploy = (function () {
                 if (!result) {
                   deferred.reject("extraction error");
                 }
-                self._plugin.redirect(settings.get('app_id'));
+                if (!deferLoading) {
+                  deferred.resolve(true);
+                  self._plugin.redirect(settings.get('app_id'));
+                } else {
+                  deferred.resolve(true);
+                }
               }, function (error) {
                 deferred.reject(error);
               }, function (update) {

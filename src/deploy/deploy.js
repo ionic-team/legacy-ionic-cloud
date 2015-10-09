@@ -39,6 +39,7 @@ export class Deploy {
     this._emitter = new EventEmitter();
     this.logger.info("init");
     IonicPlatform.getMain().onReady(function() {
+      self.initialize();
       self._isReady = true;
       self._emitter.emit('ionic_deploy:ready');
     });
@@ -68,7 +69,7 @@ export class Deploy {
    */
   initialize() {
     if (this._getPlugin()) {
-      this._plugin.initialize(settings.get('app_id'));
+      this._plugin.init(settings.get('app_id'), settings.getURL('deploy'));
     }
   }
 
@@ -259,12 +260,17 @@ export class Deploy {
 
   /**
    * Update app with the latest deploy
-   *
+   * @param {boolean} deferLoad Defer loading the applied update after the installation
    * @return {Promise} A promise result
    */
-  update() {
+  update(deferLoad) {
     var deferred = new DeferredPromise();
     var self = this;
+    var deferLoading = false;
+
+    if (typeof deferLoad !== 'undefined') {
+      deferLoading = deferLoad;
+    }
 
     if (this._getPlugin()) {
       // Check for updates
@@ -276,7 +282,12 @@ export class Deploy {
             if (!result) { deferred.reject("download error"); }
             self.extract().then(function(result) {
               if (!result) { deferred.reject("extraction error"); }
-              self._plugin.redirect(settings.get('app_id'));
+              if (!deferLoading) {
+                deferred.resolve(true);
+                self._plugin.redirect(settings.get('app_id'));
+              } else {
+                deferred.resolve(true);
+              }
             }, function(error) {
               deferred.reject(error);
             }, function(update) {

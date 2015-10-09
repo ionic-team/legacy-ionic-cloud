@@ -66,3 +66,6 @@ Ionic.removeService = function(name) {
     delete serviceStorage[name];
   }
 };
+
+// Kickstart Ionic Platform
+Ionic.io();
