@@ -270,13 +270,7 @@ export class Push {
    * @return {object} Payload object or an empty object
    */
   getPayload(notification) {
-    var payload = {};
-    if (typeof notification === 'object') {
-      if (notification.additionalData && notification.additionalData.payload) {
-        payload = notification.additionalData.payload;
-      }
-    }
-    return payload;
+    return notification.payload;
   }
 
   /**
