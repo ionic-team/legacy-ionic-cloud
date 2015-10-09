@@ -2,7 +2,6 @@ import { APIRequest } from "../core/request";
 import { Settings } from "../core/settings";
 import { Logger } from "../core/logger";
 import { PushToken } from "./push-token";
-import { PushMessage } from "./push-message";
 
 var settings = new Settings();
 
@@ -122,10 +121,10 @@ export class PushDevService {
 
     new APIRequest(requestOptions).then(function(result) {
       if (result.payload.messages.length > 0) {
-        var message = PushMessage.fromPluginJSON({
+        var message = {
           'message': result.payload.messages[0],
           'title': 'DEVELOPMENT PUSH'
-        });
+        };
 
         self.logger.warn("Ionic Push: Development Push received. Development pushes will not contain payload data.");
         self._emitter.emit("ionic_push:notification", message);

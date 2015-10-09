@@ -2945,7 +2945,7 @@ var IonicPlatform = (function () {
   }, {
     key: "Version",
     get: function get() {
-      return '0.1.0';
+      return '0.1.1';
     }
   }]);
 
@@ -4672,7 +4672,7 @@ if (typeof angular === 'object' && angular.module) {
   }]).run(['$ionicPush', '$ionicPushAction', function ($ionicPush, $ionicPushAction) {
     // This is what kicks off the state redirection when a push notificaiton has the relevant details
     $ionicPush._emitter.on('ionic_push:processNotification', function (notification) {
-      if (notification.additionalData.foreground === false) {
+      if (notification && notification.additionalData && notification.additionalData.foreground === false) {
         $ionicPushAction.notificationNavigation(notification);
       }
     });
@@ -4711,8 +4711,6 @@ var _coreSettings = require("../core/settings");
 var _coreLogger = require("../core/logger");
 
 var _pushToken = require("./push-token");
-
-var _pushMessage = require("./push-message");
 
 var settings = new _coreSettings.Settings();
 
@@ -4842,10 +4840,10 @@ var PushDevService = (function () {
 
       new _coreRequest.APIRequest(requestOptions).then(function (result) {
         if (result.payload.messages.length > 0) {
-          var message = _pushMessage.PushMessage.fromPluginJSON({
+          var message = {
             'message': result.payload.messages[0],
             'title': 'DEVELOPMENT PUSH'
-          });
+          };
 
           self.logger.warn("Ionic Push: Development Push received. Development pushes will not contain payload data.");
           self._emitter.emit("ionic_push:notification", message);
@@ -4890,7 +4888,7 @@ var PushDevService = (function () {
 
 exports.PushDevService = PushDevService;
 
-},{"../core/logger":16,"../core/request":18,"../core/settings":19,"./push-message":28,"./push-token":29}],28:[function(require,module,exports){
+},{"../core/logger":16,"../core/request":18,"../core/settings":19,"./push-token":29}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4982,7 +4980,7 @@ var PushMessage = (function () {
   }, {
     key: 'payload',
     get: function get() {
-      return this._payload;
+      return this._payload || {};
     }
   }], [{
     key: 'fromPluginJSON',
@@ -5349,13 +5347,7 @@ var Push = (function () {
   }, {
     key: "getPayload",
     value: function getPayload(notification) {
-      var payload = {};
-      if (typeof notification === 'object') {
-        if (notification.additionalData && notification.additionalData.payload) {
-          payload = notification.additionalData.payload;
-        }
-      }
-      return payload;
+      return notification.payload;
     }
 
     /**
