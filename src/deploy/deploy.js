@@ -248,6 +248,49 @@ export class Deploy {
   }
 
   /**
+   * List the Deploy versions that have been installed on this device
+   *
+   * @return {Promise} The resolver will be passed an array of deploy uuids
+   */
+  getVersions() {
+    var deferred = new DeferredPromise();
+
+    if (this._getPlugin()) {
+      this._plugin.getVersions(settings.get('app_id'), function(result) {
+        deferred.resolve(result);
+      }, function(err) {
+        deferred.reject(err);
+      });
+    } else {
+      deferred.reject(NO_PLUGIN);
+    }
+
+    return deferred.promise;
+  }
+
+  /**
+   * Remove an installed deploy on this device
+   *
+   * @param {string} uuid The deploy uuid you wish to remove from the device
+   * @return {Promise} Standard resolve/reject resolution
+   */
+  deleteVersion(uuid) {
+    var deferred = new DeferredPromise();
+
+    if (this._getPlugin()) {
+      this._plugin.deleteVersion(settings.get('app_id'), uuid, function(result) {
+        deferred.resolve(result);
+      }, function(err) {
+        deferred.reject(err);
+      });
+    } else {
+      deferred.reject(NO_PLUGIN);
+    }
+
+    return deferred.promise;
+  }
+
+  /**
    * Set the deploy channel that should be checked for updatse
    * See http://docs.ionic.io/docs/deploy-channels for more information
    *
