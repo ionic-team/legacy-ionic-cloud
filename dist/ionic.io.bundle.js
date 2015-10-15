@@ -2945,7 +2945,7 @@ var IonicPlatform = (function () {
   }, {
     key: "Version",
     get: function get() {
-      return '0.1.1';
+      return '0.2.0';
     }
   }]);
 
@@ -3165,6 +3165,9 @@ Ionic.removeService = function (name) {
     delete serviceStorage[name];
   }
 };
+
+// Kickstart Ionic Platform
+Ionic.io();
 
 },{"./app":11,"./core":12,"./data-types":13,"./events":15,"./logger":16,"./promise":17,"./request":18,"./settings":19,"./storage":20,"./user":21}],15:[function(require,module,exports){
 "use strict";
@@ -3446,7 +3449,8 @@ var Settings = (function () {
     this._locations = {
       'api': 'https://apps.ionic.io',
       'push': 'https://push.ionic.io',
-      'analytics': 'https://analytics.ionic.io'
+      'analytics': 'https://analytics.ionic.io',
+      'deploy': 'https://apps.ionic.io'
     };
     this._devLocations = this.get('dev_locations');
     if (!this._devLocations) {
@@ -4264,6 +4268,7 @@ var Deploy = (function () {
     this._emitter = new _coreEvents.EventEmitter();
     this.logger.info("init");
     _coreCore.IonicPlatform.getMain().onReady(function () {
+      self.initialize();
       self._isReady = true;
       self._emitter.emit('ionic_deploy:ready');
     });
@@ -4299,9 +4304,12 @@ var Deploy = (function () {
   }, {
     key: "initialize",
     value: function initialize() {
-      if (this._getPlugin()) {
-        this._plugin.initialize(settings.get('app_id'));
-      }
+      var self = this;
+      this.onReady(function () {
+        if (self._getPlugin()) {
+          self._plugin.init(settings.get('app_id'), settings.getURL('deploy'));
+        }
+      });
     }
 
     /**
@@ -4316,22 +4324,24 @@ var Deploy = (function () {
       var self = this;
       var deferred = new _corePromise.DeferredPromise();
 
-      if (this._getPlugin()) {
-        this._plugin.check(settings.get('app_id'), this._channelTag, function (result) {
-          if (result && result === "true") {
-            self.logger.info('an update is available');
-            deferred.resolve(true);
-          } else {
-            self.logger.info('no updates available');
-            deferred.resolve(false);
-          }
-        }, function (error) {
-          self.logger.error('encountered an error while checking for updates');
-          deferred.reject(error);
-        });
-      } else {
-        deferred.reject(NO_PLUGIN);
-      }
+      this.onReady(function () {
+        if (self._getPlugin()) {
+          self._plugin.check(settings.get('app_id'), self._channelTag, function (result) {
+            if (result && result === "true") {
+              self.logger.info('an update is available');
+              deferred.resolve(true);
+            } else {
+              self.logger.info('no updates available');
+              deferred.resolve(false);
+            }
+          }, function (error) {
+            self.logger.error('encountered an error while checking for updates');
+            deferred.reject(error);
+          });
+        } else {
+          deferred.reject(NO_PLUGIN);
+        }
+      });
 
       return deferred.promise;
     }
@@ -4349,22 +4359,24 @@ var Deploy = (function () {
       var self = this;
       var deferred = new _corePromise.DeferredPromise();
 
-      if (this._getPlugin()) {
-        this._plugin.download(settings.get('app_id'), function (result) {
-          if (result !== 'true' && result !== 'false') {
-            deferred.notify(result);
-          } else {
-            if (result === 'true') {
-              self.logger.info("download complete");
+      this.onReady(function () {
+        if (self._getPlugin()) {
+          self._plugin.download(settings.get('app_id'), function (result) {
+            if (result !== 'true' && result !== 'false') {
+              deferred.notify(result);
+            } else {
+              if (result === 'true') {
+                self.logger.info("download complete");
+              }
+              deferred.resolve(result === 'true');
             }
-            deferred.resolve(result === 'true');
-          }
-        }, function (error) {
-          deferred.reject(error);
-        });
-      } else {
-        deferred.reject(NO_PLUGIN);
-      }
+          }, function (error) {
+            deferred.reject(error);
+          });
+        } else {
+          deferred.reject(NO_PLUGIN);
+        }
+      });
 
       return deferred.promise;
     }
@@ -4382,22 +4394,24 @@ var Deploy = (function () {
       var self = this;
       var deferred = new _corePromise.DeferredPromise();
 
-      if (this._getPlugin()) {
-        this._plugin.extract(settings.get('app_id'), function (result) {
-          if (result !== 'done') {
-            deferred.notify(result);
-          } else {
-            if (result === 'true') {
-              self.logger.info("extraction complete");
+      this.onReady(function () {
+        if (self._getPlugin()) {
+          self._plugin.extract(settings.get('app_id'), function (result) {
+            if (result !== 'done') {
+              deferred.notify(result);
+            } else {
+              if (result === 'true') {
+                self.logger.info("extraction complete");
+              }
+              deferred.resolve(result);
             }
-            deferred.resolve(result);
-          }
-        }, function (error) {
-          deferred.reject(error);
-        });
-      } else {
-        deferred.reject(NO_PLUGIN);
-      }
+          }, function (error) {
+            deferred.reject(error);
+          });
+        } else {
+          deferred.reject(NO_PLUGIN);
+        }
+      });
 
       return deferred.promise;
     }
@@ -4413,9 +4427,12 @@ var Deploy = (function () {
   }, {
     key: "load",
     value: function load() {
-      if (this._getPlugin()) {
-        this._plugin.redirect(settings.get('app_id'));
-      }
+      var self = this;
+      this.onReady(function () {
+        if (self._getPlugin()) {
+          self._plugin.redirect(settings.get('app_id'));
+        }
+      });
     }
 
     /**
@@ -4481,16 +4498,100 @@ var Deploy = (function () {
     key: "info",
     value: function info() {
       var deferred = new _corePromise.DeferredPromise();
+      var self = this;
 
-      if (this._getPlugin()) {
-        this._plugin.info(settings.get('app_id'), function (result) {
-          deferred.resolve(result);
-        }, function (err) {
-          deferred.reject(err);
-        });
-      } else {
-        deferred.reject(NO_PLUGIN);
-      }
+      this.onReady(function () {
+        if (self._getPlugin()) {
+          self._plugin.info(settings.get('app_id'), function (result) {
+            deferred.resolve(result);
+          }, function (err) {
+            deferred.reject(err);
+          });
+        } else {
+          deferred.reject(NO_PLUGIN);
+        }
+      });
+
+      return deferred.promise;
+    }
+
+    /**
+     * List the Deploy versions that have been installed on this device
+     *
+     * @return {Promise} The resolver will be passed an array of deploy uuids
+     */
+  }, {
+    key: "getVersions",
+    value: function getVersions() {
+      var deferred = new _corePromise.DeferredPromise();
+      var self = this;
+
+      this.onReady(function () {
+        if (self._getPlugin()) {
+          self._plugin.getVersions(settings.get('app_id'), function (result) {
+            deferred.resolve(result);
+          }, function (err) {
+            deferred.reject(err);
+          });
+        } else {
+          deferred.reject(NO_PLUGIN);
+        }
+      });
+
+      return deferred.promise;
+    }
+
+    /**
+     * Remove an installed deploy on this device
+     *
+     * @param {string} uuid The deploy uuid you wish to remove from the device
+     * @return {Promise} Standard resolve/reject resolution
+     */
+  }, {
+    key: "deleteVersion",
+    value: function deleteVersion(uuid) {
+      var deferred = new _corePromise.DeferredPromise();
+      var self = this;
+
+      this.onReady(function () {
+        if (self._getPlugin()) {
+          self._plugin.deleteVersion(settings.get('app_id'), uuid, function (result) {
+            deferred.resolve(result);
+          }, function (err) {
+            deferred.reject(err);
+          });
+        } else {
+          deferred.reject(NO_PLUGIN);
+        }
+      });
+
+      return deferred.promise;
+    }
+
+    /**
+     * Fetches the metadata for a given deploy uuid. If no uuid is given, it will attempt
+     * to grab the metadata for the most recently known update version.
+     *
+     * @param {string} uuid The deploy uuid you wish to grab metadata for, can be left blank to grab latest known update metadata
+     * @return {Promise} Standard resolve/reject resolution
+     */
+  }, {
+    key: "getMetadata",
+    value: function getMetadata(uuid) {
+      var deferred = new _corePromise.DeferredPromise();
+      var self = this;
+
+      this.onReady(function () {
+        if (self._getPlugin()) {
+          self._plugin.getMetadata(settings.get('app_id'), uuid, function (result) {
+            deferred.resolve(result.metadata);
+          }, function (err) {
+            deferred.reject(err);
+          });
+        } else {
+          deferred.reject(NO_PLUGIN);
+        }
+      });
 
       return deferred.promise;
     }
@@ -4510,51 +4611,63 @@ var Deploy = (function () {
 
     /**
      * Update app with the latest deploy
-     *
+     * @param {boolean} deferLoad Defer loading the applied update after the installation
      * @return {Promise} A promise result
      */
   }, {
     key: "update",
-    value: function update() {
+    value: function update(deferLoad) {
       var deferred = new _corePromise.DeferredPromise();
       var self = this;
+      var deferLoading = false;
 
-      if (this._getPlugin()) {
-        // Check for updates
-        self.check().then(function (result) {
-          if (result === true) {
-            // There are updates, download them
-            var downloadProgress = 0;
-            self.download().then(function (result) {
-              if (!result) {
-                deferred.reject("download error");
-              }
-              self.extract().then(function (result) {
+      if (typeof deferLoad !== 'undefined') {
+        deferLoading = deferLoad;
+      }
+
+      this.onReady(function () {
+        if (self._getPlugin()) {
+          // Check for updates
+          self.check().then(function (result) {
+            if (result === true) {
+              // There are updates, download them
+              var downloadProgress = 0;
+              self.download().then(function (result) {
                 if (!result) {
-                  deferred.reject("extraction error");
+                  deferred.reject("download error");
                 }
-                self._plugin.redirect(settings.get('app_id'));
+                self.extract().then(function (result) {
+                  if (!result) {
+                    deferred.reject("extraction error");
+                  }
+                  if (!deferLoading) {
+                    deferred.resolve(true);
+                    self._plugin.redirect(settings.get('app_id'));
+                  } else {
+                    deferred.resolve(true);
+                  }
+                }, function (error) {
+                  deferred.reject(error);
+                }, function (update) {
+                  var progress = downloadProgress + update / 2;
+                  deferred.notify(progress);
+                });
               }, function (error) {
                 deferred.reject(error);
               }, function (update) {
-                var progress = downloadProgress + update / 2;
-                deferred.notify(progress);
+                downloadProgress = update / 2;
+                deferred.notify(downloadProgress);
               });
-            }, function (error) {
-              deferred.reject(error);
-            }, function (update) {
-              downloadProgress = update / 2;
-              deferred.notify(downloadProgress);
-            });
-          } else {
-            deferred.resolve(false);
-          }
-        }, function (error) {
-          deferred.reject(error);
-        });
-      } else {
-        deferred.reject(NO_PLUGIN);
-      }
+            } else {
+              deferred.resolve(false);
+            }
+          }, function (error) {
+            deferred.reject(error);
+          });
+        } else {
+          deferred.reject(NO_PLUGIN);
+        }
+      });
 
       return deferred.promise;
     }
