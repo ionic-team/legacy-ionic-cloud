@@ -363,7 +363,7 @@ export class Deploy {
     }
 
     this.onReady(function() {
-      if (this._getPlugin()) {
+      if (self._getPlugin()) {
         // Check for updates
         self.check().then(function(result) {
           if (result === true) {
