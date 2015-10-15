@@ -4,6 +4,7 @@
 * (deploy) update() can now defer reloading the app
 * (deploy) adding `getVersions` and `deleteVersion` methods to manage deploy versions.
 * (deploy) adding `getMetadata` method to fetch deploy metadata
+* (deploy) (fix) deploy methods now wait for the onReady event
 
 
 ## 0.1.1
