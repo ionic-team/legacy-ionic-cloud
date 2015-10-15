@@ -302,7 +302,7 @@ export class Deploy {
 
     if (this._getPlugin()) {
       this._plugin.getMetadata(settings.get('app_id'), uuid, function(result) {
-        deferred.resolve(result);
+        deferred.resolve(result.metadata);
       }, function(err) {
         deferred.reject(err);
       });
