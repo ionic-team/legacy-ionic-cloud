@@ -4548,6 +4548,31 @@ var Deploy = (function () {
     }
 
     /**
+     * Fetches the metadata for a given deploy uuid. If no uuid is given, it will attempt
+     * to grab the metadata for the most recently known update version.
+     *
+     * @param {string} uuid The deploy uuid you wish to grab metadata for, can be left blank to grab latest known update metadata
+     * @return {Promise} Standard resolve/reject resolution
+     */
+  }, {
+    key: "getMetadata",
+    value: function getMetadata(uuid) {
+      var deferred = new _corePromise.DeferredPromise();
+
+      if (this._getPlugin()) {
+        this._plugin.getMetadata(settings.get('app_id'), uuid, function (result) {
+          deferred.resolve(result);
+        }, function (err) {
+          deferred.reject(err);
+        });
+      } else {
+        deferred.reject(NO_PLUGIN);
+      }
+
+      return deferred.promise;
+    }
+
+    /**
      * Set the deploy channel that should be checked for updatse
      * See http://docs.ionic.io/docs/deploy-channels for more information
      *

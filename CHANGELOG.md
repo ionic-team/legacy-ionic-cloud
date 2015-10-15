@@ -3,6 +3,7 @@
 * (core) removing need to call `Ionic.io();` manually
 * (deploy) update() can now defer reloading the app
 * (deploy) adding `getVersions` and `deleteVersion` methods to manage deploy versions.
+* (deploy) adding `getMetadata` method to fetch deploy metadata
 
 
 ## 0.1.1
