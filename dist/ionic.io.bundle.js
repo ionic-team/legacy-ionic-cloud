@@ -3782,6 +3782,12 @@ var PushData = (function () {
         token = token.token;
       }
 
+      // check if this is a dev token
+      if (token.slice(0, 3) === 'DEV') {
+        this.logger.info('dev tokens cannot be saved to a user as they are a temporary resource');
+        return false;
+      }
+
       if (Core.isAndroidDevice()) {
         platform = 'android';
       } else if (Core.isIOSDevice()) {
@@ -3789,10 +3795,7 @@ var PushData = (function () {
       }
 
       if (platform === null || !this.tokens.hasOwnProperty(platform)) {
-        // only log a message if this isn't a dev token
-        if (token.slice(0, 3) !== "DEV") {
-          this.logger.info('cannot determine the token platform. Are you running on an Android or iOS device?');
-        }
+        this.logger.info('cannot determine the token platform. Are you running on an Android or iOS device?');
         return false;
       }
 
@@ -5247,6 +5250,7 @@ var Push = (function () {
     this._isReady = false;
     this._tokenReady = false;
     this._blockRegistration = false;
+    this._registered = false;
     this._emitter = new _coreEvents.EventEmitter();
     if (config !== DEFER_INIT) {
       var self = this;
@@ -5393,6 +5397,7 @@ var Push = (function () {
           self._debugCallbackRegistration();
           self._callbackRegistration();
         }
+        self._registered = true;
       });
     }
 
@@ -5599,9 +5604,11 @@ var Push = (function () {
           this._plugin.on('notification', this._debugNotificationCallback());
           this._plugin.on('error', this._debugErrorCallback());
         } else {
-          this._emitter.on('ionic_push:token', this._debugRegistrationCallback());
-          this._emitter.on('ionic_push:notification', this._debugNotificationCallback());
-          this._emitter.on('ionic_push:error', this._debugErrorCallback());
+          if (!this._registered) {
+            this._emitter.on('ionic_push:token', this._debugRegistrationCallback());
+            this._emitter.on('ionic_push:notification', this._debugNotificationCallback());
+            this._emitter.on('ionic_push:error', this._debugErrorCallback());
+          }
         }
       }
     }
@@ -5619,9 +5626,11 @@ var Push = (function () {
         this._plugin.on('notification', this._notificationCallback());
         this._plugin.on('error', this._errorCallback());
       } else {
-        this._emitter.on('ionic_push:token', this._registerCallback());
-        this._emitter.on('ionic_push:notification', this._notificationCallback());
-        this._emitter.on('ionic_push:error', this._errorCallback());
+        if (!this._registered) {
+          this._emitter.on('ionic_push:token', this._registerCallback());
+          this._emitter.on('ionic_push:notification', this._notificationCallback());
+          this._emitter.on('ionic_push:error', this._errorCallback());
+        }
       }
     }
 

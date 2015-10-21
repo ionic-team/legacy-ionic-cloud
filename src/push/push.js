@@ -76,6 +76,7 @@ export class Push {
     this._isReady = false;
     this._tokenReady = false;
     this._blockRegistration = false;
+    this._registered = false;
     this._emitter = new EventEmitter();
     if (config !== DEFER_INIT) {
       var self = this;
@@ -207,6 +208,7 @@ export class Push {
         self._debugCallbackRegistration();
         self._callbackRegistration();
       }
+      self._registered = true;
     });
   }
 
@@ -395,9 +397,11 @@ export class Push {
         this._plugin.on('notification', this._debugNotificationCallback());
         this._plugin.on('error', this._debugErrorCallback());
       } else {
-        this._emitter.on('ionic_push:token', this._debugRegistrationCallback());
-        this._emitter.on('ionic_push:notification', this._debugNotificationCallback());
-        this._emitter.on('ionic_push:error', this._debugErrorCallback());
+        if (!this._registered) {
+          this._emitter.on('ionic_push:token', this._debugRegistrationCallback());
+          this._emitter.on('ionic_push:notification', this._debugNotificationCallback());
+          this._emitter.on('ionic_push:error', this._debugErrorCallback());
+        }
       }
     }
   }
@@ -413,9 +417,11 @@ export class Push {
       this._plugin.on('notification', this._notificationCallback());
       this._plugin.on('error', this._errorCallback());
     } else {
-      this._emitter.on('ionic_push:token', this._registerCallback());
-      this._emitter.on('ionic_push:notification', this._notificationCallback());
-      this._emitter.on('ionic_push:error', this._errorCallback());
+      if (!this._registered) {
+        this._emitter.on('ionic_push:token', this._registerCallback());
+        this._emitter.on('ionic_push:notification', this._notificationCallback());
+        this._emitter.on('ionic_push:error', this._errorCallback());
+      }
     }
   }
 
