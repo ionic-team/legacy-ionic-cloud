@@ -98,6 +98,12 @@ class PushData {
       token = token.token;
     }
 
+    // check if this is a dev token
+    if (token.slice(0,3) === 'DEV') {
+      this.logger.info('dev tokens cannot be saved to a user as they are a temporary resource');
+      return false;
+    }
+
     if (Core.isAndroidDevice()) {
       platform = 'android';
     } else if (Core.isIOSDevice()) {
@@ -105,10 +111,7 @@ class PushData {
     }
 
     if (platform === null || !this.tokens.hasOwnProperty(platform)) {
-      // only log a message if this isn't a dev token
-      if (token.slice(0,3) !== "DEV") {
-        this.logger.info('cannot determine the token platform. Are you running on an Android or iOS device?');
-      }
+      this.logger.info('cannot determine the token platform. Are you running on an Android or iOS device?');
       return false;
     }
 

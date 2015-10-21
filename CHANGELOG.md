@@ -1,3 +1,9 @@
+## 0.2.1
+
+* (push) (fix) prevent dev-mode from registering multiple callbacks
+* (user) (fix) prevent dev tokens from saving to a user
+
+
 ## 0.2.0
 
 * (core) removing need to call `Ionic.io();` manually
