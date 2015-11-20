@@ -1,6 +1,6 @@
 import { DeferredPromise } from "./promise";
 
-class PlatformLocalStorageStrategy {
+export class PlatformLocalStorageStrategy {
   constructor() {
 
   }
@@ -15,6 +15,20 @@ class PlatformLocalStorageStrategy {
 
   set(key, value) {
     return window.localStorage.setItem(key, value);
+  }
+}
+
+export class LocalSessionStorageStrategy {
+  get(key) {
+    return window.sessionStorage.getItem(key);
+  }
+
+  remove(key) {
+    return window.sessionStorage.removeItem(key);
+  }
+
+  set(key, value) {
+    return window.sessionStorage.setItem(key, value);
   }
 }
 

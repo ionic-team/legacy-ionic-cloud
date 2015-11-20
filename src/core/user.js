@@ -1,3 +1,4 @@
+import { Auth } from "../auth/auth";
 import { APIRequest } from "./request";
 import { DeferredPromise } from "./promise";
 import { Settings } from "./settings";
@@ -214,6 +215,18 @@ export class User {
 
   isDirty() {
     return this._dirty;
+  }
+
+  isAnonymous() {
+    if (!this.id) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isAuthenticated() {
+    return Auth.isAuthenticated();
   }
 
   static current(user) {

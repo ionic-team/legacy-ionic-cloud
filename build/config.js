@@ -17,6 +17,12 @@ var src = {
     'src/core/angular.js'
   ],
 
+  'auth': [
+    'src/auth/auth.js',
+    'src/auth/es5.js',
+    'src/auth/angular.js'
+  ],
+
   'push': [
     'src/push/push-token.js',
     'src/push/push-message.js',
@@ -58,6 +64,7 @@ module.exports = {
     'analytics': src.analytics,
     'bundle': [].concat(
       src.core,
+      src.auth,
       src.push,
       src.deploy,
       src.analytics

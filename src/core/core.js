@@ -4,6 +4,7 @@ import { Logger } from "./logger";
 
 var eventEmitter = new EventEmitter();
 var mainStorage = new Storage();
+var auth = null;
 
 export class IonicPlatform {
 
@@ -15,7 +16,7 @@ export class IonicPlatform {
     this.logger.info('init');
     this._pluginsReady = false;
     this.emitter = IonicPlatform.getEmitter();
-
+    this.auth = false;
     this._bootstrap();
 
     if (self.cordovaPlatformUnknown) {
@@ -45,6 +46,14 @@ export class IonicPlatform {
 
   static getStorage() {
     return mainStorage;
+  }
+
+  static getAuth() {
+    return auth;
+  }
+
+  static setAuth(auth_) {
+    auth = auth_;
   }
 
   static getMain() {

@@ -32,7 +32,8 @@ export class Settings {
       'api': 'https://apps.ionic.io',
       'push': 'https://push.ionic.io',
       'analytics': 'https://analytics.ionic.io',
-      'deploy': 'https://apps.ionic.io'
+      'deploy': 'https://apps.ionic.io',
+      'platform-api': 'https://api.ionic.io'
     };
     this._devLocations = this.get('dev_locations');
     if (!this._devLocations) { this._devLocations = {}; }
