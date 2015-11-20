@@ -12,26 +12,14 @@ var __authToken = null;
 
 var authAPIBase = settings.getURL('platform-api') + '/auth';
 var authAPIEndpoints = {
-  'login': function() {
+  'login': function(provider) {
+    if (provider) {
+      return authAPIBase + '/login/' + provider;
+    }
     return authAPIBase + '/login';
   },
   'signup': function() {
     return authAPIBase + '/users';
-  },
-  'facebookLogin': function() {
-    return authAPIBase + '/login/facebook';
-  },
-  'googleLogin': function() {
-    return authAPIBase + '/login/google';
-  },
-  'instagramLogin': function() {
-    return authAPIBase + '/login/instagram';
-  },
-  'linkedinLogin': function() {
-    return authAPIBase + '/login/linkedin';
-  },
-  'twitterLogin': function() {
-    return authAPIBase + '/login/twitter';
   }
 };
 
@@ -82,8 +70,40 @@ function storeToken(options, token) {
 }
 
 class InAppBrowserFlow {
-  constructor(test) {
-    
+  constructor(authOptions, options) {
+
+    var deferred = new DeferredPromise();
+
+    new APIRequest({
+      'uri': authAPIEndpoints.login(options.provider),
+      'method': options.uri_method || 'POST',
+      'json': true,
+      'form': {
+        'app_id': settings.get('app_id'),
+        'callback': options.callback_uri || window.location.href
+      }
+    }).then(function(data) {
+      var loc = data.payload.data.url;
+      var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
+      tempBrowser.addEventListener('loadstart', function(data) {
+        if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
+          var queryString = data.url.split('?')[1];
+          var paramParts = queryString.split('&');
+          var params = {};
+          for (var i = 0; i < paramParts.length; i++) {
+            var part = paramParts[i].split('=');
+            params[part[0]] = part[1];
+          }
+          storeToken(authOptions, params.token);
+          tempBrowser.close();
+          deferred.resolve(true);
+        }
+      });
+    }, function(err) {
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
   }
 }
 
@@ -155,9 +175,7 @@ class BasicAuth {
       storeToken(options, data.payload.data.token);
       deferred.resolve(true);
     }, function(err) {
-      console.log('error');
-      console.log(err);
-      deferred.reject(false);
+      deferred.reject(err);
     });
 
     return deferred.promise;
@@ -181,9 +199,7 @@ class BasicAuth {
     }).then(function() {
       deferred.resolve(true);
     }, function(err) {
-      console.log('error');
-      console.log(err);
-      deferred.reject(false);
+      deferred.reject(err);
     });
 
     return deferred.promise;
@@ -191,199 +207,32 @@ class BasicAuth {
 }
 
 class TwitterAuth {
-
   static authenticate(options) {
-    var deferred = new DeferredPromise();
-
-    new APIRequest({
-      'uri': authAPIEndpoints.twitterLogin(),
-      'method': 'POST',
-      'json': true,
-      'form': {
-        'app_id': settings.get('app_id'),
-        'callback': window.location.href
-      }
-    }).then(function(data) {
-      var loc = data.payload.data.url;
-      var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
-      tempBrowser.addEventListener('loadstart', function(data) {
-        if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-          var queryString = data.url.split('?')[1];
-          var paramParts = queryString.split('&');
-          var params = {};
-          for (var i = 0; i < paramParts.length; i++) {
-            var part = paramParts[i].split('=');
-            params[part[0]] = part[1];
-          }
-          storeToken(options, params.token);
-          tempBrowser.close();
-          deferred.resolve(true);
-        }
-      });
-    }, function(err) {
-      console.log('error');
-      console.log(err);
-      deferred.reject(false);
-    });
-
-    return deferred.promise;
+    return new InAppBrowserFlow(options, { 'provider': 'twitter' });
   }
 }
 
 class FacebookAuth {
-
   static authenticate(options) {
-    var deferred = new DeferredPromise();
-
-    new APIRequest({
-      'uri': authAPIEndpoints.facebookLogin(),
-      'method': 'POST',
-      'json': true,
-      'form': {
-        'app_id': settings.get('app_id')
-      }
-    }).then(function(data) {
-      var loc = data.payload.data.url;
-      var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
-      tempBrowser.addEventListener('loadstart', function(data) {
-        if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-          var queryString = data.url.split('?')[1];
-          var paramParts = queryString.split('&');
-          var params = {};
-          for (var i = 0; i < paramParts.length; i++) {
-            var part = paramParts[i].split('=');
-            params[part[0]] = part[1];
-          }
-          storeToken(options, params.token);
-          tempBrowser.close();
-          deferred.resolve(true);
-        }
-      });
-    }, function(err) {
-      console.log('error');
-      console.log(err);
-      deferred.reject(false);
-    });
-
-    return deferred.promise;
+    return new InAppBrowserFlow(options, { 'provider': 'facebook' });
   }
 }
 
 class GoogleAuth {
-
   static authenticate(options) {
-    var deferred = new DeferredPromise();
-
-    new APIRequest({
-      'uri': authAPIEndpoints.googleLogin(),
-      'method': 'POST',
-      'json': true,
-      'form': {
-        'app_id': settings.get('app_id')
-      }
-    }).then(function(data) {
-      var loc = data.payload.data.url;
-      var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
-      tempBrowser.addEventListener('loadstart', function(data) {
-        if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-          var queryString = data.url.split('?')[1];
-          var paramParts = queryString.split('&');
-          var params = {};
-          for (var i = 0; i < paramParts.length; i++) {
-            var part = paramParts[i].split('=');
-            params[part[0]] = part[1];
-          }
-          storeToken(options, params.token);
-          tempBrowser.close();
-          deferred.resolve(true);
-        }
-      });
-    }, function(err) {
-      console.log('error');
-      console.log(err);
-      deferred.reject(false);
-    });
-
-    return deferred.promise;
+    return new InAppBrowserFlow(options, { 'provider': 'google' });
   }
 }
 
-
 class InstagramAuth {
-
   static authenticate(options) {
-    var deferred = new DeferredPromise();
-
-    new APIRequest({
-      'uri': authAPIEndpoints.instagramLogin(),
-      'method': 'POST',
-      'json': true,
-      'form': {
-        'app_id': settings.get('app_id')
-      }
-    }).then(function(data) {
-      var loc = data.payload.data.url;
-      var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
-      tempBrowser.addEventListener('loadstart', function(data) {
-        if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-          var queryString = data.url.split('?')[1];
-          var paramParts = queryString.split('&');
-          var params = {};
-          for (var i = 0; i < paramParts.length; i++) {
-            var part = paramParts[i].split('=');
-            params[part[0]] = part[1];
-          }
-          storeToken(options, params.token);
-          tempBrowser.close();
-          deferred.resolve(true);
-        }
-      });
-    }, function(err) {
-      console.log('error');
-      console.log(err);
-      deferred.reject(false);
-    });
-
-    return deferred.promise;
+    return new InAppBrowserFlow(options, { 'provider': 'instagram' });
   }
 }
 
 class LinkedInAuth {
-
   static authenticate(options) {
-    var deferred = new DeferredPromise();
-
-    new APIRequest({
-      'uri': authAPIEndpoints.linkedinLogin(),
-      'method': 'POST',
-      'json': true,
-      'form': {
-        'app_id': settings.get('app_id')
-      }
-    }).then(function(data) {
-      var loc = data.payload.data.url;
-      var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
-      tempBrowser.addEventListener('loadstart', function(data) {
-        if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-          var queryString = data.url.split('?')[1];
-          var paramParts = queryString.split('&');
-          var params = {};
-          for (var i = 0; i < paramParts.length; i++) {
-            var part = paramParts[i].split('=');
-            params[part[0]] = part[1];
-          }
-          storeToken(options, params.token);
-          tempBrowser.close();
-          deferred.resolve(true);
-        }
-      });
-    }, function(err) {
-      console.log('error');
-      console.log(err);
-      deferred.reject(false);
-    });
-
-    return deferred.promise;
+    return new InAppBrowserFlow(options, { 'provider': 'linkedin' });
   }
 }
 
