@@ -74,34 +74,38 @@ class InAppBrowserFlow {
 
     var deferred = new DeferredPromise();
 
-    new APIRequest({
-      'uri': authAPIEndpoints.login(options.provider),
-      'method': options.uri_method || 'POST',
-      'json': true,
-      'form': {
-        'app_id': settings.get('app_id'),
-        'callback': options.callback_uri || window.location.href
-      }
-    }).then(function(data) {
-      var loc = data.payload.data.url;
-      var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
-      tempBrowser.addEventListener('loadstart', function(data) {
-        if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-          var queryString = data.url.split('?')[1];
-          var paramParts = queryString.split('&');
-          var params = {};
-          for (var i = 0; i < paramParts.length; i++) {
-            var part = paramParts[i].split('=');
-            params[part[0]] = part[1];
-          }
-          storeToken(authOptions, params.token);
-          tempBrowser.close();
-          deferred.resolve(true);
+    if (!window || !window.cordova || !window.cordova.InAppBrowser) {
+      deferred.reject("Missing InAppBrowser plugin");
+    } else {
+      new APIRequest({
+        'uri': authAPIEndpoints.login(options.provider),
+        'method': options.uri_method || 'POST',
+        'json': true,
+        'form': {
+          'app_id': settings.get('app_id'),
+          'callback': options.callback_uri || window.location.href
         }
+      }).then(function(data) {
+        var loc = data.payload.data.url;
+        var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
+        tempBrowser.addEventListener('loadstart', function(data) {
+          if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
+            var queryString = data.url.split('?')[1];
+            var paramParts = queryString.split('&');
+            var params = {};
+            for (var i = 0; i < paramParts.length; i++) {
+              var part = paramParts[i].split('=');
+              params[part[0]] = part[1];
+            }
+            storeToken(authOptions, params.token);
+            tempBrowser.close();
+            deferred.resolve(true);
+          }
+        });
+      }, function(err) {
+        deferred.reject(err);
       });
-    }, function(err) {
-      deferred.reject(err);
-    });
+    }
 
     return deferred.promise;
   }
@@ -122,12 +126,6 @@ export class Auth {
     var context = __authModules[moduleId] || false;
     if (!context) {
       throw new Error("Authentication class is invalid or missing:" + context);
-    }
-
-    if (typeof options === 'object' && options.remember) {
-      TempTokenContext.store();
-    } else {
-      TempTokenContext.delete();
     }
     return context.authenticate.apply(context, [options, data]);
   }
@@ -218,6 +216,12 @@ class FacebookAuth {
   }
 }
 
+class GithubAuth {
+  static authenticate(options) {
+    return new InAppBrowserFlow(options, { 'provider': 'github' });
+  }
+}
+
 class GoogleAuth {
   static authenticate(options) {
     return new InAppBrowserFlow(options, { 'provider': 'google' });
@@ -238,6 +242,7 @@ class LinkedInAuth {
 
 Auth.register('basic', BasicAuth);
 Auth.register('facebook', FacebookAuth);
+Auth.register('github', GithubAuth);
 Auth.register('google', GoogleAuth);
 Auth.register('instagram', InstagramAuth);
 Auth.register('linkedin', LinkedInAuth);

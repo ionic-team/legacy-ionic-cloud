@@ -34,7 +34,7 @@ export class APIRequest extends Request {
         } else {
           if (response.statusCode < 200 || response.statusCode >= 400) {
             var _err = new Error("Request Failed with status code of " + response.statusCode);
-            reject(_err);
+            reject({ 'response': response, 'error': _err });
           } else {
             resolve({ 'response': response, 'payload': result });
           }
