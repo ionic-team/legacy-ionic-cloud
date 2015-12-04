@@ -2,6 +2,7 @@ import { APIRequest } from "../core/request";
 import { DeferredPromise } from "../core/promise";
 import { Settings } from "../core/settings";
 import { PlatformLocalStorageStrategy, LocalSessionStorageStrategy } from "../core/storage";
+import { User } from "../core/user";
 
 var settings = new Settings();
 var storage = new PlatformLocalStorageStrategy();
@@ -23,7 +24,7 @@ var authAPIEndpoints = {
   }
 };
 
-class TempTokenContext {
+export class TempTokenContext {
 
   static get label() {
     return "ionic_io_auth_" + settings.get('app_id');
@@ -42,7 +43,7 @@ class TempTokenContext {
   }
 }
 
-class TokenContext {
+export class TokenContext {
   static get label() {
     return "ionic_io_auth_" + settings.get('app_id');
   }
@@ -131,11 +132,21 @@ export class Auth {
   }
 
   static login(moduleId, options, data) {
+    var deferred = new DeferredPromise();
     var context = __authModules[moduleId] || false;
     if (!context) {
       throw new Error("Authentication class is invalid or missing:" + context);
     }
-    return context.authenticate.apply(context, [options, data]);
+    context.authenticate.apply(context, [options, data]).then(function() {
+      User.self().then(function(user) {
+        deferred.resolve(user);
+      }, function(err) {
+        deferred.reject(err);
+      });
+    }, function(err) {
+      deferred.reject(err);
+    });
+    return deferred.promise;
   }
 
   static signup(data) {
@@ -155,6 +166,16 @@ export class Auth {
     if (!__authModules[moduleId]) {
       __authModules[moduleId] = module;
     }
+  }
+
+  static getUserToken() {
+    var usertoken = TokenContext.getRawData();
+    var temptoken = TempTokenContext.getRawData();
+    var token = temptoken || usertoken;
+    if (token) {
+      return token;
+    }
+    return false;
   }
 
 }

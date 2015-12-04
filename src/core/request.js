@@ -1,4 +1,5 @@
 import { Promise } from "./promise";
+import { Auth } from "../auth/auth";
 
 var request = require("browser-request");
 
@@ -23,6 +24,13 @@ export class APIResponse extends Response {
 export class APIRequest extends Request {
   constructor(options) {
     super();
+    options.headers = options.headers || {};
+    if (!options.headers.Authorization) {
+      var token = Auth.getUserToken();
+      if (token) {
+        options.headers.Authorization = 'Bearer ' + token;
+      }
+    }
     var requestInfo = {};
     var p = new Promise(function(resolve, reject) {
       request(options, function(err, response, result) {
