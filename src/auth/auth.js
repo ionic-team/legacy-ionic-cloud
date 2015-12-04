@@ -245,6 +245,12 @@ class BasicAuth {
   }
 }
 
+class CustomAuth {
+  static authenticate(options) {
+    return new InAppBrowserFlow(options, { 'provider': 'custom' });
+  }
+}
+
 class TwitterAuth {
   static authenticate(options) {
     return new InAppBrowserFlow(options, { 'provider': 'twitter' });
@@ -282,6 +288,7 @@ class LinkedInAuth {
 }
 
 Auth.register('basic', BasicAuth);
+Auth.register('custom', CustomAuth);
 Auth.register('facebook', FacebookAuth);
 Auth.register('github', GithubAuth);
 Auth.register('google', GoogleAuth);
