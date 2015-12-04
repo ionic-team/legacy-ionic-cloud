@@ -111,6 +111,14 @@ class InAppBrowserFlow {
   }
 }
 
+function getAuthErrorDetails(err) {
+  var details = [];
+  try {
+    details = err.response.body.error.details;
+  } catch (e) { e; }
+  return details;
+}
+
 export class Auth {
 
   static isAuthenticated() {
@@ -197,7 +205,19 @@ class BasicAuth {
     }).then(function() {
       deferred.resolve(true);
     }, function(err) {
-      deferred.reject(err);
+      var errors = [];
+      var details = getAuthErrorDetails(err);
+      if (details instanceof Array) {
+        for (var i = 0; i < details.length; i++) {
+          var detail = details[i];
+          if (typeof detail === 'object') {
+            if (detail.error_type) {
+              errors.push(detail.error_type + "_" + detail.parameter);
+            }
+          }
+        }
+      }
+      deferred.reject({ "errors": errors });
     });
 
     return deferred.promise;
