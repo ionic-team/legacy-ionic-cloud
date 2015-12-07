@@ -36,16 +36,33 @@ class UserContext {
   }
 
   static store() {
+    if (UserContext.getRawData()) {
+      UserContext.storeLegacyData(UserContext.getRawData());
+    }
+    if (User.current().data.data.__ionic_user_migrated) {
+      storage.storeObject(UserContext.label + '_legacy', { '__ionic_user_migrated': true });
+    }
     storage.storeObject(UserContext.label, User.current());
+  }
+
+  static storeLegacyData(data) {
+    if (!UserContext.getRawLegacyData()) {
+      storage.storeObject(UserContext.label + '_legacy', data);
+    }
   }
 
   static getRawData() {
     return storage.retrieveObject(UserContext.label) || false;
   }
 
+  static getRawLegacyData() {
+    return storage.retrieveObject(UserContext.label + '_legacy') || false;
+  }
+
   static load() {
     var data = storage.retrieveObject(UserContext.label) || false;
     if (data) {
+      UserContext.storeLegacyData(data);
       return User.fromContext(data);
     }
     return false;
@@ -123,7 +140,10 @@ export class User {
   }
 
   isAuthenticated() {
-    return Auth.isAuthenticated();
+    if (this === User.current()) {
+      return Auth.isAuthenticated();
+    }
+    return false;
   }
 
   static current(user) {
@@ -146,6 +166,7 @@ export class User {
     var user = new User();
     user.id = data._id;
     user.data = new UserData(data.data.data);
+    user.details = data.details || {};
     user._fresh = data._fresh;
     user._dirty = data._dirty;
     return user;
@@ -253,6 +274,19 @@ export class User {
         break;
     }
     return formatted;
+  }
+
+  migrate() {
+    var rawData = UserContext.getRawLegacyData();
+    if (rawData.__ionic_user_migrated) {
+      return true;
+    }
+    if (rawData) {
+      var userData = new UserData(rawData.data.data);
+      for (var key in userData.data) {
+        Ionic.User.current().set(key, userData.data[key]);
+      }
+    }
   }
 
   delete() {
