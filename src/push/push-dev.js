@@ -36,7 +36,7 @@ export class PushDevService {
     this.logger = new Logger({
       'prefix': 'Ionic Push (dev):'
     });
-    this._serviceHost = settings.getURL('push');
+    this._serviceHost = settings.getURL('platform-api') + '/push';
     this._token = false;
     this._watch = false;
   }
@@ -75,13 +75,13 @@ export class PushDevService {
 
     var requestOptions = {
       "method": 'POST',
-      "uri": this._serviceHost + '/dev/push',
+      "uri": this._serviceHost + '/development',
       'headers': {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       "body": JSON.stringify({
-        "dev_token": token
+        "token": token
       })
     };
 
@@ -110,19 +110,18 @@ export class PushDevService {
     var self = this;
     var requestOptions = {
       'method': 'GET',
-      'uri': this._serviceHost + '/dev/push/check',
+      'uri': self._serviceHost + '/development?token=' + self._token,
       'headers': {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-Ionic-Dev-Token': this._token
+        'Content-Type': 'application/json'
       },
       'json': true
     };
 
     new APIRequest(requestOptions).then(function(result) {
-      if (result.payload.messages.length > 0) {
+      if (result.payload.data.message) {
         var message = {
-          'message': result.payload.messages[0],
+          'message': result.payload.data.message,
           'title': 'DEVELOPMENT PUSH'
         };
 
