@@ -127,7 +127,7 @@ export class Push {
    * @return {Push} returns the called Push instantiation
    */
   init(config) {
-    this._getPushPlugin();
+    this.getPushPlugin();
     if (typeof config === 'undefined') { config = {}; }
     if (typeof config !== 'object') {
       this.logger.error('init() requires a valid config object.');
@@ -463,13 +463,17 @@ export class Push {
     this._emitter.emit('ionic_push:processNotification', notification);
   }
 
+  /* Deprecated in favor of `getPushPlugin` */
+  _getPushPlugin() {
+    return this.getPushPlugin();
+  }
+
   /**
    * Fetch the phonegap-push-plugin interface
-   * Internal Method
    *
    * @return {PushNotification} PushNotification instance
    */
-  _getPushPlugin() {
+  getPushPlugin() {
     var self = this;
     var PushPlugin = false;
     try {
