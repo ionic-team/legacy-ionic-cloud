@@ -1,17 +1,12 @@
 var gulp = require('gulp'),
   buildConfig = require('./build/config.js'),
-  gutil = require('gulp-util'),
-  concat = require('gulp-concat'),
-  footer = require('gulp-footer'),
-  header = require('gulp-header'),
-  watch = require('gulp-watch'),
   browserify = require("browserify"),
   babelify = require("babelify"),
   fs = require("fs"),
   eslint = require('gulp-eslint'),
   replace = require('gulp-replace'),
   uglify = require('gulp-uglify'),
-  rename = require('gulp-rename')
+  rename = require('gulp-rename'),
   del = require('del');
 
 gulp.task('version', ['minify'], function() {
@@ -23,7 +18,7 @@ gulp.task('version', ['minify'], function() {
 gulp.task('minify', ['build-bundle'], function() {
   return gulp.src('dist/*.js')
     .pipe(uglify())
-    .pipe(rename(function (path) {
+    .pipe(rename(function(path) {
       path.basename += ".min";
     }))
     .pipe(gulp.dest('dist'));
@@ -31,45 +26,45 @@ gulp.task('minify', ['build-bundle'], function() {
 
 gulp.task('build', ['version']);
 
-gulp.task('build-core-module', ['clean'], function () {
+gulp.task('build-core-module', ['clean'], function() {
   var stream = null;
   browserify({
-    entries: buildConfig.sourceFiles.core,
-    debug: false,
-    transform: [babelify]
+    'entries': buildConfig.sourceFiles.core,
+    'debug': false,
+    'transform': [babelify]
   }).bundle()
-  .on("error", function (err) { console.log("Error : " + err.message); })
-  .pipe(steam = fs.createWriteStream(buildConfig.dist + "/core.js"));
+  .on("error", function(err) { console.log("Error : " + err.message); })
+  .pipe(stream = fs.createWriteStream(buildConfig.dist + "/core.js"));
   return stream;
 });
 
-gulp.task('build-push-module', ['build-core-module'], function () {
+gulp.task('build-push-module', ['build-core-module'], function() {
   return browserify({
-    entries: buildConfig.sourceFiles.push,
-    debug: false,
-    transform: [babelify]
+    'entries': buildConfig.sourceFiles.push,
+    'debug': false,
+    'transform': [babelify]
   }).bundle()
-  .on("error", function (err) { console.log("Error : " + err.message); })
+  .on("error", function(err) { console.log("Error : " + err.message); })
   .pipe(fs.createWriteStream(buildConfig.dist + "/push.js"));
 });
 
-gulp.task('build-deploy-module', ['build-push-module'], function () {
+gulp.task('build-deploy-module', ['build-push-module'], function() {
   return browserify({
-    entries: buildConfig.sourceFiles.deploy,
-    debug: false,
-    transform: [babelify]
+    'entries': buildConfig.sourceFiles.deploy,
+    'debug': false,
+    'transform': [babelify]
   }).bundle()
-  .on("error", function (err) { console.log("Error : " + err.message); })
+  .on("error", function(err) { console.log("Error : " + err.message); })
   .pipe(fs.createWriteStream(buildConfig.dist + "/deploy.js"));
 });
 
-gulp.task('build-analytics-module', ['build-deploy-module'], function () {
+gulp.task('build-analytics-module', ['build-deploy-module'], function() {
   return browserify({
-    entries: buildConfig.sourceFiles.analytics,
-    debug: false,
-    transform: [babelify]
+    'entries': buildConfig.sourceFiles.analytics,
+    'debug': false,
+    'transform': [babelify]
   }).bundle()
-  .on("error", function (err) { console.log("Error : " + err.message); })
+  .on("error", function(err) { console.log("Error : " + err.message); })
   .pipe(fs.createWriteStream(buildConfig.dist + "/analytics.js"));
 });
 
@@ -77,13 +72,13 @@ gulp.task('test', function() {
 
 });
 
-gulp.task('build-bundle', ['clean'], function () {
+gulp.task('build-bundle', ['clean'], function() {
   return browserify({
-    entries: buildConfig.sourceFiles.bundle,
-    debug: false,
-    transform: [babelify]
+    'entries': buildConfig.sourceFiles.bundle,
+    'debug': false,
+    'transform': [babelify]
   }).bundle()
-  .on("error", function (err) { console.log("Error : " + err.message); })
+  .on("error", function(err) { console.log("Error : " + err.message); })
   .pipe(fs.createWriteStream(buildConfig.dist + "/ionic.io.bundle.js"));
 });
 
@@ -91,8 +86,8 @@ gulp.task('clean', ['lint'], function() {
   return del(['dist/**/*']);
 });
 
-gulp.task('lint', function () {
-  return gulp.src(['src/**/*.js'])
+gulp.task('lint', function() {
+  return gulp.src(['gulpfile.js', 'src/**/*.js'])
     .pipe(eslint())
     .pipe(eslint.failOnError())
     .pipe(eslint.formatEach());
