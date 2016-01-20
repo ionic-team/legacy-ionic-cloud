@@ -91,7 +91,7 @@ class InAppBrowserFlow {
         var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
         tempBrowser.addEventListener('loadstart', function(data) {
           if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-            var queryString = data.url.split('?')[1];
+            var queryString = data.url.split('#')[0].split('?')[1];
             var paramParts = queryString.split('&');
             var params = {};
             for (var i = 0; i < paramParts.length; i++) {
