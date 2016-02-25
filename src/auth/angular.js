@@ -6,6 +6,9 @@ if ((typeof angular === 'object') && angular.module) {
   angular.module('ionic.service.auth', [])
 
   .factory('$ionicAuth', [function() {
+    if (!IonicAngularAuth) {
+      IonicAngularAuth = Ionic.Auth;
+    }
     return IonicAngularAuth;
   }]);
 }
