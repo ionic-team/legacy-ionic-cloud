@@ -897,7 +897,7 @@ process.umask = function() { return 0; };
  * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
- * @version   3.1.2
+ * @version   3.0.2
  */
 
 (function() {
@@ -925,6 +925,7 @@ process.umask = function() { return 0; };
 
     var lib$es6$promise$utils$$isArray = lib$es6$promise$utils$$_isArray;
     var lib$es6$promise$asap$$len = 0;
+    var lib$es6$promise$asap$$toString = {}.toString;
     var lib$es6$promise$asap$$vertxNext;
     var lib$es6$promise$asap$$customSchedulerFn;
 
@@ -1043,42 +1044,6 @@ process.umask = function() { return 0; };
     } else {
       lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useSetTimeout();
     }
-    function lib$es6$promise$then$$then(onFulfillment, onRejection) {
-      var parent = this;
-      var state = parent._state;
-
-      if (state === lib$es6$promise$$internal$$FULFILLED && !onFulfillment || state === lib$es6$promise$$internal$$REJECTED && !onRejection) {
-        return this;
-      }
-
-      var child = new this.constructor(lib$es6$promise$$internal$$noop);
-      var result = parent._result;
-
-      if (state) {
-        var callback = arguments[state - 1];
-        lib$es6$promise$asap$$asap(function(){
-          lib$es6$promise$$internal$$invokeCallback(state, child, callback, result);
-        });
-      } else {
-        lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection);
-      }
-
-      return child;
-    }
-    var lib$es6$promise$then$$default = lib$es6$promise$then$$then;
-    function lib$es6$promise$promise$resolve$$resolve(object) {
-      /*jshint validthis:true */
-      var Constructor = this;
-
-      if (object && typeof object === 'object' && object.constructor === Constructor) {
-        return object;
-      }
-
-      var promise = new Constructor(lib$es6$promise$$internal$$noop);
-      lib$es6$promise$$internal$$resolve(promise, object);
-      return promise;
-    }
-    var lib$es6$promise$promise$resolve$$default = lib$es6$promise$promise$resolve$$resolve;
 
     function lib$es6$promise$$internal$$noop() {}
 
@@ -1152,12 +1117,12 @@ process.umask = function() { return 0; };
       }
     }
 
-    function lib$es6$promise$$internal$$handleMaybeThenable(promise, maybeThenable, then) {
-      if (maybeThenable.constructor === promise.constructor &&
-          then === lib$es6$promise$then$$default &&
-          constructor.resolve === lib$es6$promise$promise$resolve$$default) {
+    function lib$es6$promise$$internal$$handleMaybeThenable(promise, maybeThenable) {
+      if (maybeThenable.constructor === promise.constructor) {
         lib$es6$promise$$internal$$handleOwnThenable(promise, maybeThenable);
       } else {
+        var then = lib$es6$promise$$internal$$getThen(maybeThenable);
+
         if (then === lib$es6$promise$$internal$$GET_THEN_ERROR) {
           lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$GET_THEN_ERROR.error);
         } else if (then === undefined) {
@@ -1174,7 +1139,7 @@ process.umask = function() { return 0; };
       if (promise === value) {
         lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFulfillment());
       } else if (lib$es6$promise$utils$$objectOrFunction(value)) {
-        lib$es6$promise$$internal$$handleMaybeThenable(promise, value, lib$es6$promise$$internal$$getThen(value));
+        lib$es6$promise$$internal$$handleMaybeThenable(promise, value);
       } else {
         lib$es6$promise$$internal$$fulfill(promise, value);
       }
@@ -1309,6 +1274,104 @@ process.umask = function() { return 0; };
       }
     }
 
+    function lib$es6$promise$enumerator$$Enumerator(Constructor, input) {
+      var enumerator = this;
+
+      enumerator._instanceConstructor = Constructor;
+      enumerator.promise = new Constructor(lib$es6$promise$$internal$$noop);
+
+      if (enumerator._validateInput(input)) {
+        enumerator._input     = input;
+        enumerator.length     = input.length;
+        enumerator._remaining = input.length;
+
+        enumerator._init();
+
+        if (enumerator.length === 0) {
+          lib$es6$promise$$internal$$fulfill(enumerator.promise, enumerator._result);
+        } else {
+          enumerator.length = enumerator.length || 0;
+          enumerator._enumerate();
+          if (enumerator._remaining === 0) {
+            lib$es6$promise$$internal$$fulfill(enumerator.promise, enumerator._result);
+          }
+        }
+      } else {
+        lib$es6$promise$$internal$$reject(enumerator.promise, enumerator._validationError());
+      }
+    }
+
+    lib$es6$promise$enumerator$$Enumerator.prototype._validateInput = function(input) {
+      return lib$es6$promise$utils$$isArray(input);
+    };
+
+    lib$es6$promise$enumerator$$Enumerator.prototype._validationError = function() {
+      return new Error('Array Methods must be provided an Array');
+    };
+
+    lib$es6$promise$enumerator$$Enumerator.prototype._init = function() {
+      this._result = new Array(this.length);
+    };
+
+    var lib$es6$promise$enumerator$$default = lib$es6$promise$enumerator$$Enumerator;
+
+    lib$es6$promise$enumerator$$Enumerator.prototype._enumerate = function() {
+      var enumerator = this;
+
+      var length  = enumerator.length;
+      var promise = enumerator.promise;
+      var input   = enumerator._input;
+
+      for (var i = 0; promise._state === lib$es6$promise$$internal$$PENDING && i < length; i++) {
+        enumerator._eachEntry(input[i], i);
+      }
+    };
+
+    lib$es6$promise$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
+      var enumerator = this;
+      var c = enumerator._instanceConstructor;
+
+      if (lib$es6$promise$utils$$isMaybeThenable(entry)) {
+        if (entry.constructor === c && entry._state !== lib$es6$promise$$internal$$PENDING) {
+          entry._onerror = null;
+          enumerator._settledAt(entry._state, i, entry._result);
+        } else {
+          enumerator._willSettleAt(c.resolve(entry), i);
+        }
+      } else {
+        enumerator._remaining--;
+        enumerator._result[i] = entry;
+      }
+    };
+
+    lib$es6$promise$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
+      var enumerator = this;
+      var promise = enumerator.promise;
+
+      if (promise._state === lib$es6$promise$$internal$$PENDING) {
+        enumerator._remaining--;
+
+        if (state === lib$es6$promise$$internal$$REJECTED) {
+          lib$es6$promise$$internal$$reject(promise, value);
+        } else {
+          enumerator._result[i] = value;
+        }
+      }
+
+      if (enumerator._remaining === 0) {
+        lib$es6$promise$$internal$$fulfill(promise, enumerator._result);
+      }
+    };
+
+    lib$es6$promise$enumerator$$Enumerator.prototype._willSettleAt = function(promise, i) {
+      var enumerator = this;
+
+      lib$es6$promise$$internal$$subscribe(promise, undefined, function(value) {
+        enumerator._settledAt(lib$es6$promise$$internal$$FULFILLED, i, value);
+      }, function(reason) {
+        enumerator._settledAt(lib$es6$promise$$internal$$REJECTED, i, reason);
+      });
+    };
     function lib$es6$promise$promise$all$$all(entries) {
       return new lib$es6$promise$enumerator$$default(this, entries).promise;
     }
@@ -1341,6 +1404,19 @@ process.umask = function() { return 0; };
       return promise;
     }
     var lib$es6$promise$promise$race$$default = lib$es6$promise$promise$race$$race;
+    function lib$es6$promise$promise$resolve$$resolve(object) {
+      /*jshint validthis:true */
+      var Constructor = this;
+
+      if (object && typeof object === 'object' && object.constructor === Constructor) {
+        return object;
+      }
+
+      var promise = new Constructor(lib$es6$promise$$internal$$noop);
+      lib$es6$promise$$internal$$resolve(promise, object);
+      return promise;
+    }
+    var lib$es6$promise$promise$resolve$$default = lib$es6$promise$promise$resolve$$resolve;
     function lib$es6$promise$promise$reject$$reject(reason) {
       /*jshint validthis:true */
       var Constructor = this;
@@ -1471,8 +1547,15 @@ process.umask = function() { return 0; };
       this._subscribers = [];
 
       if (lib$es6$promise$$internal$$noop !== resolver) {
-        typeof resolver !== 'function' && lib$es6$promise$promise$$needsResolver();
-        this instanceof lib$es6$promise$promise$$Promise ? lib$es6$promise$$internal$$initializePromise(this, resolver) : lib$es6$promise$promise$$needsNew();
+        if (!lib$es6$promise$utils$$isFunction(resolver)) {
+          lib$es6$promise$promise$$needsResolver();
+        }
+
+        if (!(this instanceof lib$es6$promise$promise$$Promise)) {
+          lib$es6$promise$promise$$needsNew();
+        }
+
+        lib$es6$promise$$internal$$initializePromise(this, resolver);
       }
     }
 
@@ -1680,7 +1763,28 @@ process.umask = function() { return 0; };
       Useful for tooling.
       @return {Promise}
     */
-      then: lib$es6$promise$then$$default,
+      then: function(onFulfillment, onRejection) {
+        var parent = this;
+        var state = parent._state;
+
+        if (state === lib$es6$promise$$internal$$FULFILLED && !onFulfillment || state === lib$es6$promise$$internal$$REJECTED && !onRejection) {
+          return this;
+        }
+
+        var child = new this.constructor(lib$es6$promise$$internal$$noop);
+        var result = parent._result;
+
+        if (state) {
+          var callback = arguments[state - 1];
+          lib$es6$promise$asap$$asap(function(){
+            lib$es6$promise$$internal$$invokeCallback(state, child, callback, result);
+          });
+        } else {
+          lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection);
+        }
+
+        return child;
+      },
 
     /**
       `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
@@ -1712,97 +1816,6 @@ process.umask = function() { return 0; };
       'catch': function(onRejection) {
         return this.then(null, onRejection);
       }
-    };
-    var lib$es6$promise$enumerator$$default = lib$es6$promise$enumerator$$Enumerator;
-    function lib$es6$promise$enumerator$$Enumerator(Constructor, input) {
-      this._instanceConstructor = Constructor;
-      this.promise = new Constructor(lib$es6$promise$$internal$$noop);
-
-      if (Array.isArray(input)) {
-        this._input     = input;
-        this.length     = input.length;
-        this._remaining = input.length;
-
-        this._result = new Array(this.length);
-
-        if (this.length === 0) {
-          lib$es6$promise$$internal$$fulfill(this.promise, this._result);
-        } else {
-          this.length = this.length || 0;
-          this._enumerate();
-          if (this._remaining === 0) {
-            lib$es6$promise$$internal$$fulfill(this.promise, this._result);
-          }
-        }
-      } else {
-        lib$es6$promise$$internal$$reject(this.promise, this._validationError());
-      }
-    }
-
-    lib$es6$promise$enumerator$$Enumerator.prototype._validationError = function() {
-      return new Error('Array Methods must be provided an Array');
-    };
-
-    lib$es6$promise$enumerator$$Enumerator.prototype._enumerate = function() {
-      var length  = this.length;
-      var input   = this._input;
-
-      for (var i = 0; this._state === lib$es6$promise$$internal$$PENDING && i < length; i++) {
-        this._eachEntry(input[i], i);
-      }
-    };
-
-    lib$es6$promise$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
-      var c = this._instanceConstructor;
-      var resolve = c.resolve;
-
-      if (resolve === lib$es6$promise$promise$resolve$$default) {
-        var then = lib$es6$promise$$internal$$getThen(entry);
-
-        if (then === lib$es6$promise$then$$default &&
-            entry._state !== lib$es6$promise$$internal$$PENDING) {
-          this._settledAt(entry._state, i, entry._result);
-        } else if (typeof then !== 'function') {
-          this._remaining--;
-          this._result[i] = entry;
-        } else if (c === lib$es6$promise$promise$$default) {
-          var promise = new c(lib$es6$promise$$internal$$noop);
-          lib$es6$promise$$internal$$handleMaybeThenable(promise, entry, then);
-          this._willSettleAt(promise, i);
-        } else {
-          this._willSettleAt(new c(function(resolve) { resolve(entry); }), i);
-        }
-      } else {
-        this._willSettleAt(resolve(entry), i);
-      }
-    };
-
-    lib$es6$promise$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
-      var promise = this.promise;
-
-      if (promise._state === lib$es6$promise$$internal$$PENDING) {
-        this._remaining--;
-
-        if (state === lib$es6$promise$$internal$$REJECTED) {
-          lib$es6$promise$$internal$$reject(promise, value);
-        } else {
-          this._result[i] = value;
-        }
-      }
-
-      if (this._remaining === 0) {
-        lib$es6$promise$$internal$$fulfill(promise, this._result);
-      }
-    };
-
-    lib$es6$promise$enumerator$$Enumerator.prototype._willSettleAt = function(promise, i) {
-      var enumerator = this;
-
-      lib$es6$promise$$internal$$subscribe(promise, undefined, function(value) {
-        enumerator._settledAt(lib$es6$promise$$internal$$FULFILLED, i, value);
-      }, function(reason) {
-        enumerator._settledAt(lib$es6$promise$$internal$$REJECTED, i, reason);
-      });
     };
     function lib$es6$promise$polyfill$$polyfill() {
       var local;
@@ -2252,7 +2265,7 @@ var Analytics = (function () {
 
 exports.Analytics = Analytics;
 
-},{"../core/core":12,"../core/logger":16,"../core/promise":17,"../core/request":18,"../core/settings":19,"../core/user":21,"../util/util":31,"./storage":9}],6:[function(require,module,exports){
+},{"../core/core":15,"../core/logger":19,"../core/promise":20,"../core/request":21,"../core/settings":22,"../core/user":24,"../util/util":34,"./storage":9}],6:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -2582,7 +2595,460 @@ var BucketStorage = (function () {
 
 exports.BucketStorage = BucketStorage;
 
-},{"../core/core":12,"../core/settings":19}],10:[function(require,module,exports){
+},{"../core/core":15,"../core/settings":22}],10:[function(require,module,exports){
+// Add Angular integrations if Angular is available
+'use strict';
+
+if (typeof angular === 'object' && angular.module) {
+
+  var IonicAngularAuth = null;
+
+  angular.module('ionic.service.auth', []).factory('$ionicAuth', [function () {
+    if (!IonicAngularAuth) {
+      IonicAngularAuth = Ionic.Auth;
+    }
+    return IonicAngularAuth;
+  }]);
+}
+
+},{}],11:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _coreRequest = require("../core/request");
+
+var _corePromise = require("../core/promise");
+
+var _coreSettings = require("../core/settings");
+
+var _coreStorage = require("../core/storage");
+
+var _coreUser = require("../core/user");
+
+var settings = new _coreSettings.Settings();
+var storage = new _coreStorage.PlatformLocalStorageStrategy();
+var sessionStorage = new _coreStorage.LocalSessionStorageStrategy();
+
+var __authModules = {};
+var __authToken = null;
+
+var authAPIBase = settings.getURL('platform-api') + '/auth';
+var authAPIEndpoints = {
+  'login': function login(provider) {
+    if (provider) {
+      return authAPIBase + '/login/' + provider;
+    }
+    return authAPIBase + '/login';
+  },
+  'signup': function signup() {
+    return authAPIBase + '/users';
+  }
+};
+
+var TempTokenContext = (function () {
+  function TempTokenContext() {
+    _classCallCheck(this, TempTokenContext);
+  }
+
+  _createClass(TempTokenContext, null, [{
+    key: "delete",
+    value: function _delete() {
+      sessionStorage.remove(TempTokenContext.label);
+    }
+  }, {
+    key: "store",
+    value: function store() {
+      sessionStorage.set(TempTokenContext.label, __authToken);
+    }
+  }, {
+    key: "getRawData",
+    value: function getRawData() {
+      return sessionStorage.get(TempTokenContext.label) || false;
+    }
+  }, {
+    key: "label",
+    get: function get() {
+      return "ionic_io_auth_" + settings.get('app_id');
+    }
+  }]);
+
+  return TempTokenContext;
+})();
+
+exports.TempTokenContext = TempTokenContext;
+
+var TokenContext = (function () {
+  function TokenContext() {
+    _classCallCheck(this, TokenContext);
+  }
+
+  _createClass(TokenContext, null, [{
+    key: "delete",
+    value: function _delete() {
+      storage.remove(TokenContext.label);
+    }
+  }, {
+    key: "store",
+    value: function store() {
+      storage.set(TokenContext.label, __authToken);
+    }
+  }, {
+    key: "getRawData",
+    value: function getRawData() {
+      return storage.get(TokenContext.label) || false;
+    }
+  }, {
+    key: "label",
+    get: function get() {
+      return "ionic_io_auth_" + settings.get('app_id');
+    }
+  }]);
+
+  return TokenContext;
+})();
+
+exports.TokenContext = TokenContext;
+
+function storeToken(options, token) {
+  __authToken = token;
+  if (typeof options === 'object' && options.remember) {
+    TokenContext.store();
+  } else {
+    TempTokenContext.store();
+  }
+}
+
+var InAppBrowserFlow = function InAppBrowserFlow(authOptions, options) {
+  _classCallCheck(this, InAppBrowserFlow);
+
+  var deferred = new _corePromise.DeferredPromise();
+
+  if (!window || !window.cordova || !window.cordova.InAppBrowser) {
+    deferred.reject("Missing InAppBrowser plugin");
+  } else {
+    new _coreRequest.APIRequest({
+      'uri': authAPIEndpoints.login(options.provider),
+      'method': options.uri_method || 'POST',
+      'json': true,
+      'form': {
+        'app_id': settings.get('app_id'),
+        'callback': options.callback_uri || window.location.href
+      }
+    }).then(function (data) {
+      var loc = data.payload.data.url;
+      var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
+      tempBrowser.addEventListener('loadstart', function (data) {
+        if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
+          var queryString = data.url.split('#')[0].split('?')[1];
+          var paramParts = queryString.split('&');
+          var params = {};
+          for (var i = 0; i < paramParts.length; i++) {
+            var part = paramParts[i].split('=');
+            params[part[0]] = part[1];
+          }
+          storeToken(authOptions, params.token);
+          tempBrowser.close();
+          deferred.resolve(true);
+        }
+      });
+    }, function (err) {
+      deferred.reject(err);
+    });
+  }
+
+  return deferred.promise;
+};
+
+function getAuthErrorDetails(err) {
+  var details = [];
+  try {
+    details = err.response.body.error.details;
+  } catch (e) {
+    e;
+  }
+  return details;
+}
+
+var Auth = (function () {
+  function Auth() {
+    _classCallCheck(this, Auth);
+  }
+
+  _createClass(Auth, null, [{
+    key: "isAuthenticated",
+    value: function isAuthenticated() {
+      var token = TokenContext.getRawData();
+      var tempToken = TempTokenContext.getRawData();
+      if (tempToken || token) {
+        return true;
+      }
+      return false;
+    }
+  }, {
+    key: "login",
+    value: function login(moduleId, options, data) {
+      var deferred = new _corePromise.DeferredPromise();
+      var context = __authModules[moduleId] || false;
+      if (!context) {
+        throw new Error("Authentication class is invalid or missing:" + context);
+      }
+      context.authenticate.apply(context, [options, data]).then(function () {
+        _coreUser.User.self().then(function (user) {
+          deferred.resolve(user);
+        }, function (err) {
+          deferred.reject(err);
+        });
+      }, function (err) {
+        deferred.reject(err);
+      });
+      return deferred.promise;
+    }
+  }, {
+    key: "signup",
+    value: function signup(data) {
+      var context = __authModules.basic || false;
+      if (!context) {
+        throw new Error("Authentication class is invalid or missing:" + context);
+      }
+      return context.signup.apply(context, [data]);
+    }
+  }, {
+    key: "logout",
+    value: function logout() {
+      TokenContext["delete"]();
+      TempTokenContext["delete"]();
+    }
+  }, {
+    key: "register",
+    value: function register(moduleId, module) {
+      if (!__authModules[moduleId]) {
+        __authModules[moduleId] = module;
+      }
+    }
+  }, {
+    key: "getUserToken",
+    value: function getUserToken() {
+      var usertoken = TokenContext.getRawData();
+      var temptoken = TempTokenContext.getRawData();
+      var token = temptoken || usertoken;
+      if (token) {
+        return token;
+      }
+      return false;
+    }
+  }]);
+
+  return Auth;
+})();
+
+exports.Auth = Auth;
+
+var BasicAuth = (function () {
+  function BasicAuth() {
+    _classCallCheck(this, BasicAuth);
+  }
+
+  _createClass(BasicAuth, null, [{
+    key: "authenticate",
+    value: function authenticate(options, data) {
+      var deferred = new _corePromise.DeferredPromise();
+
+      new _coreRequest.APIRequest({
+        'uri': authAPIEndpoints.login(),
+        'method': 'POST',
+        'json': true,
+        'headers': {
+          'Accept': 'application/json'
+        },
+        'form': {
+          'app_id': settings.get('app_id'),
+          'email': data.email,
+          'password': data.password
+        }
+      }).then(function (data) {
+        storeToken(options, data.payload.data.token);
+        deferred.resolve(true);
+      }, function (err) {
+        deferred.reject(err);
+      });
+
+      return deferred.promise;
+    }
+  }, {
+    key: "signup",
+    value: function signup(data) {
+      var deferred = new _corePromise.DeferredPromise();
+
+      new _coreRequest.APIRequest({
+        'uri': authAPIEndpoints.signup(),
+        'method': 'POST',
+        'json': true,
+        'headers': {
+          'Accept': 'application/json'
+        },
+        'form': {
+          'app_id': settings.get('app_id'),
+          'email': data.email,
+          'password': data.password
+        }
+      }).then(function () {
+        deferred.resolve(true);
+      }, function (err) {
+        var errors = [];
+        var details = getAuthErrorDetails(err);
+        if (details instanceof Array) {
+          for (var i = 0; i < details.length; i++) {
+            var detail = details[i];
+            if (typeof detail === 'object') {
+              if (detail.error_type) {
+                errors.push(detail.error_type + "_" + detail.parameter);
+              }
+            }
+          }
+        }
+        deferred.reject({ "errors": errors });
+      });
+
+      return deferred.promise;
+    }
+  }]);
+
+  return BasicAuth;
+})();
+
+var CustomAuth = (function () {
+  function CustomAuth() {
+    _classCallCheck(this, CustomAuth);
+  }
+
+  _createClass(CustomAuth, null, [{
+    key: "authenticate",
+    value: function authenticate(options) {
+      return new InAppBrowserFlow(options, { 'provider': 'custom' });
+    }
+  }]);
+
+  return CustomAuth;
+})();
+
+var TwitterAuth = (function () {
+  function TwitterAuth() {
+    _classCallCheck(this, TwitterAuth);
+  }
+
+  _createClass(TwitterAuth, null, [{
+    key: "authenticate",
+    value: function authenticate(options) {
+      return new InAppBrowserFlow(options, { 'provider': 'twitter' });
+    }
+  }]);
+
+  return TwitterAuth;
+})();
+
+var FacebookAuth = (function () {
+  function FacebookAuth() {
+    _classCallCheck(this, FacebookAuth);
+  }
+
+  _createClass(FacebookAuth, null, [{
+    key: "authenticate",
+    value: function authenticate(options) {
+      return new InAppBrowserFlow(options, { 'provider': 'facebook' });
+    }
+  }]);
+
+  return FacebookAuth;
+})();
+
+var GithubAuth = (function () {
+  function GithubAuth() {
+    _classCallCheck(this, GithubAuth);
+  }
+
+  _createClass(GithubAuth, null, [{
+    key: "authenticate",
+    value: function authenticate(options) {
+      return new InAppBrowserFlow(options, { 'provider': 'github' });
+    }
+  }]);
+
+  return GithubAuth;
+})();
+
+var GoogleAuth = (function () {
+  function GoogleAuth() {
+    _classCallCheck(this, GoogleAuth);
+  }
+
+  _createClass(GoogleAuth, null, [{
+    key: "authenticate",
+    value: function authenticate(options) {
+      return new InAppBrowserFlow(options, { 'provider': 'google' });
+    }
+  }]);
+
+  return GoogleAuth;
+})();
+
+var InstagramAuth = (function () {
+  function InstagramAuth() {
+    _classCallCheck(this, InstagramAuth);
+  }
+
+  _createClass(InstagramAuth, null, [{
+    key: "authenticate",
+    value: function authenticate(options) {
+      return new InAppBrowserFlow(options, { 'provider': 'instagram' });
+    }
+  }]);
+
+  return InstagramAuth;
+})();
+
+var LinkedInAuth = (function () {
+  function LinkedInAuth() {
+    _classCallCheck(this, LinkedInAuth);
+  }
+
+  _createClass(LinkedInAuth, null, [{
+    key: "authenticate",
+    value: function authenticate(options) {
+      return new InAppBrowserFlow(options, { 'provider': 'linkedin' });
+    }
+  }]);
+
+  return LinkedInAuth;
+})();
+
+Auth.register('basic', BasicAuth);
+Auth.register('custom', CustomAuth);
+Auth.register('facebook', FacebookAuth);
+Auth.register('github', GithubAuth);
+Auth.register('google', GoogleAuth);
+Auth.register('instagram', InstagramAuth);
+Auth.register('linkedin', LinkedInAuth);
+Auth.register('twitter', TwitterAuth);
+
+},{"../core/promise":20,"../core/request":21,"../core/settings":22,"../core/storage":23,"../core/user":24}],12:[function(require,module,exports){
+"use strict";
+
+var _auth = require("./auth");
+
+// Declare the window object
+window.Ionic = window.Ionic || {};
+
+// Ionic Namespace
+Ionic.Auth = _auth.Auth;
+
+},{"./auth":11}],13:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -2613,7 +3079,7 @@ if (typeof angular === 'object' && angular.module) {
   }]);
 }
 
-},{}],11:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2679,7 +3145,7 @@ var App = (function () {
 
 exports.App = App;
 
-},{"./logger":16}],12:[function(require,module,exports){
+},{"./logger":19}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2710,7 +3176,6 @@ var IonicPlatform = (function () {
     this.logger.info('init');
     this._pluginsReady = false;
     this.emitter = IonicPlatform.getEmitter();
-
     this._bootstrap();
 
     if (self.cordovaPlatformUnknown) {
@@ -2947,7 +3412,7 @@ var IonicPlatform = (function () {
 
 exports.IonicPlatform = IonicPlatform;
 
-},{"./events":15,"./logger":16,"./storage":20}],13:[function(require,module,exports){
+},{"./events":18,"./logger":19,"./storage":23}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3080,7 +3545,7 @@ exports.UniqueArray = UniqueArray;
 
 DataType.register('UniqueArray', UniqueArray);
 
-},{}],14:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 
 var _app = require("./app");
@@ -3162,7 +3627,7 @@ Ionic.removeService = function (name) {
 // Kickstart Ionic Platform
 Ionic.io();
 
-},{"./app":11,"./core":12,"./data-types":13,"./events":15,"./logger":16,"./promise":17,"./request":18,"./settings":19,"./storage":20,"./user":21}],15:[function(require,module,exports){
+},{"./app":14,"./core":15,"./data-types":16,"./events":18,"./logger":19,"./promise":20,"./request":21,"./settings":22,"./storage":23,"./user":24}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3199,7 +3664,7 @@ var EventEmitter = (function () {
 
 exports.EventEmitter = EventEmitter;
 
-},{"events":2}],16:[function(require,module,exports){
+},{"events":2}],19:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3266,7 +3731,7 @@ var Logger = (function () {
 
 exports.Logger = Logger;
 
-},{}],17:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3314,7 +3779,7 @@ var DeferredPromise = (function () {
 
 exports.DeferredPromise = DeferredPromise;
 
-},{"es6-promise":4}],18:[function(require,module,exports){
+},{"es6-promise":4}],21:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3328,6 +3793,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _promise = require("./promise");
+
+var _authAuth = require("../auth/auth");
 
 var request = require("browser-request");
 
@@ -3364,6 +3831,13 @@ var APIRequest = (function (_Request) {
     _classCallCheck(this, APIRequest);
 
     _get(Object.getPrototypeOf(APIRequest.prototype), "constructor", this).call(this);
+    options.headers = options.headers || {};
+    if (!options.headers.Authorization) {
+      var token = _authAuth.Auth.getUserToken();
+      if (token) {
+        options.headers.Authorization = 'Bearer ' + token;
+      }
+    }
     var requestInfo = {};
     var p = new _promise.Promise(function (resolve, reject) {
       request(options, function (err, response, result) {
@@ -3375,7 +3849,7 @@ var APIRequest = (function (_Request) {
         } else {
           if (response.statusCode < 200 || response.statusCode >= 400) {
             var _err = new Error("Request Failed with status code of " + response.statusCode);
-            reject(_err);
+            reject({ 'response': response, 'error': _err });
           } else {
             resolve({ 'response': response, 'payload': result });
           }
@@ -3391,7 +3865,7 @@ var APIRequest = (function (_Request) {
 
 exports.APIRequest = APIRequest;
 
-},{"./promise":17,"browser-request":1}],19:[function(require,module,exports){
+},{"../auth/auth":11,"./promise":20,"browser-request":1}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3443,7 +3917,8 @@ var Settings = (function () {
       'api': 'https://apps.ionic.io',
       'push': 'https://push.ionic.io',
       'analytics': 'https://analytics.ionic.io',
-      'deploy': 'https://apps.ionic.io'
+      'deploy': 'https://apps.ionic.io',
+      'platform-api': 'https://api.ionic.io'
     };
     this._devLocations = this.get('dev_locations');
     if (!this._devLocations) {
@@ -3474,7 +3949,7 @@ var Settings = (function () {
 
 exports.Settings = Settings;
 
-},{}],20:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3511,6 +3986,35 @@ var PlatformLocalStorageStrategy = (function () {
 
   return PlatformLocalStorageStrategy;
 })();
+
+exports.PlatformLocalStorageStrategy = PlatformLocalStorageStrategy;
+
+var LocalSessionStorageStrategy = (function () {
+  function LocalSessionStorageStrategy() {
+    _classCallCheck(this, LocalSessionStorageStrategy);
+  }
+
+  _createClass(LocalSessionStorageStrategy, [{
+    key: 'get',
+    value: function get(key) {
+      return window.sessionStorage.getItem(key);
+    }
+  }, {
+    key: 'remove',
+    value: function remove(key) {
+      return window.sessionStorage.removeItem(key);
+    }
+  }, {
+    key: 'set',
+    value: function set(key, value) {
+      return window.sessionStorage.setItem(key, value);
+    }
+  }]);
+
+  return LocalSessionStorageStrategy;
+})();
+
+exports.LocalSessionStorageStrategy = LocalSessionStorageStrategy;
 
 var objectCache = {};
 var memoryLocks = {};
@@ -3638,7 +4142,7 @@ var Storage = (function () {
 
 exports.Storage = Storage;
 
-},{"./promise":17}],21:[function(require,module,exports){
+},{"./promise":20}],24:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3649,43 +4153,37 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var _authAuth = require("../auth/auth");
+
 var _request = require("./request");
 
 var _promise = require("./promise");
 
 var _settings = require("./settings");
 
-var _core = require("./core");
-
 var _storage = require("./storage");
 
 var _logger = require("./logger");
 
-var _pushPushToken = require("../push/push-token");
-
 var _dataTypesJs = require("./data-types.js");
 
-var Core = _core.IonicPlatform;
 var AppUserContext = null;
 var settings = new _settings.Settings();
 var storage = new _storage.Storage();
 
-var userAPIBase = settings.getURL('api') + '/api/v1/app/' + settings.get('app_id') + '/users';
+var userAPIBase = settings.getURL('platform-api') + '/auth/users';
 var userAPIEndpoints = {
-  'load': function load(userModel) {
+  'self': function self() {
+    return userAPIBase + '/self';
+  },
+  'get': function get(userModel) {
     return userAPIBase + '/' + userModel.id;
   },
   'remove': function remove(userModel) {
     return userAPIBase + '/' + userModel.id;
   },
   'save': function save(userModel) {
-    return userAPIBase + '/' + userModel.id;
-  },
-  'identify': function identify() {
-    return userAPIBase + '/identify';
-  },
-  'addToken': function addToken() {
-    return userAPIBase + '/pushUnique';
+    return userAPIBase + '/' + userModel.id + '/custom';
   }
 };
 
@@ -3702,7 +4200,20 @@ var UserContext = (function () {
   }, {
     key: "store",
     value: function store() {
+      if (UserContext.getRawData()) {
+        UserContext.storeLegacyData(UserContext.getRawData());
+      }
+      if (User.current().data.data.__ionic_user_migrated) {
+        storage.storeObject(UserContext.label + '_legacy', { '__ionic_user_migrated': true });
+      }
       storage.storeObject(UserContext.label, User.current());
+    }
+  }, {
+    key: "storeLegacyData",
+    value: function storeLegacyData(data) {
+      if (!UserContext.getRawLegacyData()) {
+        storage.storeObject(UserContext.label + '_legacy', data);
+      }
     }
   }, {
     key: "getRawData",
@@ -3710,10 +4221,16 @@ var UserContext = (function () {
       return storage.retrieveObject(UserContext.label) || false;
     }
   }, {
+    key: "getRawLegacyData",
+    value: function getRawLegacyData() {
+      return storage.retrieveObject(UserContext.label + '_legacy') || false;
+    }
+  }, {
     key: "load",
     value: function load() {
       var data = storage.retrieveObject(UserContext.label) || false;
       if (data) {
+        UserContext.storeLegacyData(data);
         return User.fromContext(data);
       }
       return false;
@@ -3726,113 +4243,6 @@ var UserContext = (function () {
   }]);
 
   return UserContext;
-})();
-
-var PushData = (function () {
-
-  /**
-   * Push Data Object
-   *
-   * Holds push data to use in conjunction with Ionic User models.
-   * @constructor
-   * @param {object} tokens Formatted token data
-   */
-
-  function PushData(tokens) {
-    _classCallCheck(this, PushData);
-
-    this.logger = new _logger.Logger({
-      'prefix': 'Ionic Push Token:'
-    });
-    this.tokens = {
-      'android': [],
-      'ios': []
-    };
-    if (tokens && typeof tokens === 'object') {
-      this.tokens = tokens;
-    }
-  }
-
-  /**
-   * Add a new token to the current list of tokens
-   * Duplicates are not added, but still return as succesfully added.
-   *
-   * @param {ionic.io.push.Token} token Push Token
-   * @return {boolean} False on error, otherwise true
-   */
-
-  _createClass(PushData, [{
-    key: "addToken",
-    value: function addToken(token) {
-      var platform = null;
-
-      if (typeof token === 'undefined' || !token || token === '') {
-        this.logger.info('you need to pass a valid token to addToken()');
-        return false;
-      }
-
-      if (token.token) {
-        token = token.token;
-      }
-
-      // check if this is a dev token
-      if (token.slice(0, 3) === 'DEV') {
-        this.logger.info('dev tokens cannot be saved to a user as they are a temporary resource');
-        return false;
-      }
-
-      if (Core.isAndroidDevice()) {
-        platform = 'android';
-      } else if (Core.isIOSDevice()) {
-        platform = 'ios';
-      }
-
-      if (platform === null || !this.tokens.hasOwnProperty(platform)) {
-        this.logger.info('cannot determine the token platform. Are you running on an Android or iOS device?');
-        return false;
-      }
-
-      var platformTokens = this.tokens[platform];
-      var hasToken = false;
-      var testToken = null;
-
-      for (testToken in platformTokens) {
-        if (platformTokens[testToken] === token) {
-          hasToken = true;
-        }
-      }
-      if (!hasToken) {
-        platformTokens.push(token);
-      }
-
-      return true;
-    }
-
-    /**
-     * Remove the specified token if it exists in any platform token listing
-     * If it does not exist, nothing is removed, but we will still return success
-     *
-     * @param {ionic.io.push.Token} token Push Token
-     * @return {boolean} true
-     */
-  }, {
-    key: "removeToken",
-    value: function removeToken(token) {
-      var x;
-      for (x in this.tokens) {
-        var platform = this.tokens[x];
-        var testToken;
-        for (testToken in platform) {
-          if (platform[testToken] === token.token) {
-            platform.splice(testToken, 1);
-          }
-        }
-      }
-      return true;
-    }
-  }]);
-
-  return PushData;
 })();
 
 var UserData = (function () {
@@ -3902,7 +4312,6 @@ var User = (function () {
     this._dirty = false;
     this._fresh = true;
     this._unset = {};
-    this.push = new PushData();
     this.data = new UserData();
   }
 
@@ -3910,6 +4319,23 @@ var User = (function () {
     key: "isDirty",
     value: function isDirty() {
       return this._dirty;
+    }
+  }, {
+    key: "isAnonymous",
+    value: function isAnonymous() {
+      if (!this.id) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }, {
+    key: "isAuthenticated",
+    value: function isAuthenticated() {
+      if (this === User.current()) {
+        return _authAuth.Auth.isAuthenticated();
+      }
+      return false;
     }
   }, {
     key: "isFresh",
@@ -3927,18 +4353,7 @@ var User = (function () {
   }, {
     key: "getAPIFormat",
     value: function getAPIFormat() {
-      var self = this;
-      var data = this.data.data;
-      data.user_id = this.id; // eslint-disable-line camelcase
-      data._push = {
-        'android_tokens': this.push.tokens.android,
-        'ios_tokens': this.push.tokens.ios
-      };
-
-      if (!this.isFresh()) {
-        return { 'update': data, 'remove': self._unset };
-      }
-      return data;
+      return this.data.data;
     }
   }, {
     key: "getFormat",
@@ -3946,11 +4361,25 @@ var User = (function () {
       var self = this;
       var formatted = null;
       switch (format) {
-        case 'api':
+        case 'api-custom-save':
           formatted = self.getAPIFormat();
           break;
       }
       return formatted;
+    }
+  }, {
+    key: "migrate",
+    value: function migrate() {
+      var rawData = UserContext.getRawLegacyData();
+      if (rawData.__ionic_user_migrated) {
+        return true;
+      }
+      if (rawData) {
+        var userData = new UserData(rawData.data.data);
+        for (var key in userData.data) {
+          Ionic.User.current().set(key, userData.data[key]);
+        }
+      }
     }
   }, {
     key: "delete",
@@ -4011,20 +4440,14 @@ var User = (function () {
       if (!self._blockSave) {
         self._blockSave = true;
         self._store();
-        var saveURL = userAPIEndpoints.save(this);
-        var saveMethod = 'PUT';
-        if (self.isFresh()) {
-          saveURL = userAPIEndpoints.identify(this);
-          saveMethod = 'POST';
-        }
         new _request.APIRequest({
-          'uri': saveURL,
-          'method': saveMethod,
+          'uri': userAPIEndpoints.save(this),
+          'method': 'PUT',
           'headers': {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
-          'body': JSON.stringify(self.getFormat('api'))
+          'body': JSON.stringify(self.getFormat('api-custom-save'))
         }).then(function (result) {
           self._dirty = false;
           if (!self.isFresh()) {
@@ -4051,19 +4474,6 @@ var User = (function () {
     key: "toString",
     value: function toString() {
       return '<IonicUser [\'' + this.id + '\']>';
-    }
-  }, {
-    key: "addPushToken",
-    value: function addPushToken(token) {
-      return this.push.addToken(token);
-    }
-  }, {
-    key: "removePushToken",
-    value: function removePushToken(token) {
-      if (!(token instanceof _pushPushToken.PushToken)) {
-        token = new _pushPushToken.PushToken(token);
-      }
-      return this.push.removeToken(token);
     }
   }, {
     key: "set",
@@ -4118,10 +4528,50 @@ var User = (function () {
       var user = new User();
       user.id = data._id;
       user.data = new UserData(data.data.data);
-      user.push = new PushData(data.push.tokens);
+      user.details = data.details || {};
       user._fresh = data._fresh;
       user._dirty = data._dirty;
       return user;
+    }
+  }, {
+    key: "self",
+    value: function self() {
+      var deferred = new _promise.DeferredPromise();
+      var tempUser = new User();
+
+      if (!tempUser._blockLoad) {
+        tempUser._blockLoad = true;
+        new _request.APIRequest({
+          'uri': userAPIEndpoints.self(),
+          'method': 'GET',
+          'json': true,
+          'headers': {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }).then(function (result) {
+          tempUser._blockLoad = false;
+          tempUser.logger.info('loaded user');
+
+          // set the custom data
+          tempUser.id = result.payload.data.uuid;
+          tempUser.data = new UserData(result.payload.data.custom);
+          tempUser.details = result.payload.data.details;
+          tempUser._fresh = false;
+
+          User.current(tempUser);
+          deferred.resolve(tempUser);
+        }, function (error) {
+          tempUser._blockLoad = false;
+          tempUser.logger.error(error);
+          deferred.reject(error);
+        });
+      } else {
+        tempUser.logger.info("a load operation is already in progress for " + this + ".");
+        deferred.reject(false);
+      }
+
+      return deferred.promise;
     }
   }, {
     key: "load",
@@ -4134,7 +4584,7 @@ var User = (function () {
       if (!tempUser._blockLoad) {
         tempUser._blockLoad = true;
         new _request.APIRequest({
-          'uri': userAPIEndpoints.load(tempUser),
+          'uri': userAPIEndpoints.get(tempUser),
           'method': 'GET',
           'json': true,
           'headers': {
@@ -4146,17 +4596,8 @@ var User = (function () {
           tempUser.logger.info('loaded user');
 
           // set the custom data
-          tempUser.data = new UserData(result.payload.custom_data);
-
-          // set the push tokens
-          if (result.payload._push && result.payload._push.android_tokens) {
-            tempUser.push.tokens.android = result.payload._push.android_tokens;
-          }
-          if (result.payload._push && result.payload._push.ios_tokens) {
-            tempUser.push.tokens.ios = result.payload._push.ios_tokens;
-          }
-
-          tempUser.image = result.payload.image;
+          tempUser.data = new UserData(result.payload.data.custom);
+          tempUser.details = result.payload.data.details;
           tempUser._fresh = false;
 
           deferred.resolve(tempUser);
@@ -4172,16 +4613,6 @@ var User = (function () {
 
       return deferred.promise;
     }
-  }, {
-    key: "anonymousId",
-    value: function anonymousId() {
-      // this is not guaranteed to be unique
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : r & 0x3 | 0x8; //eslint-disable-line
-        return v.toString(16);
-      });
-    }
   }]);
 
   return User;
@@ -4189,7 +4620,7 @@ var User = (function () {
 
 exports.User = User;
 
-},{"../push/push-token":29,"./core":12,"./data-types.js":13,"./logger":16,"./promise":17,"./request":18,"./settings":19,"./storage":20}],22:[function(require,module,exports){
+},{"../auth/auth":11,"./data-types.js":16,"./logger":19,"./promise":20,"./request":21,"./settings":22,"./storage":23}],25:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -4205,7 +4636,7 @@ if (typeof angular === 'object' && angular.module) {
   }]);
 }
 
-},{}],23:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4694,7 +5125,7 @@ var Deploy = (function () {
 
 exports.Deploy = Deploy;
 
-},{"../core/core":12,"../core/events":15,"../core/logger":16,"../core/promise":17,"../core/settings":19}],24:[function(require,module,exports){
+},{"../core/core":15,"../core/events":18,"../core/logger":19,"../core/promise":20,"../core/settings":22}],27:[function(require,module,exports){
 "use strict";
 
 var _deploy = require("./deploy");
@@ -4705,7 +5136,7 @@ window.Ionic = window.Ionic || {};
 // Ionic Namespace
 Ionic.Deploy = _deploy.Deploy;
 
-},{"./deploy":23}],25:[function(require,module,exports){
+},{"./deploy":26}],28:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -4788,7 +5219,7 @@ if (typeof angular === 'object' && angular.module) {
   }]);
 }
 
-},{}],26:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 
 var _push = require("./push");
@@ -4802,7 +5233,7 @@ window.Ionic = window.Ionic || {};
 Ionic.Push = _push.Push;
 Ionic.PushToken = _pushToken.PushToken;
 
-},{"./push":30,"./push-token":29}],27:[function(require,module,exports){
+},{"./push":33,"./push-token":32}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4857,7 +5288,7 @@ var PushDevService = (function () {
     this.logger = new _coreLogger.Logger({
       'prefix': 'Ionic Push (dev):'
     });
-    this._serviceHost = settings.getURL('push');
+    this._serviceHost = settings.getURL('platform-api') + '/push';
     this._token = false;
     this._watch = false;
   }
@@ -4901,13 +5332,13 @@ var PushDevService = (function () {
 
       var requestOptions = {
         "method": 'POST',
-        "uri": this._serviceHost + '/dev/push',
+        "uri": this._serviceHost + '/development',
         'headers': {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
         "body": JSON.stringify({
-          "dev_token": token
+          "token": token
         })
       };
 
@@ -4938,19 +5369,18 @@ var PushDevService = (function () {
       var self = this;
       var requestOptions = {
         'method': 'GET',
-        'uri': this._serviceHost + '/dev/push/check',
+        'uri': self._serviceHost + '/development?token=' + self._token,
         'headers': {
           'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'X-Ionic-Dev-Token': this._token
+          'Content-Type': 'application/json'
         },
         'json': true
       };
 
       new _coreRequest.APIRequest(requestOptions).then(function (result) {
-        if (result.payload.messages.length > 0) {
+        if (result.payload.data.message) {
           var message = {
-            'message': result.payload.messages[0],
+            'message': result.payload.data.message,
             'title': 'DEVELOPMENT PUSH'
           };
 
@@ -4997,7 +5427,7 @@ var PushDevService = (function () {
 
 exports.PushDevService = PushDevService;
 
-},{"../core/logger":16,"../core/request":18,"../core/settings":19,"./push-token":29}],28:[function(require,module,exports){
+},{"../core/logger":19,"../core/request":21,"../core/settings":22,"./push-token":32}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5105,7 +5535,7 @@ var PushMessage = (function () {
 
 exports.PushMessage = PushMessage;
 
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5144,7 +5574,7 @@ var PushToken = (function () {
 
 exports.PushToken = PushToken;
 
-},{}],30:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5169,6 +5599,8 @@ var _coreRequest = require("../core/request");
 
 var _corePromise = require("../core/promise");
 
+var _coreUser = require("../core/user");
+
 var _pushToken = require("./push-token");
 
 var _pushMessage = require("./push-message");
@@ -5179,10 +5611,13 @@ var settings = new _coreSettings.Settings();
 
 var DEFER_INIT = "DEFER_INIT";
 
-var pushAPIBase = settings.getURL('api') + '/api/v1/app/' + settings.get('app_id') + '/push';
+var pushAPIBase = settings.getURL('platform-api') + '/push';
 var pushAPIEndpoints = {
+  'saveToken': function saveToken() {
+    return pushAPIBase + '/tokens';
+  },
   'invalidateToken': function invalidateToken() {
-    return pushAPIBase + '/invalidate-token';
+    return pushAPIBase + '/tokens/invalidate';
   }
 };
 
@@ -5243,6 +5678,7 @@ var Push = (function () {
     this._isReady = false;
     this._tokenReady = false;
     this._blockRegistration = false;
+    this._blockSaveToken = false;
     this._registered = false;
     this._emitter = new _coreEvents.EventEmitter();
     if (config !== DEFER_INIT) {
@@ -5286,7 +5722,7 @@ var Push = (function () {
   }, {
     key: "init",
     value: function init(config) {
-      this._getPushPlugin();
+      this.getPushPlugin();
       if (typeof config === 'undefined') {
         config = {};
       }
@@ -5327,29 +5763,48 @@ var Push = (function () {
       this._emitter.emit('ionic_push:ready', { "config": this._config });
       return this;
     }
-
-    /**
-     * Store the currently registered device token with a User
-     *
-     * @param {IonicUser} user The User the token should be associated with
-     * @return {void}
-     */
   }, {
-    key: "addTokenToUser",
-    value: function addTokenToUser(user) {
-      if (!this._token) {
-        this.logger.info('a token must be registered before you can add it to a user.');
+    key: "saveToken",
+    value: function saveToken(token, options) {
+      var deferred = new _corePromise.DeferredPromise();
+      var opts = options || {};
+      if (token.token) {
+        token = token.token;
       }
-      if (typeof user === 'object') {
-        if (_coreCore.IonicPlatform.isAndroidDevice()) {
-          user.addPushToken(this._token, 'android');
-        } else if (_coreCore.IonicPlatform.isIOSDevice()) {
-          user.addPushToken(this._token, 'ios');
-        } else {
-          this.logger.info('token is not a valid Android or iOS registration id. Cannot save to user.');
+
+      var tokenData = { 'token': token };
+
+      if (!opts.ignore_user) {
+        var user = _coreUser.User.current();
+        if (user.isAuthenticated()) {
+          tokenData.user_id = user.id; // eslint-disable-line
         }
+      }
+
+      if (!self._blockSaveToken) {
+        new _coreRequest.APIRequest({
+          'uri': pushAPIEndpoints.saveToken(),
+          'method': 'POST',
+          'headers': {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          'body': JSON.stringify(tokenData)
+        }).then(function (result) {
+          self._blockSaveToken = false;
+          self.logger.info('saved push token: ' + token);
+          if (tokenData.user_id) {
+            self.logger.info('added push token to user: ' + tokenData.user_id);
+          }
+          deferred.resolve(result);
+        }, function (error) {
+          self._blockSaveToken = false;
+          self.logger.error(error);
+          deferred.reject(error);
+        });
       } else {
-        this.logger.info('invalid $ionicUser object passed to $ionicPush.addToUser()');
+        self.logger.info("a token save operation is already in progress.");
+        deferred.reject(false);
       }
     }
 
@@ -5421,7 +5876,7 @@ var Push = (function () {
           this._plugin.unregister(function () {}, function () {});
         }
         new _coreRequest.APIRequest({
-          'uri': pushAPIEndpoints.invalidateToken(self),
+          'uri': pushAPIEndpoints.invalidateToken(),
           'method': 'POST',
           'headers': {
             'Accept': 'application/json',
@@ -5642,15 +6097,21 @@ var Push = (function () {
       this._emitter.emit('ionic_push:processNotification', notification);
     }
 
+    /* Deprecated in favor of `getPushPlugin` */
+  }, {
+    key: "_getPushPlugin",
+    value: function _getPushPlugin() {
+      return this.getPushPlugin();
+    }
+
     /**
      * Fetch the phonegap-push-plugin interface
-     * Internal Method
      *
      * @return {PushNotification} PushNotification instance
      */
   }, {
-    key: "_getPushPlugin",
-    value: function _getPushPlugin() {
+    key: "getPushPlugin",
+    value: function getPushPlugin() {
       var self = this;
       var PushPlugin = false;
       try {
@@ -5700,7 +6161,7 @@ var Push = (function () {
 
 exports.Push = Push;
 
-},{"../core/app":11,"../core/core":12,"../core/events":15,"../core/logger":16,"../core/promise":17,"../core/request":18,"../core/settings":19,"./push-dev":27,"./push-message":28,"./push-token":29}],31:[function(require,module,exports){
+},{"../core/app":14,"../core/core":15,"../core/events":18,"../core/logger":19,"../core/promise":20,"../core/request":21,"../core/settings":22,"../core/user":24,"./push-dev":30,"./push-message":31,"./push-token":32}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5732,4 +6193,4 @@ function deepExtend(out) {
   return out;
 }
 
-},{}]},{},[17,18,15,16,20,19,13,12,21,11,14,10,29,28,27,30,26,25,23,24,22,9,8,5,7,6]);
+},{}]},{},[20,21,18,19,23,22,16,15,24,14,17,13,11,12,10,32,31,30,33,29,28,26,27,25,9,8,5,7,6]);
