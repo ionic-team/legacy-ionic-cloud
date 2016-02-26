@@ -282,10 +282,12 @@ export class User {
       return true;
     }
     if (rawData) {
+      var currentUser = Ionic.User.current();
       var userData = new UserData(rawData.data.data);
       for (var key in userData.data) {
-        Ionic.User.current().set(key, userData.data[key]);
+        currentUser.set(key, userData.data[key]);
       }
+      currentUser.set('__ionic_user_migrated', true);
     }
   }
 
