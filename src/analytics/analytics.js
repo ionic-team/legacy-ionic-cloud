@@ -137,8 +137,7 @@ export class Analytics {
     var requestOptions = {
       "method": 'POST',
       "url": self._serviceHost + '/api/v1/events/' + settings.get('app_id'),
-      "body": payload,
-      "json": true,
+      "json": payload,
       "headers": {
         "Authorization": ANALYTICS_KEY
       }
@@ -156,8 +155,7 @@ export class Analytics {
     var requestOptions = {
       "method": 'POST',
       "url": self._serviceHost + '/api/v1/events/' + settings.get('app_id'),
-      "body": events,
-      "json": true,
+      "json": events,
       "headers": {
         "Authorization": ANALYTICS_KEY
       }

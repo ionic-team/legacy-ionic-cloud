@@ -81,8 +81,7 @@ class InAppBrowserFlow {
       new APIRequest({
         'uri': authAPIEndpoints.login(options.provider),
         'method': options.uri_method || 'POST',
-        'json': true,
-        'form': {
+        'json': {
           'app_id': settings.get('app_id'),
           'callback': options.callback_uri || window.location.href
         }
@@ -189,11 +188,7 @@ class BasicAuth {
     new APIRequest({
       'uri': authAPIEndpoints.login(),
       'method': 'POST',
-      'json': true,
-      'headers': {
-        'Accept': 'application/json'
-      },
-      'form': {
+      'json': {
         'app_id': settings.get('app_id'),
         'email': data.email,
         'password': data.password
@@ -214,11 +209,7 @@ class BasicAuth {
     new APIRequest({
       'uri': authAPIEndpoints.signup(),
       'method': 'POST',
-      'json': true,
-      'headers': {
-        'Accept': 'application/json'
-      },
-      'form': {
+      'json': {
         'app_id': settings.get('app_id'),
         'email': data.email,
         'password': data.password

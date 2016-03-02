@@ -184,11 +184,7 @@ export class User {
       new APIRequest({
         'uri': userAPIEndpoints.self(),
         'method': 'GET',
-        'json': true,
-        'headers': {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+        'json': true
       }).then(function(result) {
         tempUser._blockLoad = false;
         tempUser.logger.info('loaded user');
@@ -225,11 +221,7 @@ export class User {
       new APIRequest({
         'uri': userAPIEndpoints.get(tempUser),
         'method': 'GET',
-        'json': true,
-        'headers': {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+        'json': true
       }).then(function(result) {
         tempUser._blockLoad = false;
         tempUser.logger.info('loaded user');
@@ -308,10 +300,7 @@ export class User {
       new APIRequest({
         'uri': userAPIEndpoints.remove(this),
         'method': 'DELETE',
-        'headers': {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+        'json': true
       }).then(function(result) {
         self._blockDelete = false;
         self.logger.info('deleted ' + self);
@@ -351,11 +340,7 @@ export class User {
       new APIRequest({
         'uri': userAPIEndpoints.save(this),
         'method': 'PUT',
-        'headers': {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        'body': JSON.stringify(self.getFormat('api-custom-save'))
+        'json': self.getFormat('api-custom-save')
       }).then(function(result) {
         self._dirty = false;
         if (!self.isFresh()) {

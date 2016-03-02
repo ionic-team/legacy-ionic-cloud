@@ -175,11 +175,7 @@ export class Push {
       new APIRequest({
         'uri': pushAPIEndpoints.saveToken(),
         'method': 'POST',
-        'headers': {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        'body': JSON.stringify(tokenData)
+        'json': tokenData
       }).then(function(result) {
         self._blockSaveToken = false;
         self.logger.info('saved push token: ' + token);
@@ -264,14 +260,10 @@ export class Push {
       new APIRequest({
         'uri': pushAPIEndpoints.invalidateToken(),
         'method': 'POST',
-        'headers': {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        'body': JSON.stringify({
+        'json': {
           'platform': platform,
           'token': self.getStorageToken().token
-        })
+        }
       }).then(function(result) {
         self._blockUnregister = false;
         self.logger.info('unregistered push token: ' + self.getStorageToken().token);

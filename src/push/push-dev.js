@@ -76,13 +76,9 @@ export class PushDevService {
     var requestOptions = {
       "method": 'POST',
       "uri": this._serviceHost + '/development',
-      'headers': {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      "body": JSON.stringify({
+      "json": {
         "token": token
-      })
+      }
     };
 
     new APIRequest(requestOptions).then(function() {
@@ -111,10 +107,6 @@ export class PushDevService {
     var requestOptions = {
       'method': 'GET',
       'uri': self._serviceHost + '/development?token=' + self._token,
-      'headers': {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
       'json': true
     };
 
