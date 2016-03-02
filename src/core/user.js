@@ -108,6 +108,9 @@ class UserData {
     if (this.data.hasOwnProperty(key)) {
       return this.data[key];
     } else {
+      if (defaultValue === 0 || defaultValue === false) {
+        return defaultValue;
+      }
       return defaultValue || null;
     }
   }
