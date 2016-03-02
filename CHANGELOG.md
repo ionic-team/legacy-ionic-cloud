@@ -1,3 +1,14 @@
+## 0.3.0
+
+* (auth) Introduced Authentication component
+* **(breaking)** both Ionic.User and Ionic.Push utilize new beta API
+  access and have modified/added/removed some of the current methods
+* (push) Added public method to get push pluginI
+* (user) Added migrate method for alpha users
+* (user) (fix) Falsy values are allowed in `get(key, defaultValue)`
+* (analytics) (fix) events are no longer mutated
+
+
 ## 0.2.1
 
 * (push) (fix) prevent dev-mode from registering multiple callbacks

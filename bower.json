@@ -1,10 +1,11 @@
 {
   "name": "ionic-platform-web-client",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "homepage": "https://github.com/driftyco/ionic-platform-web-client",
   "authors": [
-    "Eric Bobbitt <eric@drifty.com",
-    "William Pelrine <rudy@drifty.com>"
+    "Eric Bobbitt <eric@ionic.io",
+    "William Pelrine <rudy@ionic.io>",
+    "Dan Imhoff <dan@ionic.io>"
   ],
   "description": "Ionic platform web client",
   "main": "dist/ionic.io.bundle.min.js",
