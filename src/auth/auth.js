@@ -71,7 +71,7 @@ function storeToken(options, token) {
 }
 
 class InAppBrowserFlow {
-  constructor(authOptions, options) {
+  constructor(authOptions, options, data) {
 
     var deferred = new DeferredPromise();
 
@@ -83,7 +83,8 @@ class InAppBrowserFlow {
         'method': options.uri_method || 'POST',
         'json': {
           'app_id': settings.get('app_id'),
-          'callback': options.callback_uri || window.location.href
+          'callback': options.callback_uri || window.location.href,
+          'data': data
         }
       }).then(function(data) {
         var loc = data.payload.data.url;
@@ -237,44 +238,44 @@ class BasicAuth {
 }
 
 class CustomAuth {
-  static authenticate(options) {
-    return new InAppBrowserFlow(options, { 'provider': 'custom' });
+  static authenticate(options, data) {
+    return new InAppBrowserFlow(options, { 'provider': 'custom' }, data);
   }
 }
 
 class TwitterAuth {
-  static authenticate(options) {
-    return new InAppBrowserFlow(options, { 'provider': 'twitter' });
+  static authenticate(options, data) {
+    return new InAppBrowserFlow(options, { 'provider': 'twitter' }, data);
   }
 }
 
 class FacebookAuth {
-  static authenticate(options) {
-    return new InAppBrowserFlow(options, { 'provider': 'facebook' });
+  static authenticate(options, data) {
+    return new InAppBrowserFlow(options, { 'provider': 'facebook' }, data);
   }
 }
 
 class GithubAuth {
-  static authenticate(options) {
-    return new InAppBrowserFlow(options, { 'provider': 'github' });
+  static authenticate(options, data) {
+    return new InAppBrowserFlow(options, { 'provider': 'github' }, data);
   }
 }
 
 class GoogleAuth {
-  static authenticate(options) {
-    return new InAppBrowserFlow(options, { 'provider': 'google' });
+  static authenticate(options, data) {
+    return new InAppBrowserFlow(options, { 'provider': 'google' }, data);
   }
 }
 
 class InstagramAuth {
-  static authenticate(options) {
-    return new InAppBrowserFlow(options, { 'provider': 'instagram' });
+  static authenticate(options, data) {
+    return new InAppBrowserFlow(options, { 'provider': 'instagram' }, data);
   }
 }
 
 class LinkedInAuth {
-  static authenticate(options) {
-    return new InAppBrowserFlow(options, { 'provider': 'linkedin' });
+  static authenticate(options, data) {
+    return new InAppBrowserFlow(options, { 'provider': 'linkedin' }, data);
   }
 }
 
