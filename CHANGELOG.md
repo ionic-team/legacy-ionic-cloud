@@ -1,3 +1,7 @@
+## 0.4.0
+
+* (auth) Added ability to send data in custom authentication request
+
 ## 0.3.0
 
 * (auth) Introduced Authentication component
