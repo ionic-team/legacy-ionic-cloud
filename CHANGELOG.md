@@ -1,3 +1,8 @@
+## 0.5.0
+
+* (user) Added `resetPassword()` method to users
+* (user) (fix) Update user details with custom data during `save()`
+
 ## 0.4.0
 
 * (auth) Added ability to send data in custom authentication request
