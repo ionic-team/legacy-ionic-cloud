@@ -23,6 +23,9 @@ var userAPIEndpoints = {
   },
   'save': function(userModel) {
     return userAPIBase + '/' + userModel.id;
+  },
+  'passwordReset': function(userModel) {
+    return userAPIBase + '/' + userModel.id + '/password-reset';
   }
 };
 
@@ -365,6 +368,25 @@ export class User {
       self.logger.info("a save operation is already in progress for " + this + ".");
       deferred.reject(false);
     }
+
+    return deferred.promise;
+  }
+
+  resetPassword() {
+    var self = this;
+    var deferred = new DeferredPromise();
+
+    new APIRequest({
+      'uri': userAPIEndpoints.passwordReset(this),
+      'method': 'POST',
+      'json': true
+    }).then(function(result) {
+      self.logger.info('password reset for user');
+      deferred.resolve(result);
+    }, function(error) {
+      self.logger.error(error);
+      deferred.reject(error);
+    });
 
     return deferred.promise;
   }
