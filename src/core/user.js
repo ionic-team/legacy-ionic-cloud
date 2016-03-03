@@ -22,7 +22,7 @@ var userAPIEndpoints = {
     return userAPIBase + '/' + userModel.id;
   },
   'save': function(userModel) {
-    return userAPIBase + '/' + userModel.id + '/custom';
+    return userAPIBase + '/' + userModel.id;
   }
 };
 
@@ -257,14 +257,19 @@ export class User {
   }
 
   getAPIFormat() {
-    return this.data.data;
+    var apiFormat = {};
+    for (var key in this.details) {
+      apiFormat[key] = this.details[key];
+    }
+    apiFormat.custom = this.data.data;
+    return apiFormat;
   }
 
   getFormat(format) {
     var self = this;
     var formatted = null;
     switch (format) {
-      case 'api-custom-save':
+      case 'api-save':
         formatted = self.getAPIFormat();
         break;
     }
@@ -339,8 +344,8 @@ export class User {
       self._store();
       new APIRequest({
         'uri': userAPIEndpoints.save(this),
-        'method': 'PUT',
-        'json': self.getFormat('api-custom-save')
+        'method': 'PATCH',
+        'json': self.getFormat('api-save')
       }).then(function(result) {
         self._dirty = false;
         if (!self.isFresh()) {
