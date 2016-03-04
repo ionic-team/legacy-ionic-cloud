@@ -378,8 +378,7 @@ export class User {
 
     new APIRequest({
       'uri': userAPIEndpoints.passwordReset(this),
-      'method': 'POST',
-      'json': true
+      'method': 'POST'
     }).then(function(result) {
       self.logger.info('password reset for user');
       deferred.resolve(result);
