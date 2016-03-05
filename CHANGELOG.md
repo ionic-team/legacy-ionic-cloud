@@ -1,3 +1,7 @@
+## 0.5.1
+
+* (auth) (user) Pass additional user details with user signup
+
 ## 0.5.0
 
 * (user) Added `resetPassword()` method to users

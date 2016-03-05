@@ -207,14 +207,22 @@ class BasicAuth {
   static signup(data) {
     var deferred = new DeferredPromise();
 
+    var userData = {
+      'app_id': settings.get('app_id'),
+      'email': data.email,
+      'password': data.password
+    };
+
+    // optional details
+    if (data.username) { userData.username = data.username; }
+    if (data.image) { userData.image = data.image; }
+    if (data.name) { userData.name = data.name; }
+    if (data.custom) { userData.custom = data.custom; }
+
     new APIRequest({
       'uri': authAPIEndpoints.signup(),
       'method': 'POST',
-      'json': {
-        'app_id': settings.get('app_id'),
-        'email': data.email,
-        'password': data.password
-      }
+      'json': userData
     }).then(function() {
       deferred.resolve(true);
     }, function(err) {
