@@ -5787,7 +5787,10 @@ var Push = (function () {
         token = token.token;
       }
 
-      var tokenData = { 'token': token };
+      var tokenData = {
+        'token': token,
+        'app_id': settings.get('app_id')
+      };
 
       if (!opts.ignore_user) {
         var user = _coreUser.User.current();

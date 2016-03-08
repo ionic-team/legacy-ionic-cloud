@@ -1,3 +1,7 @@
+## 0.5.2
+
+* (push) Allow saving of tokens without user context
+
 ## 0.5.1
 
 * (auth) (user) Pass additional user details with user signup
