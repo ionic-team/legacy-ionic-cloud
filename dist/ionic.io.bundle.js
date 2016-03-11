@@ -3409,7 +3409,7 @@ var IonicPlatform = (function () {
   }, {
     key: "Version",
     get: function get() {
-      return '0.5.1';
+      return '0.6.0';
     }
   }]);
 
@@ -5202,21 +5202,8 @@ if (typeof angular === 'object' && angular.module) {
          * @return {void}
          */
         value: function notificationNavigation(notification) {
-          var state = false;
-          var stateParams = {};
-
-          try {
-            state = notification.additionalData.payload.$state;
-          } catch (e) {
-            state = false;
-          }
-
-          try {
-            stateParams = JSON.parse(notification.additionalData.payload.$stateParams);
-          } catch (e) {
-            stateParams = {};
-          }
-
+          var state = notification.payload.$state || false;
+          var stateParams = notification.payload.$stateParams || {};
           if (state) {
             $state.go(state, stateParams);
           }
@@ -5235,8 +5222,11 @@ if (typeof angular === 'object' && angular.module) {
   }]).run(['$ionicPush', '$ionicPushAction', function ($ionicPush, $ionicPushAction) {
     // This is what kicks off the state redirection when a push notificaiton has the relevant details
     $ionicPush._emitter.on('ionic_push:processNotification', function (notification) {
-      if (notification && notification.additionalData && notification.additionalData.foreground === false) {
-        $ionicPushAction.notificationNavigation(notification);
+      notification = Ionic.PushMessage.fromPluginJSON(notification);
+      if (notification && notification.app) {
+        if (notification.app.asleep === true || notification.app.closed === true) {
+          $ionicPushAction.notificationNavigation(notification);
+        }
       }
     });
   }]);
@@ -5249,14 +5239,17 @@ var _push = require("./push");
 
 var _pushToken = require("./push-token");
 
+var _pushMessage = require("./push-message");
+
 // Declare the window object
 window.Ionic = window.Ionic || {};
 
 // Ionic Namespace
 Ionic.Push = _push.Push;
 Ionic.PushToken = _pushToken.PushToken;
+Ionic.PushMessage = _pushMessage.PushMessage;
 
-},{"./push":33,"./push-token":32}],30:[function(require,module,exports){
+},{"./push":33,"./push-message":31,"./push-token":32}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

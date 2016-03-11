@@ -29,21 +29,8 @@ if ((typeof angular === 'object') && angular.module) {
        * @return {void}
        */
       notificationNavigation(notification) {
-        var state = false;
-        var stateParams = {};
-
-        try {
-          state = notification.additionalData.payload.$state;
-        } catch (e) {
-          state = false;
-        }
-
-        try {
-          stateParams = JSON.parse(notification.additionalData.payload.$stateParams);
-        } catch (e) {
-          stateParams = {};
-        }
-
+        var state = notification.payload.$state || false;
+        var stateParams = notification.payload.$stateParams || {};
         if (state) {
           $state.go(state, stateParams);
         }
@@ -63,8 +50,11 @@ if ((typeof angular === 'object') && angular.module) {
   .run(['$ionicPush', '$ionicPushAction', function($ionicPush, $ionicPushAction) {
     // This is what kicks off the state redirection when a push notificaiton has the relevant details
     $ionicPush._emitter.on('ionic_push:processNotification', function(notification) {
-      if (notification && notification.additionalData && notification.additionalData.foreground === false) {
-        $ionicPushAction.notificationNavigation(notification);
+      notification = Ionic.PushMessage.fromPluginJSON(notification);
+      if (notification && notification.app) {
+        if (notification.app.asleep === true || notification.app.closed === true) {
+          $ionicPushAction.notificationNavigation(notification);
+        }
       }
     });
 
