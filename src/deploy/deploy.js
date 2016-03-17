@@ -71,7 +71,7 @@ export class Deploy {
     var self = this;
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.init(settings.get('app_id'), settings.getURL('deploy'));
+        self._plugin.init(settings.get('app_id'), settings.getURL('platform-api'));
       }
     });
   }

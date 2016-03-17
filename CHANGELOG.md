@@ -1,3 +1,8 @@
+## 0.7.0
+
+* **(breaking)** (deploy) Version 0.5.0 or greater of `ionic-plugin-deploy` is required
+  to use deploy correctly.
+
 ## 0.6.1
 
 * (push) (fix) `getPushPlugin` will now correctly return the plugin instance or `null`
