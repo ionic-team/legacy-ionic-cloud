@@ -3409,7 +3409,7 @@ var IonicPlatform = (function () {
   }, {
     key: "Version",
     get: function get() {
-      return '0.6.0';
+      return '0.6.1';
     }
   }]);
 
@@ -5689,6 +5689,7 @@ var Push = (function () {
     this._blockSaveToken = false;
     this._registered = false;
     this._emitter = new _coreEvents.EventEmitter();
+    this._plugin = null;
     if (config !== DEFER_INIT) {
       var self = this;
       _coreCore.IonicPlatform.getMain().onReady(function () {
@@ -5730,7 +5731,7 @@ var Push = (function () {
   }, {
     key: "init",
     value: function init(config) {
-      this.getPushPlugin();
+      this._getPushPlugin();
       if (typeof config === 'undefined') {
         config = {};
       }
@@ -5840,7 +5841,7 @@ var Push = (function () {
           self._blockRegistration = false;
           self._tokenReady = true;
         } else {
-          self._plugin = PushNotification.init(self._config.pluginConfig);
+          self._plugin = self._getPushPlugin().init(self._config.pluginConfig);
           self._plugin.on('registration', function (data) {
             self._blockRegistration = false;
             self.token = new _pushToken.PushToken(data.registrationId);
@@ -6104,17 +6105,6 @@ var Push = (function () {
   }, {
     key: "_getPushPlugin",
     value: function _getPushPlugin() {
-      return this.getPushPlugin();
-    }
-
-    /**
-     * Fetch the phonegap-push-plugin interface
-     *
-     * @return {PushNotification} PushNotification instance
-     */
-  }, {
-    key: "getPushPlugin",
-    value: function getPushPlugin() {
       var self = this;
       var PushPlugin = false;
       try {
@@ -6127,6 +6117,17 @@ var Push = (function () {
         self.logger.error("PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?");
       }
       return PushPlugin;
+    }
+
+    /**
+     * Fetch the phonegap-push-plugin interface
+     *
+     * @return {PushNotification} PushNotification instance
+     */
+  }, {
+    key: "getPushPlugin",
+    value: function getPushPlugin() {
+      return this._plugin;
     }
 
     /**

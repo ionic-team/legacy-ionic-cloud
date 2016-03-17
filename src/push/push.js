@@ -83,6 +83,7 @@ export class Push {
     this._blockSaveToken = false;
     this._registered = false;
     this._emitter = new EventEmitter();
+    this._plugin = null;
     if (config !== DEFER_INIT) {
       var self = this;
       IonicPlatform.getMain().onReady(function() {
@@ -127,7 +128,7 @@ export class Push {
    * @return {Push} returns the called Push instantiation
    */
   init(config) {
-    this.getPushPlugin();
+    this._getPushPlugin();
     if (typeof config === 'undefined') { config = {}; }
     if (typeof config !== 'object') {
       this.logger.error('init() requires a valid config object.');
@@ -220,7 +221,7 @@ export class Push {
         self._blockRegistration = false;
         self._tokenReady = true;
       } else {
-        self._plugin = PushNotification.init(self._config.pluginConfig);
+        self._plugin = self._getPushPlugin().init(self._config.pluginConfig);
         self._plugin.on('registration', function(data) {
           self._blockRegistration = false;
           self.token = new PushToken(data.registrationId);
@@ -460,15 +461,6 @@ export class Push {
 
   /* Deprecated in favor of `getPushPlugin` */
   _getPushPlugin() {
-    return this.getPushPlugin();
-  }
-
-  /**
-   * Fetch the phonegap-push-plugin interface
-   *
-   * @return {PushNotification} PushNotification instance
-   */
-  getPushPlugin() {
     var self = this;
     var PushPlugin = false;
     try {
@@ -481,6 +473,15 @@ export class Push {
       self.logger.error("PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?");
     }
     return PushPlugin;
+  }
+
+  /**
+   * Fetch the phonegap-push-plugin interface
+   *
+   * @return {PushNotification} PushNotification instance
+   */
+  getPushPlugin() {
+    return this._plugin;
   }
 
   /**

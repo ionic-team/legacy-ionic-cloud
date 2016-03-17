@@ -1,3 +1,7 @@
+## 0.6.1
+
+* (push) (fix) `getPushPlugin` will now correctly return the plugin instance or `null`
+
 ## 0.6.0
 
 * **(breaking)** (push) angular integration now correctly uses notification.payload and
