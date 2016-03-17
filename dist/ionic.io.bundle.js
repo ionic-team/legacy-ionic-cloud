@@ -3409,7 +3409,7 @@ var IonicPlatform = (function () {
   }, {
     key: "Version",
     get: function get() {
-      return '0.6.1';
+      return '0.7.1';
     }
   }]);
 
@@ -4757,7 +4757,7 @@ var Deploy = (function () {
       var self = this;
       this.onReady(function () {
         if (self._getPlugin()) {
-          self._plugin.init(settings.get('app_id'), settings.getURL('deploy'));
+          self._plugin.init(settings.get('app_id'), settings.getURL('platform-api'));
         }
       });
     }

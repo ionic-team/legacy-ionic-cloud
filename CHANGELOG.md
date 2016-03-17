@@ -1,3 +1,7 @@
+## 0.7.1
+
+* (fix) Pushed invalid build (0.7.0 is a broken build)
+
 ## 0.7.0
 
 * **(breaking)** (deploy) Version 0.5.0 or greater of `ionic-plugin-deploy` is required
