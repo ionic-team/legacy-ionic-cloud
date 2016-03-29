@@ -7,7 +7,8 @@ var gulp = require('gulp'),
   replace = require('gulp-replace'),
   uglify = require('gulp-uglify'),
   rename = require('gulp-rename'),
-  del = require('del');
+  del = require('del'),
+  ts = require('gulp-typescript');
 
 gulp.task('version', ['minify'], function() {
   return gulp.src('dist/*.js')
@@ -68,21 +69,17 @@ gulp.task('build-analytics-module', ['build-deploy-module'], function() {
   .pipe(fs.createWriteStream(buildConfig.dist + "/analytics.js"));
 });
 
-gulp.task('test', function() {
-
-});
-
-gulp.task('build-bundle', ['clean'], function() {
+gulp.task('build-bundle', ['clean', 'lint', 'build-typescript'], function() {
   return browserify({
     'entries': buildConfig.sourceFiles.bundle,
-    'debug': false,
+    'debug': true,
     'transform': [babelify]
   }).bundle()
   .on("error", function(err) { console.log("Error : " + err.message); })
   .pipe(fs.createWriteStream(buildConfig.dist + "/ionic.io.bundle.js"));
 });
 
-gulp.task('clean', ['lint'], function() {
+gulp.task('clean', function() {
   return del(['dist/**/*']);
 });
 
@@ -98,3 +95,13 @@ gulp.task('watch', ['build'], function() {
 });
 
 gulp.task('default', ['build']);
+
+gulp.task('build-typescript', function() {
+  return gulp.src(buildConfig.sourceFiles.ts).pipe(ts({
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es6",
+    "declaration": true,
+    "typescript": require('typescript')
+  })).js.pipe(gulp.dest('dist/es6'));
+});

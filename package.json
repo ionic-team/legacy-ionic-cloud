@@ -23,6 +23,7 @@
   "bugs": {
     "url": "https://github.com/driftyco/ionic-platform-web-client/issues"
   },
+  "main": "dist/es6/index.js",
   "eslintConfig": {
     "extends": "eslint:recommended",
     "globals": {
@@ -138,13 +139,16 @@
     }
   },
   "homepage": "https://github.com/driftyco/ionic-platform-web-client#readme",
+  "dependencies": {
+    "browser-request": "^0.3.3",
+    "es6-promise": "^3.0.2",
+    "events": "^1.1.0"
+  },
   "devDependencies": {
     "babel": "^5.8.21",
     "babelify": "^6.2.0",
-    "browser-request": "^0.3.3",
     "browserify": "^11.0.1",
     "del": "^2.0.2",
-    "es6-promise": "^3.0.2",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.2.0",
     "gulp-concat": "^2.2.0",
@@ -155,6 +159,8 @@
     "gulp-replace": "^0.5.4",
     "gulp-uglify": "^1.4.1",
     "gulp-util": "^2.2.16",
-    "gulp-watch": "^0.6.5"
+    "gulp-watch": "^0.6.5",
+    "gulp-typescript": "2.12.1",
+    "typescript": "1.8.7"
   }
 }
