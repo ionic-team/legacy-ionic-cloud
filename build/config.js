@@ -82,8 +82,8 @@ module.exports = {
       src.deploy,
       src.analytics,
       src.util,
-      src.angular,
-      src.es5
+      src.es5,
+      src.angular
     ),
     'ts': ['src/**/*.ts'],
   },

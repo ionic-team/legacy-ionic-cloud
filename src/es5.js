@@ -61,10 +61,7 @@ Ionic.AnalyticSerializers.DOMSerializer = DOMSerializer;
 var serviceStorage = {};
 
 Ionic.io = function() {
-  if (typeof Ionic.IO.main === 'undefined') {
-    Ionic.IO.main = new Ionic.Core();
-  }
-  return Ionic.IO.main;
+  return Ionic.Core;
 };
 
 Ionic.getService = function(name) {
