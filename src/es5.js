@@ -1,5 +1,5 @@
 import { App } from "./../dist/es6/core/app";
-import { IonicPlatform } from "./../dist/es6/core/core";
+import { IonicPlatform, IonicPlatformCore } from "./../dist/es6/core/core";
 import { EventEmitter } from "./../dist/es6/core/events";
 import { Logger } from "./../dist/es6/core/logger";
 import { Promise, DeferredPromise } from "./../dist/es6/core/promise";
@@ -20,8 +20,17 @@ import { PushMessage } from "./../dist/es6/push/push-message";
 // Declare the window object
 window.Ionic = window.Ionic || {};
 
-// Ionic Namespace
+// Ionic Modules
 Ionic.Core = IonicPlatform;
+Ionic.Core.Version = IonicPlatformCore.Version;
+Ionic.Core.getEmitter = IonicPlatformCore.getEmitter;
+Ionic.Core.getStorage = IonicPlatformCore.getStorage;
+Ionic.Core.getConfig = IonicPlatformCore.getConfig;
+Ionic.Core.setConfig = IonicPlatformCore.setConfig;
+Ionic.Core.isIOSDevice = IonicPlatformCore.isIOSDevice;
+Ionic.Core.isAndroidDevice = IonicPlatformCore.isAndroidDevice;
+Ionic.Core.deviceConnectedToNetwork = IonicPlatformCore.deviceConnectedToNetwork;
+Ionic.Core.getDeviceTypeByNavigator = IonicPlatformCore.getDeviceTypeByNavigator;
 Ionic.User = User;
 Ionic.Analytics = Analytics;
 Ionic.Auth = Auth;

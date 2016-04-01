@@ -28,31 +28,6 @@ var pushAPIEndpoints = {
   }
 };
 
-/**
- * Push Service
- *
- * This is the main entrypoint for interacting with the Ionic Push service.
- * Example Usage:
- *
- *   Ionic.io(); // kick off the io platform
- *   var push = new Ionic.Push({
- *     "debug": true,
- *     "onNotification": function(notification) {
- *       var payload = $ionicPush.getPayload(notification);
- *       console.log(notification, payload);
- *     },
- *     "onRegister": function(data) {
- *       console.log(data);
- *     }
- *   });
- *
- *   // Registers for a device token using the options passed to init()
- *   push.register(callback);
- *
- *   // Unregister the current registered token
- *   push.unregister();
- *
- */
 export class Push {
 
   logger: Logger;

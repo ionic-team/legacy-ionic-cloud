@@ -1,9 +1,11 @@
 import { EventEmitter } from "./events";
 import { Storage } from "./storage";
 import { Logger } from "./logger";
+import { Settings } from "./settings";
 
 var eventEmitter = new EventEmitter();
 var mainStorage = new Storage();
+var config = new Settings();
 
 declare var Connection: any;
 declare var navigator: any;
@@ -55,6 +57,14 @@ export class IonicPlatformCore {
 
   static getStorage() {
     return mainStorage;
+  }
+
+  static getConfig() {
+      return config;
+  }
+
+  static setConfig(cfg: any) {
+      config.register(cfg);
   }
 
   _isCordovaAvailable() {
