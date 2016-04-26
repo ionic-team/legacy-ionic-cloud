@@ -20,7 +20,7 @@ var src = {
     'dist/es6/core/events.js',
     'dist/es6/core/logger.js',
     'dist/es6/core/storage.js',
-    'dist/es6/core/settings.js',
+    'dist/es6/core/config.js',
     'dist/es6/core/data-types.js',
     'dist/es6/core/core.js',
     'dist/es6/core/user.js',

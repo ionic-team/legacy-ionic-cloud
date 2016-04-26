@@ -1,10 +1,8 @@
 import { APIRequest } from "../core/request";
 import { EventEmitter } from "../core/events";
-import { Settings } from "../core/settings";
+import { IonicPlatform } from "../core/core";
 import { Logger } from "../core/logger";
 import { PushToken } from "./push-token";
-
-var settings: Settings = new Settings();
 
 /**
  * PushDev Service
@@ -45,7 +43,7 @@ export class PushDevService {
     this.logger = new Logger({
       'prefix': 'Ionic Push (dev):'
     });
-    this._serviceHost = settings.getURL('platform-api') + '/push';
+    this._serviceHost = IonicPlatform.config.getURL('platform-api') + '/push';
     this._token = null;
     this._watch = null;
   }

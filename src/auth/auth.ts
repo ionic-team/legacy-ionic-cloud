@@ -1,19 +1,18 @@
 import { APIRequest } from "../core/request";
 import { DeferredPromise } from "../core/promise";
-import { Settings } from "../core/settings";
+import { IonicPlatform } from "../core/core";
 import { PlatformLocalStorageStrategy, LocalSessionStorageStrategy } from "../core/storage";
 import { User } from "../core/user";
 
 declare var window: any;
 
-var settings = new Settings();
 var storage = new PlatformLocalStorageStrategy();
 var sessionStorage = new LocalSessionStorageStrategy();
 
 var __authModules: any = {};
 var __authToken = null;
 
-var authAPIBase = settings.getURL('platform-api') + '/auth';
+var authAPIBase = IonicPlatform.config.getURL('platform-api') + '/auth';
 var authAPIEndpoints = {
   'login': function(provider = null) {
     if (provider) {
@@ -29,7 +28,7 @@ var authAPIEndpoints = {
 export class TempTokenContext {
 
   static get label() {
-    return "ionic_io_auth_" + settings.get('app_id');
+    return "ionic_io_auth_" + IonicPlatform.config.get('app_id');
   }
 
   static delete() {
@@ -47,7 +46,7 @@ export class TempTokenContext {
 
 export class TokenContext {
   static get label() {
-    return "ionic_io_auth_" + settings.get('app_id');
+    return "ionic_io_auth_" + IonicPlatform.config.get('app_id');
   }
 
   static delete() {
@@ -84,13 +83,13 @@ class InAppBrowserFlow {
         'uri': authAPIEndpoints.login(options.provider),
         'method': options.uri_method || 'POST',
         'json': {
-          'app_id': settings.get('app_id'),
+          'app_id': IonicPlatform.config.get('app_id'),
           'callback': options.callback_uri || window.location.href,
           'data': data
         }
       }).then(function(data) {
         var loc = data.payload.data.url;
-        var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no');
+        var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no,clearcache=yes,clearsessioncache=yes');
         tempBrowser.addEventListener('loadstart', function(data) {
           if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
             var queryString = data.url.split('#')[0].split('?')[1];
@@ -102,6 +101,7 @@ class InAppBrowserFlow {
             }
             storeToken(authOptions, params.token);
             tempBrowser.close();
+            tempBrowser = null;
             deferred.resolve(true);
           }
         });
@@ -192,7 +192,7 @@ class BasicAuth {
       'uri': authAPIEndpoints.login(),
       'method': 'POST',
       'json': {
-        'app_id': settings.get('app_id'),
+        'app_id': IonicPlatform.config.get('app_id'),
         'email': data.email,
         'password': data.password
       }
@@ -210,7 +210,7 @@ class BasicAuth {
     var deferred = new DeferredPromise();
 
     var userData: any = {
-      'app_id': settings.get('app_id'),
+      'app_id': IonicPlatform.config.get('app_id'),
       'email': data.email,
       'password': data.password
     };

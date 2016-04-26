@@ -1,6 +1,5 @@
 import { App } from "../core/app";
-import { Settings } from "../core/settings";
-import { IonicPlatform, IonicPlatformCore } from "../core/core";
+import { IonicPlatform } from "../core/core";
 import { Logger } from "../core/logger";
 import { EventEmitter } from "../core/events";
 import { APIRequest } from "../core/request";
@@ -14,11 +13,9 @@ import { PushDevService } from "./push-dev";
 declare var window: any;
 declare var PushNotification: any;
 
-let settings: Settings = new Settings();
-
 var DEFER_INIT = "DEFER_INIT";
 
-var pushAPIBase = settings.getURL('platform-api') + '/push';
+var pushAPIBase = IonicPlatform.config.getURL('platform-api') + '/push';
 var pushAPIEndpoints = {
   'saveToken': function() {
     return pushAPIBase + '/tokens';
@@ -55,15 +52,15 @@ export class Push {
       'prefix': 'Ionic Push:'
     });
 
-    var IonicApp = new App(settings.get('app_id'), settings.get('api_key'));
-    IonicApp.devPush = settings.get('dev_push');
-    IonicApp.gcmKey = settings.get('gcm_key');
+    var IonicApp = new App(IonicPlatform.config.get('app_id'), IonicPlatform.config.get('api_key'));
+    IonicApp.devPush = IonicPlatform.config.get('dev_push');
+    IonicApp.gcmKey = IonicPlatform.config.get('gcm_key');
 
     // Check for the required values to use this service
     if (!IonicApp.id || !IonicApp.apiKey) {
       this.logger.error('no app_id or api_key found. (http://docs.ionic.io/docs/io-install)');
       return;
-    } else if (IonicPlatformCore.isAndroidDevice() && !IonicApp.devPush && !IonicApp.gcmKey) {
+    } else if (IonicPlatform.isAndroidDevice() && !IonicApp.devPush && !IonicApp.gcmKey) {
       this.logger.error('GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
       return;
     }
@@ -91,7 +88,7 @@ export class Push {
   }
 
   set token(val) {
-    var storage = IonicPlatformCore.getStorage();
+    var storage = IonicPlatform.getStorage();
     if (val instanceof PushToken) {
       storage.storeObject('ionic_io_push_token', { 'token': val.token });
     }
@@ -99,7 +96,7 @@ export class Push {
   }
 
   getStorageToken() {
-    var storage = IonicPlatformCore.getStorage();
+    var storage = IonicPlatform.getStorage();
     var token = storage.retrieveObject('ionic_io_push_token');
     if (token) {
       return new PushToken(token.token);
@@ -108,7 +105,7 @@ export class Push {
   }
 
   clearStorageToken() {
-    var storage = IonicPlatformCore.getStorage();
+    var storage = IonicPlatform.getStorage();
     storage.deleteObject('ionic_io_push_token');
   }
 
@@ -136,7 +133,7 @@ export class Push {
 
     if (!config.pluginConfig) { config.pluginConfig = {}; }
 
-    if (IonicPlatformCore.isAndroidDevice()) {
+    if (IonicPlatform.isAndroidDevice()) {
       // inject gcm key for PushPlugin
       if (!config.pluginConfig.android) { config.pluginConfig.android = {}; }
       if (!config.pluginConfig.android.senderId) { config.pluginConfig.android.senderID = self.app.gcmKey; }
@@ -170,7 +167,7 @@ export class Push {
 
     var tokenData: any = {
       'token': token,
-      'app_id': settings.get('app_id')
+      'app_id': IonicPlatform.config.get('app_id')
     };
 
     if (!opts.ignore_user) {
@@ -252,9 +249,9 @@ export class Push {
     var deferred = new DeferredPromise();
     var platform = null;
 
-    if (IonicPlatformCore.isAndroidDevice()) {
+    if (IonicPlatform.isAndroidDevice()) {
       platform = 'android';
-    } else if (IonicPlatformCore.isIOSDevice()) {
+    } else if (IonicPlatform.isIOSDevice()) {
       platform = 'ios';
     }
 
@@ -474,7 +471,7 @@ export class Push {
       self.logger.info('something went wrong looking for the PushNotification plugin');
     }
 
-    if (!self.app.devPush && !PushPlugin && (IonicPlatformCore.isIOSDevice() || IonicPlatformCore.isAndroidDevice()) ) {
+    if (!self.app.devPush && !PushPlugin && (IonicPlatform.isIOSDevice() || IonicPlatform.isAndroidDevice()) ) {
       self.logger.error("PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?");
     }
     return PushPlugin;

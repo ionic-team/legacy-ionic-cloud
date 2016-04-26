@@ -1,3 +1,11 @@
+## 0.8.0
+
+* **(breaking)** Configuration Update 
+  (see the [docs](http://docs.ionic.io) for usage)
+* Added Ionic 2 support
+* Added ES6 distribution files
+
+
 ## 0.7.1
 
 * (fix) Pushed invalid build (0.7.0 is a broken build)

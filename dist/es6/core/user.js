@@ -1,14 +1,13 @@
 import { Auth } from "../auth/auth";
 import { APIRequest } from "./request";
 import { DeferredPromise } from "./promise";
-import { Settings } from "./settings";
+import { IonicPlatform } from "./core";
 import { Storage } from "./storage";
 import { Logger } from "./logger";
 import { DataType } from "./data-types";
 var AppUserContext = null;
-var settings = new Settings();
 var storage = new Storage();
-var userAPIBase = settings.getURL('platform-api') + '/auth/users';
+var userAPIBase = IonicPlatform.config.getURL('platform-api') + '/auth/users';
 var userAPIEndpoints = {
     'self': function () {
         return userAPIBase + '/self';
@@ -28,7 +27,7 @@ var userAPIEndpoints = {
 };
 class UserContext {
     static get label() {
-        return "ionic_io_user_" + settings.get('app_id');
+        return "ionic_io_user_" + IonicPlatform.config.get('app_id');
     }
     static delete() {
         storage.deleteObject(UserContext.label);

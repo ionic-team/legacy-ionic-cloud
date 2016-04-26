@@ -5,6 +5,6 @@ export * from "./events";
 export * from "./logger";
 export * from "./promise";
 export * from "./request";
-export * from "./settings";
+export * from "./config";
 export * from "./storage";
 export * from "./user";

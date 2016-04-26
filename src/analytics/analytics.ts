@@ -1,13 +1,10 @@
 import { APIRequest } from "../core/request";
 import { DeferredPromise } from "../core/promise";
-import { Settings } from "../core/settings";
-import { IonicPlatformCore } from "../core/core";
+import { IonicPlatform } from "../core/core";
 import { Logger } from "../core/logger";
 import { BucketStorage } from "./storage";
 import { User } from "../core/user";
 import { deepExtend } from "../util/util";
-
-var settings = new Settings();
 
 var ANALYTICS_KEY = null;
 var DEFER_REGISTER = "DEFER_REGISTER";
@@ -30,13 +27,13 @@ export class Analytics {
     this._dispatcher = null;
     this._dispatchIntervalTime = 30;
     this._useEventCaching = true;
-    this._serviceHost = settings.getURL('analytics');
+    this._serviceHost = IonicPlatform.config.getURL('analytics');
 
     this.logger = new Logger({
       'prefix': 'Ionic Analytics:'
     });
 
-    this.storage = IonicPlatformCore.getStorage();
+    this.storage = IonicPlatform.getStorage();
     this.cache = new BucketStorage('ionic_analytics');
     this._addGlobalPropertyDefaults();
     if (config !== DEFER_REGISTER) {
@@ -49,14 +46,14 @@ export class Analytics {
     self.setGlobalProperties(function(eventCollection, eventData) {
       eventData._user = JSON.parse(JSON.stringify(User.current()));
       eventData._app = {
-        "app_id": settings.get('app_id'), // eslint-disable-line
-        "analytics_version": IonicPlatformCore.Version
+        "app_id": IonicPlatform.config.get('app_id'), // eslint-disable-line
+        "analytics_version": IonicPlatform.Version
       };
     });
   }
 
   get hasValidSettings() {
-    if (!settings.get('app_id') || !settings.get('api_key')) {
+    if (!IonicPlatform.config.get('app_id') || !IonicPlatform.config.get('api_key')) {
       var msg = 'A valid app_id and api_key are required before you can utilize ' +
                 'analytics properly. See http://docs.ionic.io/v1.0/docs/io-quick-start';
       this.logger.info(msg);
@@ -122,9 +119,9 @@ export class Analytics {
     var requestOptions = {
       "method": 'GET',
       "json": true,
-      "uri": settings.getURL('api') + '/api/v1/app/' + settings.get('app_id') + '/keys/write',
+      "uri": IonicPlatform.config.getURL('api') + '/api/v1/app/' + IonicPlatform.config.get('app_id') + '/keys/write',
       'headers': {
-        'Authorization': "basic " + btoa(settings.get('app_id') + ':' + settings.get('api_key'))
+        'Authorization': "basic " + btoa(IonicPlatform.config.get('app_id') + ':' + IonicPlatform.config.get('api_key'))
       }
     };
 
@@ -143,7 +140,7 @@ export class Analytics {
 
     var requestOptions = {
       "method": 'POST',
-      "url": self._serviceHost + '/api/v1/events/' + settings.get('app_id'),
+      "url": self._serviceHost + '/api/v1/events/' + IonicPlatform.config.get('app_id'),
       "json": payload,
       "headers": {
         "Authorization": ANALYTICS_KEY
@@ -161,7 +158,7 @@ export class Analytics {
 
     var requestOptions = {
       "method": 'POST',
-      "url": self._serviceHost + '/api/v1/events/' + settings.get('app_id'),
+      "url": self._serviceHost + '/api/v1/events/' + IonicPlatform.config.get('app_id'),
       "json": events,
       "headers": {
         "Authorization": ANALYTICS_KEY
@@ -179,7 +176,7 @@ export class Analytics {
       return;
     }
 
-    if (!IonicPlatformCore.deviceConnectedToNetwork()) {
+    if (!IonicPlatform.deviceConnectedToNetwork()) {
       return;
     }
 
@@ -230,7 +227,7 @@ export class Analytics {
         break;
 
       case 404:
-        self.logger.error('The app id you provided ("' + settings.get('app_id') + '") was not found.' + docs);
+        self.logger.error('The app id you provided ("' + IonicPlatform.config.get('app_id') + '") was not found.' + docs);
         break;
 
       default:

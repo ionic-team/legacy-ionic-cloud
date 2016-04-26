@@ -1,7 +1,4 @@
-import { Settings } from "../core/settings";
-import { IonicPlatformCore } from "../core/core";
-
-var settings = new Settings();
+import { IonicPlatform } from "../core/core";
 
 export class BucketStorage {
   baseStorage: any;
@@ -9,7 +6,7 @@ export class BucketStorage {
 
   constructor(name) {
     this.name = name;
-    this.baseStorage = IonicPlatformCore.getStorage();
+    this.baseStorage = IonicPlatform.getStorage();
   }
 
   get(key) {
@@ -21,6 +18,6 @@ export class BucketStorage {
   }
 
   scopedKey(key) {
-    return this.name + '_' + key + '_' + settings.get('app_id');
+    return this.name + '_' + key + '_' + IonicPlatform.config.get('app_id');
   }
 }

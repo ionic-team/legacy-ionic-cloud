@@ -1,29 +1,11 @@
-import { Settings } from "../core/settings";
 import { DeferredPromise } from "../core/promise";
 import { Logger } from "../core/logger";
 import { IonicPlatform } from "../core/core";
 import { EventEmitter } from "../core/events";
-var settings = new Settings();
 var NO_PLUGIN = "IONIC_DEPLOY_MISSING_PLUGIN";
 var INITIAL_DELAY = 1 * 5 * 1000;
 var WATCH_INTERVAL = 1 * 60 * 1000;
 export class Deploy {
-    /**
-     * Ionic Deploy
-     *
-     * This is the main interface that talks with the Ionic Deploy Plugin to facilitate
-     * checking, downloading, and loading an update to your app.
-     *
-     * Base Usage:
-     *
-     *    Ionic.io();
-     *    var deploy = new Ionic.Deploy();
-     *    deploy.check().then(null, null, function(hasUpdate) {
-     *      deploy.update();
-     *    });
-     *
-     * @constructor
-     */
     constructor() {
         var self = this;
         this.logger = new Logger({
@@ -67,7 +49,7 @@ export class Deploy {
         var self = this;
         this.onReady(function () {
             if (self._getPlugin()) {
-                self._plugin.init(settings.get('app_id'), settings.getURL('platform-api'));
+                self._plugin.init(IonicPlatform.config.get('app_id'), IonicPlatform.config.getURL('platform-api'));
             }
         });
     }
@@ -82,7 +64,7 @@ export class Deploy {
         var deferred = new DeferredPromise();
         this.onReady(function () {
             if (self._getPlugin()) {
-                self._plugin.check(settings.get('app_id'), self._channelTag, function (result) {
+                self._plugin.check(IonicPlatform.config.get('app_id'), self._channelTag, function (result) {
                     if (result && result === "true") {
                         self.logger.info('an update is available');
                         deferred.resolve(true);
@@ -114,7 +96,7 @@ export class Deploy {
         var deferred = new DeferredPromise();
         this.onReady(function () {
             if (self._getPlugin()) {
-                self._plugin.download(settings.get('app_id'), function (result) {
+                self._plugin.download(IonicPlatform.config.get('app_id'), function (result) {
                     if (result !== 'true' && result !== 'false') {
                         deferred.notify(result);
                     }
@@ -146,7 +128,7 @@ export class Deploy {
         var deferred = new DeferredPromise();
         this.onReady(function () {
             if (self._getPlugin()) {
-                self._plugin.extract(settings.get('app_id'), function (result) {
+                self._plugin.extract(IonicPlatform.config.get('app_id'), function (result) {
                     if (result !== 'done') {
                         deferred.notify(result);
                     }
@@ -178,7 +160,7 @@ export class Deploy {
         var self = this;
         this.onReady(function () {
             if (self._getPlugin()) {
-                self._plugin.redirect(settings.get('app_id'));
+                self._plugin.redirect(IonicPlatform.config.get('app_id'));
             }
         });
     }
@@ -235,7 +217,7 @@ export class Deploy {
         var self = this;
         this.onReady(function () {
             if (self._getPlugin()) {
-                self._plugin.info(settings.get('app_id'), function (result) {
+                self._plugin.info(IonicPlatform.config.get('app_id'), function (result) {
                     deferred.resolve(result);
                 }, function (err) {
                     deferred.reject(err);
@@ -257,7 +239,7 @@ export class Deploy {
         var self = this;
         this.onReady(function () {
             if (self._getPlugin()) {
-                self._plugin.getVersions(settings.get('app_id'), function (result) {
+                self._plugin.getVersions(IonicPlatform.config.get('app_id'), function (result) {
                     deferred.resolve(result);
                 }, function (err) {
                     deferred.reject(err);
@@ -280,7 +262,7 @@ export class Deploy {
         var self = this;
         this.onReady(function () {
             if (self._getPlugin()) {
-                self._plugin.deleteVersion(settings.get('app_id'), uuid, function (result) {
+                self._plugin.deleteVersion(IonicPlatform.config.get('app_id'), uuid, function (result) {
                     deferred.resolve(result);
                 }, function (err) {
                     deferred.reject(err);
@@ -304,7 +286,7 @@ export class Deploy {
         var self = this;
         this.onReady(function () {
             if (self._getPlugin()) {
-                self._plugin.getMetadata(settings.get('app_id'), uuid, function (result) {
+                self._plugin.getMetadata(IonicPlatform.config.get('app_id'), uuid, function (result) {
                     deferred.resolve(result.metadata);
                 }, function (err) {
                     deferred.reject(err);
@@ -355,7 +337,7 @@ export class Deploy {
                                 }
                                 if (!deferLoading) {
                                     deferred.resolve(true);
-                                    self._plugin.redirect(settings.get('app_id'));
+                                    self._plugin.redirect(IonicPlatform.config.get('app_id'));
                                 }
                                 else {
                                     deferred.resolve(true);

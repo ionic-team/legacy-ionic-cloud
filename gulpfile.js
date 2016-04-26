@@ -11,7 +11,7 @@ var gulp = require('gulp'),
   ts = require('gulp-typescript');
 
 gulp.task('version', ['minify'], function() {
-  return gulp.src('dist/*.js')
+  return gulp.src('dist/**/*.js')
     .pipe(replace('VERSION_STRING', buildConfig.versionData.version))
     .pipe(gulp.dest('dist'));
 });

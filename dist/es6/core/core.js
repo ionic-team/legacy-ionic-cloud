@@ -1,17 +1,19 @@
 import { EventEmitter } from "./events";
 import { Storage } from "./storage";
 import { Logger } from "./logger";
+import { Config } from "./config";
 var eventEmitter = new EventEmitter();
 var mainStorage = new Storage();
 export class IonicPlatformCore {
     constructor() {
         var self = this;
+        this.config = Config;
         this.logger = new Logger({
             'prefix': 'Ionic Core:'
         });
         this.logger.info('init');
         this._pluginsReady = false;
-        this.emitter = IonicPlatformCore.getEmitter();
+        this.emitter = this.getEmitter();
         this._bootstrap();
         if (self.cordovaPlatformUnknown) {
             self.logger.info('attempting to mock plugins');
@@ -31,13 +33,16 @@ export class IonicPlatformCore {
             }
         }
     }
-    static get Version() {
-        return 'VERSION_STRING';
+    init(cfg) {
+        this.config.register(cfg);
     }
-    static getEmitter() {
+    get Version() {
+        return '0.7.1';
+    }
+    getEmitter() {
         return eventEmitter;
     }
-    static getStorage() {
+    getStorage() {
         return mainStorage;
     }
     _isCordovaAvailable() {
@@ -73,7 +78,7 @@ export class IonicPlatformCore {
         if (!this._isCordovaAvailable()) {
             var cordovaScript = document.createElement('script');
             var cordovaSrc = 'cordova.js';
-            switch (IonicPlatformCore.getDeviceTypeByNavigator()) {
+            switch (this.getDeviceTypeByNavigator()) {
                 case 'android':
                     if (window.location.href.substring(0, 4) === "file") {
                         cordovaSrc = 'file:///android_asset/www/cordova.js';
@@ -107,7 +112,7 @@ export class IonicPlatformCore {
      * Determine the device type via the user agent string
      * @return {string} name of device platform or "unknown" if unable to identify the device
      */
-    static getDeviceTypeByNavigator() {
+    getDeviceTypeByNavigator() {
         var agent = navigator.userAgent;
         var ipad = agent.match(/iPad/i);
         if (ipad && (ipad[0].toLowerCase() === 'ipad')) {
@@ -127,8 +132,8 @@ export class IonicPlatformCore {
      * Check if the device is an Android device
      * @return {boolean} True if Android, false otherwise
      */
-    static isAndroidDevice() {
-        var device = IonicPlatformCore.getDeviceTypeByNavigator();
+    isAndroidDevice() {
+        var device = this.getDeviceTypeByNavigator();
         if (device === 'android') {
             return true;
         }
@@ -138,8 +143,8 @@ export class IonicPlatformCore {
      * Check if the device is an iOS device
      * @return {boolean} True if iOS, false otherwise
      */
-    static isIOSDevice() {
-        var device = IonicPlatformCore.getDeviceTypeByNavigator();
+    isIOSDevice() {
+        var device = this.getDeviceTypeByNavigator();
         if (device === 'iphone' || device === 'ipad') {
             return true;
         }
@@ -154,7 +159,7 @@ export class IonicPlatformCore {
     _bootstrap() {
         this.loadCordova();
     }
-    static deviceConnectedToNetwork(strictMode = null) {
+    deviceConnectedToNetwork(strictMode = null) {
         if (typeof strictMode === 'undefined') {
             strictMode = false;
         }

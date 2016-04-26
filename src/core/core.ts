@@ -1,11 +1,10 @@
 import { EventEmitter } from "./events";
 import { Storage } from "./storage";
 import { Logger } from "./logger";
-import { Settings } from "./settings";
+import { Config } from "./config";
 
 var eventEmitter = new EventEmitter();
 var mainStorage = new Storage();
-var config = new Settings();
 
 declare var Connection: any;
 declare var navigator: any;
@@ -16,18 +15,20 @@ export class IonicPlatformCore {
 
   logger: Logger;
   emitter: EventEmitter;
+  config: any;
   cordovaPlatformUnknown: boolean
 
   private _pluginsReady: boolean;
 
   constructor() {
     var self = this;
+    this.config = Config;
     this.logger = new Logger({
       'prefix': 'Ionic Core:'
     });
     this.logger.info('init');
     this._pluginsReady = false;
-    this.emitter = IonicPlatformCore.getEmitter();
+    this.emitter = this.getEmitter();
     this._bootstrap();
 
     if (self.cordovaPlatformUnknown) {
@@ -47,24 +48,20 @@ export class IonicPlatformCore {
     }
   }
 
-  static get Version() {
+  init(cfg: any) {
+    this.config.register(cfg);
+  }
+
+  get Version() {
     return 'VERSION_STRING';
   }
 
-  static getEmitter() {
+  getEmitter() {
     return eventEmitter;
   }
 
-  static getStorage() {
+  getStorage() {
     return mainStorage;
-  }
-
-  static getConfig() {
-      return config;
-  }
-
-  static setConfig(cfg: any) {
-      config.register(cfg);
   }
 
   _isCordovaAvailable() {
@@ -103,7 +100,7 @@ export class IonicPlatformCore {
     if (!this._isCordovaAvailable()) {
       var cordovaScript = document.createElement('script');
       var cordovaSrc = 'cordova.js';
-      switch (IonicPlatformCore.getDeviceTypeByNavigator()) {
+      switch (this.getDeviceTypeByNavigator()) {
         case 'android':
           if (window.location.href.substring(0, 4) === "file") {
             cordovaSrc = 'file:///android_asset/www/cordova.js';
@@ -140,7 +137,7 @@ export class IonicPlatformCore {
    * Determine the device type via the user agent string
    * @return {string} name of device platform or "unknown" if unable to identify the device
    */
-  static getDeviceTypeByNavigator() {
+  getDeviceTypeByNavigator() {
     var agent = navigator.userAgent;
 
     var ipad = agent.match(/iPad/i);
@@ -165,8 +162,8 @@ export class IonicPlatformCore {
    * Check if the device is an Android device
    * @return {boolean} True if Android, false otherwise
    */
-  static isAndroidDevice() {
-    var device = IonicPlatformCore.getDeviceTypeByNavigator();
+  isAndroidDevice() {
+    var device = this.getDeviceTypeByNavigator();
     if (device === 'android') {
       return true;
     }
@@ -177,8 +174,8 @@ export class IonicPlatformCore {
    * Check if the device is an iOS device
    * @return {boolean} True if iOS, false otherwise
    */
-  static isIOSDevice() {
-    var device = IonicPlatformCore.getDeviceTypeByNavigator();
+  isIOSDevice() {
+    var device = this.getDeviceTypeByNavigator();
     if (device === 'iphone' || device === 'ipad') {
       return true;
     }
@@ -195,7 +192,7 @@ export class IonicPlatformCore {
     this.loadCordova();
   }
 
-  static deviceConnectedToNetwork(strictMode = null) {
+  deviceConnectedToNetwork(strictMode = null) {
     if (typeof strictMode === 'undefined') {
       strictMode = false;
     }

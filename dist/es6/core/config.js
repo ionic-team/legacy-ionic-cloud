@@ -1,4 +1,4 @@
-export class BaseSettings {
+export class IonicPlatformConfig {
     constructor() {
         this._settings = {};
         this._devLocations = {};
@@ -29,10 +29,4 @@ export class BaseSettings {
         this._devLocations = settings.dev_locations || {};
     }
 }
-let settingsSingleton = new BaseSettings();
-export class Settings extends BaseSettings {
-    constructor() {
-        super();
-        return settingsSingleton;
-    }
-}
+export var Config = new IonicPlatformConfig();
