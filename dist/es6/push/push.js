@@ -164,6 +164,7 @@ export class Push {
             self.logger.info("a token save operation is already in progress.");
             deferred.reject(false);
         }
+        return deferred.promise;
     }
     /**
      * Registers the device with GCM/APNS to get a device token

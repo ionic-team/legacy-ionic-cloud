@@ -1,6 +1,6 @@
 import { DeferredPromise } from "./promise";
 import { Auth } from "../auth/auth";
-import request from "browser-request";
+import * as request from "superagent";
 
 export class Request {
   then: any;
@@ -34,20 +34,27 @@ export class APIRequest extends Request {
         options.headers.Authorization = 'Bearer ' + token;
       }
     }
-    var requestInfo:any = {};
-    var p: any = new DeferredPromise();
-    request(options, function(err, response, result) {
+    let requestInfo:any = {};
+    let p: any = new DeferredPromise();
+    let request_method = (options.method || 'get').toLowerCase();
+    let req = request[request_method](options.uri || options.url);
+    if (options.json) {
+      req = req.send(options.json);
+    }
+    if (options.headers) {
+      req = req.set(options.headers);
+    }
+    req = req.end(function(err, res) {
       requestInfo._lastError = err;
-      requestInfo._lastResponse = response;
-      requestInfo._lastResult = result;
+      requestInfo._lastResult = res;
       if (err) {
         p.reject(err);
       } else {
-        if (response.statusCode < 200 || response.statusCode >= 400) {
-          var _err = new Error("Request Failed with status code of " + response.statusCode);
-          p.reject({ 'response': response, 'error': _err });
+        if (res.status < 200 || res.status >= 400) {
+          var _err = new Error("Request Failed with status code of " + res.status);
+          p.reject({ 'response': res, 'error': _err });
         } else {
-          p.resolve({ 'response': response, 'payload': result });
+          p.resolve({ 'response': res, 'payload': res.body });
         }
       }
     });

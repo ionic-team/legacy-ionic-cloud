@@ -193,8 +193,8 @@ export class Analytics {
 
   _getRequestStatusCode(request) {
     var responseCode: number = null;
-    if (request && request.requestInfo._lastResponse && request.requestInfo._lastResponse.statusCode) {
-      responseCode = request.requestInfo._lastResponse.statusCode;
+    if (request && request.requestInfo._lastResult && request.requestInfo._lastResult.status) {
+      responseCode = request.requestInfo._lastResult.status;
     }
     return responseCode;
   }
