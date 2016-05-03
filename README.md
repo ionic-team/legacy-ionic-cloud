@@ -29,7 +29,7 @@ Head over to our [docs](http://docs.ionic.io/docs/io-introduction) when you're r
 
 ## Get Help
 
-Head over to our [gitter.im](http://gitter.im/driftyco/ionic-io-testers) channel if you require assistance or have any questions about the platform services. 
+Head over to our [Slack](ionicworldwide.herokuapp.com) channel if you require assistance or have any questions about the platform services. 
 
 ## Development
 
