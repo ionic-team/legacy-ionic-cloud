@@ -91,7 +91,7 @@ gulp.task('lint', function() {
 });
 
 gulp.task('watch', ['build'], function() {
-  gulp.watch(['src/**/*.js'], ['build']);
+  gulp.watch(['src/**/*.ts'], ['build']);
 });
 
 gulp.task('default', ['build']);
