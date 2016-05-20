@@ -1,5 +1,3 @@
-import { Promise as ES6Promise } from "es6-promise";
-
 export class DeferredPromise {
   then: any;
   resolve: any;
@@ -11,7 +9,7 @@ export class DeferredPromise {
   constructor() {
     var self = this;
     this._update = false;
-    this.promise = new ES6Promise(function(resolve, reject) {
+    this.promise = new Promise(function(resolve, reject) {
       self.resolve = resolve;
       self.reject = reject;
     });

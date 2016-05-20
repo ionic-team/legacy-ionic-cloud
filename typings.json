@@ -1,0 +1,8 @@
+{
+  "name": "ionic-platform-web-client",
+  "dependencies": {},
+  "globalDependencies": {
+    "node": "registry:dt/node#0.12.0+20160317120654",
+    "superagent": "registry:dt/superagent#1.4.0+20160317120654"
+  }
+}

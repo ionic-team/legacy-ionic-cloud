@@ -1,4 +1,3 @@
-var fs = require('fs');
 var pkg = require('../package.json');
 
 var src = {
@@ -60,16 +59,16 @@ var src = {
 };
 
 module.exports = {
-  banner:
+  "banner":
     '/**\n' +
     ' * Ionic Core Module\n' +
     ' * Copyright 2016 Ionic http://ionicframework.com/\n' +
     ' * See LICENSE in this repository for license information\n' +
     ' */\n\n',
 
-  dist: './dist',
+  "dist": './dist',
 
-  sourceFiles: {
+  "sourceFiles": {
     'core': src.core,
     'push': src.push,
     'deploy': src.deploy,
@@ -85,10 +84,10 @@ module.exports = {
       src.es5,
       src.angular
     ),
-    'ts': ['src/**/*.ts'],
+    'ts': ['typings/index.d.ts', 'src/**/*.ts']
   },
 
-  versionData: {
-    version: pkg.version
+  "versionData": {
+    "version": pkg.version
   }
 };
