@@ -1,7 +1,6 @@
 var gulp = require('gulp'),
   buildConfig = require('./build/config.js'),
   browserify = require("browserify"),
-  babelify = require("babelify"),
   fs = require("fs"),
   eslint = require('gulp-eslint'),
   replace = require('gulp-replace'),
@@ -28,55 +27,43 @@ gulp.task('minify', ['build-bundle'], function() {
 gulp.task('build', ['version']);
 
 gulp.task('build-core-module', ['clean'], function() {
-  var stream = null;
-  browserify({
-    'entries': buildConfig.sourceFiles.core,
-    'debug': false,
-    'transform': [babelify]
-  }).bundle()
-  .on("error", function(err) { console.log("Error : " + err.message); })
-  .pipe(stream = fs.createWriteStream(buildConfig.dist + "/core.js"));
-  return stream;
+  return browserify(buildConfig.sourceFiles.core)
+    .transform("babelify", { "presets": ["es2015"] })
+    .bundle()
+    .on("error", function(err) { console.log("Error : " + err.message); })
+    .pipe(fs.createWriteStream(buildConfig.dist + "/core.js"));
 });
 
 gulp.task('build-push-module', ['build-core-module'], function() {
-  return browserify({
-    'entries': buildConfig.sourceFiles.push,
-    'debug': false,
-    'transform': [babelify]
-  }).bundle()
-  .on("error", function(err) { console.log("Error : " + err.message); })
-  .pipe(fs.createWriteStream(buildConfig.dist + "/push.js"));
+  return browserify(buildConfig.sourceFiles.push)
+    .transform("babelify", { "presets": ["es2015"] })
+    .bundle()
+    .on("error", function(err) { console.log("Error : " + err.message); })
+    .pipe(fs.createWriteStream(buildConfig.dist + "/push.js"));
 });
 
 gulp.task('build-deploy-module', ['build-push-module'], function() {
-  return browserify({
-    'entries': buildConfig.sourceFiles.deploy,
-    'debug': false,
-    'transform': [babelify]
-  }).bundle()
-  .on("error", function(err) { console.log("Error : " + err.message); })
-  .pipe(fs.createWriteStream(buildConfig.dist + "/deploy.js"));
+  return browserify(buildConfig.sourceFiles.deploy)
+    .transform("babelify", { "presets": ["es2015"] })
+    .bundle()
+    .on("error", function(err) { console.log("Error : " + err.message); })
+    .pipe(fs.createWriteStream(buildConfig.dist + "/deploy.js"));
 });
 
 gulp.task('build-analytics-module', ['build-deploy-module'], function() {
-  return browserify({
-    'entries': buildConfig.sourceFiles.analytics,
-    'debug': false,
-    'transform': [babelify]
-  }).bundle()
-  .on("error", function(err) { console.log("Error : " + err.message); })
-  .pipe(fs.createWriteStream(buildConfig.dist + "/analytics.js"));
+  return browserify(buildConfig.sourceFiles.analytics)
+    .transform("babelify", { "presets": ["es2015"] })
+    .bundle()
+    .on("error", function(err) { console.log("Error : " + err.message); })
+    .pipe(fs.createWriteStream(buildConfig.dist + "/analytics.js"));
 });
 
 gulp.task('build-bundle', ['clean', 'lint', 'build-typescript'], function() {
-  return browserify({
-    'entries': buildConfig.sourceFiles.bundle,
-    'debug': true,
-    'transform': [babelify]
-  }).bundle()
-  .on("error", function(err) { console.log("Error : " + err.message); })
-  .pipe(fs.createWriteStream(buildConfig.dist + "/ionic.io.bundle.js"));
+  return browserify(buildConfig.sourceFiles.bundle)
+    .transform("babelify", { "presets": ["es2015"] })
+    .bundle()
+    .on("error", function(err) { console.log("Error : " + err.message); })
+    .pipe(fs.createWriteStream(buildConfig.dist + "/ionic.io.bundle.js"));
 });
 
 gulp.task('clean', function() {
