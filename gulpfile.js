@@ -26,40 +26,8 @@ gulp.task('minify', ['build-bundle'], function() {
 
 gulp.task('build', ['version']);
 
-gulp.task('build-core-module', ['clean'], function() {
-  return browserify(buildConfig.sourceFiles.core)
-    .transform("babelify", { "presets": ["es2015"] })
-    .bundle()
-    .on("error", function(err) { console.log("Error : " + err.message); })
-    .pipe(fs.createWriteStream(buildConfig.dist + "/core.js"));
-});
-
-gulp.task('build-push-module', ['build-core-module'], function() {
-  return browserify(buildConfig.sourceFiles.push)
-    .transform("babelify", { "presets": ["es2015"] })
-    .bundle()
-    .on("error", function(err) { console.log("Error : " + err.message); })
-    .pipe(fs.createWriteStream(buildConfig.dist + "/push.js"));
-});
-
-gulp.task('build-deploy-module', ['build-push-module'], function() {
-  return browserify(buildConfig.sourceFiles.deploy)
-    .transform("babelify", { "presets": ["es2015"] })
-    .bundle()
-    .on("error", function(err) { console.log("Error : " + err.message); })
-    .pipe(fs.createWriteStream(buildConfig.dist + "/deploy.js"));
-});
-
-gulp.task('build-analytics-module', ['build-deploy-module'], function() {
-  return browserify(buildConfig.sourceFiles.analytics)
-    .transform("babelify", { "presets": ["es2015"] })
-    .bundle()
-    .on("error", function(err) { console.log("Error : " + err.message); })
-    .pipe(fs.createWriteStream(buildConfig.dist + "/analytics.js"));
-});
-
 gulp.task('build-bundle', ['clean', 'lint', 'build-typescript'], function() {
-  return browserify(buildConfig.sourceFiles.bundle)
+  return browserify('dist/es6/index.js')
     .transform("babelify", { "presets": ["es2015"] })
     .bundle()
     .on("error", function(err) { console.log("Error : " + err.message); })
