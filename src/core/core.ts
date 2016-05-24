@@ -1,7 +1,7 @@
-import { EventEmitter } from "./events";
-import { Storage } from "./storage";
-import { Logger } from "./logger";
-import { Config } from "./config";
+import { EventEmitter } from './events';
+import { Storage } from './storage';
+import { Logger } from './logger';
+import { Config } from './config';
 
 var eventEmitter = new EventEmitter();
 var mainStorage = new Storage();
@@ -16,7 +16,7 @@ export class IonicPlatformCore {
   logger: Logger;
   emitter: EventEmitter;
   config: any;
-  cordovaPlatformUnknown: boolean
+  cordovaPlatformUnknown: boolean;
 
   private _pluginsReady: boolean;
 
@@ -37,7 +37,7 @@ export class IonicPlatformCore {
       self.emitter.emit('ionic_core:plugins_ready');
     } else {
       try {
-        document.addEventListener("deviceready",  function() {
+        document.addEventListener('deviceready',  function() {
           self.logger.info('plugins are ready');
           self._pluginsReady = true;
           self.emitter.emit('ionic_core:plugins_ready');
@@ -102,7 +102,7 @@ export class IonicPlatformCore {
       var cordovaSrc = 'cordova.js';
       switch (this.getDeviceTypeByNavigator()) {
         case 'android':
-          if (window.location.href.substring(0, 4) === "file") {
+          if (window.location.href.substring(0, 4) === 'file') {
             cordovaSrc = 'file:///android_asset/www/cordova.js';
           }
           break;
@@ -135,7 +135,7 @@ export class IonicPlatformCore {
 
   /**
    * Determine the device type via the user agent string
-   * @return {string} name of device platform or "unknown" if unable to identify the device
+   * @return {string} name of device platform or 'unknown' if unable to identify the device
    */
   getDeviceTypeByNavigator() {
     var agent = navigator.userAgent;
@@ -155,7 +155,7 @@ export class IonicPlatformCore {
       return 'android';
     }
 
-    return "unknown";
+    return 'unknown';
   }
 
   /**

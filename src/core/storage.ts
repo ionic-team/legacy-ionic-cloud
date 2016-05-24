@@ -1,4 +1,4 @@
-import { DeferredPromise } from "./promise";
+import { DeferredPromise } from './promise';
 
 export class PlatformLocalStorageStrategy {
   constructor() {

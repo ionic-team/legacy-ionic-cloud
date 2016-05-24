@@ -1,6 +1,6 @@
-import { DeferredPromise } from "./promise";
-import { Auth } from "../auth/auth";
-import * as request from "superagent";
+import { DeferredPromise } from './promise';
+import { Auth } from '../auth/auth';
+import * as request from 'superagent';
 
 export class Request {
   then: any;
@@ -34,7 +34,7 @@ export class APIRequest extends Request {
         options.headers.Authorization = 'Bearer ' + token;
       }
     }
-    let requestInfo:any = {};
+    let requestInfo: any = {};
     let p: any = new DeferredPromise();
     let request_method = (options.method || 'get').toLowerCase();
     let req = request[request_method](options.uri || options.url);
@@ -51,7 +51,7 @@ export class APIRequest extends Request {
         p.reject(err);
       } else {
         if (res.status < 200 || res.status >= 400) {
-          var _err = new Error("Request Failed with status code of " + res.status);
+          var _err = new Error('Request Failed with status code of ' + res.status);
           p.reject({ 'response': res, 'error': _err });
         } else {
           p.resolve({ 'response': res, 'payload': res.body });

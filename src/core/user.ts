@@ -1,10 +1,10 @@
-import { Auth } from "../auth/auth";
-import { APIRequest } from "./request";
-import { DeferredPromise } from "./promise";
-import { IonicPlatform } from "./core";
-import { Storage } from "./storage";
-import { Logger } from "./logger";
-import { DataType } from "./data-types";
+import { Auth } from '../auth/auth';
+import { APIRequest } from './request';
+import { DeferredPromise } from './promise';
+import { IonicPlatform } from './core';
+import { Storage } from './storage';
+import { Logger } from './logger';
+import { DataType } from './data-types';
 
 declare var Ionic: any;
 
@@ -32,7 +32,7 @@ var userAPIEndpoints = {
 
 class UserContext {
   static get label() {
-    return "ionic_io_user_" + IonicPlatform.config.get('app_id');
+    return 'ionic_io_user_' + IonicPlatform.config.get('app_id');
   }
 
   static delete() {
@@ -223,7 +223,7 @@ export class User {
         deferred.reject(error);
       });
     } else {
-      tempUser.logger.info("a load operation is already in progress for " + this + ".");
+      tempUser.logger.info('a load operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 
@@ -258,7 +258,7 @@ export class User {
         deferred.reject(error);
       });
     } else {
-      tempUser.logger.info("a load operation is already in progress for " + this + ".");
+      tempUser.logger.info('a load operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 
@@ -336,7 +336,7 @@ export class User {
         deferred.reject(error);
       });
     } else {
-      self.logger.info("a delete operation is already in progress for " + this + ".");
+      self.logger.info('a delete operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 
@@ -382,7 +382,7 @@ export class User {
         deferred.reject(error);
       });
     } else {
-      self.logger.info("a save operation is already in progress for " + this + ".");
+      self.logger.info('a save operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 

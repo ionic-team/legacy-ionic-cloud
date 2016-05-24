@@ -1,19 +1,19 @@
-import { App } from "../core/app";
-import { IonicPlatform } from "../core/core";
-import { Logger } from "../core/logger";
-import { EventEmitter } from "../core/events";
-import { APIRequest } from "../core/request";
-import { DeferredPromise } from "../core/promise";
-import { User } from "../core/user";
+import { App } from '../core/app';
+import { IonicPlatform } from '../core/core';
+import { Logger } from '../core/logger';
+import { EventEmitter } from '../core/events';
+import { APIRequest } from '../core/request';
+import { DeferredPromise } from '../core/promise';
+import { User } from '../core/user';
 
-import { PushToken } from "./push-token";
-import { PushMessage } from "./push-message";
-import { PushDevService } from "./push-dev";
+import { PushToken } from './push-token';
+import { PushMessage } from './push-message';
+import { PushDevService } from './push-dev';
 
 declare var window: any;
 declare var PushNotification: any;
 
-var DEFER_INIT = "DEFER_INIT";
+var DEFER_INIT = 'DEFER_INIT';
 
 var pushAPIBase = IonicPlatform.config.getURL('platform-api') + '/push';
 var pushAPIEndpoints = {
@@ -147,7 +147,7 @@ export class Push {
     this._config = config;
     this._isReady = true;
 
-    this._emitter.emit('ionic_push:ready', { "config": this._config });
+    this._emitter.emit('ionic_push:ready', { 'config': this._config });
     return this;
   }
 
@@ -160,9 +160,9 @@ export class Push {
     }
 
     interface TokenData {
-        token: PushToken,
-        app_id: string,
-        user_id: string
+        token: PushToken;
+        app_id: string;
+        user_id: string;
     }
 
     var tokenData: any = {
@@ -195,7 +195,7 @@ export class Push {
         deferred.reject(error);
       });
     } else {
-      self.logger.info("a token save operation is already in progress.");
+      self.logger.info('a token save operation is already in progress.');
       deferred.reject(false);
     }
 
@@ -212,7 +212,7 @@ export class Push {
     this.logger.info('register');
     var self = this;
     if (this._blockRegistration) {
-      self.logger.info("another registration is already in progress.");
+      self.logger.info('another registration is already in progress.');
       return false;
     }
     this._blockRegistration = true;
@@ -258,7 +258,7 @@ export class Push {
     }
 
     if (!platform) {
-      deferred.reject("Could not detect the platform, are you on a device?");
+      deferred.reject('Could not detect the platform, are you on a device?');
     }
 
     if (!self._blockUnregister) {
@@ -283,7 +283,7 @@ export class Push {
         deferred.reject(error);
       });
     } else {
-      self.logger.info("an unregister operation is already in progress.");
+      self.logger.info('an unregister operation is already in progress.');
       deferred.reject(false);
     }
 
@@ -474,7 +474,7 @@ export class Push {
     }
 
     if (!self.app.devPush && !PushPlugin && (IonicPlatform.isIOSDevice() || IonicPlatform.isAndroidDevice()) ) {
-      self.logger.error("PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?");
+      self.logger.error('PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
     }
     return PushPlugin;
   }

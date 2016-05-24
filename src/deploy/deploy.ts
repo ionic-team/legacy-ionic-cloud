@@ -1,11 +1,11 @@
-import { DeferredPromise } from "../core/promise";
-import { Logger } from "../core/logger";
-import { IonicPlatform } from "../core/core";
-import { EventEmitter } from "../core/events";
+import { DeferredPromise } from '../core/promise';
+import { Logger } from '../core/logger';
+import { IonicPlatform } from '../core/core';
+import { EventEmitter } from '../core/events';
 
 declare var IonicDeploy: any;
 
-var NO_PLUGIN = "IONIC_DEPLOY_MISSING_PLUGIN";
+var NO_PLUGIN = 'IONIC_DEPLOY_MISSING_PLUGIN';
 var INITIAL_DELAY = 1 * 5 * 1000;
 var WATCH_INTERVAL = 1 * 60 * 1000;
 
@@ -28,7 +28,7 @@ export class Deploy {
     this._isReady = false;
     this._channelTag = 'production';
     this._emitter = new EventEmitter();
-    this.logger.info("init");
+    this.logger.info('init');
     IonicPlatform.onReady(function() {
       self.initialize();
       self._isReady = true;
@@ -80,7 +80,7 @@ export class Deploy {
     this.onReady(function() {
       if (self._getPlugin()) {
         self._plugin.check(IonicPlatform.config.get('app_id'), self._channelTag, function(result) {
-          if (result && result === "true") {
+          if (result && result === 'true') {
             self.logger.info('an update is available');
             deferred.resolve(true);
           } else {
@@ -117,7 +117,7 @@ export class Deploy {
             deferred.notify(result);
           } else {
             if (result === 'true') {
-              self.logger.info("download complete");
+              self.logger.info('download complete');
             }
             deferred.resolve(result === 'true');
           }
@@ -151,7 +151,7 @@ export class Deploy {
             deferred.notify(result);
           } else {
             if (result === 'true') {
-              self.logger.info("extraction complete");
+              self.logger.info('extraction complete');
             }
             deferred.resolve(result);
           }
@@ -361,9 +361,9 @@ export class Deploy {
             // There are updates, download them
             var downloadProgress = 0;
             self.download().then(function(result) {
-              if (!result) { deferred.reject("download error"); }
+              if (!result) { deferred.reject('download error'); }
               self.extract().then(function(result) {
-                if (!result) { deferred.reject("extraction error"); }
+                if (!result) { deferred.reject('extraction error'); }
                 if (!deferLoading) {
                   deferred.resolve(true);
                   self._plugin.redirect(IonicPlatform.config.get('app_id'));

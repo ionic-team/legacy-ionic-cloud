@@ -2,7 +2,7 @@ var gulp = require('gulp'),
   buildConfig = require('./build/config.js'),
   browserify = require("browserify"),
   fs = require("fs"),
-  eslint = require('gulp-eslint'),
+  tslint = require('gulp-tslint'),
   replace = require('gulp-replace'),
   uglify = require('gulp-uglify'),
   rename = require('gulp-rename'),
@@ -39,10 +39,9 @@ gulp.task('clean', function() {
 });
 
 gulp.task('lint', function() {
-  return gulp.src(['gulpfile.js', 'src/**/*.js'])
-    .pipe(eslint())
-    .pipe(eslint.failOnError())
-    .pipe(eslint.formatEach());
+  return gulp.src('src/**/*.ts')
+    .pipe(tslint())
+    .pipe(tslint.report("verbose"));
 });
 
 gulp.task('watch', ['build'], function() {

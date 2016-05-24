@@ -1,4 +1,4 @@
-import { IonicPlatform } from "../core/core";
+import { IonicPlatform } from '../core/core';
 
 export class BucketStorage {
   baseStorage: any;

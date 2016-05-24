@@ -1,8 +1,8 @@
-import { APIRequest } from "../core/request";
-import { DeferredPromise } from "../core/promise";
-import { IonicPlatform } from "../core/core";
-import { PlatformLocalStorageStrategy, LocalSessionStorageStrategy } from "../core/storage";
-import { User } from "../core/user";
+import { APIRequest } from '../core/request';
+import { DeferredPromise } from '../core/promise';
+import { IonicPlatform } from '../core/core';
+import { PlatformLocalStorageStrategy, LocalSessionStorageStrategy } from '../core/storage';
+import { User } from '../core/user';
 
 declare var window: any;
 
@@ -28,7 +28,7 @@ var authAPIEndpoints = {
 export class TempTokenContext {
 
   static get label() {
-    return "ionic_io_auth_" + IonicPlatform.config.get('app_id');
+    return 'ionic_io_auth_' + IonicPlatform.config.get('app_id');
   }
 
   static delete() {
@@ -46,7 +46,7 @@ export class TempTokenContext {
 
 export class TokenContext {
   static get label() {
-    return "ionic_io_auth_" + IonicPlatform.config.get('app_id');
+    return 'ionic_io_auth_' + IonicPlatform.config.get('app_id');
   }
 
   static delete() {
@@ -77,7 +77,7 @@ class InAppBrowserFlow {
     var deferred = new DeferredPromise();
 
     if (!window || !window.cordova || !window.cordova.InAppBrowser) {
-      deferred.reject("Missing InAppBrowser plugin");
+      deferred.reject('Missing InAppBrowser plugin');
     } else {
       new APIRequest({
         'uri': authAPIEndpoints.login(options.provider),
@@ -137,7 +137,7 @@ export class Auth {
     var deferred = new DeferredPromise();
     var context = __authModules[moduleId] || false;
     if (!context) {
-      throw new Error("Authentication class is invalid or missing:" + context);
+      throw new Error('Authentication class is invalid or missing:' + context);
     }
     context.authenticate.apply(context, [options, data]).then(function() {
       User.self().then(function(user) {
@@ -154,7 +154,7 @@ export class Auth {
   static signup(data) {
     var context = __authModules.basic || false;
     if (!context) {
-      throw new Error("Authentication class is invalid or missing:" + context);
+      throw new Error('Authentication class is invalid or missing:' + context);
     }
     return context.signup.apply(context, [data]);
   }
@@ -235,12 +235,12 @@ class BasicAuth {
           var detail = details[i];
           if (typeof detail === 'object') {
             if (detail.error_type) {
-              errors.push(detail.error_type + "_" + detail.parameter);
+              errors.push(detail.error_type + '_' + detail.parameter);
             }
           }
         }
       }
-      deferred.reject({ "errors": errors });
+      deferred.reject({ 'errors': errors });
     });
 
     return deferred.promise;

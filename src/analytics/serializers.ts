@@ -8,7 +8,7 @@ export class DOMSerializer {
 
       var id = element.getAttribute('id');
       if (id) {
-        selector += "#" + id;
+        selector += '#' + id;
       }
 
       var className = element.className;

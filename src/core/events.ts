@@ -1,5 +1,4 @@
-//var _EventEmitter = require("events");
-import { EventEmitter as _EventEmitter } from "events";
+import { EventEmitter as _EventEmitter } from 'events';
 
 export class EventEmitter {
 

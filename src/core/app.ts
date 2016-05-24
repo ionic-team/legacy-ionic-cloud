@@ -1,4 +1,4 @@
-import { Logger } from "./logger";
+import { Logger } from './logger';
 
 var privateData: any = {};
 

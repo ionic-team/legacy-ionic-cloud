@@ -1,13 +1,13 @@
-import { APIRequest } from "../core/request";
-import { DeferredPromise } from "../core/promise";
-import { IonicPlatform } from "../core/core";
-import { Logger } from "../core/logger";
-import { BucketStorage } from "./storage";
-import { User } from "../core/user";
-import { deepExtend } from "../util/util";
+import { APIRequest } from '../core/request';
+import { DeferredPromise } from '../core/promise';
+import { IonicPlatform } from '../core/core';
+import { Logger } from '../core/logger';
+import { BucketStorage } from './storage';
+import { User } from '../core/user';
+import { deepExtend } from '../util/util';
 
 var ANALYTICS_KEY = null;
-var DEFER_REGISTER = "DEFER_REGISTER";
+var DEFER_REGISTER = 'DEFER_REGISTER';
 var options: any = {};
 var globalProperties = {};
 var globalPropertiesFns = [];
@@ -46,8 +46,8 @@ export class Analytics {
     self.setGlobalProperties(function(eventCollection, eventData) {
       eventData._user = JSON.parse(JSON.stringify(User.current()));
       eventData._app = {
-        "app_id": IonicPlatform.config.get('app_id'), // eslint-disable-line
-        "analytics_version": IonicPlatform.Version
+        'app_id': IonicPlatform.config.get('app_id'), // eslint-disable-line
+        'analytics_version': IonicPlatform.Version
       };
     });
   }
@@ -117,11 +117,11 @@ export class Analytics {
 
   _requestAnalyticsKey() {
     var requestOptions = {
-      "method": 'GET',
-      "json": true,
-      "uri": IonicPlatform.config.getURL('api') + '/api/v1/app/' + IonicPlatform.config.get('app_id') + '/keys/write',
+      'method': 'GET',
+      'json': true,
+      'uri': IonicPlatform.config.getURL('api') + '/api/v1/app/' + IonicPlatform.config.get('app_id') + '/keys/write',
       'headers': {
-        'Authorization': "basic " + btoa(IonicPlatform.config.get('app_id') + ':' + IonicPlatform.config.get('api_key'))
+        'Authorization': 'basic ' + btoa(IonicPlatform.config.get('app_id') + ':' + IonicPlatform.config.get('api_key'))
       }
     };
 
@@ -131,7 +131,7 @@ export class Analytics {
   _postEvent(name, data) {
     var self = this;
     var payload = {
-      "name": [data]
+      'name': [data]
     };
 
     if (!ANALYTICS_KEY) {
@@ -139,11 +139,11 @@ export class Analytics {
     }
 
     var requestOptions = {
-      "method": 'POST',
-      "url": self._serviceHost + '/api/v1/events/' + IonicPlatform.config.get('app_id'),
-      "json": payload,
-      "headers": {
-        "Authorization": ANALYTICS_KEY
+      'method': 'POST',
+      'url': self._serviceHost + '/api/v1/events/' + IonicPlatform.config.get('app_id'),
+      'json': payload,
+      'headers': {
+        'Authorization': ANALYTICS_KEY
       }
     };
 
@@ -157,11 +157,11 @@ export class Analytics {
     }
 
     var requestOptions = {
-      "method": 'POST',
-      "url": self._serviceHost + '/api/v1/events/' + IonicPlatform.config.get('app_id'),
-      "json": events,
-      "headers": {
-        "Authorization": ANALYTICS_KEY
+      'method': 'POST',
+      'url': self._serviceHost + '/api/v1/events/' + IonicPlatform.config.get('app_id'),
+      'json': events,
+      'headers': {
+        'Authorization': ANALYTICS_KEY
       }
     };
 

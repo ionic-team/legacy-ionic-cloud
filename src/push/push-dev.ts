@@ -1,8 +1,8 @@
-import { APIRequest } from "../core/request";
-import { EventEmitter } from "../core/events";
-import { IonicPlatform } from "../core/core";
-import { Logger } from "../core/logger";
-import { PushToken } from "./push-token";
+import { APIRequest } from '../core/request';
+import { EventEmitter } from '../core/events';
+import { IonicPlatform } from '../core/core';
+import { Logger } from '../core/logger';
+import { PushToken } from './push-token';
 
 /**
  * PushDev Service
@@ -81,23 +81,23 @@ export class PushDevService {
     }
 
     var requestOptions = {
-      "method": 'POST',
-      "uri": this._serviceHost + '/development',
-      "json": {
-        "token": token
+      'method': 'POST',
+      'uri': this._serviceHost + '/development',
+      'json': {
+        'token': token
       }
     };
 
     new APIRequest(requestOptions).then(function() {
-      var data = { "registrationId": token };
+      var data = { 'registrationId': token };
       self.logger.info('registered with development push service: ' + token);
-      self._emitter.emit("ionic_push:token", data);
+      self._emitter.emit('ionic_push:token', data);
       if ((typeof callback === 'function')) {
         callback(new PushToken(self._token));
       }
       self.watch();
     }, function(error) {
-      self.logger.error("error connecting development push service: " + error);
+      self.logger.error('error connecting development push service: ' + error);
     });
   }
 
@@ -124,11 +124,11 @@ export class PushDevService {
           'title': 'DEVELOPMENT PUSH'
         };
 
-        self.logger.warn("Ionic Push: Development Push received. Development pushes will not contain payload data.");
-        self._emitter.emit("ionic_push:notification", message);
+        self.logger.warn('Ionic Push: Development Push received. Development pushes will not contain payload data.');
+        self._emitter.emit('ionic_push:notification', message);
       }
     }, function(error) {
-      self.logger.error("unable to check for development pushes: " + error);
+      self.logger.error('unable to check for development pushes: ' + error);
     });
   }
 
