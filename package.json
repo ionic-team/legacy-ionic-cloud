@@ -163,5 +163,17 @@
     "gulp-watch": "^0.6.5",
     "typescript": "^1.8.10",
     "typings": "^1.0.4"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015"
+          ]
+        }
+      ]
+    ]
   }
 }

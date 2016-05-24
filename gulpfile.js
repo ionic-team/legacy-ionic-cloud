@@ -28,7 +28,7 @@ gulp.task('build', ['version']);
 
 gulp.task('build-bundle', ['clean', 'lint', 'build-typescript'], function() {
   return browserify(["src/es5.js", "src/core/angular.js", "src/analytics/angular.js", "src/auth/angular.js", "src/push/angular.js", "src/deploy/angular.js", "dist/es6/index.js"], { "debug": true })
-    .transform("babelify", { "presets": ["es2015"], "sourceMapsAbsolute": true })
+    .transform("babelify", { "presets": ["es2015"] })
     .bundle()
     .on("error", function(err) { console.log("Error : " + err.message); })
     .pipe(fs.createWriteStream(buildConfig.dist + "/ionic.io.bundle.js"));
