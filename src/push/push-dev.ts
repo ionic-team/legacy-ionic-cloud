@@ -2,6 +2,7 @@ import { APIRequest } from '../core/request';
 import { EventEmitter } from '../core/events';
 import { IonicPlatform } from '../core/core';
 import { Logger } from '../core/logger';
+import { generateUUID } from '../util/util';
 import { PushToken } from './push-token';
 
 /**
@@ -54,15 +55,10 @@ export class PushDevService {
    * @return {String} development device token
    */
   getDevToken() {
-    // Some crazy bit-twiddling to generate a random guid
-    var token = 'DEV-xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-    this._token = token;
+    let token = generateUUID();
+    this._token = 'DEV-' + token;
     return this._token;
   }
-
 
   /**
    * Registers a development token with the Ionic Push service
