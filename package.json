@@ -47,9 +47,17 @@
     "gulp-uglify": "^1.4.1",
     "gulp-util": "^2.2.16",
     "gulp-watch": "^0.6.5",
+    "jasmine-core": "^2.4.1",
+    "karma": "^0.13.22",
+    "karma-browserify": "^5.0.5",
+    "karma-jasmine": "^1.0.2",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "phantomjs-prebuilt": "^2.1.7",
+    "run-sequence": "^1.2.1",
     "tslint": "^3.10.2",
     "tslint-ionic-rules": "0.0.2",
     "typescript": "^1.8.10",
-    "typings": "^1.0.4"
+    "typings": "^1.0.4",
+    "watchify": "^3.7.0"
   }
 }

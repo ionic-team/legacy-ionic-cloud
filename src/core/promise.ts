@@ -1,30 +1,38 @@
 import { Promise } from 'es6-promise';
 
 export class DeferredPromise {
-  then: any;
-  resolve: any;
-  reject: any;
-  promise: any;
+  public resolve: (value: any) => any;
+  public reject: (value: any) => any;
+  private _notify: (value: any) => any;
 
-  private _update: any;
+  public promise: any;
+
+  private notifyValues: any[] = [];
 
   constructor() {
-    var self = this;
-    this._update = false;
-    this.promise = new Promise(function(resolve, reject) {
-      self.resolve = resolve;
-      self.reject = reject;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
     });
-    var originalThen = this.promise.then;
-    this.promise.then = function(ok, fail, update) {
-      self._update = update;
-      return originalThen.call(self.promise, ok, fail);
+
+    let originalThen = this.promise.then;
+
+    this.promise.then = (ok, fail, notify) => {
+      this._notify = notify;
+
+      for (let v of this.notifyValues) {
+        this._notify(v);
+      }
+
+      return originalThen.call(this.promise, ok, fail);
     };
   }
 
-  notify(value) {
-    if (this._update && (typeof this._update === 'function')) {
-      this._update(value);
+  notify(value: any) {
+    if (typeof this._notify !== 'function') {
+      this.notifyValues.push(value);
+    } else {
+      this._notify(value);
     }
   }
 }
