@@ -1,3 +1,5 @@
+import { Promise } from 'es6-promise';
+
 export class DeferredPromise {
   then: any;
   resolve: any;

@@ -12,30 +12,29 @@ if ((typeof angular === 'object') && angular.module) {
    */
   .factory('$ionicPushAction', ['$state', function($state) {
 
-    class PushActionService {
+    function PushActionService() {}
 
-      /**
-       * State Navigation
-       *
-       * Attempts to navigate to a new view if a push notification payload contains:
-       *
-       *   - $state {String} The state name (e.g 'tab.chats')
-       *   - $stateParams {Object} Provided state (url) params
-       *
-       * Find more info about state navigation and params:
-       * https://github.com/angular-ui/ui-router/wiki
-       *
-       * @param {object} notification Notification Object
-       * @return {void}
-       */
-      notificationNavigation(notification) {
-        var state = notification.payload.$state || false;
-        var stateParams = notification.payload.$stateParams || {};
-        if (state) {
-          $state.go(state, stateParams);
-        }
+    /**
+     * State Navigation
+     *
+     * Attempts to navigate to a new view if a push notification payload contains:
+     *
+     *   - $state {String} The state name (e.g 'tab.chats')
+     *   - $stateParams {Object} Provided state (url) params
+     *
+     * Find more info about state navigation and params:
+     * https://github.com/angular-ui/ui-router/wiki
+     *
+     * @param {object} notification Notification Object
+     * @return {void}
+     */
+    PushActionService.prototype.notificationNavigation = function(notification) {
+      var state = notification.payload.$state || false;
+      var stateParams = notification.payload.$stateParams || {};
+      if (state) {
+        $state.go(state, stateParams);
       }
-    }
+    };
 
     return new PushActionService();
   }])

@@ -1,15 +1,11 @@
 {
     "env": {
         "browser": true,
-        "es6": true
+        "commonjs": true
     },
     "extends": "ionic",
     "globals": {
         "angular": true,
         "Ionic": true
-    },
-    "parserOptions": {
-        "ecmaVersion": 6,
-        "sourceType": "module"
     }
 }
