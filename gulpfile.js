@@ -1,17 +1,17 @@
 /* eslint-env node */
 /* eslint-disable no-console */
 
-var gulp = require('gulp'),
-  buildConfig = require('./build/config.js'),
-  browserify = require("browserify"),
-  fs = require("fs"),
-  eslint = require('gulp-eslint'),
-  tslint = require('gulp-tslint'),
-  replace = require('gulp-replace'),
-  uglify = require('gulp-uglify'),
-  rename = require('gulp-rename'),
-  del = require('del'),
-  ts = require('gulp-typescript');
+var browserify = require("browserify");
+var buildConfig = require('./build/config.js');
+var del = require('del');
+var fs = require("fs");
+var gulp = require('gulp');
+var rename = require('gulp-rename');
+var replace = require('gulp-replace');
+var shell = require('gulp-shell');
+var ts = require('gulp-typescript');
+var tslint = require('gulp-tslint');
+var uglify = require('gulp-uglify');
 
 });
 
@@ -19,12 +19,8 @@ gulp.task('clean', function() {
   return del(['dist/**/*']);
 });
 
-gulp.task('eslint', function() {
-  return gulp.src('src/**/*.js')
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError());
-});
+// https://github.com/adametry/gulp-eslint/issues/152
+gulp.task('eslint', shell.task('eslint .'));
 
 gulp.task('tslint', function() {
   return gulp.src('src/**/*.ts')
