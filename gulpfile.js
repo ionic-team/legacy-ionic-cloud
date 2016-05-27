@@ -31,13 +31,12 @@ gulp.task('tslint', function() {
 gulp.task('lint', ['eslint', 'tslint']);
 
 gulp.task('build-es5', ['clean', 'lint'], function() {
-  return gulp.src(['typings/index.d.ts', 'src/**/*.ts']).pipe(ts({
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "target": "es5",
-    "declaration": true,
-    "typescript": require('typescript')
-  })).js.pipe(gulp.dest('dist/es5'));
+  var tsProject = ts.createProject('tsconfig.json');
+
+  return gulp.src(["typings/index.d.ts", "src/**/*.ts"])
+    .pipe(ts(tsProject))
+    .js
+    .pipe(gulp.dest('dist/es5'));
 });
 
 gulp.task('watch-es5', ['build-es5'], function() {
