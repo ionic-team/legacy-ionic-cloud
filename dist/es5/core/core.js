@@ -39,7 +39,7 @@ var IonicPlatformCore = (function () {
     };
     Object.defineProperty(IonicPlatformCore.prototype, "Version", {
         get: function () {
-            return 'VERSION_STRING';
+            return '0.7.1';
         },
         enumerable: true,
         configurable: true

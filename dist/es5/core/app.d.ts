@@ -1,10 +1,9 @@
-import { Logger } from './logger';
 export declare class App {
     devPush: boolean;
     gcmKey: string;
-    logger: Logger;
-    constructor(appId: any, apiKey: any);
-    id: any;
-    apiKey: any;
+    private logger;
+    private _id;
+    constructor(appId: string);
+    id: string;
     toString(): string;
 }

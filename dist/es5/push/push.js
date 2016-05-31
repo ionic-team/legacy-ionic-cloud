@@ -24,19 +24,19 @@ var Push = (function () {
         this.logger = new logger_1.Logger({
             'prefix': 'Ionic Push:'
         });
-        var IonicApp = new app_1.App(core_1.IonicPlatform.config.get('app_id'), core_1.IonicPlatform.config.get('api_key'));
-        IonicApp.devPush = core_1.IonicPlatform.config.get('dev_push');
-        IonicApp.gcmKey = core_1.IonicPlatform.config.get('gcm_key');
+        var app = new app_1.App(core_1.IonicPlatform.config.get('app_id'));
+        app.devPush = core_1.IonicPlatform.config.get('dev_push');
+        app.gcmKey = core_1.IonicPlatform.config.get('gcm_key');
         // Check for the required values to use this service
-        if (!IonicApp.id || !IonicApp.apiKey) {
-            this.logger.error('no app_id or api_key found. (http://docs.ionic.io/docs/io-install)');
+        if (!app.id) {
+            this.logger.error('no app_id found. (http://docs.ionic.io/docs/io-install)');
             return;
         }
-        else if (core_1.IonicPlatform.isAndroidDevice() && !IonicApp.devPush && !IonicApp.gcmKey) {
+        else if (core_1.IonicPlatform.isAndroidDevice() && !app.devPush && !app.gcmKey) {
             this.logger.error('GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
             return;
         }
-        this.app = IonicApp;
+        this.app = app;
         this.registerCallback = null;
         this.notificationCallback = null;
         this.errorCallback = null;
