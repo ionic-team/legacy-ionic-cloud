@@ -21,7 +21,7 @@ if ((typeof angular === 'object') && angular.module) {
 
   .factory('$ionicCoreSettings', [
     function() {
-      return new Ionic.IO.Settings();
+      return Ionic.IO.Config;
     }
   ])
 
