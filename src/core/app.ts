@@ -29,6 +29,6 @@ export class App {
   }
 
   toString() {
-    return '<IonicApp [\'' + this.id + '\'>';
+    return '<App [\'' + this.id + '\'>';
   }
 }
