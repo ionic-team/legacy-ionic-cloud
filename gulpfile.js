@@ -91,7 +91,7 @@ gulp.task('version', function() {
 });
 
 gulp.task('build', function(done) {
-  runSequence(['clean', 'lint'], 'build-es5', 'build-es5-bundle', 'version', 'test', done);
+  runSequence('lint', 'build-es5-bundle', 'version', done);
 });
 
 gulp.task('default', ['build']);
