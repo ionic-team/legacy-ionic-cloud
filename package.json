@@ -24,10 +24,10 @@
     "url": "https://github.com/driftyco/ionic-platform-web-client/issues"
   },
   "main": "dist/es5/index.js",
+  "typings": "dist/es5/index.d.ts",
   "homepage": "https://github.com/driftyco/ionic-platform-web-client#readme",
   "dependencies": {
     "es6-promise": "^3.2.1",
-    "events": "^1.1.0",
     "superagent": "^1.8.3"
   },
   "devDependencies": {
@@ -52,6 +52,7 @@
     "karma-browserify": "^5.0.5",
     "karma-jasmine": "^1.0.2",
     "karma-phantomjs-launcher": "^1.0.0",
+    "merge2": "^1.0.2",
     "phantomjs-prebuilt": "^2.1.7",
     "run-sequence": "^1.2.1",
     "tslint": "^3.10.2",

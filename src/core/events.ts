@@ -1,18 +1,32 @@
-import { EventEmitter as _EventEmitter } from 'events';
+export type EventHandler = (data: Object) => any;
+
+interface EventHandlers {
+  [key: string]: EventHandler[];
+}
 
 export class EventEmitter {
 
-  private _emitter: _EventEmitter;
+  private eventHandlers: EventHandlers;
 
   constructor() {
-    this._emitter = new _EventEmitter();
+    this.eventHandlers = {};
   }
 
-  on(event, callback) {
-    return this._emitter.on(event, callback);
+  on(event: string, callback: EventHandler) {
+    if (typeof this.eventHandlers[event] === 'undefined') {
+      this.eventHandlers[event] = [];
+    }
+
+    this.eventHandlers[event].push(callback);
   }
 
-  emit(label, data = null) {
-    return this._emitter.emit(label, data);
+  emit(event: string, data: Object = null) {
+    if (typeof this.eventHandlers[event] === 'undefined') {
+      this.eventHandlers[event] = [];
+    }
+
+    for (let callback of this.eventHandlers[event]) {
+      callback(data);
+    }
   }
 }

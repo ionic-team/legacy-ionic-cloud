@@ -6,6 +6,7 @@ var browserify = require('browserify');
 var del = require('del');
 var fs = require('fs');
 var gulp = require('gulp');
+var merge = require('merge2');
 var pkg = require('./package.json');
 var rename = require('gulp-rename');
 var replace = require('gulp-replace');
@@ -39,11 +40,13 @@ gulp.task('lint', ['eslint', 'tslint']);
 
 gulp.task('build-es5', ['clean'], function() {
   var tsProject = ts.createProject('tsconfig.json');
+  var tsResult = gulp.src(["typings/index.d.ts", "src/**/*.ts"])
+    .pipe(ts(tsProject));
 
-  return gulp.src(["typings/index.d.ts", "src/**/*.ts"])
-    .pipe(ts(tsProject))
-    .js
-    .pipe(gulp.dest('dist/es5'));
+  return merge([
+    tsResult.dts.pipe(gulp.dest('dist/es5')),
+    tsResult.js.pipe(gulp.dest('dist/es5'))
+  ]);
 });
 
 gulp.task('watch-es5', ['build-es5'], function() {
