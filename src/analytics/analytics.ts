@@ -1,4 +1,4 @@
-import { APIRequest } from '../core/request';
+import { request } from '../core/request';
 import { DeferredPromise } from '../core/promise';
 import { IonicPlatform } from '../core/core';
 import { Logger } from '../core/logger';
@@ -125,7 +125,7 @@ export class Analytics {
       }
     };
 
-    return new APIRequest(requestOptions);
+    return request(requestOptions);
   }
 
   _postEvent(name, data) {
@@ -147,7 +147,7 @@ export class Analytics {
       }
     };
 
-    return new APIRequest(requestOptions);
+    return request(requestOptions);
   }
 
   _postEvents(events) {
@@ -165,7 +165,7 @@ export class Analytics {
       }
     };
 
-    return new APIRequest(requestOptions);
+    return request(requestOptions);
   }
 
   _dispatchQueue() {
