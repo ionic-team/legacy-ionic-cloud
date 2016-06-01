@@ -1,4 +1,3 @@
-import { APIRequest } from '../core/request';
 import { Logger } from '../core/logger';
 
 interface IStatSerialized {

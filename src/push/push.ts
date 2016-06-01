@@ -2,7 +2,7 @@ import { App } from '../core/app';
 import { IonicPlatform } from '../core/core';
 import { Logger } from '../core/logger';
 import { EventEmitter } from '../core/events';
-import { APIRequest } from '../core/request';
+import { request } from '../core/request';
 import { DeferredPromise } from '../core/promise';
 import { User } from '../core/user';
 
@@ -178,7 +178,7 @@ export class Push {
     }
 
     if (!self._blockSaveToken) {
-      new APIRequest({
+      request({
         'uri': pushAPIEndpoints.saveToken(),
         'method': 'POST',
         'json': tokenData
@@ -265,7 +265,7 @@ export class Push {
       if (this._plugin) {
         this._plugin.unregister(function() {}, function() {});
       }
-      new APIRequest({
+      request({
         'uri': pushAPIEndpoints.invalidateToken(),
         'method': 'POST',
         'json': {

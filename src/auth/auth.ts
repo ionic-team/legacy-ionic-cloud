@@ -1,4 +1,4 @@
-import { APIRequest } from '../core/request';
+import { request } from '../core/request';
 import { DeferredPromise } from '../core/promise';
 import { IonicPlatform } from '../core/core';
 import { PlatformLocalStorageStrategy, LocalSessionStorageStrategy } from '../core/storage';
@@ -9,12 +9,12 @@ declare var window: any;
 var storage = new PlatformLocalStorageStrategy();
 var sessionStorage = new LocalSessionStorageStrategy();
 
-var __authModules: any = {};
-var __authToken = null;
+var authModules: Object = {};
+var authToken: string;
 
 var authAPIBase = IonicPlatform.config.getURL('platform-api') + '/auth';
 var authAPIEndpoints = {
-  'login': function(provider = null) {
+  'login': function(provider?) {
     if (provider) {
       return authAPIBase + '/login/' + provider;
     }
@@ -36,7 +36,7 @@ export class TempTokenContext {
   }
 
   static store() {
-    sessionStorage.set(TempTokenContext.label, __authToken);
+    sessionStorage.set(TempTokenContext.label, authToken);
   }
 
   static getRawData() {
@@ -54,7 +54,7 @@ export class TokenContext {
   }
 
   static store() {
-    storage.set(TokenContext.label, __authToken);
+    storage.set(TokenContext.label, authToken);
   }
 
   static getRawData() {
@@ -62,8 +62,8 @@ export class TokenContext {
   }
 }
 
-function storeToken(options, token) {
-  __authToken = token;
+function storeToken(options, token: string) {
+  authToken = token;
   if (typeof options === 'object' && options.remember) {
     TokenContext.store();
   } else {
@@ -79,7 +79,7 @@ class InAppBrowserFlow {
     if (!window || !window.cordova || !window.cordova.InAppBrowser) {
       deferred.reject('Missing InAppBrowser plugin');
     } else {
-      new APIRequest({
+      request({
         'uri': authAPIEndpoints.login(options.provider),
         'method': options.uri_method || 'POST',
         'json': {
@@ -135,7 +135,7 @@ export class Auth {
 
   static login(moduleId, options, data) {
     var deferred = new DeferredPromise();
-    var context = __authModules[moduleId] || false;
+    var context = authModules[moduleId] || false;
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
     }
@@ -152,7 +152,7 @@ export class Auth {
   }
 
   static signup(data) {
-    var context = __authModules.basic || false;
+    var context = authModules['basic'] || false;
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
     }
@@ -165,8 +165,8 @@ export class Auth {
   }
 
   static register(moduleId, module) {
-    if (!__authModules[moduleId]) {
-      __authModules[moduleId] = module;
+    if (!authModules[moduleId]) {
+      authModules[moduleId] = module;
     }
   }
 
@@ -188,7 +188,7 @@ class BasicAuth {
   static authenticate(options, data) {
     var deferred = new DeferredPromise();
 
-    new APIRequest({
+    request({
       'uri': authAPIEndpoints.login(),
       'method': 'POST',
       'json': {
@@ -221,7 +221,7 @@ class BasicAuth {
     if (data.name) { userData.name = data.name; }
     if (data.custom) { userData.custom = data.custom; }
 
-    new APIRequest({
+    request({
       'uri': authAPIEndpoints.signup(),
       'method': 'POST',
       'json': userData

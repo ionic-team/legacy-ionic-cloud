@@ -16,7 +16,7 @@ export class IonicPlatformCore {
   logger: Logger;
   emitter: EventEmitter;
   config: any;
-  cordovaPlatformUnknown: boolean;
+  cordovaPlatformUnknown: boolean = false;
 
   private _pluginsReady: boolean;
 
@@ -120,10 +120,6 @@ export class IonicPlatformCore {
           }
           break;
 
-        case 'unknown':
-          self.cordovaPlatformUnknown = true;
-          return false;
-
         default:
           break;
       }
@@ -190,6 +186,11 @@ export class IonicPlatformCore {
    */
   _bootstrap() {
     this.loadCordova();
+    switch (this.getDeviceTypeByNavigator()) {
+      case 'unknown':
+        this.cordovaPlatformUnknown = true;
+        break;
+    }
   }
 
   deviceConnectedToNetwork(strictMode = null) {

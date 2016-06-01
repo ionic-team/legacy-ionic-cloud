@@ -30,8 +30,8 @@ export class IonicPlatformConfig {
   }
 
   register(settings: any = {}) {
-      this._settings = settings;
-      this._devLocations = settings.dev_locations || {};
+    this._settings = settings;
+    this._devLocations = settings.dev_locations || {};
   }
 }
 

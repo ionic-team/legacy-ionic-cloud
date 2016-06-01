@@ -1,5 +1,5 @@
 import { Auth } from '../auth/auth';
-import { APIRequest } from './request';
+import { request } from './request';
 import { DeferredPromise } from './promise';
 import { IonicPlatform } from './core';
 import { Storage } from './storage';
@@ -201,7 +201,7 @@ export class User {
 
     if (!tempUser._blockLoad) {
       tempUser._blockLoad = true;
-      new APIRequest({
+      request({
         'uri': userAPIEndpoints.self(),
         'method': 'GET',
         'json': true
@@ -238,7 +238,7 @@ export class User {
 
     if (!tempUser._blockLoad) {
       tempUser._blockLoad = true;
-      new APIRequest({
+      request({
         'uri': userAPIEndpoints.get(tempUser),
         'method': 'GET',
         'json': true
@@ -322,7 +322,7 @@ export class User {
     if (!self._blockDelete) {
       self._blockDelete = true;
       self._delete();
-      new APIRequest({
+      request({
         'uri': userAPIEndpoints.remove(this),
         'method': 'DELETE',
         'json': true
@@ -362,7 +362,7 @@ export class User {
     if (!self._blockSave) {
       self._blockSave = true;
       self._store();
-      new APIRequest({
+      request({
         'uri': userAPIEndpoints.save(this),
         'method': 'PATCH',
         'json': self.getFormat('api-save')
@@ -393,7 +393,7 @@ export class User {
     var self = this;
     var deferred = new DeferredPromise();
 
-    new APIRequest({
+    request({
       'uri': userAPIEndpoints.passwordReset(this),
       'method': 'POST'
     }).then(function(result) {

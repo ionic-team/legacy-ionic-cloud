@@ -1,4 +1,4 @@
-import { APIRequest } from '../core/request';
+import { request } from '../core/request';
 import { EventEmitter } from '../core/events';
 import { IonicPlatform } from '../core/core';
 import { Logger } from '../core/logger';
@@ -84,7 +84,7 @@ export class PushDevService {
       }
     };
 
-    new APIRequest(requestOptions).then(function() {
+    request(requestOptions).then(function() {
       var data = { 'registrationId': token };
       self.logger.info('registered with development push service: ' + token);
       self._emitter.emit('ionic_push:token', data);
@@ -113,7 +113,7 @@ export class PushDevService {
       'json': true
     };
 
-    new APIRequest(requestOptions).then(function(result) {
+    request(requestOptions).then(function(result) {
       if (result.payload.data.message) {
         var message = {
           'message': result.payload.data.message,
