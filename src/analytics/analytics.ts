@@ -1,5 +1,5 @@
 import { request } from '../core/request';
-import { DeferredPromise } from '../core/promise';
+import { PromiseWithNotify, DeferredPromise } from '../core/promise';
 import { IonicPlatform } from '../core/core';
 import { Logger } from '../core/logger';
 import { BucketStorage } from './storage';
@@ -23,7 +23,7 @@ export class Analytics {
   private _useEventCaching: boolean;
   private _serviceHost: string;
 
-  constructor(config) {
+  constructor(config?: any) {
     this._dispatcher = null;
     this._dispatchIntervalTime = 30;
     this._useEventCaching = true;
@@ -243,7 +243,7 @@ export class Analytics {
    * @param {object} opts Registration options
    * @return {Promise} The register promise
    */
-  register(opts) {
+  register(opts?: any): PromiseWithNotify<any> {
 
     var self = this;
     var deferred = new DeferredPromise();

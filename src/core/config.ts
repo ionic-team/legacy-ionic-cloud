@@ -1,13 +1,19 @@
+export interface ISettings {
+  app_id: string;
+  gcm_key?: string;
+  api_key?: string;
+  dev_push?: boolean;
+  dev_locations?: any;
+  [key: string]: any;
+}
+
 export class IonicPlatformConfig {
 
-  private _settings: any;
-  private _locations: any;
-  private _devLocations: any;
+  private settings: ISettings;
+  private locations: any;
 
   constructor() {
-    this._settings = {};
-    this._devLocations = {};
-    this._locations = {
+    this.locations = {
       'api': 'https://apps.ionic.io',
       'push': 'https://push.ionic.io',
       'analytics': 'https://analytics.ionic.io',
@@ -16,24 +22,28 @@ export class IonicPlatformConfig {
     };
   }
 
-  get(name) {
-    return this._settings[name];
+  register(settings: ISettings) {
+    this.settings = settings;
   }
 
-  getURL(name) {
-    if (this._devLocations[name]) {
-      return this._devLocations[name];
-    } else if (this._locations[name]) {
-      return this._locations[name];
-    } else {
-      return null;
+  get(name: string): any {
+    if (!this.settings) {
+      return undefined;
+    }
+
+    return this.settings[name];
+  }
+
+  getURL(name: string): string {
+    let devLocations = this.settings && this.settings['dev_locations'] || {};
+
+    if (devLocations[name]) {
+      return devLocations[name];
+    } else if (this.locations[name]) {
+      return this.locations[name];
     }
   }
 
-  register(settings: any = {}) {
-    this._settings = settings;
-    this._devLocations = settings.dev_locations || {};
-  }
 }
 
 export var Config = new IonicPlatformConfig();

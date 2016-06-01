@@ -3,7 +3,7 @@ import { IonicPlatform } from '../core/core';
 import { Logger } from '../core/logger';
 import { EventEmitter } from '../core/events';
 import { request } from '../core/request';
-import { DeferredPromise } from '../core/promise';
+import { PromiseWithNotify, DeferredPromise } from '../core/promise';
 import { User } from '../core/user';
 
 import { PushToken } from './push-token';
@@ -45,7 +45,7 @@ export class Push {
   private _tokenReady: boolean;
   private _plugin: any;
   private _config: any;
-  private _token: string;
+  private _token: PushToken = null;
 
   constructor(config) {
     this.logger = new Logger({
@@ -69,7 +69,6 @@ export class Push {
     this.registerCallback = null;
     this.notificationCallback = null;
     this.errorCallback = null;
-    this._token = null;
     this._notification = false;
     this._debug = false;
     this._isReady = false;
@@ -151,7 +150,7 @@ export class Push {
     return this;
   }
 
-  saveToken(token, options) {
+  saveToken(token, options): PromiseWithNotify<any> {
     var self = this;
     var deferred = new DeferredPromise();
     var opts = options || {};
@@ -160,9 +159,9 @@ export class Push {
     }
 
     interface TokenData {
-        token: PushToken;
-        app_id: string;
-        user_id: string;
+      token: PushToken;
+      app_id: string;
+      user_id: string;
     }
 
     var tokenData: any = {
@@ -173,7 +172,7 @@ export class Push {
     if (!opts.ignore_user) {
       var user = User.current();
       if (user.isAuthenticated()) {
-        tokenData.user_id = user.id; // eslint-disable-line
+        tokenData.user_id = user.id;
       }
     }
 
@@ -208,7 +207,7 @@ export class Push {
    * @param {function} callback Callback Function
    * @return {void}
    */
-  register(callback) {
+  register(callback: (token: PushToken) => void) {
     this.logger.info('register');
     var self = this;
     if (this._blockRegistration) {
@@ -246,7 +245,7 @@ export class Push {
    *
    * @return {Promise} the unregister result
    */
-  unregister() {
+  unregister(): PromiseWithNotify<any> {
     var self = this;
     var deferred = new DeferredPromise();
     var platform = null;

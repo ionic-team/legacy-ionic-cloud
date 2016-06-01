@@ -1,5 +1,5 @@
 import { request } from '../core/request';
-import { DeferredPromise } from '../core/promise';
+import { PromiseWithNotify, DeferredPromise } from '../core/promise';
 import { IonicPlatform } from '../core/core';
 import { PlatformLocalStorageStrategy, LocalSessionStorageStrategy } from '../core/storage';
 import { User } from '../core/user';
@@ -124,7 +124,7 @@ function getAuthErrorDetails(err) {
 
 export class Auth {
 
-  static isAuthenticated() {
+  static isAuthenticated(): boolean {
     var token = TokenContext.getRawData();
     var tempToken = TempTokenContext.getRawData();
     if (tempToken || token) {
@@ -133,8 +133,8 @@ export class Auth {
     return false;
   }
 
-  static login(moduleId, options, data) {
-    var deferred = new DeferredPromise();
+  static login(moduleId, options, data): PromiseWithNotify<User> {
+    var deferred = new DeferredPromise<User>();
     var context = authModules[moduleId] || false;
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
@@ -159,12 +159,12 @@ export class Auth {
     return context.signup.apply(context, [data]);
   }
 
-  static logout() {
+  static logout(): void {
     TokenContext.delete();
     TempTokenContext.delete();
   }
 
-  static register(moduleId, module) {
+  static register(moduleId, module): void {
     if (!authModules[moduleId]) {
       authModules[moduleId] = module;
     }
@@ -206,8 +206,8 @@ class BasicAuth {
     return deferred.promise;
   }
 
-  static signup(data) {
-    var deferred = new DeferredPromise();
+  static signup(data): PromiseWithNotify<boolean> {
+    var deferred = new DeferredPromise<boolean>();
 
     var userData: any = {
       'app_id': IonicPlatform.config.get('app_id'),

@@ -1,4 +1,4 @@
-import { DeferredPromise } from './promise';
+import { PromiseWithNotify, DeferredPromise } from './promise';
 
 export class PlatformLocalStorageStrategy {
   constructor() {
@@ -101,10 +101,10 @@ export class Storage {
    * @returns {Promise} A new promise, identical to the one returned by asyncFunction,
    *          but with two new errors: 'in_progress', and 'last_call_interrupted'.
    */
-  lockedAsyncCall(lockKey, asyncFunction) {
+  lockedAsyncCall(lockKey, asyncFunction): PromiseWithNotify<any> {
 
     var self = this;
-    var deferred: DeferredPromise = new DeferredPromise();
+    var deferred = new DeferredPromise();
 
     // If the memory lock is set, error out.
     if (memoryLocks[lockKey]) {

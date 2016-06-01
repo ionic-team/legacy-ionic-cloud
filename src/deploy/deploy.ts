@@ -1,4 +1,4 @@
-import { DeferredPromise } from '../core/promise';
+import { PromiseWithNotify, DeferredPromise } from '../core/promise';
 import { Logger } from '../core/logger';
 import { IonicPlatform } from '../core/core';
 import { EventEmitter } from '../core/events';
@@ -73,9 +73,9 @@ export class Deploy {
    * @return {Promise} Will resolve with true if an update is available, false otherwise. A string or
    *   error will be passed to reject() in the event of a failure.
    */
-  check() {
+  check(): PromiseWithNotify<boolean> {
     var self = this;
-    var deferred = new DeferredPromise();
+    var deferred = new DeferredPromise<boolean>();
 
     this.onReady(function() {
       if (self._getPlugin()) {
@@ -106,7 +106,7 @@ export class Deploy {
    * @return {Promise} The promise which will resolve with true/false or use
    *    notify to update the download progress.
    */
-  download() {
+  download(): PromiseWithNotify<boolean> {
     var self = this;
     var deferred = new DeferredPromise();
 
@@ -140,7 +140,7 @@ export class Deploy {
    * @return {Promise} The promise which will resolve with true/false or use
    *                   notify to update the extraction progress.
    */
-  extract() {
+  extract(): PromiseWithNotify<boolean> {
     var self = this;
     var deferred = new DeferredPromise();
 
@@ -191,8 +191,8 @@ export class Deploy {
    * @param {object} options Watch configuration options
    * @return {Promise} returns a promise that will get a notify() callback when an update is available
    */
-  watch(options) {
-    var deferred = new DeferredPromise();
+  watch(options): PromiseWithNotify<void> {
+    var deferred = new DeferredPromise<void>();
     var opts = options || {};
     var self = this;
 
@@ -234,7 +234,7 @@ export class Deploy {
    * @return {Promise} The resolver will be passed an object that has key/value
    *    pairs pertaining to the currently deployed update.
    */
-  info() {
+  info(): PromiseWithNotify<any> {
     var deferred = new DeferredPromise();
     var self = this;
 
@@ -258,7 +258,7 @@ export class Deploy {
    *
    * @return {Promise} The resolver will be passed an array of deploy uuids
    */
-  getVersions() {
+  getVersions(): PromiseWithNotify<any> {
     var deferred = new DeferredPromise();
     var self = this;
 
@@ -283,7 +283,7 @@ export class Deploy {
    * @param {string} uuid The deploy uuid you wish to remove from the device
    * @return {Promise} Standard resolve/reject resolution
    */
-  deleteVersion(uuid) {
+  deleteVersion(uuid): PromiseWithNotify<any> {
     var deferred = new DeferredPromise();
     var self = this;
 
@@ -309,7 +309,7 @@ export class Deploy {
    * @param {string} uuid The deploy uuid you wish to grab metadata for, can be left blank to grab latest known update metadata
    * @return {Promise} Standard resolve/reject resolution
    */
-  getMetadata(uuid) {
+  getMetadata(uuid): PromiseWithNotify<any> {
     var deferred = new DeferredPromise();
     var self = this;
 
@@ -344,7 +344,7 @@ export class Deploy {
    * @param {boolean} deferLoad Defer loading the applied update after the installation
    * @return {Promise} A promise result
    */
-  update(deferLoad) {
+  update(deferLoad): PromiseWithNotify<boolean> {
     var deferred = new DeferredPromise();
     var self = this;
     var deferLoading = false;

@@ -1,6 +1,6 @@
 import { Auth } from '../auth/auth';
 import { request } from './request';
-import { DeferredPromise } from './promise';
+import { PromiseWithNotify, DeferredPromise } from './promise';
 import { IonicPlatform } from './core';
 import { Storage } from './storage';
 import { Logger } from './logger';
@@ -150,11 +150,11 @@ export class User {
     this.data = new UserData();
   }
 
-  isDirty() {
+  isDirty(): boolean {
     return this._dirty;
   }
 
-  isAnonymous() {
+  isAnonymous(): boolean {
     if (!this.id) {
       return true;
     } else {
@@ -162,14 +162,14 @@ export class User {
     }
   }
 
-  isAuthenticated() {
+  isAuthenticated(): boolean {
     if (this === User.current()) {
       return Auth.isAuthenticated();
     }
     return false;
   }
 
-  static current(user = null) {
+  static current(user?: User): User {
     if (user) {
       AppUserContext = user;
       UserContext.store();
@@ -185,7 +185,7 @@ export class User {
     }
   }
 
-  static fromContext(data) {
+  static fromContext(data): User {
     var user = new User();
     user.id = data._id;
     user.data = new UserData(data.data.data);
@@ -195,7 +195,7 @@ export class User {
     return user;
   }
 
-  static self() {
+  static self(): Promise<User> {
     var deferred = new DeferredPromise();
     var tempUser = new User();
 
@@ -311,32 +311,32 @@ export class User {
     }
   }
 
-  delete() {
+  delete(): PromiseWithNotify<any> {
     var self = this;
     var deferred = new DeferredPromise();
 
-    if (!self.isValid()) {
-      return false;
-    }
-
-    if (!self._blockDelete) {
-      self._blockDelete = true;
-      self._delete();
-      request({
-        'uri': userAPIEndpoints.remove(this),
-        'method': 'DELETE',
-        'json': true
-      }).then(function(result) {
-        self._blockDelete = false;
-        self.logger.info('deleted ' + self);
-        deferred.resolve(result);
-      }, function(error) {
-        self._blockDelete = false;
-        self.logger.error(error);
-        deferred.reject(error);
-      });
+    if (self.isValid()) {
+      if (!self._blockDelete) {
+        self._blockDelete = true;
+        self._delete();
+        request({
+          'uri': userAPIEndpoints.remove(this),
+          'method': 'DELETE',
+          'json': true
+        }).then(function(result) {
+          self._blockDelete = false;
+          self.logger.info('deleted ' + self);
+          deferred.resolve(result);
+        }, function(error) {
+          self._blockDelete = false;
+          self.logger.error(error);
+          deferred.reject(error);
+        });
+      } else {
+        self.logger.info('a delete operation is already in progress for ' + this + '.');
+        deferred.reject(false);
+      }
     } else {
-      self.logger.info('a delete operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 

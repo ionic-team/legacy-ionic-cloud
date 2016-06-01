@@ -1,7 +1,7 @@
 import { EventEmitter } from './events';
 import { Storage } from './storage';
 import { Logger } from './logger';
-import { Config } from './config';
+import { IonicPlatformConfig, Config, ISettings } from './config';
 
 var eventEmitter = new EventEmitter();
 var mainStorage = new Storage();
@@ -15,7 +15,7 @@ export class IonicPlatformCore {
 
   logger: Logger;
   emitter: EventEmitter;
-  config: any;
+  config: IonicPlatformConfig;
   cordovaPlatformUnknown: boolean = false;
 
   private _pluginsReady: boolean;
@@ -48,7 +48,7 @@ export class IonicPlatformCore {
     }
   }
 
-  init(cfg: any) {
+  init(cfg: ISettings) {
     this.config.register(cfg);
   }
 
