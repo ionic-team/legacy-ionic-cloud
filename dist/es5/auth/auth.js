@@ -6,12 +6,11 @@ var storage_1 = require('../core/storage');
 var user_1 = require('../core/user');
 var storage = new storage_1.PlatformLocalStorageStrategy();
 var sessionStorage = new storage_1.LocalSessionStorageStrategy();
-var __authModules = {};
-var __authToken = null;
+var authModules = {};
+var authToken;
 var authAPIBase = core_1.IonicPlatform.config.getURL('platform-api') + '/auth';
 var authAPIEndpoints = {
     'login': function (provider) {
-        if (provider === void 0) { provider = null; }
         if (provider) {
             return authAPIBase + '/login/' + provider;
         }
@@ -35,7 +34,7 @@ var TempTokenContext = (function () {
         sessionStorage.remove(TempTokenContext.label);
     };
     TempTokenContext.store = function () {
-        sessionStorage.set(TempTokenContext.label, __authToken);
+        sessionStorage.set(TempTokenContext.label, authToken);
     };
     TempTokenContext.getRawData = function () {
         return sessionStorage.get(TempTokenContext.label) || false;
@@ -57,7 +56,7 @@ var TokenContext = (function () {
         storage.remove(TokenContext.label);
     };
     TokenContext.store = function () {
-        storage.set(TokenContext.label, __authToken);
+        storage.set(TokenContext.label, authToken);
     };
     TokenContext.getRawData = function () {
         return storage.get(TokenContext.label) || false;
@@ -66,7 +65,7 @@ var TokenContext = (function () {
 }());
 exports.TokenContext = TokenContext;
 function storeToken(options, token) {
-    __authToken = token;
+    authToken = token;
     if (typeof options === 'object' && options.remember) {
         TokenContext.store();
     }
@@ -81,7 +80,7 @@ var InAppBrowserFlow = (function () {
             deferred.reject('Missing InAppBrowser plugin');
         }
         else {
-            new request_1.APIRequest({
+            request_1.request({
                 'uri': authAPIEndpoints.login(options.provider),
                 'method': options.uri_method || 'POST',
                 'json': {
@@ -138,7 +137,7 @@ var Auth = (function () {
     };
     Auth.login = function (moduleId, options, data) {
         var deferred = new promise_1.DeferredPromise();
-        var context = __authModules[moduleId] || false;
+        var context = authModules[moduleId] || false;
         if (!context) {
             throw new Error('Authentication class is invalid or missing:' + context);
         }
@@ -154,7 +153,7 @@ var Auth = (function () {
         return deferred.promise;
     };
     Auth.signup = function (data) {
-        var context = __authModules.basic || false;
+        var context = authModules['basic'] || false;
         if (!context) {
             throw new Error('Authentication class is invalid or missing:' + context);
         }
@@ -165,8 +164,8 @@ var Auth = (function () {
         TempTokenContext.delete();
     };
     Auth.register = function (moduleId, module) {
-        if (!__authModules[moduleId]) {
-            __authModules[moduleId] = module;
+        if (!authModules[moduleId]) {
+            authModules[moduleId] = module;
         }
     };
     Auth.getUserToken = function () {
@@ -186,7 +185,7 @@ var BasicAuth = (function () {
     }
     BasicAuth.authenticate = function (options, data) {
         var deferred = new promise_1.DeferredPromise();
-        new request_1.APIRequest({
+        request_1.request({
             'uri': authAPIEndpoints.login(),
             'method': 'POST',
             'json': {
@@ -222,7 +221,7 @@ var BasicAuth = (function () {
         if (data.custom) {
             userData.custom = data.custom;
         }
-        new request_1.APIRequest({
+        request_1.request({
             'uri': authAPIEndpoints.signup(),
             'method': 'POST',
             'json': userData

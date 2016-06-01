@@ -1,10 +1,17 @@
+export interface ISettings {
+    app_id: string;
+    gcm_key?: string;
+    api_key?: string;
+    dev_push?: boolean;
+    dev_locations?: any;
+    [key: string]: any;
+}
 export declare class IonicPlatformConfig {
-    private _settings;
-    private _locations;
-    private _devLocations;
+    private settings;
+    private locations;
     constructor();
-    get(name: any): any;
-    getURL(name: any): any;
-    register(settings?: any): void;
+    register(settings: ISettings): void;
+    get(name: string): any;
+    getURL(name: string): string;
 }
 export declare var Config: IonicPlatformConfig;

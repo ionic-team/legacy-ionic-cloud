@@ -8,3 +8,4 @@ export * from './request';
 export * from './config';
 export * from './storage';
 export * from './user';
+export * from './client';

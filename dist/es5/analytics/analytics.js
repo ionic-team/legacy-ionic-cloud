@@ -108,7 +108,7 @@ var Analytics = (function () {
                 'Authorization': 'basic ' + btoa(core_1.IonicPlatform.config.get('app_id') + ':' + core_1.IonicPlatform.config.get('api_key'))
             }
         };
-        return new request_1.APIRequest(requestOptions);
+        return request_1.request(requestOptions);
     };
     Analytics.prototype._postEvent = function (name, data) {
         var self = this;
@@ -126,7 +126,7 @@ var Analytics = (function () {
                 'Authorization': ANALYTICS_KEY
             }
         };
-        return new request_1.APIRequest(requestOptions);
+        return request_1.request(requestOptions);
     };
     Analytics.prototype._postEvents = function (events) {
         var self = this;
@@ -141,7 +141,7 @@ var Analytics = (function () {
                 'Authorization': ANALYTICS_KEY
             }
         };
-        return new request_1.APIRequest(requestOptions);
+        return request_1.request(requestOptions);
     };
     Analytics.prototype._dispatchQueue = function () {
         var self = this;

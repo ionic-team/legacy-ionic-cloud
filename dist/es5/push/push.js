@@ -21,14 +21,15 @@ var pushAPIEndpoints = {
 };
 var Push = (function () {
     function Push(config) {
+        this._token = null;
         this.logger = new logger_1.Logger({
             'prefix': 'Ionic Push:'
         });
-        var app = new app_1.App(core_1.IonicPlatform.config.get('app_id'));
+        var app = new app_1.App(core_1.IonicPlatform.config.get('app_id'), core_1.IonicPlatform.config.get('api_key'));
         app.devPush = core_1.IonicPlatform.config.get('dev_push');
         app.gcmKey = core_1.IonicPlatform.config.get('gcm_key');
         // Check for the required values to use this service
-        if (!app.id) {
+        if (!app.id || !app.apiKey) {
             this.logger.error('no app_id found. (http://docs.ionic.io/docs/io-install)');
             return;
         }
@@ -40,7 +41,6 @@ var Push = (function () {
         this.registerCallback = null;
         this.notificationCallback = null;
         this.errorCallback = null;
-        this._token = null;
         this._notification = false;
         this._debug = false;
         this._isReady = false;
@@ -144,11 +144,11 @@ var Push = (function () {
         if (!opts.ignore_user) {
             var user = user_1.User.current();
             if (user.isAuthenticated()) {
-                tokenData.user_id = user.id; // eslint-disable-line
+                tokenData.user_id = user.id;
             }
         }
         if (!self._blockSaveToken) {
-            new request_1.APIRequest({
+            request_1.request({
                 'uri': pushAPIEndpoints.saveToken(),
                 'method': 'POST',
                 'json': tokenData
@@ -232,7 +232,7 @@ var Push = (function () {
             if (this._plugin) {
                 this._plugin.unregister(function () { }, function () { });
             }
-            new request_1.APIRequest({
+            request_1.request({
                 'uri': pushAPIEndpoints.invalidateToken(),
                 'method': 'POST',
                 'json': {

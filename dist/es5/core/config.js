@@ -1,33 +1,31 @@
 "use strict";
 var IonicPlatformConfig = (function () {
     function IonicPlatformConfig() {
-        this._settings = {};
-        this._devLocations = {};
-        this._locations = {
+        this.locations = {
             'api': 'https://apps.ionic.io',
             'push': 'https://push.ionic.io',
+            'analytics': 'https://analytics.ionic.io',
             'deploy': 'https://apps.ionic.io',
             'platform-api': 'https://api.ionic.io'
         };
     }
+    IonicPlatformConfig.prototype.register = function (settings) {
+        this.settings = settings;
+    };
     IonicPlatformConfig.prototype.get = function (name) {
-        return this._settings[name];
+        if (!this.settings) {
+            return undefined;
+        }
+        return this.settings[name];
     };
     IonicPlatformConfig.prototype.getURL = function (name) {
-        if (this._devLocations[name]) {
-            return this._devLocations[name];
+        var devLocations = this.settings && this.settings['dev_locations'] || {};
+        if (devLocations[name]) {
+            return devLocations[name];
         }
-        else if (this._locations[name]) {
-            return this._locations[name];
+        else if (this.locations[name]) {
+            return this.locations[name];
         }
-        else {
-            return null;
-        }
-    };
-    IonicPlatformConfig.prototype.register = function (settings) {
-        if (settings === void 0) { settings = {}; }
-        this._settings = settings;
-        this._devLocations = settings.dev_locations || {};
     };
     return IonicPlatformConfig;
 }());

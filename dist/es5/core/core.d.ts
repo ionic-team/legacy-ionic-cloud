@@ -1,19 +1,20 @@
 import { EventEmitter } from './events';
 import { Storage } from './storage';
 import { Logger } from './logger';
+import { IonicPlatformConfig, ISettings } from './config';
 export declare class IonicPlatformCore {
     logger: Logger;
     emitter: EventEmitter;
-    config: any;
+    config: IonicPlatformConfig;
     cordovaPlatformUnknown: boolean;
     private _pluginsReady;
     constructor();
-    init(cfg: any): void;
+    init(cfg: ISettings): void;
     Version: string;
     getEmitter(): EventEmitter;
     getStorage(): Storage;
     _isCordovaAvailable(): boolean;
-    loadCordova(): boolean;
+    loadCordova(): void;
     /**
      * Determine the device type via the user agent string
      * @return {string} name of device platform or 'unknown' if unable to identify the device

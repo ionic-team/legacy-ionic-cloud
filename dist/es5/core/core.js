@@ -7,6 +7,7 @@ var eventEmitter = new events_1.EventEmitter();
 var mainStorage = new storage_1.Storage();
 var IonicPlatformCore = (function () {
     function IonicPlatformCore() {
+        this.cordovaPlatformUnknown = false;
         var self = this;
         this.config = config_1.Config;
         this.logger = new logger_1.Logger({
@@ -102,9 +103,6 @@ var IonicPlatformCore = (function () {
                         self.logger.info(e);
                     }
                     break;
-                case 'unknown':
-                    self.cordovaPlatformUnknown = true;
-                    return false;
                 default:
                     break;
             }
@@ -163,6 +161,11 @@ var IonicPlatformCore = (function () {
      */
     IonicPlatformCore.prototype._bootstrap = function () {
         this.loadCordova();
+        switch (this.getDeviceTypeByNavigator()) {
+            case 'unknown':
+                this.cordovaPlatformUnknown = true;
+                break;
+        }
     };
     IonicPlatformCore.prototype.deviceConnectedToNetwork = function (strictMode) {
         if (strictMode === void 0) { strictMode = null; }

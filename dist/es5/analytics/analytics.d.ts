@@ -1,4 +1,4 @@
-import { APIRequest } from '../core/request';
+import { PromiseWithNotify } from '../core/promise';
 import { Logger } from '../core/logger';
 export declare class Analytics {
     logger: Logger;
@@ -8,14 +8,14 @@ export declare class Analytics {
     private _dispatchIntervalTime;
     private _useEventCaching;
     private _serviceHost;
-    constructor(config: any);
+    constructor(config?: any);
     _addGlobalPropertyDefaults(): void;
     hasValidSettings: boolean;
     dispatchInterval: number;
     _enqueueEvent(collectionName: any, eventData: any): void;
-    _requestAnalyticsKey(): APIRequest;
-    _postEvent(name: any, data: any): APIRequest;
-    _postEvents(events: any): APIRequest;
+    _requestAnalyticsKey(): any;
+    _postEvent(name: any, data: any): any;
+    _postEvents(events: any): any;
     _dispatchQueue(): void;
     _getRequestStatusCode(request: any): number;
     _handleDispatchError(error: any, request: any, eventQueue: any): void;
@@ -26,7 +26,7 @@ export declare class Analytics {
      * @param {object} opts Registration options
      * @return {Promise} The register promise
      */
-    register(opts: any): any;
+    register(opts?: any): PromiseWithNotify<any>;
     setGlobalProperties(prop: any): void;
     track(eventCollection: any, eventData: any): boolean;
     unsetGlobalProperty(prop: any): void;

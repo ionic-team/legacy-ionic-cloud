@@ -146,7 +146,6 @@ var User = (function () {
         return false;
     };
     User.current = function (user) {
-        if (user === void 0) { user = null; }
         if (user) {
             AppUserContext = user;
             UserContext.store();
@@ -176,7 +175,7 @@ var User = (function () {
         var tempUser = new User();
         if (!tempUser._blockLoad) {
             tempUser._blockLoad = true;
-            new request_1.APIRequest({
+            request_1.request({
                 'uri': userAPIEndpoints.self(),
                 'method': 'GET',
                 'json': true
@@ -208,7 +207,7 @@ var User = (function () {
         tempUser.id = id;
         if (!tempUser._blockLoad) {
             tempUser._blockLoad = true;
-            new request_1.APIRequest({
+            request_1.request({
                 'uri': userAPIEndpoints.get(tempUser),
                 'method': 'GET',
                 'json': true
@@ -276,28 +275,30 @@ var User = (function () {
     User.prototype.delete = function () {
         var self = this;
         var deferred = new promise_1.DeferredPromise();
-        if (!self.isValid()) {
-            return false;
-        }
-        if (!self._blockDelete) {
-            self._blockDelete = true;
-            self._delete();
-            new request_1.APIRequest({
-                'uri': userAPIEndpoints.remove(this),
-                'method': 'DELETE',
-                'json': true
-            }).then(function (result) {
-                self._blockDelete = false;
-                self.logger.info('deleted ' + self);
-                deferred.resolve(result);
-            }, function (error) {
-                self._blockDelete = false;
-                self.logger.error(error);
-                deferred.reject(error);
-            });
+        if (self.isValid()) {
+            if (!self._blockDelete) {
+                self._blockDelete = true;
+                self._delete();
+                request_1.request({
+                    'uri': userAPIEndpoints.remove(this),
+                    'method': 'DELETE',
+                    'json': true
+                }).then(function (result) {
+                    self._blockDelete = false;
+                    self.logger.info('deleted ' + self);
+                    deferred.resolve(result);
+                }, function (error) {
+                    self._blockDelete = false;
+                    self.logger.error(error);
+                    deferred.reject(error);
+                });
+            }
+            else {
+                self.logger.info('a delete operation is already in progress for ' + this + '.');
+                deferred.reject(false);
+            }
         }
         else {
-            self.logger.info('a delete operation is already in progress for ' + this + '.');
             deferred.reject(false);
         }
         return deferred.promise;
@@ -318,7 +319,7 @@ var User = (function () {
         if (!self._blockSave) {
             self._blockSave = true;
             self._store();
-            new request_1.APIRequest({
+            request_1.request({
                 'uri': userAPIEndpoints.save(this),
                 'method': 'PATCH',
                 'json': self.getFormat('api-save')
@@ -347,7 +348,7 @@ var User = (function () {
     User.prototype.resetPassword = function () {
         var self = this;
         var deferred = new promise_1.DeferredPromise();
-        new request_1.APIRequest({
+        request_1.request({
             'uri': userAPIEndpoints.passwordReset(this),
             'method': 'POST'
         }).then(function (result) {

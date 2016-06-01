@@ -1,5 +1,6 @@
 import { App } from '../core/app';
 import { Logger } from '../core/logger';
+import { PromiseWithNotify } from '../core/promise';
 import { PushToken } from './push-token';
 export declare class Push {
     logger: Logger;
@@ -37,20 +38,20 @@ export declare class Push {
      * @return {Push} returns the called Push instantiation
      */
     init(config: any): this;
-    saveToken(token: any, options: any): any;
+    saveToken(token: any, options: any): PromiseWithNotify<any>;
     /**
      * Registers the device with GCM/APNS to get a device token
      * Fires off the 'onRegister' callback if one has been provided in the init() config
      * @param {function} callback Callback Function
      * @return {void}
      */
-    register(callback: any): boolean;
+    register(callback: (token: PushToken) => void): boolean;
     /**
      * Invalidate the current GCM/APNS token
      *
      * @return {Promise} the unregister result
      */
-    unregister(): any;
+    unregister(): PromiseWithNotify<any>;
     /**
      * Convenience method to grab the payload object from a notification
      *

@@ -1,3 +1,4 @@
+import { PromiseWithNotify } from '../core/promise';
 import { Logger } from '../core/logger';
 export declare class Deploy {
     logger: Logger;
@@ -27,7 +28,7 @@ export declare class Deploy {
      * @return {Promise} Will resolve with true if an update is available, false otherwise. A string or
      *   error will be passed to reject() in the event of a failure.
      */
-    check(): any;
+    check(): PromiseWithNotify<boolean>;
     /**
      * Download and available update
      *
@@ -35,7 +36,7 @@ export declare class Deploy {
      * @return {Promise} The promise which will resolve with true/false or use
      *    notify to update the download progress.
      */
-    download(): any;
+    download(): PromiseWithNotify<boolean>;
     /**
      * Extract the last downloaded update
      *
@@ -43,7 +44,7 @@ export declare class Deploy {
      * @return {Promise} The promise which will resolve with true/false or use
      *                   notify to update the extraction progress.
      */
-    extract(): any;
+    extract(): PromiseWithNotify<boolean>;
     /**
      * Load the latest deployed version
      * This is only necessary to call if you have manually downloaded and extracted
@@ -59,7 +60,7 @@ export declare class Deploy {
      * @param {object} options Watch configuration options
      * @return {Promise} returns a promise that will get a notify() callback when an update is available
      */
-    watch(options: any): any;
+    watch(options: any): PromiseWithNotify<void>;
     /**
      * Stop automatically looking for updates
      * @return {void}
@@ -71,20 +72,20 @@ export declare class Deploy {
      * @return {Promise} The resolver will be passed an object that has key/value
      *    pairs pertaining to the currently deployed update.
      */
-    info(): any;
+    info(): PromiseWithNotify<any>;
     /**
      * List the Deploy versions that have been installed on this device
      *
      * @return {Promise} The resolver will be passed an array of deploy uuids
      */
-    getVersions(): any;
+    getVersions(): PromiseWithNotify<any>;
     /**
      * Remove an installed deploy on this device
      *
      * @param {string} uuid The deploy uuid you wish to remove from the device
      * @return {Promise} Standard resolve/reject resolution
      */
-    deleteVersion(uuid: any): any;
+    deleteVersion(uuid: any): PromiseWithNotify<any>;
     /**
      * Fetches the metadata for a given deploy uuid. If no uuid is given, it will attempt
      * to grab the metadata for the most recently known update version.
@@ -92,7 +93,7 @@ export declare class Deploy {
      * @param {string} uuid The deploy uuid you wish to grab metadata for, can be left blank to grab latest known update metadata
      * @return {Promise} Standard resolve/reject resolution
      */
-    getMetadata(uuid: any): any;
+    getMetadata(uuid: any): PromiseWithNotify<any>;
     /**
      * Set the deploy channel that should be checked for updatse
      * See http://docs.ionic.io/docs/deploy-channels for more information
@@ -106,7 +107,7 @@ export declare class Deploy {
      * @param {boolean} deferLoad Defer loading the applied update after the installation
      * @return {Promise} A promise result
      */
-    update(deferLoad: any): any;
+    update(deferLoad: any): PromiseWithNotify<boolean>;
     /**
      * Fire a callback when deploy is ready. This will fire immediately if
      * deploy has already become available.

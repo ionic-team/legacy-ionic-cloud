@@ -1,3 +1,4 @@
+import { PromiseWithNotify } from './promise';
 import { Logger } from './logger';
 export declare class UserData {
     data: any;
@@ -22,20 +23,20 @@ export declare class User {
     isDirty(): boolean;
     isAnonymous(): boolean;
     isAuthenticated(): boolean;
-    static current(user?: any): any;
+    static current(user?: User): User;
     static fromContext(data: any): User;
-    static self(): any;
-    static load(id: any): any;
+    static self(): Promise<User>;
+    static load(id: any): PromiseWithNotify<{}>;
     isFresh(): boolean;
     isValid(): boolean;
     getAPIFormat(): any;
     getFormat(format: any): any;
     migrate(): boolean;
-    delete(): any;
+    delete(): PromiseWithNotify<any>;
     _store(): void;
     _delete(): void;
-    save(): any;
-    resetPassword(): any;
+    save(): PromiseWithNotify<{}>;
+    resetPassword(): PromiseWithNotify<{}>;
     id: string;
     toString(): string;
     set(key: any, value: any): void;

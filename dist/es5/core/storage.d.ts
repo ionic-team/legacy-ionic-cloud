@@ -1,3 +1,4 @@
+import { PromiseWithNotify } from './promise';
 export declare class PlatformLocalStorageStrategy {
     constructor();
     get(key: any): any;
@@ -37,5 +38,5 @@ export declare class Storage {
      * @returns {Promise} A new promise, identical to the one returned by asyncFunction,
      *          but with two new errors: 'in_progress', and 'last_call_interrupted'.
      */
-    lockedAsyncCall(lockKey: any, asyncFunction: any): any;
+    lockedAsyncCall(lockKey: any, asyncFunction: any): PromiseWithNotify<any>;
 }

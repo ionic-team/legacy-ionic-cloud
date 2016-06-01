@@ -71,7 +71,7 @@ var PushDevService = (function () {
                 'token': token
             }
         };
-        new request_1.APIRequest(requestOptions).then(function () {
+        request_1.request(requestOptions).then(function () {
             var data = { 'registrationId': token };
             self.logger.info('registered with development push service: ' + token);
             self._emitter.emit('ionic_push:token', data);
@@ -97,7 +97,7 @@ var PushDevService = (function () {
             'uri': self._serviceHost + '/development?token=' + self._token,
             'json': true
         };
-        new request_1.APIRequest(requestOptions).then(function (result) {
+        request_1.request(requestOptions).then(function (result) {
             if (result.payload.data.message) {
                 var message = {
                     'message': result.payload.data.message,

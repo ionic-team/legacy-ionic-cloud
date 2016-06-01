@@ -12,3 +12,4 @@ __export(require('./request'));
 __export(require('./config'));
 __export(require('./storage'));
 __export(require('./user'));
+__export(require('./client'));
