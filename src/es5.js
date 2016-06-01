@@ -1,6 +1,9 @@
+var Analytics = require("./../dist/es5/analytics/analytics").Analytics;
 var App = require("./../dist/es5/core/app").App;
 var Auth = require("./../dist/es5/auth/auth").Auth;
+var BucketStorage = require("./../dist/es5/analytics/storage").BucketStorage;
 var Config = require("./../dist/es5/core/config").Config;
+var DOMSerializer = require("./../dist/es5/analytics/serializers").DOMSerializer;
 var DataType = require("./../dist/es5/core/data-types").DataType;
 var Deploy = require("./../dist/es5/deploy/deploy").Deploy;
 var EventEmitter = require("./../dist/es5/core/events").EventEmitter;
@@ -19,6 +22,7 @@ window.Ionic = window.Ionic || {};
 // Ionic Modules
 Ionic.Core = IonicPlatform;
 Ionic.User = User;
+Ionic.Analytics = Analytics;
 Ionic.Auth = Auth;
 Ionic.Deploy = Deploy;
 Ionic.Push = Push;
@@ -38,6 +42,15 @@ Ionic.IO.Promise = promise.Promise;
 Ionic.IO.DeferredPromise = promise.DeferredPromise;
 Ionic.IO.Storage = Storage;
 Ionic.IO.Config = Config;
+
+// Analytic Storage Namespace
+Ionic.AnalyticStorage = {};
+Ionic.AnalyticStorage.BucketStorage = BucketStorage;
+
+// Analytic Serializers Namespace
+Ionic.AnalyticSerializers = {};
+Ionic.AnalyticSerializers.DOMSerializer = DOMSerializer;
+
 
 // Provider a single storage for services that have previously been registered
 var serviceStorage = {};
