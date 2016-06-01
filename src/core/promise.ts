@@ -1,14 +1,14 @@
 import { Promise } from 'es6-promise';
 
 export interface ThenableWithNotify<T> {
-  then<U>(onFulfilled?: (value: T) => U | ThenableWithNotify<U>, onRejected?: (error: any) => U | ThenableWithNotify<U>, onNotified?: (value: number) => U | ThenableWithNotify<U>): ThenableWithNotify<U>;
+  then<U>(onFulfilled?: (value: T) => U | ThenableWithNotify<U>, onRejected?: (error: any) => U | ThenableWithNotify<U>, onNotified?: (value: any) => U | ThenableWithNotify<U>): ThenableWithNotify<U>;
   catch<U>(onRejected?: (error: any) => U | ThenableWithNotify<U>): ThenableWithNotify<U>;
 }
 
 export class PromiseWithNotify<T> extends Promise<T> implements ThenableWithNotify<T> {
-  private onNotify: (value: number) => any;
+  private onNotify: (value: any) => any;
 
-  then<U>(onFulfilled?: (value: T) => U, onRejected?: (error: any) => U, onNotified?: (value: number) => U): ThenableWithNotify<U> {
+  then<U>(onFulfilled?: (value: T) => U, onRejected?: (error: any) => U, onNotified?: (value: any) => U): ThenableWithNotify<U> {
     this.onNotify = onNotified;
     return super.then(onFulfilled, onRejected);
   }
