@@ -14,37 +14,13 @@ declare module "superagent" {
     }
 
     interface SuperAgent<Req extends Request<any>> {
-      get(url: string, callback?: CallbackHandler): Req;
-      post(url: string, callback?: CallbackHandler): Req;
-      put(url: string, callback?: CallbackHandler): Req;
-      head(url: string, callback?: CallbackHandler): Req;
-      del(url: string, callback?: CallbackHandler): Req;
-      delete(url: string, callback?: CallbackHandler): Req;
-      options(url: string, callback?: CallbackHandler): Req;
-      trace(url: string, callback?: CallbackHandler): Req;
-      copy(url: string, callback?: CallbackHandler): Req;
-      lock(url: string, callback?: CallbackHandler): Req;
-      mkcol(url: string, callback?: CallbackHandler): Req;
-      move(url: string, callback?: CallbackHandler): Req;
-      purge(url: string, callback?: CallbackHandler): Req;
-      propfind(url: string, callback?: CallbackHandler): Req;
-      proppatch(url: string, callback?: CallbackHandler): Req;
-      unlock(url: string, callback?: CallbackHandler): Req;
-      report(url: string, callback?: CallbackHandler): Req;
-      mkactivity(url: string, callback?: CallbackHandler): Req;
-      checkout(url: string, callback?: CallbackHandler): Req;
-      merge(url: string, callback?: CallbackHandler): Req;
-      // m-search(url: string, callback?: CallbackHandler): Req;
-      notify(url: string, callback?: CallbackHandler): Req;
-      subscribe(url: string, callback?: CallbackHandler): Req;
-      unsubscribe(url: string, callback?: CallbackHandler): Req;
-      patch(url: string, callback?: CallbackHandler): Req;
-      search(url: string, callback?: CallbackHandler): Req;
-      connect(url: string, callback?: CallbackHandler): Req;
-
-      parse(fn: Function): Req;
-      saveCookies(res: Response): void;
-      attachCookies(req: Req): void;
+      get(url: string): Req;
+      post(url: string): Req;
+      put(url: string): Req;
+      patch(url: string): Req;
+      delete(url: string): Req;
+      head(url: string): Req;
+      options(url: string): Req;
     }
 
     interface Response {
