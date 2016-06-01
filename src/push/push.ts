@@ -52,12 +52,12 @@ export class Push {
       'prefix': 'Ionic Push:'
     });
 
-    var app = new App(IonicPlatform.config.get('app_id'));
+    var app = new App(IonicPlatform.config.get('app_id'), IonicPlatform.config.get('api_key'));
     app.devPush = IonicPlatform.config.get('dev_push');
     app.gcmKey = IonicPlatform.config.get('gcm_key');
 
     // Check for the required values to use this service
-    if (!app.id) {
+    if (!app.id || !app.apiKey) {
       this.logger.error('no app_id found. (http://docs.ionic.io/docs/io-install)');
       return;
     } else if (IonicPlatform.isAndroidDevice() && !app.devPush && !app.gcmKey) {

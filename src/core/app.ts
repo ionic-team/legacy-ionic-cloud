@@ -1,14 +1,18 @@
 import { Logger } from './logger';
 
+var privateData: any = {};
+
+function privateVar(key) {
+  return privateData[key] || null;
+}
+
 export class App {
 
-  public devPush: boolean;
-  public gcmKey: string;
+  devPush: boolean;
+  gcmKey: string;
+  logger: Logger;
 
-  private logger: Logger;
-  private _id: string;
-
-  constructor(appId: string) {
+  constructor(appId, apiKey) {
     this.logger = new Logger({
       'prefix': 'Ionic App:'
     });
@@ -17,7 +21,13 @@ export class App {
       return;
     }
 
-    this._id = appId;
+    if (!apiKey || apiKey === '') {
+      this.logger.info('No api_key was provided');
+      return;
+    }
+
+    privateData.id = appId;
+    privateData.apiKey = apiKey;
 
     // other config value reference
     this.devPush = null;
@@ -25,7 +35,11 @@ export class App {
   }
 
   get id() {
-    return this._id;
+    return privateVar('id');
+  }
+
+  get apiKey() {
+    return privateVar('apiKey');
   }
 
   toString() {
