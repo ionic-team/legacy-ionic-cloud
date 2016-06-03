@@ -48,9 +48,7 @@ export class Push {
   private _token: PushToken = null;
 
   constructor(config) {
-    this.logger = new Logger({
-      'prefix': 'Ionic Push:'
-    });
+    this.logger = new Logger('Ionic Push:');
 
     var app = new App(IonicPlatform.config.get('app_id'), IonicPlatform.config.get('api_key'));
     app.devPush = IonicPlatform.config.get('dev_push');

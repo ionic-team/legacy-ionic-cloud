@@ -138,9 +138,7 @@ export class User {
   private _id: string;
 
   constructor() {
-    this.logger = new Logger({
-      'prefix': 'Ionic User:'
-    });
+    this.logger = new Logger('Ionic User:');
     this._blockLoad = false;
     this._blockSave = false;
     this._blockDelete = false;

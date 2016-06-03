@@ -11,12 +11,12 @@ declare var Ionic: any;
 export class Core {
 
   client: Client;
+  config: IonicPlatformConfig;
   cordova: Cordova;
   device: Device;
-  logger: Logger;
   emitter: EventEmitter;
+  logger: Logger;
   storage: Storage;
-  config: IonicPlatformConfig;
 
   private pluginsReady: boolean = false;
   private _version = 'VERSION_STRING';
@@ -26,10 +26,7 @@ export class Core {
     this.client = new Client(this.config.getURL('platform-api'));
     this.device = new Device();
     this.cordova = new Cordova(this.device);
-    this.logger = new Logger({
-      'prefix': 'Ionic Core:'
-    });
-    this.logger.info('init');
+    this.logger = new Logger('Ionic Core:');
     this.emitter = new EventEmitter();
     this.storage = new Storage();
     this.cordova.load();
@@ -38,6 +35,8 @@ export class Core {
 
   public init(cfg: ISettings) {
     this.config.register(cfg);
+    this.logger.info('init');
+    this.emitter.emit('core:init');
   }
 
   public get version() {
@@ -69,12 +68,11 @@ export class Core {
    * @return {void}
    */
   onReady(callback) {
-    var self = this;
     if (this.pluginsReady) {
-      callback(self);
+      callback(this);
     } else {
-      self.emitter.on('device:ready', function() {
-        callback(self);
+      this.emitter.on('device:ready', () => {
+        callback(this);
       });
     }
   }

@@ -13,9 +13,7 @@ export class App {
   logger: Logger;
 
   constructor(appId, apiKey) {
-    this.logger = new Logger({
-      'prefix': 'Ionic App:'
-    });
+    this.logger = new Logger('Ionic App:');
     if (!appId || appId === '') {
       this.logger.info('No app_id was provided');
       return;

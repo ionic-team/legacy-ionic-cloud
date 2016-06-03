@@ -41,9 +41,7 @@ export class PushDevService {
   private _emitter: EventEmitter;
 
   constructor() {
-    this.logger = new Logger({
-      'prefix': 'Ionic Push (dev):'
-    });
+    this.logger = new Logger('Ionic Push (dev):');
     this._serviceHost = IonicPlatform.config.getURL('platform-api') + '/push';
     this._token = null;
     this._watch = null;

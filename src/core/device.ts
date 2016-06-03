@@ -13,7 +13,7 @@ export class Device {
    * Check if the device is an Android device
    * @return {boolean} True if Android, false otherwise
    */
-  public isAndroid() {
+  public isAndroid(): boolean {
     return this.deviceType === 'android';
   }
 
@@ -21,11 +21,11 @@ export class Device {
    * Check if the device is an iOS device
    * @return {boolean} True if iOS, false otherwise
    */
-  public isIOS() {
+  public isIOS(): boolean {
     return this.deviceType === 'iphone' || this.deviceType === 'ipad';
   }
 
-  public isConnectedToNetwork(strictMode = null) {
+  public isConnectedToNetwork(strictMode?): boolean {
     if (typeof strictMode === 'undefined') {
       strictMode = false;
     }
@@ -57,7 +57,7 @@ export class Device {
    * Determine the device type via the user agent string
    * @return {string} name of device platform or 'unknown' if unable to identify the device
    */
-  private determineDeviceType() {
+  private determineDeviceType(): string {
     var agent = navigator.userAgent;
 
     var ipad = agent.match(/iPad/i);

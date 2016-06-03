@@ -9,13 +9,10 @@ export class Cordova {
 
   constructor(public device: Device) {
     this.device = device;
-    this.logger = new Logger({
-      'prefix': 'Ionic Cordova:'
-    });
+    this.logger = new Logger('Ionic Cordova:');
   }
 
-  public load() {
-    var self = this;
+  public load(): void {
     if (!this.isAvailable()) {
       var cordovaScript = document.createElement('script');
       var cordovaSrc = 'cordova.js';
@@ -34,8 +31,8 @@ export class Cordova {
               cordovaSrc = decodeURI(resource[1]);
             }
           } catch (e) {
-            self.logger.info('could not find cordova_js_bootstrap_resource query param');
-            self.logger.info(e);
+            this.logger.info('could not find cordova_js_bootstrap_resource query param');
+            this.logger.info(e);
           }
           break;
 
@@ -44,12 +41,11 @@ export class Cordova {
       }
       cordovaScript.setAttribute('src', cordovaSrc);
       document.head.appendChild(cordovaScript);
-      self.logger.info('injecting cordova.js');
+      this.logger.info('injecting cordova.js');
     }
   }
 
-  private isAvailable() {
-    var self = this;
+  private isAvailable(): boolean {
     this.logger.info('searching for cordova.js');
 
     if (typeof cordova !== 'undefined') {
@@ -67,11 +63,11 @@ export class Cordova {
         try {
           partsLength = parts.length;
           if (parts[partsLength - 1] === 'cordova.js') {
-            self.logger.info('cordova.js has previously been included.');
+            this.logger.info('cordova.js has previously been included.');
             return true;
           }
         } catch (e) {
-          self.logger.info('encountered error while testing for cordova.js presence, ' + e.toString());
+          this.logger.info('encountered error while testing for cordova.js presence, ' + e.toString());
         }
       }
     }

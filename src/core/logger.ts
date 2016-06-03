@@ -1,56 +1,26 @@
 export class Logger {
 
-  private _silence: boolean;
-  private _prefix: string;
-  private _options: any;
+  public silent: boolean = false;
+  public outfn = console.log.bind(console);
+  public errfn = console.error.bind(console);
 
-  constructor(opts) {
-    var options = opts || {};
-    this._silence = false;
-    this._prefix = null;
-    this._options = options;
-    this._bootstrap();
-  }
-
-  silence() {
-      this._silence = true;
-  }
-
-  verbose() {
-      this._silence = false;
-  }
-
-  private _bootstrap() {
-    if (this._options.prefix) {
-      this._prefix = this._options.prefix;
-    }
+  constructor(public prefix: string) {
+    this.prefix = prefix;
   }
 
   info(data) {
-    if (!this._silence) {
-      if (this._prefix) {
-        console.log(this._prefix, data);
-      } else {
-        console.log(data);
-      }
+    if (!this.silent) {
+      this.outfn(this.prefix, data);
     }
   }
 
   warn(data) {
-    if (!this._silence) {
-      if (this._prefix) {
-        console.log(this._prefix, data);
-      } else {
-        console.log(data);
-      }
+    if (!this.silent) {
+      this.outfn(this.prefix, data);
     }
   }
 
   error(data) {
-    if (this._prefix) {
-      console.error(this._prefix, data);
-    } else {
-      console.error(data);
-    }
+    this.errfn(this.prefix, data);
   }
 }

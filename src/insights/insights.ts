@@ -40,9 +40,7 @@ export class Insights {
     this.client = client;
     this.appId = appId;
     this.batch = [];
-    this.logger = new Logger({
-      'prefix': 'Ionic Insights:'
-    });
+    this.logger = new Logger('Ionic Insights:');
   }
 
   track(stat: string, value: number = 1): void {

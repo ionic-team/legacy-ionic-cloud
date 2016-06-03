@@ -28,11 +28,7 @@ export class Analytics {
     this._dispatchIntervalTime = 30;
     this._useEventCaching = true;
     this._serviceHost = IonicPlatform.config.getURL('analytics');
-
-    this.logger = new Logger({
-      'prefix': 'Ionic Analytics:'
-    });
-
+    this.logger = new Logger('Ionic Analytics:');
     this.storage = IonicPlatform.storage;
     this.cache = new BucketStorage('ionic_analytics');
     this._addGlobalPropertyDefaults();
@@ -255,9 +251,9 @@ export class Analytics {
 
     options = opts || {};
     if (options.silent) {
-      this.logger.silence();
+      this.logger.silent = true;
     } else {
-      this.logger.verbose();
+      this.logger.silent = false;
     }
 
     if (options.dryRun) {

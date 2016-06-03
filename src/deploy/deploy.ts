@@ -21,9 +21,7 @@ export class Deploy {
 
   constructor() {
     var self = this;
-    this.logger = new Logger({
-      'prefix': 'Ionic Deploy:'
-    });
+    this.logger = new Logger('Ionic Deploy:');
     this._plugin = false;
     this._isReady = false;
     this._channelTag = 'production';
