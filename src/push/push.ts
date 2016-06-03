@@ -1,7 +1,6 @@
 import { App } from '../core/app';
 import { IonicPlatform } from '../core/core';
 import { Logger } from '../core/logger';
-import { EventEmitter } from '../core/events';
 import { request } from '../core/request';
 import { PromiseWithNotify, DeferredPromise } from '../core/promise';
 import { User } from '../core/user';
@@ -34,7 +33,6 @@ export class Push {
   notificationCallback: any;
   errorCallback: any;
 
-  private _emitter: EventEmitter;
   private _debug: boolean;
   private _isReady: boolean;
   private _blockRegistration: boolean;
@@ -74,7 +72,6 @@ export class Push {
     this._blockRegistration = false;
     this._blockSaveToken = false;
     this._registered = false;
-    this._emitter = new EventEmitter();
     this._plugin = null;
     if (config !== DEFER_INIT) {
       var self = this;
@@ -144,7 +141,7 @@ export class Push {
     this._config = config;
     this._isReady = true;
 
-    this._emitter.emit('ionic_push:ready', { 'config': this._config });
+    IonicPlatform.emitter.emit('push:ready', { 'config': this._config });
     return this;
   }
 
@@ -420,9 +417,9 @@ export class Push {
         this._plugin.on('error', this._debugErrorCallback());
       } else {
         if (!this._registered) {
-          this._emitter.on('ionic_push:token', this._debugRegistrationCallback());
-          this._emitter.on('ionic_push:notification', this._debugNotificationCallback());
-          this._emitter.on('ionic_push:error', this._debugErrorCallback());
+          IonicPlatform.emitter.on('push:token', this._debugRegistrationCallback());
+          IonicPlatform.emitter.on('push:notification', this._debugNotificationCallback());
+          IonicPlatform.emitter.on('push:error', this._debugErrorCallback());
         }
       }
     }
@@ -440,9 +437,9 @@ export class Push {
       this._plugin.on('error', this._errorCallback());
     } else {
       if (!this._registered) {
-        this._emitter.on('ionic_push:token', this._registerCallback());
-        this._emitter.on('ionic_push:notification', this._notificationCallback());
-        this._emitter.on('ionic_push:error', this._errorCallback());
+        IonicPlatform.emitter.on('push:token', this._registerCallback());
+        IonicPlatform.emitter.on('push:notification', this._notificationCallback());
+        IonicPlatform.emitter.on('push:error', this._errorCallback());
       }
     }
   }
@@ -457,7 +454,7 @@ export class Push {
    */
   _processNotification(notification) {
     this._notification = notification;
-    this._emitter.emit('ionic_push:processNotification', notification);
+    IonicPlatform.emitter.emit('push:processNotification', notification);
   }
 
   /* Deprecated in favor of `getPushPlugin` */
@@ -497,7 +494,7 @@ export class Push {
     if (this._isReady) {
       callback(self);
     } else {
-      self._emitter.on('ionic_push:ready', function() {
+      IonicPlatform.emitter.on('push:ready', function() {
         callback(self);
       });
     }

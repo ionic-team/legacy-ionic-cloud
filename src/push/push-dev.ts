@@ -1,5 +1,4 @@
 import { request } from '../core/request';
-import { EventEmitter } from '../core/events';
 import { IonicPlatform } from '../core/core';
 import { Logger } from '../core/logger';
 import { generateUUID } from '../util/util';
@@ -38,7 +37,6 @@ export class PushDevService {
   private _token: string;
   private _watch: any;
   private _push: any;
-  private _emitter: EventEmitter;
 
   constructor() {
     this.logger = new Logger('Ionic Push (dev):');
@@ -67,7 +65,6 @@ export class PushDevService {
    */
   init(ionicPush, callback) {
     this._push = ionicPush;
-    this._emitter = this._push._emitter;
     var token = this._token;
     var self = this;
     if (!token) {
@@ -85,7 +82,7 @@ export class PushDevService {
     request(requestOptions).then(function() {
       var data = { 'registrationId': token };
       self.logger.info('registered with development push service: ' + token);
-      self._emitter.emit('ionic_push:token', data);
+      IonicPlatform.emitter.emit('push:token', data);
       if ((typeof callback === 'function')) {
         callback(new PushToken(self._token));
       }
@@ -119,7 +116,7 @@ export class PushDevService {
         };
 
         self.logger.warn('Ionic Push: Development Push received. Development pushes will not contain payload data.');
-        self._emitter.emit('ionic_push:notification', message);
+        IonicPlatform.emitter.emit('push:notification', message);
       }
     }, function(error) {
       self.logger.error('unable to check for development pushes: ' + error);

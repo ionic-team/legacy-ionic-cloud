@@ -1,7 +1,6 @@
 import { PromiseWithNotify, DeferredPromise } from '../core/promise';
 import { Logger } from '../core/logger';
 import { IonicPlatform } from '../core/core';
-import { EventEmitter } from '../core/events';
 
 declare var IonicDeploy: any;
 
@@ -16,7 +15,6 @@ export class Deploy {
   private _plugin: any;
   private _isReady: boolean;
   private _channelTag: string;
-  private _emitter: EventEmitter;
   private _checkTimeout: any;
 
   constructor() {
@@ -25,12 +23,11 @@ export class Deploy {
     this._plugin = false;
     this._isReady = false;
     this._channelTag = 'production';
-    this._emitter = new EventEmitter();
     this.logger.info('init');
     IonicPlatform.onReady(function() {
       self.initialize();
       self._isReady = true;
-      self._emitter.emit('ionic_deploy:ready');
+      IonicPlatform.emitter.emit('deploy:ready');
     });
   }
 
@@ -406,7 +403,7 @@ export class Deploy {
     if (this._isReady) {
       callback(self);
     } else {
-      self._emitter.on('ionic_deploy:ready', function() {
+      IonicPlatform.emitter.on('deploy:ready', function() {
         callback(self);
       });
     }

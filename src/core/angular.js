@@ -19,6 +19,12 @@ if ((typeof angular === 'object') && angular.module) {
     };
   })
 
+  .factory('$ionicCore', [
+    function() {
+      return Ionic.Core;
+    }
+  ])
+
   .factory('$ionicCoreSettings', [
     function() {
       return Ionic.IO.Config;

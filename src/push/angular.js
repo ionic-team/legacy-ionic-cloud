@@ -46,9 +46,9 @@ if ((typeof angular === 'object') && angular.module) {
     return IonicAngularPush;
   }])
 
-  .run(['$ionicPush', '$ionicPushAction', function($ionicPush, $ionicPushAction) {
+  .run(['$ionicCore', '$ionicPush', '$ionicPushAction', function($ionicCore, $ionicPush, $ionicPushAction) {
     // This is what kicks off the state redirection when a push notificaiton has the relevant details
-    $ionicPush._emitter.on('ionic_push:processNotification', function(notification) {
+    $ionicCore.emitter.on('push:processNotification', function(notification) {
       notification = Ionic.PushMessage.fromPluginJSON(notification);
       if (notification && notification.app) {
         if (notification.app.asleep === true || notification.app.closed === true) {
