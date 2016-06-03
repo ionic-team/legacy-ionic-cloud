@@ -48,12 +48,12 @@ export class Core {
     if (this.device.deviceType === 'unknown') {
       this.logger.info('attempting to mock plugins');
       this.pluginsReady = true;
-      this.emitter.emit('ionic_core:plugins_ready');
+      this.emitter.emit('device:ready');
     } else {
       document.addEventListener('deviceready', () => {
         this.logger.info('plugins are ready');
         this.pluginsReady = true;
-        this.emitter.emit('ionic_core:plugins_ready');
+        this.emitter.emit('device:ready');
       }, false);
     }
 
@@ -73,7 +73,7 @@ export class Core {
     if (this.pluginsReady) {
       callback(self);
     } else {
-      self.emitter.on('ionic_core:plugins_ready', function() {
+      self.emitter.on('device:ready', function() {
         callback(self);
       });
     }
