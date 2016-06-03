@@ -1,6 +1,6 @@
 import { App } from '../core/app';
 import { IonicPlatform } from '../core/core';
-import { APIRequest } from '../core/request';
+import { request } from '../core/request';
 import { Logger } from '../core/logger';
 
 var appsAPIBase = IonicPlatform.config.getURL('platform-api') + '/apps';
@@ -61,14 +61,6 @@ export class Environment {
    */
   init(config) {
     var self = this;
-    new APIRequest({
-      'uri': envAPIEndpoints.getEnv(this.app.id, this.activeEnv),
-      'method': 'GET'
-    }).then(function(result) {
-      self.logger.info(result);
-    }, function(error) {
-      self.logger.info(error)
-    });
 
     return this;
   }
