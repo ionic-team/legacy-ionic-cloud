@@ -6,8 +6,8 @@ export class Client {
 
   constructor(
     public baseUrl: string,
-    public token: string,
-    public req?: any
+    public token?: string,
+    public req?: any  // TODO: use superagent types
   ) {
     if (typeof req === 'undefined') {
       req = request;
@@ -46,12 +46,12 @@ export class Client {
       throw Error('endpoint must start with leading slash');
     }
 
-    return fn(this.baseUrl + endpoint).set('Authorization', `Bearer ${this.token}`);
+    let req = fn(this.baseUrl + endpoint)
+
+    if (this.token) {
+      req.set('Authorization', `Bearer ${this.token}`);
+    }
+
+    return req;
   }
 }
-
-export let client = new Client(
-  IonicPlatform.config.getURL('platform-api'),
-  Auth.getUserToken(),
-  request
-);

@@ -6,7 +6,7 @@ export class BucketStorage {
 
   constructor(name) {
     this.name = name;
-    this.baseStorage = IonicPlatform.getStorage();
+    this.baseStorage = IonicPlatform.storage;
   }
 
   get(key) {

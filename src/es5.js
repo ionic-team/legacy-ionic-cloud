@@ -42,6 +42,7 @@ Ionic.IO.Promise = promise.Promise;
 Ionic.IO.DeferredPromise = promise.DeferredPromise;
 Ionic.IO.Storage = Storage;
 Ionic.IO.Config = Config;
+Ionic.IO.Settings = function() { return Config; };
 
 // Analytic Storage Namespace
 Ionic.AnalyticStorage = {};

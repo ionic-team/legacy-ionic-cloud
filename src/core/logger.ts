@@ -20,7 +20,7 @@ export class Logger {
       this._silence = false;
   }
 
-  _bootstrap() {
+  private _bootstrap() {
     if (this._options.prefix) {
       this._prefix = this._options.prefix;
     }

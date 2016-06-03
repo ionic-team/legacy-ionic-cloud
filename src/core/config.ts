@@ -46,4 +46,4 @@ export class IonicPlatformConfig {
 
 }
 
-export var Config = new IonicPlatformConfig();
+export let Config = new IonicPlatformConfig();

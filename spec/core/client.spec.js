@@ -17,6 +17,13 @@ describe("client", function() {
     expect(req.url).toBe("url/test");
   });
 
+  it("should supplement but not add auth header", function() {
+    var c = new Client("url");
+    var req = c.get('/test');
+    expect(req.get('Authorization')).toBe(undefined);
+    expect(req.url).toBe("url/test");
+  });
+
   it("should throw error about not having a leading slash", function() {
     var c = new Client("url", "token");
     expect(c.get.bind(c, 'test')).toThrowError("endpoint must start with leading slash");

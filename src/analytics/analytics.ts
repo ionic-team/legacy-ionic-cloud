@@ -33,7 +33,7 @@ export class Analytics {
       'prefix': 'Ionic Analytics:'
     });
 
-    this.storage = IonicPlatform.getStorage();
+    this.storage = IonicPlatform.storage;
     this.cache = new BucketStorage('ionic_analytics');
     this._addGlobalPropertyDefaults();
     if (config !== DEFER_REGISTER) {
@@ -47,7 +47,7 @@ export class Analytics {
       eventData._user = JSON.parse(JSON.stringify(User.current()));
       eventData._app = {
         'app_id': IonicPlatform.config.get('app_id'), // eslint-disable-line
-        'analytics_version': IonicPlatform.Version
+        'analytics_version': IonicPlatform.version
       };
     });
   }
@@ -176,7 +176,7 @@ export class Analytics {
       return;
     }
 
-    if (!IonicPlatform.deviceConnectedToNetwork()) {
+    if (!IonicPlatform.device.isConnectedToNetwork()) {
       return;
     }
 

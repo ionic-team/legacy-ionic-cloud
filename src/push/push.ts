@@ -60,7 +60,7 @@ export class Push {
     if (!app.id || !app.apiKey) {
       this.logger.error('no app_id found. (http://docs.ionic.io/docs/io-install)');
       return;
-    } else if (IonicPlatform.isAndroidDevice() && !app.devPush && !app.gcmKey) {
+    } else if (IonicPlatform.device.isAndroid() && !app.devPush && !app.gcmKey) {
       this.logger.error('GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
       return;
     }
@@ -87,7 +87,7 @@ export class Push {
   }
 
   set token(val) {
-    var storage = IonicPlatform.getStorage();
+    var storage = IonicPlatform.storage;
     if (val instanceof PushToken) {
       storage.storeObject('ionic_io_push_token', { 'token': val.token });
     }
@@ -95,7 +95,7 @@ export class Push {
   }
 
   getStorageToken() {
-    var storage = IonicPlatform.getStorage();
+    var storage = IonicPlatform.storage;
     var token = storage.retrieveObject('ionic_io_push_token');
     if (token) {
       return new PushToken(token.token);
@@ -104,7 +104,7 @@ export class Push {
   }
 
   clearStorageToken() {
-    var storage = IonicPlatform.getStorage();
+    var storage = IonicPlatform.storage;
     storage.deleteObject('ionic_io_push_token');
   }
 
@@ -132,7 +132,7 @@ export class Push {
 
     if (!config.pluginConfig) { config.pluginConfig = {}; }
 
-    if (IonicPlatform.isAndroidDevice()) {
+    if (IonicPlatform.device.isAndroid()) {
       // inject gcm key for PushPlugin
       if (!config.pluginConfig.android) { config.pluginConfig.android = {}; }
       if (!config.pluginConfig.android.senderId) { config.pluginConfig.android.senderID = self.app.gcmKey; }
@@ -250,9 +250,9 @@ export class Push {
     var deferred = new DeferredPromise();
     var platform = null;
 
-    if (IonicPlatform.isAndroidDevice()) {
+    if (IonicPlatform.device.isAndroid()) {
       platform = 'android';
-    } else if (IonicPlatform.isIOSDevice()) {
+    } else if (IonicPlatform.device.isIOS()) {
       platform = 'ios';
     }
 
@@ -472,7 +472,7 @@ export class Push {
       self.logger.info('something went wrong looking for the PushNotification plugin');
     }
 
-    if (!self.app.devPush && !PushPlugin && (IonicPlatform.isIOSDevice() || IonicPlatform.isAndroidDevice()) ) {
+    if (!self.app.devPush && !PushPlugin && (IonicPlatform.device.isIOS() || IonicPlatform.device.isAndroid()) ) {
       self.logger.error('PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
     }
     return PushPlugin;

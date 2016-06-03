@@ -1,13 +1,14 @@
+import { Client } from '../core/client';
 import { Logger } from '../core/logger';
 
-interface IStatSerialized {
+export interface IStatSerialized {
   app_id: string;
   stat: string;
   value: number;
   created: string;
 }
 
-class Stat {
+export class Stat {
   public created: Date;
 
   constructor(public appId: string, public stat: string, public value: number = 1) {
@@ -30,26 +31,45 @@ class Stat {
 export class Insights {
 
   public static SUBMIT_COUNT = 100;
+  public submitCount = Insights.SUBMIT_COUNT;
+
   private batch: Stat[];
   protected logger: Logger;
 
-  constructor(public appId: string) {
+  constructor(public client: Client, public appId: string) {
+    this.client = client;
     this.appId = appId;
     this.batch = [];
     this.logger = new Logger({
       'prefix': 'Ionic Insights:'
     });
-    this.logger.info('init');
   }
 
-  track(stat: string, value: number = 1) {
-    this.batch.push(new Stat(this.appId, stat, value));
-    this.submit();
+  track(stat: string, value: number = 1): void {
+    this.trackStat(new Stat(this.appId, stat, value));
+  }
+
+  protected trackStat(stat: Stat): void {
+    this.batch.push(stat);
+
+    if (this.shouldSubmit()) {
+      this.submit();
+    }
+  }
+
+  protected shouldSubmit(): boolean {
+    return this.batch.length >= this.submitCount;
   }
 
   protected submit() {
-    if (this.batch.length >= Insights.SUBMIT_COUNT) {
+    let insights: IStatSerialized[] = [];
+
+    for (let stat of this.batch) {
+      insights.push(stat.toJSON());
     }
+
+    return this.client.post('/insights')
+      .send({'insights': insights});
   }
 
 }
