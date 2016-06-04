@@ -300,9 +300,8 @@ export class Analytics {
   track(eventCollection, eventData) {
     var self = this;
 
-
     if (!this.hasValidSettings) {
-      return false;
+      return;
     }
     if (!eventData) {
       eventData = {};

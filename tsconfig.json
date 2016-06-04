@@ -1,13 +1,17 @@
 {
     "compilerOptions": {
+        "allowJs": false,
         "declaration": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
         "module": "commonjs",
         "moduleResolution": "node",
         "noImplicitAny": false,
+        "noImplicitReturns": true,
         "removeComments": false,
         "sourceMap": true,
+        "strictNullChecks": true,
         "target": "es5"
     }
 }

@@ -202,12 +202,12 @@ export class Push {
    * @param {function} callback Callback Function
    * @return {void}
    */
-  register(callback: (token: PushToken) => void) {
+  register(callback: (token: PushToken) => void): void {
     this.logger.info('register');
     var self = this;
     if (this._blockRegistration) {
       self.logger.info('another registration is already in progress.');
-      return false;
+      return;
     }
     this._blockRegistration = true;
     this.onReady(function() {

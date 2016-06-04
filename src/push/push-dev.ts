@@ -98,7 +98,7 @@ export class PushDevService {
    */
   checkForNotifications() {
     if (!this._token) {
-      return false;
+      return;
     }
 
     var self = this;

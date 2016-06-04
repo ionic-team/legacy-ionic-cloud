@@ -296,16 +296,15 @@ export class User {
 
   migrate() {
     var rawData = UserContext.getRawLegacyData();
-    if (rawData.__ionic_user_migrated) {
-      return true;
-    }
     if (rawData) {
-      var currentUser = Ionic.User.current();
-      var userData = new UserData(rawData.data.data);
-      for (var key in userData.data) {
-        currentUser.set(key, userData.data[key]);
+      if (!rawData.__ionic_user_migrated) {
+        var currentUser = Ionic.User.current();
+        var userData = new UserData(rawData.data.data);
+        for (var key in userData.data) {
+          currentUser.set(key, userData.data[key]);
+        }
+        currentUser.set('__ionic_user_migrated', true);
       }
-      currentUser.set('__ionic_user_migrated', true);
     }
   }
 

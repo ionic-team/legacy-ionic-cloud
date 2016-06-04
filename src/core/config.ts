@@ -39,9 +39,9 @@ export class IonicPlatformConfig {
 
     if (devLocations[name]) {
       return devLocations[name];
-    } else if (this.locations[name]) {
-      return this.locations[name];
     }
+
+    return this.locations[name];
   }
 
 }
