@@ -76,49 +76,6 @@ function storeToken(options: LoginOptions = {}, token: string) {
   }
 }
 
-class InAppBrowserFlow {
-  constructor(authOptions: LoginOptions = {}, options, data) {
-
-    var deferred = new DeferredPromise();
-
-    if (!window || !window.cordova || !window.cordova.InAppBrowser) {
-      deferred.reject('Missing InAppBrowser plugin');
-    } else {
-      request({
-        'uri': authAPIEndpoints.login(options.provider),
-        'method': options.uri_method || 'POST',
-        'json': {
-          'app_id': IonicPlatform.config.get('app_id'),
-          'callback': options.callback_uri || window.location.href,
-          'data': data
-        }
-      }).then(function(data) {
-        var loc = data.payload.data.url;
-        var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no,clearcache=yes,clearsessioncache=yes');
-        tempBrowser.addEventListener('loadstart', function(data) {
-          if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-            var queryString = data.url.split('#')[0].split('?')[1];
-            var paramParts = queryString.split('&');
-            var params: any = {};
-            for (var i = 0; i < paramParts.length; i++) {
-              var part = paramParts[i].split('=');
-              params[part[0]] = part[1];
-            }
-            storeToken(authOptions, params.token);
-            tempBrowser.close();
-            tempBrowser = null;
-            deferred.resolve(true);
-          }
-        });
-      }, function(err) {
-        deferred.reject(err);
-      });
-    }
-
-    return deferred.promise;
-  }
-}
-
 function getAuthErrorDetails(err) {
   var details = [];
   try {
@@ -187,10 +144,13 @@ export class Auth {
 
 }
 
+interface AuthType {
+  authenticate(options: LoginOptions, data): PromiseWithNotify<any>;
+}
 
-class BasicAuth {
+class BasicAuth implements AuthType {
 
-  static authenticate(options: LoginOptions = {}, data) {
+  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
     var deferred = new DeferredPromise();
 
     request({
@@ -211,7 +171,7 @@ class BasicAuth {
     return deferred.promise;
   }
 
-  static signup(data): PromiseWithNotify<boolean> {
+  signup(data): PromiseWithNotify<any> {
     var deferred = new DeferredPromise<boolean>();
 
     var userData: any = {
@@ -252,53 +212,93 @@ class BasicAuth {
   }
 }
 
-class CustomAuth {
-  static authenticate(options, data) {
-    return new InAppBrowserFlow(options, { 'provider': 'custom' }, data);
+function inAppBrowserFlow(authOptions: LoginOptions = {}, options, data): PromiseWithNotify<any> {
+  var deferred = new DeferredPromise();
+
+  if (!window || !window.cordova || !window.cordova.InAppBrowser) {
+    deferred.reject('Missing InAppBrowser plugin');
+  } else {
+    request({
+      'uri': authAPIEndpoints.login(options.provider),
+      'method': options.uri_method || 'POST',
+      'json': {
+        'app_id': IonicPlatform.config.get('app_id'),
+        'callback': options.callback_uri || window.location.href,
+        'data': data
+      }
+    }).then(function(data) {
+      var loc = data.payload.data.url;
+      var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no,clearcache=yes,clearsessioncache=yes');
+      tempBrowser.addEventListener('loadstart', function(data) {
+        if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
+          var queryString = data.url.split('#')[0].split('?')[1];
+          var paramParts = queryString.split('&');
+          var params: any = {};
+          for (var i = 0; i < paramParts.length; i++) {
+            var part = paramParts[i].split('=');
+            params[part[0]] = part[1];
+          }
+          storeToken(authOptions, params.token);
+          tempBrowser.close();
+          tempBrowser = null;
+          deferred.resolve(true);
+        }
+      });
+    }, function(err) {
+      deferred.reject(err);
+    });
+  }
+
+  return deferred.promise;
+}
+
+class CustomAuth implements AuthType {
+  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+    return inAppBrowserFlow(options, { 'provider': 'custom' }, data);
   }
 }
 
-class TwitterAuth {
-  static authenticate(options, data) {
-    return new InAppBrowserFlow(options, { 'provider': 'twitter' }, data);
+class TwitterAuth implements AuthType {
+  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+    return inAppBrowserFlow(options, { 'provider': 'twitter' }, data);
   }
 }
 
-class FacebookAuth {
-  static authenticate(options, data) {
-    return new InAppBrowserFlow(options, { 'provider': 'facebook' }, data);
+class FacebookAuth implements AuthType {
+  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+    return inAppBrowserFlow(options, { 'provider': 'facebook' }, data);
   }
 }
 
-class GithubAuth {
-  static authenticate(options, data) {
-    return new InAppBrowserFlow(options, { 'provider': 'github' }, data);
+class GithubAuth implements AuthType {
+  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+    return inAppBrowserFlow(options, { 'provider': 'github' }, data);
   }
 }
 
-class GoogleAuth {
-  static authenticate(options, data) {
-    return new InAppBrowserFlow(options, { 'provider': 'google' }, data);
+class GoogleAuth implements AuthType {
+  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+    return inAppBrowserFlow(options, { 'provider': 'google' }, data);
   }
 }
 
-class InstagramAuth {
-  static authenticate(options, data) {
-    return new InAppBrowserFlow(options, { 'provider': 'instagram' }, data);
+class InstagramAuth implements AuthType {
+  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+    return inAppBrowserFlow(options, { 'provider': 'instagram' }, data);
   }
 }
 
-class LinkedInAuth {
-  static authenticate(options, data) {
-    return new InAppBrowserFlow(options, { 'provider': 'linkedin' }, data);
+class LinkedInAuth implements AuthType {
+  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+    return inAppBrowserFlow(options, { 'provider': 'linkedin' }, data);
   }
 }
 
-Auth.register('basic', BasicAuth);
-Auth.register('custom', CustomAuth);
-Auth.register('facebook', FacebookAuth);
-Auth.register('github', GithubAuth);
-Auth.register('google', GoogleAuth);
-Auth.register('instagram', InstagramAuth);
-Auth.register('linkedin', LinkedInAuth);
-Auth.register('twitter', TwitterAuth);
+Auth.register('basic', new BasicAuth());
+Auth.register('custom', new CustomAuth());
+Auth.register('facebook', new FacebookAuth());
+Auth.register('github', new GithubAuth());
+Auth.register('google', new GoogleAuth());
+Auth.register('instagram', new InstagramAuth());
+Auth.register('linkedin', new LinkedInAuth());
+Auth.register('twitter', new TwitterAuth());
