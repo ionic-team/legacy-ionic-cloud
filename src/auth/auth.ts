@@ -153,7 +153,7 @@ abstract class AuthType {
           'callback': options.callback_uri || window.location.href,
           'data': data
         })
-        .end(function(err, res) {
+        .end((err, res) => {
           if (err) {
             deferred.reject(err);
           } else {
@@ -194,7 +194,7 @@ class BasicAuth extends AuthType {
         'email': data.email,
         'password': data.password
       })
-      .end(function(err, res) {
+      .end((err, res) => {
         if (err) {
           deferred.reject(err);
         } else {
@@ -223,7 +223,7 @@ class BasicAuth extends AuthType {
 
     this.client.post('/auth/users')
       .send(userData)
-      .end(function(err, res) {
+      .end((err, res) => {
         if (err) {
           var errors = [];
           var details = getAuthErrorDetails(err);

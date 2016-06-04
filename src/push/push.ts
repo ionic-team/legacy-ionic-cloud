@@ -1,7 +1,7 @@
 import { App } from '../core/app';
 import { IonicPlatform } from '../core/core';
+import { Client } from '../core/client';
 import { Logger } from '../core/logger';
-import { request } from '../core/request';
 import { PromiseWithNotify, DeferredPromise } from '../core/promise';
 import { User } from '../core/user';
 
@@ -33,6 +33,7 @@ export interface PushOptions {
 
 export class Push {
 
+  client: Client;
   logger: Logger;
   app: App;
 
@@ -53,6 +54,7 @@ export class Push {
   private _token: PushToken = null;
 
   constructor(config: PushOptions = {}) {
+    this.client = IonicPlatform.client;
     this.logger = new Logger('Ionic Push:');
 
     var app = new App(IonicPlatform.config.get('app_id'), IonicPlatform.config.get('api_key'));
@@ -146,7 +148,6 @@ export class Push {
   }
 
   saveToken(token, options): PromiseWithNotify<any> {
-    var self = this;
     var deferred = new DeferredPromise();
     var opts = options || {};
     if (token.token) {
@@ -171,25 +172,25 @@ export class Push {
       }
     }
 
-    if (!self._blockSaveToken) {
-      request({
-        'uri': pushAPIEndpoints.saveToken(),
-        'method': 'POST',
-        'json': tokenData
-      }).then(function(result) {
-        self._blockSaveToken = false;
-        self.logger.info('saved push token: ' + token);
-        if (tokenData.user_id) {
-          self.logger.info('added push token to user: ' + tokenData.user_id);
-        }
-        deferred.resolve(result);
-      }, function(error) {
-        self._blockSaveToken = false;
-        self.logger.error(error);
-        deferred.reject(error);
-      });
+    if (!this._blockSaveToken) {
+      this.client.post('/push/tokens')
+        .send(tokenData)
+        .end((err, res) => {
+          if (err) {
+            this._blockSaveToken = false;
+            this.logger.error(err);
+            deferred.reject(err);
+          } else {
+            this._blockSaveToken = false;
+            this.logger.info('saved push token: ' + token);
+            if (tokenData.user_id) {
+              this.logger.info('added push token to user: ' + tokenData.user_id);
+            }
+            deferred.resolve(true);
+          }
+        });
     } else {
-      self.logger.info('a token save operation is already in progress.');
+      this.logger.info('a token save operation is already in progress.');
       deferred.reject(false);
     }
 
@@ -237,8 +238,6 @@ export class Push {
 
   /**
    * Invalidate the current GCM/APNS token
-   *
-   * @return {Promise} the unregister result
    */
   unregister(): PromiseWithNotify<any> {
     var self = this;
@@ -259,23 +258,23 @@ export class Push {
       if (this._plugin) {
         this._plugin.unregister(function() {}, function() {});
       }
-      request({
-        'uri': pushAPIEndpoints.invalidateToken(),
-        'method': 'POST',
-        'json': {
+      this.client.post('/push/tokens/invalidate')
+        .send({
           'platform': platform,
           'token': self.getStorageToken().token
-        }
-      }).then(function(result) {
-        self._blockUnregister = false;
-        self.logger.info('unregistered push token: ' + self.getStorageToken().token);
-        self.clearStorageToken();
-        deferred.resolve(result);
-      }, function(error) {
-        self._blockUnregister = false;
-        self.logger.error(error);
-        deferred.reject(error);
-      });
+        })
+        .end((err, res) => {
+          if (err) {
+            self._blockUnregister = false;
+            self.logger.error(err);
+            deferred.reject(err);
+          } else {
+            self._blockUnregister = false;
+            self.logger.info('unregistered push token: ' + self.getStorageToken().token);
+            self.clearStorageToken();
+            deferred.resolve(res);
+          }
+        });
     } else {
       self.logger.info('an unregister operation is already in progress.');
       deferred.reject(false);

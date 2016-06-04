@@ -1,5 +1,5 @@
-import { request } from '../core/request';
 import { IonicPlatform } from '../core/core';
+import { Client } from '../core/client';
 import { Logger } from '../core/logger';
 import { generateUUID } from '../util/util';
 import { PushToken } from './push-token';
@@ -31,16 +31,16 @@ import { PushToken } from './push-token';
  *
  */
 export class PushDevService {
+  client: Client;
   logger: Logger;
 
-  private _serviceHost: string;
   private _token: string;
   private _watch: any;
   private _push: any;
 
   constructor() {
+    this.client = IonicPlatform.client;
     this.logger = new Logger('Ionic Push (dev):');
-    this._serviceHost = IonicPlatform.config.getURL('platform-api') + '/push';
     this._token = null;
     this._watch = null;
   }
@@ -66,30 +66,25 @@ export class PushDevService {
   init(ionicPush, callback) {
     this._push = ionicPush;
     var token = this._token;
-    var self = this;
     if (!token) {
       token = this.getDevToken();
     }
 
-    var requestOptions = {
-      'method': 'POST',
-      'uri': this._serviceHost + '/development',
-      'json': {
-        'token': token
-      }
-    };
-
-    request(requestOptions).then(function() {
-      var data = { 'registrationId': token };
-      self.logger.info('registered with development push service: ' + token);
-      IonicPlatform.emitter.emit('push:token', data);
-      if ((typeof callback === 'function')) {
-        callback(new PushToken(self._token));
-      }
-      self.watch();
-    }, function(error) {
-      self.logger.error('error connecting development push service: ' + error);
-    });
+    this.client.post('/push/development')
+      .send({'token': token})
+      .end((err, res) => {
+        if (err) {
+          this.logger.error('error connecting development push service: ' + err);
+        } else {
+          var data = { 'registrationId': token };
+          this.logger.info('registered with development push service: ' + token);
+          IonicPlatform.emitter.emit('push:token', data);
+          if (typeof callback === 'function') {
+            callback(new PushToken(this._token));
+          }
+          this.watch();
+        }
+      });
   }
 
   /**
@@ -101,26 +96,23 @@ export class PushDevService {
       return;
     }
 
-    var self = this;
-    var requestOptions = {
-      'method': 'GET',
-      'uri': self._serviceHost + '/development?token=' + self._token,
-      'json': true
-    };
+    this.client.get('/push/development')
+      .query({'token': this._token})
+      .end((err, res) => {
+        if (err) {
+          this.logger.error('unable to check for development pushes: ' + err);
+        } else {
+          if (res.body.data.message) {
+            var message = {
+              'message': res.body.data.message,
+              'title': 'DEVELOPMENT PUSH'
+            };
 
-    request(requestOptions).then(function(result) {
-      if (result.payload.data.message) {
-        var message = {
-          'message': result.payload.data.message,
-          'title': 'DEVELOPMENT PUSH'
-        };
-
-        self.logger.warn('Ionic Push: Development Push received. Development pushes will not contain payload data.');
-        IonicPlatform.emitter.emit('push:notification', message);
-      }
-    }, function(error) {
-      self.logger.error('unable to check for development pushes: ' + error);
-    });
+            this.logger.warn('Ionic Push: Development Push received. Development pushes will not contain payload data.');
+            IonicPlatform.emitter.emit('push:notification', message);
+          }
+        }
+      });
   }
 
   /**
