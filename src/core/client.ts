@@ -18,24 +18,28 @@ export class Client {
     this.req = req;
   }
 
-  get(endpoint: string): any {
+  get(endpoint: string) {
     return this.supplement(this.req.get, endpoint);
   }
 
-  post(endpoint: string): any {
+  post(endpoint: string) {
     return this.supplement(this.req.post, endpoint);
   }
 
-  put(endpoint: string): any {
+  put(endpoint: string) {
     return this.supplement(this.req.put, endpoint);
   }
 
-  patch(endpoint: string): any {
+  patch(endpoint: string) {
     return this.supplement(this.req.patch, endpoint);
   }
 
-  delete(endpoint: string): any {
+  delete(endpoint: string) {
     return this.supplement(this.req.delete, endpoint);
+  }
+
+  request(method: string, endpoint: string) {
+    return this.supplement(this.req.bind(method), endpoint);
   }
 
   private supplement(

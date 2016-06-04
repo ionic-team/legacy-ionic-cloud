@@ -24,6 +24,14 @@ describe("client", function() {
     expect(req.url).toBe("url/test");
   });
 
+  it("should supplement with request method", function() {
+    var c = new Client('url', 'token');
+    var req = c.request('get', '/test');
+    expect(req.get('Authorization')).toBe('Bearer token');
+    expect(req.url).toBe("url/test");
+    expect(req.method).toBe("GET");
+  });
+
   it("should throw error about not having a leading slash", function() {
     var c = new Client("url", "token");
     expect(c.get.bind(c, 'test')).toThrowError("endpoint must start with leading slash");
