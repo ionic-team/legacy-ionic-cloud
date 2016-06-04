@@ -12,8 +12,6 @@ import { PushDevService } from './push-dev';
 declare var window: any;
 declare var PushNotification: any;
 
-var DEFER_INIT = 'DEFER_INIT';
-
 var pushAPIBase = IonicPlatform.config.getURL('platform-api') + '/push';
 var pushAPIEndpoints = {
   'saveToken': function() {
@@ -23,6 +21,15 @@ var pushAPIEndpoints = {
     return pushAPIBase + '/tokens/invalidate';
   }
 };
+
+export interface PushOptions {
+  debug?: boolean;
+  deferInit?: boolean;
+  pluginConfig?: any;
+  onRegister?: (token: PushToken) => any;
+  onNotification?: (message: PushMessage) => any;
+  onError?: (err) => any;
+}
 
 export class Push {
 
@@ -42,10 +49,10 @@ export class Push {
   private _registered: boolean;
   private _tokenReady: boolean;
   private _plugin: any;
-  private _config: any;
+  private _config: PushOptions;
   private _token: PushToken = null;
 
-  constructor(config) {
+  constructor(config: PushOptions = {}) {
     this.logger = new Logger('Ionic Push:');
 
     var app = new App(IonicPlatform.config.get('app_id'), IonicPlatform.config.get('api_key'));
@@ -73,10 +80,10 @@ export class Push {
     this._blockSaveToken = false;
     this._registered = false;
     this._plugin = null;
-    if (config !== DEFER_INIT) {
-      var self = this;
-      IonicPlatform.onReady(function() {
-        self.init(config);
+
+    if (config.deferInit) {
+      IonicPlatform.onReady(() => {
+        this.init(config);
       });
     }
   }
@@ -116,21 +123,14 @@ export class Push {
    * @param {object} config Configuration object
    * @return {Push} returns the called Push instantiation
    */
-  init(config) {
+  init(config: PushOptions = {}) {
     this._getPushPlugin();
-    if (typeof config === 'undefined') { config = {}; }
-    if (typeof config !== 'object') {
-      this.logger.error('init() requires a valid config object.');
-      return;
-    }
-    var self = this;
-
     if (!config.pluginConfig) { config.pluginConfig = {}; }
 
     if (IonicPlatform.device.isAndroid()) {
       // inject gcm key for PushPlugin
       if (!config.pluginConfig.android) { config.pluginConfig.android = {}; }
-      if (!config.pluginConfig.android.senderId) { config.pluginConfig.android.senderID = self.app.gcmKey; }
+      if (!config.pluginConfig.android.senderId) { config.pluginConfig.android.senderID = this.app.gcmKey; }
     }
 
     // Store Callbacks
@@ -156,10 +156,10 @@ export class Push {
     interface TokenData {
       token: PushToken;
       app_id: string;
-      user_id: string;
+      user_id?: string;
     }
 
-    var tokenData: any = {
+    var tokenData: TokenData = {
       'token': token,
       'app_id': IonicPlatform.config.get('app_id')
     };

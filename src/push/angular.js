@@ -41,7 +41,7 @@ if ((typeof angular === 'object') && angular.module) {
 
   .factory('$ionicPush', [function() {
     if (!IonicAngularPush) {
-      IonicAngularPush = new Ionic.Push("DEFER_INIT");
+      IonicAngularPush = new Ionic.Push({ 'deferInit': true });
     }
     return IonicAngularPush;
   }])
