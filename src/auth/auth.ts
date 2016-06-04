@@ -62,9 +62,14 @@ export class TokenContext {
   }
 }
 
-function storeToken(options, token: string) {
+export interface LoginOptions {
+  remember?: boolean;
+}
+
+function storeToken(options: LoginOptions = {}, token: string) {
+  let originalToken = authToken;
   authToken = token;
-  if (typeof options === 'object' && options.remember) {
+  if (options.remember) {
     TokenContext.store();
   } else {
     TempTokenContext.store();
@@ -72,7 +77,7 @@ function storeToken(options, token: string) {
 }
 
 class InAppBrowserFlow {
-  constructor(authOptions, options, data) {
+  constructor(authOptions: LoginOptions = {}, options, data) {
 
     var deferred = new DeferredPromise();
 
@@ -133,7 +138,7 @@ export class Auth {
     return false;
   }
 
-  static login(moduleId, options, data): PromiseWithNotify<User> {
+  static login(moduleId, options: LoginOptions = {}, data): PromiseWithNotify<User> {
     var deferred = new DeferredPromise<User>();
     var context = authModules[moduleId] || false;
     if (!context) {
@@ -185,7 +190,7 @@ export class Auth {
 
 class BasicAuth {
 
-  static authenticate(options, data) {
+  static authenticate(options: LoginOptions = {}, data) {
     var deferred = new DeferredPromise();
 
     request({
