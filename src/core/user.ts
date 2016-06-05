@@ -10,25 +10,6 @@ declare var Ionic: any;
 var AppUserContext = null;
 var storage = new Storage();
 
-var userAPIBase = IonicPlatform.config.getURL('platform-api') + '/auth/users';
-var userAPIEndpoints = {
-  'self': function() {
-    return userAPIBase + '/self';
-  },
-  'get': function(userModel) {
-    return userAPIBase + '/' + userModel.id;
-  },
-  'remove': function(userModel) {
-    return userAPIBase + '/' + userModel.id;
-  },
-  'save': function(userModel) {
-    return userAPIBase + '/' + userModel.id;
-  },
-  'passwordReset': function(userModel) {
-    return userAPIBase + '/' + userModel.id + '/password-reset';
-  }
-};
-
 class UserContext {
   static get label() {
     return 'ionic_io_user_' + IonicPlatform.config.get('app_id');

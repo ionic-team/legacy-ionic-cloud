@@ -12,16 +12,6 @@ import { PushDevService } from './push-dev';
 declare var window: any;
 declare var PushNotification: any;
 
-var pushAPIBase = IonicPlatform.config.getURL('platform-api') + '/push';
-var pushAPIEndpoints = {
-  'saveToken': function() {
-    return pushAPIBase + '/tokens';
-  },
-  'invalidateToken': function() {
-    return pushAPIBase + '/tokens/invalidate';
-  }
-};
-
 export interface PushOptions {
   debug?: boolean;
   deferInit?: boolean;
