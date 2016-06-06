@@ -50,7 +50,7 @@ export class Client {
       throw Error('endpoint must start with leading slash');
     }
 
-    let req = fn(this.baseUrl + endpoint)
+    let req = fn(this.baseUrl + endpoint);
 
     if (this.token) {
       req.set('Authorization', `Bearer ${this.token}`);

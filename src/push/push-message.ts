@@ -1,24 +1,11 @@
-export class PushMessageAppStatus {
-  asleep: boolean;
-  closed: boolean;
-
-  constructor() {
-    this.asleep = false;
-    this.closed = false;
-  }
-
-  get wasAsleep() {
-    return this.asleep;
-  }
-
-  get wasClosed() {
-    return this.closed;
-  }
+export interface AppStatus {
+  asleep?: boolean;
+  closed?: boolean;
 }
 
 export class PushMessage {
 
-  app: PushMessageAppStatus;
+  app: AppStatus = {};
   text: string;
   title: string;
   count: number;
@@ -40,7 +27,6 @@ export class PushMessage {
     }
 
     this._payload = null;
-    this.app = null;
     this.text = null;
     this.title = null;
     this.count = null;
@@ -64,7 +50,6 @@ export class PushMessage {
     this.count = this._raw.count || null;
     this.sound = this._raw.sound || null;
     this.image = this._raw.image || null;
-    this.app = new PushMessageAppStatus();
 
     if (!this._raw.additionalData.foreground) {
       this.app.asleep = true;
