@@ -1,16 +1,16 @@
-var IonicPlatformConfig = require('../../dist/es5/core/config').IonicPlatformConfig;
+var Config = require('../../dist/es5/core/config').Config;
 
 describe("ionic platform config", function() {
 
   it("should instantiate", function() {
-    var c = new IonicPlatformConfig();
+    var c = new Config();
     c.register({
       'app_id': '1234abc'
     });
   });
 
   it("should get default locations", function() {
-    var c = new IonicPlatformConfig();
+    var c = new Config();
     expect(c.getURL('api')).toBe('https://apps.ionic.io');
     expect(c.getURL('push')).toBe('https://push.ionic.io');
     expect(c.getURL('analytics')).toBe('https://analytics.ionic.io');
@@ -19,7 +19,7 @@ describe("ionic platform config", function() {
   });
 
   it("should get custom locations", function() {
-    var c = new IonicPlatformConfig();
+    var c = new Config();
     c.register({
       'app_id': '1234abc',
       'dev_locations': {
@@ -38,7 +38,7 @@ describe("ionic platform config", function() {
   });
 
   it("should get configs", function() {
-    var c = new IonicPlatformConfig();
+    var c = new Config();
     c.register({
       'app_id': '1234abc',
       'gcm_key': 'gcm_key_123',
@@ -50,7 +50,7 @@ describe("ionic platform config", function() {
   });
 
   it("should return undefined for configs that aren't there", function() {
-    var c = new IonicPlatformConfig();
+    var c = new Config();
     c.register({
       'app_id': '1234abc'
     });

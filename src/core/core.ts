@@ -4,14 +4,14 @@ import { Device } from './device';
 import { EventEmitter } from './events';
 import { Storage } from './storage';
 import { Logger } from './logger';
-import { IonicPlatformConfig, Config, ISettings } from './config';
+import { ISettings, Config, config } from './config';
 
 declare var Ionic: any;
 
 export class Core {
 
   client: Client;
-  config: IonicPlatformConfig;
+  config: Config;
   cordova: Cordova;
   device: Device;
   emitter: EventEmitter;
@@ -22,7 +22,7 @@ export class Core {
   private _version = 'VERSION_STRING';
 
   constructor() {
-    this.config = Config;
+    this.config = config;
     this.client = new Client(this.config.getURL('platform-api'));
     this.device = new Device();
     this.cordova = new Cordova(this.device);

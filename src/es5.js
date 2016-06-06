@@ -2,7 +2,7 @@ var Analytics = require("./../dist/es5/analytics/analytics").Analytics;
 var App = require("./../dist/es5/core/app").App;
 var Auth = require("./../dist/es5/auth/auth").Auth;
 var BucketStorage = require("./../dist/es5/analytics/storage").BucketStorage;
-var Config = require("./../dist/es5/core/config").Config;
+var config = require("./../dist/es5/core/config").config;
 var DOMSerializer = require("./../dist/es5/analytics/serializers").DOMSerializer;
 var DataType = require("./../dist/es5/core/data-types").DataType;
 var Deploy = require("./../dist/es5/deploy/deploy").Deploy;
@@ -41,8 +41,8 @@ Ionic.IO.Logger = Logger;
 Ionic.IO.Promise = promise.Promise;
 Ionic.IO.DeferredPromise = promise.DeferredPromise;
 Ionic.IO.Storage = Storage;
-Ionic.IO.Config = Config;
-Ionic.IO.Settings = function() { return Config; };
+Ionic.IO.Config = config;
+Ionic.IO.Settings = function() { return config; };
 
 // Analytic Storage Namespace
 Ionic.AnalyticStorage = {};

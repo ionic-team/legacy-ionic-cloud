@@ -7,7 +7,7 @@ export interface ISettings {
   [key: string]: any;
 }
 
-export class IonicPlatformConfig {
+export class Config {
 
   private settings: ISettings;
   private locations: any;
@@ -46,4 +46,4 @@ export class IonicPlatformConfig {
 
 }
 
-export let Config = new IonicPlatformConfig();
+export let config = new Config();
