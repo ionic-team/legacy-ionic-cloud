@@ -13,7 +13,6 @@ var envAPIEndpoints = {
 export class Environment {
 
   logger: Logger;
-  app: App;
   activeEnv: any;
 
   loadCallback: any;
@@ -28,10 +27,10 @@ export class Environment {
       'prefix': 'Ionic Environment:'
     });
 
-    var app = new App(IonicPlatform.config.get('app_id'));
+    this.logger.info('initializing Environments');
 
     // Check for the required values to use this service
-    if (!app.id) {
+    if (!IonicPlatform.config.get('app_id')) {
       this.logger.error('no app_id found. (http://docs.ionic.io/docs/io-install)');
       return;
     } else if (!config['env']) {
@@ -39,14 +38,11 @@ export class Environment {
       return;
     }
 
-    this.app = app;
     this.activeEnv = config['env'];
     this.loadCallback = null;
 
     var self = this;
-    IonicPlatform.onReady(function() {
-      self.init(config);
-    });
+    self.init(config);
   }
 
   /**
