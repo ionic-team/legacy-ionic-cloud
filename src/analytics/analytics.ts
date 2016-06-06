@@ -1,7 +1,6 @@
 import { request } from '../core/request';
 import { PromiseWithNotify, DeferredPromise } from '../core/promise';
 import { IonicPlatform } from '../core/core';
-import { Logger } from '../core/logger';
 import { BucketStorage } from './storage';
 import { User } from '../core/user';
 import { deepExtend } from '../util/util';
@@ -14,7 +13,6 @@ var globalPropertiesFns = [];
 
 export class Analytics {
 
-  logger: Logger;
   cache: any;
   storage: any;
 
@@ -28,7 +26,6 @@ export class Analytics {
     this._dispatchIntervalTime = 30;
     this._useEventCaching = true;
     this._serviceHost = IonicPlatform.config.getURL('analytics');
-    this.logger = new Logger('Ionic Analytics:');
     this.storage = IonicPlatform.storage;
     this.cache = new BucketStorage('ionic_analytics');
     this._addGlobalPropertyDefaults();
@@ -50,9 +47,9 @@ export class Analytics {
 
   get hasValidSettings() {
     if (!IonicPlatform.config.get('app_id') || !IonicPlatform.config.get('api_key')) {
-      var msg = 'A valid app_id and api_key are required before you can utilize ' +
+      var msg = 'Ionic Analytics: A valid app_id and api_key are required before you can utilize ' +
                 'analytics properly. See http://docs.ionic.io/v1.0/docs/io-quick-start';
-      this.logger.info(msg);
+      IonicPlatform.logger.info(msg);
       return false;
     }
     return true;
@@ -84,15 +81,15 @@ export class Analytics {
   _enqueueEvent(collectionName, eventData) {
     var self = this;
     if (options.dryRun) {
-      self.logger.info('event recieved but not sent (dryRun active):');
-      self.logger.info(collectionName);
-      self.logger.info(eventData);
+      IonicPlatform.logger.info('Ionic Analytics: event recieved but not sent (dryRun active):');
+      IonicPlatform.logger.info('Ionic Analytics:', collectionName);
+      IonicPlatform.logger.info('Ionic Analytics:', eventData);
       return;
     }
 
-    self.logger.info('enqueuing event to send later:');
-    self.logger.info(collectionName);
-    self.logger.info(eventData);
+    IonicPlatform.logger.info('Ionic Analytics: enqueuing event to send later:');
+    IonicPlatform.logger.info('Ionic Analytics:', collectionName);
+    IonicPlatform.logger.info('Ionic Analytics:', eventData);
 
     // Add timestamp property to the data
     if (!eventData.keen) {
@@ -131,7 +128,7 @@ export class Analytics {
     };
 
     if (!ANALYTICS_KEY) {
-      self.logger.error('Cannot send events to the analytics server without an Analytics key.');
+      IonicPlatform.logger.error('Ionic Analytics: Cannot send events to the analytics server without an Analytics key.');
     }
 
     var requestOptions = {
@@ -149,7 +146,7 @@ export class Analytics {
   _postEvents(events) {
     var self = this;
     if (!ANALYTICS_KEY) {
-      self.logger.info('Cannot send events to the analytics server without an Analytics key.');
+      IonicPlatform.logger.info('Ionic Analytics: Cannot send events to the analytics server without an Analytics key.');
     }
 
     var requestOptions = {
@@ -180,8 +177,8 @@ export class Analytics {
       return self._postEvents(eventQueue);
     }).then(function() {
       self.cache.set('event_queue', {});
-      self.logger.info('sent events');
-      self.logger.info(eventQueue);
+      IonicPlatform.logger.info('Ionic Analytics: sent events');
+      IonicPlatform.logger.info('Ionic Analytics:', eventQueue);
     }, function(err) {
       self._handleDispatchError(err, this, eventQueue);
     });
@@ -203,11 +200,11 @@ export class Analytics {
     } else {
       // If we didn't connect to the server at all -> keep events
       if (!responseCode) {
-        self.logger.error('Error sending analytics data: Failed to connect to analytics server.');
+        IonicPlatform.logger.error('Ionic Analytics: Error sending analytics data: Failed to connect to analytics server.');
       } else {
         self.cache.set('event_queue', {});
-        self.logger.error('Error sending analytics data: Server responded with error');
-        self.logger.error(eventQueue);
+        IonicPlatform.logger.error('Ionic Analytics: Error sending analytics data: Server responded with error');
+        IonicPlatform.logger.error('Ionic Analytics:', eventQueue);
       }
     }
   }
@@ -219,16 +216,16 @@ export class Analytics {
 
     switch (responseCode) {
       case 401:
-        self.logger.error('The api key and app id you provided did not register on the server. ' + docs);
+        IonicPlatform.logger.error('Ionic Analytics: The api key and app id you provided did not register on the server. ' + docs);
         break;
 
       case 404:
-        self.logger.error('The app id you provided ("' + IonicPlatform.config.get('app_id') + '") was not found.' + docs);
+        IonicPlatform.logger.error('Ionic Analytics: The app id you provided ("' + IonicPlatform.config.get('app_id') + '") was not found.' + docs);
         break;
 
       default:
-        self.logger.error('Unable to request analytics key.');
-        self.logger.error(error);
+        IonicPlatform.logger.error('Ionic Analytics: Unable to request analytics key.');
+        IonicPlatform.logger.error('Ionic Analytics:', error);
         break;
     }
   }
@@ -251,19 +248,19 @@ export class Analytics {
 
     options = opts || {};
     if (options.silent) {
-      this.logger.silent = true;
+      IonicPlatform.logger.silent = true;
     } else {
-      this.logger.silent = false;
+      IonicPlatform.logger.silent = false;
     }
 
     if (options.dryRun) {
-      this.logger.info('dryRun mode is active. Analytics will not send any events.');
+      IonicPlatform.logger.info('Ionic Analytics: dryRun mode is active. Analytics will not send any events.');
     }
 
 
     this._requestAnalyticsKey().then(function(result) {
       ANALYTICS_KEY = result.payload.write_key;
-      self.logger.info('successfully registered analytics key');
+      IonicPlatform.logger.info('Ionic Analytics: successfully registered analytics key');
       self.dispatchInterval = self.dispatchInterval;
       deferred.resolve(true);
     }, function(error) {
@@ -292,7 +289,7 @@ export class Analytics {
         break;
 
       default:
-        self.logger.error('setGlobalProperties parameter must be an object or function.');
+        IonicPlatform.logger.error('Ionic Analytics: setGlobalProperties parameter must be an object or function.');
         break;
     }
   }
@@ -329,9 +326,9 @@ export class Analytics {
       self._enqueueEvent(eventCollection, eventData);
     } else {
       if (options.dryRun) {
-        self.logger.info('dryRun active, will not send event');
-        self.logger.info(eventCollection);
-        self.logger.info(eventData);
+        IonicPlatform.logger.info('Ionic Analytics: dryRun active, will not send event');
+        IonicPlatform.logger.info('Ionic Analytics:', eventCollection);
+        IonicPlatform.logger.info('Ionic Analytics:', eventData);
       } else {
         self._postEvent(eventCollection, eventData);
       }
@@ -349,13 +346,13 @@ export class Analytics {
       case 'function':
         var i = globalPropertiesFns.indexOf(prop);
         if (i === -1) {
-          self.logger.error('The function passed to unsetGlobalProperty was not a global property.');
+          IonicPlatform.logger.error('Ionic Analytics: The function passed to unsetGlobalProperty was not a global property.');
         }
         globalPropertiesFns.splice(i, 1);
         break;
 
       default:
-        self.logger.error('unsetGlobalProperty parameter must be a string or function.');
+        IonicPlatform.logger.error('Ionic Analytics: unsetGlobalProperty parameter must be a string or function.');
         break;
     }
   }

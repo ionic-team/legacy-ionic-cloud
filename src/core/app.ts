@@ -1,4 +1,4 @@
-import { Logger } from './logger';
+import { IonicPlatform } from './core';
 
 var privateData: any = {};
 
@@ -10,17 +10,15 @@ export class App {
 
   devPush: boolean;
   gcmKey: string;
-  logger: Logger;
 
   constructor(appId, apiKey) {
-    this.logger = new Logger('Ionic App:');
     if (!appId || appId === '') {
-      this.logger.info('No app_id was provided');
+      IonicPlatform.logger.info('Ionic App: No app_id was provided');
       return;
     }
 
     if (!apiKey || apiKey === '') {
-      this.logger.info('No api_key was provided');
+      IonicPlatform.logger.info('Ionic App: No api_key was provided');
       return;
     }
 

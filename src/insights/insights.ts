@@ -1,5 +1,4 @@
 import { Client } from '../core/client';
-import { Logger } from '../core/logger';
 
 export interface IStatSerialized {
   app_id: string;
@@ -34,13 +33,11 @@ export class Insights {
   public submitCount = Insights.SUBMIT_COUNT;
 
   private batch: Stat[];
-  protected logger: Logger;
 
   constructor(public client: Client, public appId: string) {
     this.client = client;
     this.appId = appId;
     this.batch = [];
-    this.logger = new Logger('Ionic Insights:');
   }
 
   track(stat: string, value: number = 1): void {

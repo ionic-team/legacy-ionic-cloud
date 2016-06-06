@@ -1,5 +1,4 @@
 import { PromiseWithNotify, DeferredPromise } from '../core/promise';
-import { Logger } from '../core/logger';
 import { IonicPlatform } from '../core/core';
 
 declare var IonicDeploy: any;
@@ -10,8 +9,6 @@ var WATCH_INTERVAL = 1 * 60 * 1000;
 
 export class Deploy {
 
-  logger: Logger;
-
   private _plugin: any;
   private _isReady: boolean;
   private _channelTag: string;
@@ -19,11 +16,10 @@ export class Deploy {
 
   constructor() {
     var self = this;
-    this.logger = new Logger('Ionic Deploy:');
     this._plugin = false;
     this._isReady = false;
     this._channelTag = 'production';
-    this.logger.info('init');
+    IonicPlatform.logger.info('Ionic Deploy: init');
     IonicPlatform.onReady(function() {
       self.initialize();
       self._isReady = true;
@@ -42,7 +38,7 @@ export class Deploy {
   _getPlugin() {
     if (this._plugin) { return this._plugin; }
     if (typeof IonicDeploy === 'undefined') {
-      this.logger.info('plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
+      IonicPlatform.logger.info('Ionic Deploy: plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
       return false;
     }
     this._plugin = IonicDeploy;
@@ -76,14 +72,14 @@ export class Deploy {
       if (self._getPlugin()) {
         self._plugin.check(IonicPlatform.config.get('app_id'), self._channelTag, function(result) {
           if (result && result === 'true') {
-            self.logger.info('an update is available');
+            IonicPlatform.logger.info('Ionic Deploy: an update is available');
             deferred.resolve(true);
           } else {
-            self.logger.info('no updates available');
+            IonicPlatform.logger.info('Ionic Deploy: no updates available');
             deferred.resolve(false);
           }
         }, function(error) {
-          self.logger.error('encountered an error while checking for updates');
+          IonicPlatform.logger.error('Ionic Deploy: encountered an error while checking for updates');
           deferred.reject(error);
         });
       } else {
@@ -112,7 +108,7 @@ export class Deploy {
             deferred.notify(result);
           } else {
             if (result === 'true') {
-              self.logger.info('download complete');
+              IonicPlatform.logger.info('Ionic Deploy: download complete');
             }
             deferred.resolve(result === 'true');
           }
@@ -146,7 +142,7 @@ export class Deploy {
             deferred.notify(result);
           } else {
             if (result === 'true') {
-              self.logger.info('extraction complete');
+              IonicPlatform.logger.info('Ionic Deploy: extraction complete');
             }
             deferred.resolve(result);
           }
@@ -198,7 +194,7 @@ export class Deploy {
       self.check().then(function(hasUpdate) {
         if (hasUpdate) { deferred.notify(hasUpdate); }
       }, function(err) {
-        self.logger.info('unable to check for updates: ' + err);
+        IonicPlatform.logger.info('Ionic Deploy: unable to check for updates: ' + err);
       });
 
       // Check our timeout to make sure it wasn't cleared while we were waiting

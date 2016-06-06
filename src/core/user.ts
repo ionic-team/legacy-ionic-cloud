@@ -2,7 +2,6 @@ import { Auth } from '../auth/auth';
 import { PromiseWithNotify, DeferredPromise } from './promise';
 import { IonicPlatform } from './core';
 import { Storage } from './storage';
-import { Logger } from './logger';
 import { DataType } from './data-types';
 
 declare var Ionic: any;
@@ -105,7 +104,6 @@ export class UserData {
 
 export class User {
 
-  logger: Logger;
   data: UserData;
   details: any;
 
@@ -118,7 +116,6 @@ export class User {
   private _id: string;
 
   constructor() {
-    this.logger = new Logger('Ionic User:');
     this._blockLoad = false;
     this._blockSave = false;
     this._blockDelete = false;
@@ -183,11 +180,11 @@ export class User {
         .end((err, res) => {
           if (err) {
             tempUser._blockLoad = false;
-            tempUser.logger.error(err);
+            IonicPlatform.logger.error('Ionic User:', err);
             deferred.reject(err);
           } else {
             tempUser._blockLoad = false;
-            tempUser.logger.info('loaded user');
+            IonicPlatform.logger.info('Ionic User: loaded user');
 
             // set the custom data
             tempUser.id = res.body.data.uuid;
@@ -200,7 +197,7 @@ export class User {
           }
         });
     } else {
-      tempUser.logger.info('a load operation is already in progress for ' + this + '.');
+      IonicPlatform.logger.info('Ionic User: a load operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 
@@ -219,11 +216,11 @@ export class User {
         .end((err, res) => {
           if (err) {
             tempUser._blockLoad = false;
-            tempUser.logger.error(err);
+            IonicPlatform.logger.error('Ionic User:', err);
             deferred.reject(err);
           } else {
             tempUser._blockLoad = false;
-            tempUser.logger.info('loaded user');
+            IonicPlatform.logger.info('Ionic User: loaded user');
 
             // set the custom data
             tempUser.data = new UserData(res.body.data.custom);
@@ -234,7 +231,7 @@ export class User {
           }
         });
     } else {
-      tempUser.logger.info('a load operation is already in progress for ' + this + '.');
+      IonicPlatform.logger.info('Ionic User: a load operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 
@@ -298,16 +295,16 @@ export class User {
           .end((err, res) => {
             if (err) {
               self._blockDelete = false;
-              self.logger.error(err);
+              IonicPlatform.logger.error('Ionic User:', err);
               deferred.reject(err);
             } else {
               self._blockDelete = false;
-              self.logger.info('deleted ' + self);
+              IonicPlatform.logger.info('Ionic User: deleted ' + self);
               deferred.resolve(res);
             }
           });
       } else {
-        self.logger.info('a delete operation is already in progress for ' + this + '.');
+        IonicPlatform.logger.info('Ionic User: a delete operation is already in progress for ' + this + '.');
         deferred.reject(false);
       }
     } else {
@@ -342,7 +339,7 @@ export class User {
           if (err) {
             self._dirty = true;
             self._blockSave = false;
-            self.logger.error(err);
+            IonicPlatform.logger.error('Ionic User:', err);
             deferred.reject(err);
           } else {
             self._dirty = false;
@@ -351,12 +348,12 @@ export class User {
             }
             self._fresh = false;
             self._blockSave = false;
-            self.logger.info('saved user');
+            IonicPlatform.logger.info('Ionic User: saved user');
             deferred.resolve(res);
           }
         });
     } else {
-      self.logger.info('a save operation is already in progress for ' + this + '.');
+      IonicPlatform.logger.info('Ionic User: a save operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 
@@ -370,10 +367,10 @@ export class User {
     IonicPlatform.client.post(`/auth/users/${this.id}/password-reset`)
       .end((err, res) => {
         if (err) {
-          self.logger.error(err);
+          IonicPlatform.logger.error('Ionic User:', err);
           deferred.reject(err);
         } else {
-          self.logger.info('password reset for user');
+          IonicPlatform.logger.info('Ionic User: password reset for user');
           deferred.resolve(res);
         }
       });

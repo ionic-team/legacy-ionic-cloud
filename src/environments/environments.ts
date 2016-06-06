@@ -1,7 +1,6 @@
 import { App } from '../core/app';
 import { IonicPlatform } from '../core/core';
 import { request } from '../core/request';
-import { Logger } from '../core/logger';
 import { DeferredPromise } from '../core/promise';
 
 var appsAPIBase = IonicPlatform.config.getURL('platform-api') + '/apps';
@@ -13,7 +12,6 @@ var envAPIEndpoints = {
 
 export class Environment {
 
-  logger: Logger;
   tag: string;
   label: string;
   config: any;
@@ -44,12 +42,11 @@ export class Environment {
    * @return {Environment} returns the called Push instantiation
    */
   public init(config) {
-    this.logger = new Logger('Ionic Environments:');
-    this.logger.info('initializing Environments');
+    IonicPlatform.logger.info('Ionic Environments: initializing Environments');
 
     // Check for the required values to use this service
     if (!IonicPlatform.config.get('app_id')) {
-      this.logger.error('no app_id found. (http://docs.ionic.io/docs/io-install)');
+      IonicPlatform.logger.error('Ionic Environments: no app_id found. (http://docs.ionic.io/docs/io-install)');
       return;
     }
 
@@ -76,7 +73,7 @@ export class Environment {
   public get(key) {
 
     if (!this.loaded) {
-      this.logger.warn('Environment is currently being loaded, use getAsync() if you wish to async load.');
+      IonicPlatform.logger.warn('Ionic Environments: Environment is currently being loaded, use getAsync() if you wish to async load.');
     } else if (this.config[key]) {
       return this.config[key];
     }
@@ -104,7 +101,7 @@ export class Environment {
         self.loadCallback(self.config);
       }
     }, function(err) {
-      self.logger.error(err);
+      IonicPlatform.logger.error('Ionic Environments:', err);
     });
   }
 

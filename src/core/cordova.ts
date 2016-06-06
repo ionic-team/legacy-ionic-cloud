@@ -5,11 +5,9 @@ declare var cordova: any;
 
 export class Cordova {
 
-  logger: Logger;
-
-  constructor(public device: Device) {
+  constructor(public device: Device, protected logger: Logger) {
     this.device = device;
-    this.logger = new Logger('Ionic Cordova:');
+    this.logger = logger;
   }
 
   public load(): void {
@@ -31,8 +29,8 @@ export class Cordova {
               cordovaSrc = decodeURI(resource[1]);
             }
           } catch (e) {
-            this.logger.info('could not find cordova_js_bootstrap_resource query param');
-            this.logger.info(e);
+            this.logger.info('Ionic Cordova: could not find cordova_js_bootstrap_resource query param');
+            this.logger.info('Ionic Cordova:', e);
           }
           break;
 
@@ -41,15 +39,15 @@ export class Cordova {
       }
       cordovaScript.setAttribute('src', cordovaSrc);
       document.head.appendChild(cordovaScript);
-      this.logger.info('injecting cordova.js');
+      this.logger.info('Ionic Cordova: injecting cordova.js');
     }
   }
 
   private isAvailable(): boolean {
-    this.logger.info('searching for cordova.js');
+    this.logger.info('Ionic Cordova: searching for cordova.js');
 
     if (typeof cordova !== 'undefined') {
-      this.logger.info('cordova.js has already been loaded');
+      this.logger.info('Ionic Cordova: cordova.js has already been loaded');
       return true;
     }
 
@@ -63,11 +61,11 @@ export class Cordova {
         try {
           partsLength = parts.length;
           if (parts[partsLength - 1] === 'cordova.js') {
-            this.logger.info('cordova.js has previously been included.');
+            this.logger.info('Ionic Cordova: cordova.js has previously been included.');
             return true;
           }
         } catch (e) {
-          this.logger.info('encountered error while testing for cordova.js presence, ' + e.toString());
+          this.logger.info('Ionic Cordova: encountered error while testing for cordova.js presence, ' + e.toString());
         }
       }
     }

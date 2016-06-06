@@ -1,7 +1,6 @@
 import { App } from '../core/app';
 import { IonicPlatform } from '../core/core';
 import { Client } from '../core/client';
-import { Logger } from '../core/logger';
 import { PromiseWithNotify, DeferredPromise } from '../core/promise';
 import { User } from '../core/user';
 
@@ -24,7 +23,6 @@ export interface PushOptions {
 export class Push {
 
   client: Client;
-  logger: Logger;
   app: App;
 
   registerCallback: any;
@@ -45,7 +43,6 @@ export class Push {
 
   constructor(config: PushOptions = {}) {
     this.client = IonicPlatform.client;
-    this.logger = new Logger('Ionic Push:');
 
     var app = new App(IonicPlatform.config.get('app_id'), IonicPlatform.config.get('api_key'));
     app.devPush = IonicPlatform.config.get('dev_push');
@@ -53,10 +50,10 @@ export class Push {
 
     // Check for the required values to use this service
     if (!app.id || !app.apiKey) {
-      this.logger.error('no app_id found. (http://docs.ionic.io/docs/io-install)');
+      IonicPlatform.logger.error('Ionic Push: no app_id found. (http://docs.ionic.io/docs/io-install)');
       return;
     } else if (IonicPlatform.device.isAndroid() && !app.devPush && !app.gcmKey) {
-      this.logger.error('GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
+      IonicPlatform.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
       return;
     }
 
@@ -168,19 +165,19 @@ export class Push {
         .end((err, res) => {
           if (err) {
             this._blockSaveToken = false;
-            this.logger.error(err);
+            IonicPlatform.logger.error('Ionic Push:', err);
             deferred.reject(err);
           } else {
             this._blockSaveToken = false;
-            this.logger.info('saved push token: ' + token);
+            IonicPlatform.logger.info('Ionic Push: saved push token: ' + token);
             if (tokenData.user_id) {
-              this.logger.info('added push token to user: ' + tokenData.user_id);
+              IonicPlatform.logger.info('Ionic Push: added push token to user: ' + tokenData.user_id);
             }
             deferred.resolve(true);
           }
         });
     } else {
-      this.logger.info('a token save operation is already in progress.');
+      IonicPlatform.logger.info('Ionic Push: a token save operation is already in progress.');
       deferred.reject(false);
     }
 
@@ -194,10 +191,10 @@ export class Push {
    * @return {void}
    */
   register(callback: (token: PushToken) => void): void {
-    this.logger.info('register');
+    IonicPlatform.logger.info('Ionic Push: register');
     var self = this;
     if (this._blockRegistration) {
-      self.logger.info('another registration is already in progress.');
+      IonicPlatform.logger.info('Ionic Push: another registration is already in progress.');
       return;
     }
     this._blockRegistration = true;
@@ -256,17 +253,17 @@ export class Push {
         .end((err, res) => {
           if (err) {
             self._blockUnregister = false;
-            self.logger.error(err);
+            IonicPlatform.logger.error('Ionic Push:', err);
             deferred.reject(err);
           } else {
             self._blockUnregister = false;
-            self.logger.info('unregistered push token: ' + self.getStorageToken().token);
+            IonicPlatform.logger.info('Ionic Push: unregistered push token: ' + self.getStorageToken().token);
             self.clearStorageToken();
             deferred.resolve(res);
           }
         });
     } else {
-      self.logger.info('an unregister operation is already in progress.');
+      IonicPlatform.logger.info('Ionic Push: an unregister operation is already in progress.');
       deferred.reject(false);
     }
 
@@ -291,7 +288,7 @@ export class Push {
    */
   setRegisterCallback(callback) {
     if (typeof callback !== 'function') {
-      this.logger.info('setRegisterCallback() requires a valid callback function');
+      IonicPlatform.logger.info('Ionic Push: setRegisterCallback() requires a valid callback function');
       return false;
     }
     this.registerCallback = callback;
@@ -306,7 +303,7 @@ export class Push {
    */
   setNotificationCallback(callback) {
     if (typeof callback !== 'function') {
-      this.logger.info('setNotificationCallback() requires a valid callback function');
+      IonicPlatform.logger.info('Ionic Push: setNotificationCallback() requires a valid callback function');
       return false;
     }
     this.notificationCallback = callback;
@@ -321,7 +318,7 @@ export class Push {
    */
   setErrorCallback(callback) {
     if (typeof callback !== 'function') {
-      this.logger.info('setErrorCallback() requires a valid callback function');
+      IonicPlatform.logger.info('Ionic Push: setErrorCallback() requires a valid callback function');
       return false;
     }
     this.errorCallback = callback;
@@ -332,7 +329,7 @@ export class Push {
     var self = this;
     function callback(data) {
       self.token = new PushToken(data.registrationId);
-      self.logger.info('(debug) device token registered: ' + self._token);
+      IonicPlatform.logger.info('Ionic Push: (debug) device token registered: ' + self._token);
     }
     return callback;
   }
@@ -342,7 +339,7 @@ export class Push {
     function callback(notification) {
       self._processNotification(notification);
       var message = PushMessage.fromPluginJSON(notification);
-      self.logger.info('(debug) notification received: ' + message);
+      IonicPlatform.logger.info('Ionic Push: (debug) notification received: ' + message);
       if (!self.notificationCallback && self.app.devPush) {
         alert(message.text);
       }
@@ -353,8 +350,8 @@ export class Push {
   _debugErrorCallback() {
     var self = this;
     function callback(err) {
-      self.logger.error('(debug) unexpected error occured.');
-      self.logger.error(err);
+      IonicPlatform.logger.error('Ionic Push: (debug) unexpected error occured.');
+      IonicPlatform.logger.error('Ionic Push:', err);
     }
     return callback;
   }
@@ -453,11 +450,11 @@ export class Push {
     try {
       PushPlugin = window.PushNotification;
     } catch (e) {
-      self.logger.info('something went wrong looking for the PushNotification plugin');
+      IonicPlatform.logger.info('Ionic Push: something went wrong looking for the PushNotification plugin');
     }
 
     if (!self.app.devPush && !PushPlugin && (IonicPlatform.device.isIOS() || IonicPlatform.device.isAndroid()) ) {
-      self.logger.error('PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
+      IonicPlatform.logger.error('Ionic Push: PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
     }
     return PushPlugin;
   }

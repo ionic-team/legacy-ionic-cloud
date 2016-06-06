@@ -23,10 +23,10 @@ export class Core {
 
   constructor() {
     this.config = config;
+    this.logger = new Logger();
     this.client = new Client(this.config.getURL('platform-api'));
     this.device = new Device();
-    this.cordova = new Cordova(this.device);
-    this.logger = new Logger('Ionic Core:');
+    this.cordova = new Cordova(this.device, this.logger);
     this.emitter = new EventEmitter();
     this.storage = new Storage();
     this.cordova.load();
@@ -35,11 +35,11 @@ export class Core {
 
   public init(cfg: ISettings) {
     this.config.register(cfg);
-    this.logger.info('init');
+    this.logger.info('Ionic Core: init');
     this.emitter.emit('core:init');
   }
 
-  public get version() {
+  public get version(): string {
     return this._version;
   }
 
@@ -54,7 +54,7 @@ export class Core {
       this.emitter.emit('device:ready');
     } else {
       document.addEventListener('deviceready', () => {
-        this.logger.info('plugins are ready');
+        this.logger.info('Ionic Core: plugins are ready');
         this.pluginsReady = true;
         this.emitter.emit('device:ready');
       }, false);

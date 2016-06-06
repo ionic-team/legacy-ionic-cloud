@@ -1,26 +1,31 @@
-export class Logger {
+export interface ILogger {
+  silent: boolean;
+  outfn: (message?: any, ...optionalParams: any[]) => void;
+  errfn: (message?: any, ...optionalParams: any[]) => void;
+  info(message?: any, ...optionalParams: any[]);
+  warn(message?: any, ...optionalParams: any[]);
+  error(message?: any, ...optionalParams: any[]);
+}
+
+export class Logger implements ILogger {
 
   public silent: boolean = false;
   public outfn = console.log.bind(console);
   public errfn = console.error.bind(console);
 
-  constructor(public prefix: string) {
-    this.prefix = prefix;
-  }
-
-  info(data) {
+  info(message?: any, ...optionalParams: any[]) {
     if (!this.silent) {
-      this.outfn(this.prefix, data);
+      this.outfn(message, ...optionalParams);
     }
   }
 
-  warn(data) {
+  warn(message?: any, ...optionalParams: any[]) {
     if (!this.silent) {
-      this.outfn(this.prefix, data);
+      this.outfn(message, ...optionalParams);
     }
   }
 
-  error(data) {
-    this.errfn(this.prefix, data);
+  error(message?: any, ...optionalParams: any[]) {
+    this.errfn(message, ...optionalParams);
   }
 }
