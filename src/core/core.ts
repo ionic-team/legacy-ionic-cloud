@@ -44,6 +44,10 @@ export class Core {
   }
 
   private registerEventHandlers() {
+    this.emitter.on('auth:token-changed', (data) => {
+      this.client.token = data['new'];
+    });
+
     if (this.device.deviceType === 'unknown') {
       this.logger.info('attempting to mock plugins');
       this.pluginsReady = true;
@@ -55,9 +59,6 @@ export class Core {
         this.emitter.emit('device:ready');
       }, false);
     }
-
-    // this.client = new Client
-    // this.insights = new Insights(this.config.get('app_id'));
   }
 
   /**

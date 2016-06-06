@@ -61,6 +61,7 @@ function storeToken(options: LoginOptions = {}, token: string) {
   } else {
     TempTokenContext.store();
   }
+  IonicPlatform.emitter.emit('auth:token-changed', {'old': originalToken, 'new': authToken});
 }
 
 function getAuthErrorDetails(err) {
