@@ -3,13 +3,6 @@ import { IonicPlatform } from '../core/core';
 import { request } from '../core/request';
 import { DeferredPromise } from '../core/promise';
 
-var appsAPIBase = IonicPlatform.config.getURL('platform-api') + '/apps';
-var envAPIEndpoints = {
-  'getEnv': function(appId, tag) {
-    return '/apps/' + appId + '/env/' + tag;
-  }
-};
-
 export class Environment {
 
   tag: string;
@@ -115,7 +108,8 @@ export class Environment {
     var self = this;
     var deferred = new DeferredPromise();
 
-    IonicPlatform.client.get(envAPIEndpoints.getEnv(IonicPlatform.config.get('app_id'), tag))
+    let appId = IonicPlatform.config.get('app_id');
+    IonicPlatform.client.get(`/apps/${appId}/env/${tag}`)
       .end((err, res) => {
         if (err) {
           deferred.reject(err);
