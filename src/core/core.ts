@@ -29,7 +29,6 @@ export class Core {
     this.client = new Client(this.config.getURL('platform-api'));
     this.device = new Device();
     this.cordova = new Cordova(this.device, this.logger);
-    this.logger = new Logger('Ionic Core:');
     this.env = new Environment();
     this.emitter = new EventEmitter();
     this.storage = new Storage();
@@ -53,7 +52,7 @@ export class Core {
     });
 
     if (this.device.deviceType === 'unknown') {
-      this.logger.info('attempting to mock plugins');
+      this.logger.info('Ionic Core: attempting to mock plugins');
       this.pluginsReady = true;
       this.emitter.emit('device:ready');
     } else {
