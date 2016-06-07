@@ -121,14 +121,12 @@ export class Auth {
     }
   }
 
-  static getUserToken() {
-    var usertoken = TokenContext.getRawData();
-    var temptoken = TempTokenContext.getRawData();
-    var token = temptoken || usertoken;
-    if (token) {
-      return token;
-    }
-    return false;
+  static getUserToken(): string {
+    let usertoken = TokenContext.getRawData();
+    let temptoken = TempTokenContext.getRawData();
+    let token = temptoken || usertoken;
+
+    return token;
   }
 
 }
