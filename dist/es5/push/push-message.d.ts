@@ -1,12 +1,9 @@
-export declare class PushMessageAppStatus {
-    asleep: boolean;
-    closed: boolean;
-    constructor();
-    wasAsleep: boolean;
-    wasClosed: boolean;
+export interface AppStatus {
+    asleep?: boolean;
+    closed?: boolean;
 }
 export declare class PushMessage {
-    app: PushMessageAppStatus;
+    app: AppStatus;
     text: string;
     title: string;
     count: number;

@@ -6,9 +6,7 @@ function privateVar(key) {
 }
 var App = (function () {
     function App(appId, apiKey) {
-        this.logger = new logger_1.Logger({
-            'prefix': 'Ionic App:'
-        });
+        this.logger = new logger_1.Logger('Ionic App:');
         if (!appId || appId === '') {
             this.logger.info('No app_id was provided');
             return;

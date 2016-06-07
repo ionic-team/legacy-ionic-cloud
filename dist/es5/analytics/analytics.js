@@ -17,10 +17,8 @@ var Analytics = (function () {
         this._dispatchIntervalTime = 30;
         this._useEventCaching = true;
         this._serviceHost = core_1.IonicPlatform.config.getURL('analytics');
-        this.logger = new logger_1.Logger({
-            'prefix': 'Ionic Analytics:'
-        });
-        this.storage = core_1.IonicPlatform.getStorage();
+        this.logger = new logger_1.Logger('Ionic Analytics:');
+        this.storage = core_1.IonicPlatform.storage;
         this.cache = new storage_1.BucketStorage('ionic_analytics');
         this._addGlobalPropertyDefaults();
         if (config !== DEFER_REGISTER) {
@@ -33,7 +31,7 @@ var Analytics = (function () {
             eventData._user = JSON.parse(JSON.stringify(user_1.User.current()));
             eventData._app = {
                 'app_id': core_1.IonicPlatform.config.get('app_id'),
-                'analytics_version': core_1.IonicPlatform.Version
+                'analytics_version': core_1.IonicPlatform.version
             };
         });
     };
@@ -149,7 +147,7 @@ var Analytics = (function () {
         if (Object.keys(eventQueue).length === 0) {
             return;
         }
-        if (!core_1.IonicPlatform.deviceConnectedToNetwork()) {
+        if (!core_1.IonicPlatform.device.isConnectedToNetwork()) {
             return;
         }
         self.storage.lockedAsyncCall(self.cache.scopedKey('event_dispatch'), function () {
@@ -219,10 +217,10 @@ var Analytics = (function () {
         }
         options = opts || {};
         if (options.silent) {
-            this.logger.silence();
+            this.logger.silent = true;
         }
         else {
-            this.logger.verbose();
+            this.logger.silent = false;
         }
         if (options.dryRun) {
             this.logger.info('dryRun mode is active. Analytics will not send any events.');
@@ -261,7 +259,7 @@ var Analytics = (function () {
     Analytics.prototype.track = function (eventCollection, eventData) {
         var self = this;
         if (!this.hasValidSettings) {
-            return false;
+            return;
         }
         if (!eventData) {
             eventData = {};

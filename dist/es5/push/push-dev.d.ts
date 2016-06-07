@@ -1,3 +1,4 @@
+import { Client } from '../core/client';
 import { Logger } from '../core/logger';
 /**
  * PushDev Service
@@ -26,12 +27,11 @@ import { Logger } from '../core/logger';
  *
  */
 export declare class PushDevService {
+    client: Client;
     logger: Logger;
-    private _serviceHost;
     private _token;
     private _watch;
     private _push;
-    private _emitter;
     constructor();
     /**
      * Generate a development token
@@ -51,7 +51,7 @@ export declare class PushDevService {
      * Checks the push service for notifications that target the current development token
      * @return {void}
      */
-    checkForNotifications(): boolean;
+    checkForNotifications(): void;
     /**
      * Kicks off the "polling" of the Ionic Push service for new push notifications
      * @return {void}

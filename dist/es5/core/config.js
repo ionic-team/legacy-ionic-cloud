@@ -1,6 +1,6 @@
 "use strict";
-var IonicPlatformConfig = (function () {
-    function IonicPlatformConfig() {
+var Config = (function () {
+    function Config() {
         this.locations = {
             'api': 'https://apps.ionic.io',
             'push': 'https://push.ionic.io',
@@ -9,25 +9,23 @@ var IonicPlatformConfig = (function () {
             'platform-api': 'https://api.ionic.io'
         };
     }
-    IonicPlatformConfig.prototype.register = function (settings) {
+    Config.prototype.register = function (settings) {
         this.settings = settings;
     };
-    IonicPlatformConfig.prototype.get = function (name) {
+    Config.prototype.get = function (name) {
         if (!this.settings) {
             return undefined;
         }
         return this.settings[name];
     };
-    IonicPlatformConfig.prototype.getURL = function (name) {
+    Config.prototype.getURL = function (name) {
         var devLocations = this.settings && this.settings['dev_locations'] || {};
         if (devLocations[name]) {
             return devLocations[name];
         }
-        else if (this.locations[name]) {
-            return this.locations[name];
-        }
+        return this.locations[name];
     };
-    return IonicPlatformConfig;
+    return Config;
 }());
-exports.IonicPlatformConfig = IonicPlatformConfig;
-exports.Config = new IonicPlatformConfig();
+exports.Config = Config;
+exports.config = new Config();

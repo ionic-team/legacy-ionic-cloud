@@ -3,7 +3,7 @@ var core_1 = require('../core/core');
 var BucketStorage = (function () {
     function BucketStorage(name) {
         this.name = name;
-        this.baseStorage = core_1.IonicPlatform.getStorage();
+        this.baseStorage = core_1.IonicPlatform.storage;
     }
     BucketStorage.prototype.get = function (key) {
         return this.baseStorage.retrieveObject(this.scopedKey(key));

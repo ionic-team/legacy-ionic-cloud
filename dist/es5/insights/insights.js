@@ -21,24 +21,38 @@ var Stat = (function () {
     };
     return Stat;
 }());
+exports.Stat = Stat;
 var Insights = (function () {
-    function Insights(appId) {
+    function Insights(client, appId) {
+        this.client = client;
         this.appId = appId;
+        this.submitCount = Insights.SUBMIT_COUNT;
+        this.client = client;
         this.appId = appId;
         this.batch = [];
-        this.logger = new logger_1.Logger({
-            'prefix': 'Ionic Insights:'
-        });
-        this.logger.info('init');
+        this.logger = new logger_1.Logger('Ionic Insights:');
     }
     Insights.prototype.track = function (stat, value) {
         if (value === void 0) { value = 1; }
-        this.batch.push(new Stat(this.appId, stat, value));
-        this.submit();
+        this.trackStat(new Stat(this.appId, stat, value));
+    };
+    Insights.prototype.trackStat = function (stat) {
+        this.batch.push(stat);
+        if (this.shouldSubmit()) {
+            this.submit();
+        }
+    };
+    Insights.prototype.shouldSubmit = function () {
+        return this.batch.length >= this.submitCount;
     };
     Insights.prototype.submit = function () {
-        if (this.batch.length >= Insights.SUBMIT_COUNT) {
+        var insights = [];
+        for (var _i = 0, _a = this.batch; _i < _a.length; _i++) {
+            var stat = _a[_i];
+            insights.push(stat.toJSON());
         }
+        return this.client.post('/insights')
+            .send({ 'insights': insights });
     };
     Insights.SUBMIT_COUNT = 100;
     return Insights;

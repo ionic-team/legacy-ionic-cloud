@@ -1,5 +1,4 @@
 "use strict";
-var request_1 = require('../core/request');
 var core_1 = require('../core/core');
 var logger_1 = require('../core/logger');
 var util_1 = require('../util/util');
@@ -32,10 +31,8 @@ var push_token_1 = require('./push-token');
  */
 var PushDevService = (function () {
     function PushDevService() {
-        this.logger = new logger_1.Logger({
-            'prefix': 'Ionic Push (dev):'
-        });
-        this._serviceHost = core_1.IonicPlatform.config.getURL('platform-api') + '/push';
+        this.client = core_1.IonicPlatform.client;
+        this.logger = new logger_1.Logger('Ionic Push (dev):');
         this._token = null;
         this._watch = null;
     }
@@ -57,30 +54,27 @@ var PushDevService = (function () {
      * @return {void}
      */
     PushDevService.prototype.init = function (ionicPush, callback) {
+        var _this = this;
         this._push = ionicPush;
-        this._emitter = this._push._emitter;
         var token = this._token;
-        var self = this;
         if (!token) {
             token = this.getDevToken();
         }
-        var requestOptions = {
-            'method': 'POST',
-            'uri': this._serviceHost + '/development',
-            'json': {
-                'token': token
+        this.client.post('/push/development')
+            .send({ 'token': token })
+            .end(function (err, res) {
+            if (err) {
+                _this.logger.error('error connecting development push service: ' + err);
             }
-        };
-        request_1.request(requestOptions).then(function () {
-            var data = { 'registrationId': token };
-            self.logger.info('registered with development push service: ' + token);
-            self._emitter.emit('ionic_push:token', data);
-            if ((typeof callback === 'function')) {
-                callback(new push_token_1.PushToken(self._token));
+            else {
+                var data = { 'registrationId': token };
+                _this.logger.info('registered with development push service: ' + token);
+                core_1.IonicPlatform.emitter.emit('push:token', data);
+                if (typeof callback === 'function') {
+                    callback(new push_token_1.PushToken(_this._token));
+                }
+                _this.watch();
             }
-            self.watch();
-        }, function (error) {
-            self.logger.error('error connecting development push service: ' + error);
         });
     };
     /**
@@ -88,26 +82,26 @@ var PushDevService = (function () {
      * @return {void}
      */
     PushDevService.prototype.checkForNotifications = function () {
+        var _this = this;
         if (!this._token) {
-            return false;
+            return;
         }
-        var self = this;
-        var requestOptions = {
-            'method': 'GET',
-            'uri': self._serviceHost + '/development?token=' + self._token,
-            'json': true
-        };
-        request_1.request(requestOptions).then(function (result) {
-            if (result.payload.data.message) {
-                var message = {
-                    'message': result.payload.data.message,
-                    'title': 'DEVELOPMENT PUSH'
-                };
-                self.logger.warn('Ionic Push: Development Push received. Development pushes will not contain payload data.');
-                self._emitter.emit('ionic_push:notification', message);
+        this.client.get('/push/development')
+            .query({ 'token': this._token })
+            .end(function (err, res) {
+            if (err) {
+                _this.logger.error('unable to check for development pushes: ' + err);
             }
-        }, function (error) {
-            self.logger.error('unable to check for development pushes: ' + error);
+            else {
+                if (res.body.data.message) {
+                    var message = {
+                        'message': res.body.data.message,
+                        'title': 'DEVELOPMENT PUSH'
+                    };
+                    _this.logger.warn('Ionic Push: Development Push received. Development pushes will not contain payload data.');
+                    core_1.IonicPlatform.emitter.emit('push:notification', message);
+                }
+            }
         });
     };
     /**

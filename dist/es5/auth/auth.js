@@ -1,5 +1,9 @@
 "use strict";
-var request_1 = require('../core/request');
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var promise_1 = require('../core/promise');
 var core_1 = require('../core/core');
 var storage_1 = require('../core/storage');
@@ -8,18 +12,6 @@ var storage = new storage_1.PlatformLocalStorageStrategy();
 var sessionStorage = new storage_1.LocalSessionStorageStrategy();
 var authModules = {};
 var authToken;
-var authAPIBase = core_1.IonicPlatform.config.getURL('platform-api') + '/auth';
-var authAPIEndpoints = {
-    'login': function (provider) {
-        if (provider) {
-            return authAPIBase + '/login/' + provider;
-        }
-        return authAPIBase + '/login';
-    },
-    'signup': function () {
-        return authAPIBase + '/users';
-    }
-};
 var TempTokenContext = (function () {
     function TempTokenContext() {
     }
@@ -65,55 +57,17 @@ var TokenContext = (function () {
 }());
 exports.TokenContext = TokenContext;
 function storeToken(options, token) {
+    if (options === void 0) { options = {}; }
+    var originalToken = authToken;
     authToken = token;
-    if (typeof options === 'object' && options.remember) {
+    if (options.remember) {
         TokenContext.store();
     }
     else {
         TempTokenContext.store();
     }
+    core_1.IonicPlatform.emitter.emit('auth:token-changed', { 'old': originalToken, 'new': authToken });
 }
-var InAppBrowserFlow = (function () {
-    function InAppBrowserFlow(authOptions, options, data) {
-        var deferred = new promise_1.DeferredPromise();
-        if (!window || !window.cordova || !window.cordova.InAppBrowser) {
-            deferred.reject('Missing InAppBrowser plugin');
-        }
-        else {
-            request_1.request({
-                'uri': authAPIEndpoints.login(options.provider),
-                'method': options.uri_method || 'POST',
-                'json': {
-                    'app_id': core_1.IonicPlatform.config.get('app_id'),
-                    'callback': options.callback_uri || window.location.href,
-                    'data': data
-                }
-            }).then(function (data) {
-                var loc = data.payload.data.url;
-                var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no,clearcache=yes,clearsessioncache=yes');
-                tempBrowser.addEventListener('loadstart', function (data) {
-                    if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-                        var queryString = data.url.split('#')[0].split('?')[1];
-                        var paramParts = queryString.split('&');
-                        var params = {};
-                        for (var i = 0; i < paramParts.length; i++) {
-                            var part = paramParts[i].split('=');
-                            params[part[0]] = part[1];
-                        }
-                        storeToken(authOptions, params.token);
-                        tempBrowser.close();
-                        tempBrowser = null;
-                        deferred.resolve(true);
-                    }
-                });
-            }, function (err) {
-                deferred.reject(err);
-            });
-        }
-        return deferred.promise;
-    }
-    return InAppBrowserFlow;
-}());
 function getAuthErrorDetails(err) {
     var details = [];
     try {
@@ -136,6 +90,7 @@ var Auth = (function () {
         return false;
     };
     Auth.login = function (moduleId, options, data) {
+        if (options === void 0) { options = {}; }
         var deferred = new promise_1.DeferredPromise();
         var context = authModules[moduleId] || false;
         if (!context) {
@@ -180,28 +135,81 @@ var Auth = (function () {
     return Auth;
 }());
 exports.Auth = Auth;
-var BasicAuth = (function () {
-    function BasicAuth() {
+var AuthType = (function () {
+    function AuthType(client) {
+        this.client = client;
+        this.client = client;
     }
-    BasicAuth.authenticate = function (options, data) {
+    AuthType.prototype.inAppBrowserFlow = function (authOptions, options, data) {
+        if (authOptions === void 0) { authOptions = {}; }
         var deferred = new promise_1.DeferredPromise();
-        request_1.request({
-            'uri': authAPIEndpoints.login(),
-            'method': 'POST',
-            'json': {
+        if (!window || !window.cordova || !window.cordova.InAppBrowser) {
+            deferred.reject('Missing InAppBrowser plugin');
+        }
+        else {
+            var method = options.uri_method ? options.uri_method : 'POST';
+            var provider = options.provider ? '/' + options.provider : '';
+            this.client.request(method, "/auth/login" + provider)
+                .send({
                 'app_id': core_1.IonicPlatform.config.get('app_id'),
-                'email': data.email,
-                'password': data.password
+                'callback': options.callback_uri || window.location.href,
+                'data': data
+            })
+                .end(function (err, res) {
+                if (err) {
+                    deferred.reject(err);
+                }
+                else {
+                    var loc = res.payload.data.url;
+                    var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no,clearcache=yes,clearsessioncache=yes');
+                    tempBrowser.addEventListener('loadstart', function (data) {
+                        if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
+                            var queryString = data.url.split('#')[0].split('?')[1];
+                            var paramParts = queryString.split('&');
+                            var params = {};
+                            for (var i = 0; i < paramParts.length; i++) {
+                                var part = paramParts[i].split('=');
+                                params[part[0]] = part[1];
+                            }
+                            storeToken(authOptions, params.token);
+                            tempBrowser.close();
+                            tempBrowser = null;
+                            deferred.resolve(true);
+                        }
+                    });
+                }
+            });
+        }
+        return deferred.promise;
+    };
+    return AuthType;
+}());
+var BasicAuth = (function (_super) {
+    __extends(BasicAuth, _super);
+    function BasicAuth() {
+        _super.apply(this, arguments);
+    }
+    BasicAuth.prototype.authenticate = function (options, data) {
+        if (options === void 0) { options = {}; }
+        var deferred = new promise_1.DeferredPromise();
+        this.client.post('/auth/login')
+            .send({
+            'app_id': core_1.IonicPlatform.config.get('app_id'),
+            'email': data.email,
+            'password': data.password
+        })
+            .end(function (err, res) {
+            if (err) {
+                deferred.reject(err);
             }
-        }).then(function (data) {
-            storeToken(options, data.payload.data.token);
-            deferred.resolve(true);
-        }, function (err) {
-            deferred.reject(err);
+            else {
+                storeToken(options, res.body.data.token);
+                deferred.resolve(true);
+            }
         });
         return deferred.promise;
     };
-    BasicAuth.signup = function (data) {
+    BasicAuth.prototype.signup = function (data) {
         var deferred = new promise_1.DeferredPromise();
         var userData = {
             'app_id': core_1.IonicPlatform.config.get('app_id'),
@@ -221,92 +229,114 @@ var BasicAuth = (function () {
         if (data.custom) {
             userData.custom = data.custom;
         }
-        request_1.request({
-            'uri': authAPIEndpoints.signup(),
-            'method': 'POST',
-            'json': userData
-        }).then(function () {
-            deferred.resolve(true);
-        }, function (err) {
-            var errors = [];
-            var details = getAuthErrorDetails(err);
-            if (details instanceof Array) {
-                for (var i = 0; i < details.length; i++) {
-                    var detail = details[i];
-                    if (typeof detail === 'object') {
-                        if (detail.error_type) {
-                            errors.push(detail.error_type + '_' + detail.parameter);
+        this.client.post('/auth/users')
+            .send(userData)
+            .end(function (err, res) {
+            if (err) {
+                var errors = [];
+                var details = getAuthErrorDetails(err);
+                if (details instanceof Array) {
+                    for (var i = 0; i < details.length; i++) {
+                        var detail = details[i];
+                        if (typeof detail === 'object') {
+                            if (detail.error_type) {
+                                errors.push(detail.error_type + '_' + detail.parameter);
+                            }
                         }
                     }
                 }
+                deferred.reject({ 'errors': errors });
             }
-            deferred.reject({ 'errors': errors });
+            else {
+                deferred.resolve(true);
+            }
         });
         return deferred.promise;
     };
     return BasicAuth;
-}());
-var CustomAuth = (function () {
+}(AuthType));
+var CustomAuth = (function (_super) {
+    __extends(CustomAuth, _super);
     function CustomAuth() {
+        _super.apply(this, arguments);
     }
-    CustomAuth.authenticate = function (options, data) {
-        return new InAppBrowserFlow(options, { 'provider': 'custom' }, data);
+    CustomAuth.prototype.authenticate = function (options, data) {
+        if (options === void 0) { options = {}; }
+        return this.inAppBrowserFlow(options, { 'provider': 'custom' }, data);
     };
     return CustomAuth;
-}());
-var TwitterAuth = (function () {
+}(AuthType));
+var TwitterAuth = (function (_super) {
+    __extends(TwitterAuth, _super);
     function TwitterAuth() {
+        _super.apply(this, arguments);
     }
-    TwitterAuth.authenticate = function (options, data) {
-        return new InAppBrowserFlow(options, { 'provider': 'twitter' }, data);
+    TwitterAuth.prototype.authenticate = function (options, data) {
+        if (options === void 0) { options = {}; }
+        return this.inAppBrowserFlow(options, { 'provider': 'twitter' }, data);
     };
     return TwitterAuth;
-}());
-var FacebookAuth = (function () {
+}(AuthType));
+var FacebookAuth = (function (_super) {
+    __extends(FacebookAuth, _super);
     function FacebookAuth() {
+        _super.apply(this, arguments);
     }
-    FacebookAuth.authenticate = function (options, data) {
-        return new InAppBrowserFlow(options, { 'provider': 'facebook' }, data);
+    FacebookAuth.prototype.authenticate = function (options, data) {
+        if (options === void 0) { options = {}; }
+        return this.inAppBrowserFlow(options, { 'provider': 'facebook' }, data);
     };
     return FacebookAuth;
-}());
-var GithubAuth = (function () {
+}(AuthType));
+var GithubAuth = (function (_super) {
+    __extends(GithubAuth, _super);
     function GithubAuth() {
+        _super.apply(this, arguments);
     }
-    GithubAuth.authenticate = function (options, data) {
-        return new InAppBrowserFlow(options, { 'provider': 'github' }, data);
+    GithubAuth.prototype.authenticate = function (options, data) {
+        if (options === void 0) { options = {}; }
+        return this.inAppBrowserFlow(options, { 'provider': 'github' }, data);
     };
     return GithubAuth;
-}());
-var GoogleAuth = (function () {
+}(AuthType));
+var GoogleAuth = (function (_super) {
+    __extends(GoogleAuth, _super);
     function GoogleAuth() {
+        _super.apply(this, arguments);
     }
-    GoogleAuth.authenticate = function (options, data) {
-        return new InAppBrowserFlow(options, { 'provider': 'google' }, data);
+    GoogleAuth.prototype.authenticate = function (options, data) {
+        if (options === void 0) { options = {}; }
+        return this.inAppBrowserFlow(options, { 'provider': 'google' }, data);
     };
     return GoogleAuth;
-}());
-var InstagramAuth = (function () {
+}(AuthType));
+var InstagramAuth = (function (_super) {
+    __extends(InstagramAuth, _super);
     function InstagramAuth() {
+        _super.apply(this, arguments);
     }
-    InstagramAuth.authenticate = function (options, data) {
-        return new InAppBrowserFlow(options, { 'provider': 'instagram' }, data);
+    InstagramAuth.prototype.authenticate = function (options, data) {
+        if (options === void 0) { options = {}; }
+        return this.inAppBrowserFlow(options, { 'provider': 'instagram' }, data);
     };
     return InstagramAuth;
-}());
-var LinkedInAuth = (function () {
+}(AuthType));
+var LinkedInAuth = (function (_super) {
+    __extends(LinkedInAuth, _super);
     function LinkedInAuth() {
+        _super.apply(this, arguments);
     }
-    LinkedInAuth.authenticate = function (options, data) {
-        return new InAppBrowserFlow(options, { 'provider': 'linkedin' }, data);
+    LinkedInAuth.prototype.authenticate = function (options, data) {
+        if (options === void 0) { options = {}; }
+        return this.inAppBrowserFlow(options, { 'provider': 'linkedin' }, data);
     };
     return LinkedInAuth;
-}());
-Auth.register('basic', BasicAuth);
-Auth.register('custom', CustomAuth);
-Auth.register('facebook', FacebookAuth);
-Auth.register('github', GithubAuth);
-Auth.register('google', GoogleAuth);
-Auth.register('instagram', InstagramAuth);
-Auth.register('linkedin', LinkedInAuth);
-Auth.register('twitter', TwitterAuth);
+}(AuthType));
+Auth.register('basic', new BasicAuth(core_1.IonicPlatform.client));
+Auth.register('custom', new CustomAuth(core_1.IonicPlatform.client));
+Auth.register('facebook', new FacebookAuth(core_1.IonicPlatform.client));
+Auth.register('github', new GithubAuth(core_1.IonicPlatform.client));
+Auth.register('google', new GoogleAuth(core_1.IonicPlatform.client));
+Auth.register('instagram', new InstagramAuth(core_1.IonicPlatform.client));
+Auth.register('linkedin', new LinkedInAuth(core_1.IonicPlatform.client));
+Auth.register('twitter', new TwitterAuth(core_1.IonicPlatform.client));

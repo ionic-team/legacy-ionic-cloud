@@ -2,25 +2,21 @@
 var promise_1 = require('../core/promise');
 var logger_1 = require('../core/logger');
 var core_1 = require('../core/core');
-var events_1 = require('../core/events');
 var NO_PLUGIN = 'IONIC_DEPLOY_MISSING_PLUGIN';
 var INITIAL_DELAY = 1 * 5 * 1000;
 var WATCH_INTERVAL = 1 * 60 * 1000;
 var Deploy = (function () {
     function Deploy() {
         var self = this;
-        this.logger = new logger_1.Logger({
-            'prefix': 'Ionic Deploy:'
-        });
+        this.logger = new logger_1.Logger('Ionic Deploy:');
         this._plugin = false;
         this._isReady = false;
         this._channelTag = 'production';
-        this._emitter = new events_1.EventEmitter();
         this.logger.info('init');
         core_1.IonicPlatform.onReady(function () {
             self.initialize();
             self._isReady = true;
-            self._emitter.emit('ionic_deploy:ready');
+            core_1.IonicPlatform.emitter.emit('deploy:ready');
         });
     }
     /**
@@ -382,7 +378,7 @@ var Deploy = (function () {
             callback(self);
         }
         else {
-            self._emitter.on('ionic_deploy:ready', function () {
+            core_1.IonicPlatform.emitter.on('deploy:ready', function () {
                 callback(self);
             });
         }

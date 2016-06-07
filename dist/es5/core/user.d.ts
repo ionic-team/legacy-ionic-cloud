@@ -31,7 +31,7 @@ export declare class User {
     isValid(): boolean;
     getAPIFormat(): any;
     getFormat(format: any): any;
-    migrate(): boolean;
+    migrate(): void;
     delete(): PromiseWithNotify<any>;
     _store(): void;
     _delete(): void;

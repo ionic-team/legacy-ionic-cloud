@@ -6,7 +6,7 @@ export interface ISettings {
     dev_locations?: any;
     [key: string]: any;
 }
-export declare class IonicPlatformConfig {
+export declare class Config {
     private settings;
     private locations;
     constructor();
@@ -14,4 +14,4 @@ export declare class IonicPlatformConfig {
     get(name: string): any;
     getURL(name: string): string;
 }
-export declare var Config: IonicPlatformConfig;
+export declare let config: Config;

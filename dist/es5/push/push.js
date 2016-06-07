@@ -2,29 +2,18 @@
 var app_1 = require('../core/app');
 var core_1 = require('../core/core');
 var logger_1 = require('../core/logger');
-var events_1 = require('../core/events');
-var request_1 = require('../core/request');
 var promise_1 = require('../core/promise');
 var user_1 = require('../core/user');
 var push_token_1 = require('./push-token');
 var push_message_1 = require('./push-message');
 var push_dev_1 = require('./push-dev');
-var DEFER_INIT = 'DEFER_INIT';
-var pushAPIBase = core_1.IonicPlatform.config.getURL('platform-api') + '/push';
-var pushAPIEndpoints = {
-    'saveToken': function () {
-        return pushAPIBase + '/tokens';
-    },
-    'invalidateToken': function () {
-        return pushAPIBase + '/tokens/invalidate';
-    }
-};
 var Push = (function () {
     function Push(config) {
+        var _this = this;
+        if (config === void 0) { config = {}; }
         this._token = null;
-        this.logger = new logger_1.Logger({
-            'prefix': 'Ionic Push:'
-        });
+        this.client = core_1.IonicPlatform.client;
+        this.logger = new logger_1.Logger('Ionic Push:');
         var app = new app_1.App(core_1.IonicPlatform.config.get('app_id'), core_1.IonicPlatform.config.get('api_key'));
         app.devPush = core_1.IonicPlatform.config.get('dev_push');
         app.gcmKey = core_1.IonicPlatform.config.get('gcm_key');
@@ -33,7 +22,7 @@ var Push = (function () {
             this.logger.error('no app_id found. (http://docs.ionic.io/docs/io-install)');
             return;
         }
-        else if (core_1.IonicPlatform.isAndroidDevice() && !app.devPush && !app.gcmKey) {
+        else if (core_1.IonicPlatform.device.isAndroid() && !app.devPush && !app.gcmKey) {
             this.logger.error('GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
             return;
         }
@@ -48,18 +37,16 @@ var Push = (function () {
         this._blockRegistration = false;
         this._blockSaveToken = false;
         this._registered = false;
-        this._emitter = new events_1.EventEmitter();
         this._plugin = null;
-        if (config !== DEFER_INIT) {
-            var self = this;
+        if (config.deferInit) {
             core_1.IonicPlatform.onReady(function () {
-                self.init(config);
+                _this.init(config);
             });
         }
     }
     Object.defineProperty(Push.prototype, "token", {
         set: function (val) {
-            var storage = core_1.IonicPlatform.getStorage();
+            var storage = core_1.IonicPlatform.storage;
             if (val instanceof push_token_1.PushToken) {
                 storage.storeObject('ionic_io_push_token', { 'token': val.token });
             }
@@ -69,7 +56,7 @@ var Push = (function () {
         configurable: true
     });
     Push.prototype.getStorageToken = function () {
-        var storage = core_1.IonicPlatform.getStorage();
+        var storage = core_1.IonicPlatform.storage;
         var token = storage.retrieveObject('ionic_io_push_token');
         if (token) {
             return new push_token_1.PushToken(token.token);
@@ -77,7 +64,7 @@ var Push = (function () {
         return null;
     };
     Push.prototype.clearStorageToken = function () {
-        var storage = core_1.IonicPlatform.getStorage();
+        var storage = core_1.IonicPlatform.storage;
         storage.deleteObject('ionic_io_push_token');
     };
     /**
@@ -94,25 +81,18 @@ var Push = (function () {
      * @return {Push} returns the called Push instantiation
      */
     Push.prototype.init = function (config) {
+        if (config === void 0) { config = {}; }
         this._getPushPlugin();
-        if (typeof config === 'undefined') {
-            config = {};
-        }
-        if (typeof config !== 'object') {
-            this.logger.error('init() requires a valid config object.');
-            return;
-        }
-        var self = this;
         if (!config.pluginConfig) {
             config.pluginConfig = {};
         }
-        if (core_1.IonicPlatform.isAndroidDevice()) {
+        if (core_1.IonicPlatform.device.isAndroid()) {
             // inject gcm key for PushPlugin
             if (!config.pluginConfig.android) {
                 config.pluginConfig.android = {};
             }
             if (!config.pluginConfig.android.senderId) {
-                config.pluginConfig.android.senderID = self.app.gcmKey;
+                config.pluginConfig.android.senderID = this.app.gcmKey;
             }
         }
         // Store Callbacks
@@ -127,11 +107,11 @@ var Push = (function () {
         }
         this._config = config;
         this._isReady = true;
-        this._emitter.emit('ionic_push:ready', { 'config': this._config });
+        core_1.IonicPlatform.emitter.emit('push:ready', { 'config': this._config });
         return this;
     };
     Push.prototype.saveToken = function (token, options) {
-        var self = this;
+        var _this = this;
         var deferred = new promise_1.DeferredPromise();
         var opts = options || {};
         if (token.token) {
@@ -147,26 +127,27 @@ var Push = (function () {
                 tokenData.user_id = user.id;
             }
         }
-        if (!self._blockSaveToken) {
-            request_1.request({
-                'uri': pushAPIEndpoints.saveToken(),
-                'method': 'POST',
-                'json': tokenData
-            }).then(function (result) {
-                self._blockSaveToken = false;
-                self.logger.info('saved push token: ' + token);
-                if (tokenData.user_id) {
-                    self.logger.info('added push token to user: ' + tokenData.user_id);
+        if (!this._blockSaveToken) {
+            this.client.post('/push/tokens')
+                .send(tokenData)
+                .end(function (err, res) {
+                if (err) {
+                    _this._blockSaveToken = false;
+                    _this.logger.error(err);
+                    deferred.reject(err);
                 }
-                deferred.resolve(result);
-            }, function (error) {
-                self._blockSaveToken = false;
-                self.logger.error(error);
-                deferred.reject(error);
+                else {
+                    _this._blockSaveToken = false;
+                    _this.logger.info('saved push token: ' + token);
+                    if (tokenData.user_id) {
+                        _this.logger.info('added push token to user: ' + tokenData.user_id);
+                    }
+                    deferred.resolve(true);
+                }
             });
         }
         else {
-            self.logger.info('a token save operation is already in progress.');
+            this.logger.info('a token save operation is already in progress.');
             deferred.reject(false);
         }
         return deferred.promise;
@@ -182,7 +163,7 @@ var Push = (function () {
         var self = this;
         if (this._blockRegistration) {
             self.logger.info('another registration is already in progress.');
-            return false;
+            return;
         }
         this._blockRegistration = true;
         this.onReady(function () {
@@ -212,17 +193,15 @@ var Push = (function () {
     };
     /**
      * Invalidate the current GCM/APNS token
-     *
-     * @return {Promise} the unregister result
      */
     Push.prototype.unregister = function () {
         var self = this;
         var deferred = new promise_1.DeferredPromise();
         var platform = null;
-        if (core_1.IonicPlatform.isAndroidDevice()) {
+        if (core_1.IonicPlatform.device.isAndroid()) {
             platform = 'android';
         }
-        else if (core_1.IonicPlatform.isIOSDevice()) {
+        else if (core_1.IonicPlatform.device.isIOS()) {
             platform = 'ios';
         }
         if (!platform) {
@@ -232,22 +211,23 @@ var Push = (function () {
             if (this._plugin) {
                 this._plugin.unregister(function () { }, function () { });
             }
-            request_1.request({
-                'uri': pushAPIEndpoints.invalidateToken(),
-                'method': 'POST',
-                'json': {
-                    'platform': platform,
-                    'token': self.getStorageToken().token
+            this.client.post('/push/tokens/invalidate')
+                .send({
+                'platform': platform,
+                'token': self.getStorageToken().token
+            })
+                .end(function (err, res) {
+                if (err) {
+                    self._blockUnregister = false;
+                    self.logger.error(err);
+                    deferred.reject(err);
                 }
-            }).then(function (result) {
-                self._blockUnregister = false;
-                self.logger.info('unregistered push token: ' + self.getStorageToken().token);
-                self.clearStorageToken();
-                deferred.resolve(result);
-            }, function (error) {
-                self._blockUnregister = false;
-                self.logger.error(error);
-                deferred.reject(error);
+                else {
+                    self._blockUnregister = false;
+                    self.logger.info('unregistered push token: ' + self.getStorageToken().token);
+                    self.clearStorageToken();
+                    deferred.resolve(res);
+                }
             });
         }
         else {
@@ -380,9 +360,9 @@ var Push = (function () {
             }
             else {
                 if (!this._registered) {
-                    this._emitter.on('ionic_push:token', this._debugRegistrationCallback());
-                    this._emitter.on('ionic_push:notification', this._debugNotificationCallback());
-                    this._emitter.on('ionic_push:error', this._debugErrorCallback());
+                    core_1.IonicPlatform.emitter.on('push:token', this._debugRegistrationCallback());
+                    core_1.IonicPlatform.emitter.on('push:notification', this._debugNotificationCallback());
+                    core_1.IonicPlatform.emitter.on('push:error', this._debugErrorCallback());
                 }
             }
         }
@@ -400,9 +380,9 @@ var Push = (function () {
         }
         else {
             if (!this._registered) {
-                this._emitter.on('ionic_push:token', this._registerCallback());
-                this._emitter.on('ionic_push:notification', this._notificationCallback());
-                this._emitter.on('ionic_push:error', this._errorCallback());
+                core_1.IonicPlatform.emitter.on('push:token', this._registerCallback());
+                core_1.IonicPlatform.emitter.on('push:notification', this._notificationCallback());
+                core_1.IonicPlatform.emitter.on('push:error', this._errorCallback());
             }
         }
     };
@@ -416,7 +396,7 @@ var Push = (function () {
      */
     Push.prototype._processNotification = function (notification) {
         this._notification = notification;
-        this._emitter.emit('ionic_push:processNotification', notification);
+        core_1.IonicPlatform.emitter.emit('push:processNotification', notification);
     };
     /* Deprecated in favor of `getPushPlugin` */
     Push.prototype._getPushPlugin = function () {
@@ -428,7 +408,7 @@ var Push = (function () {
         catch (e) {
             self.logger.info('something went wrong looking for the PushNotification plugin');
         }
-        if (!self.app.devPush && !PushPlugin && (core_1.IonicPlatform.isIOSDevice() || core_1.IonicPlatform.isAndroidDevice())) {
+        if (!self.app.devPush && !PushPlugin && (core_1.IonicPlatform.device.isIOS() || core_1.IonicPlatform.device.isAndroid())) {
             self.logger.error('PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
         }
         return PushPlugin;
@@ -454,7 +434,7 @@ var Push = (function () {
             callback(self);
         }
         else {
-            self._emitter.on('ionic_push:ready', function () {
+            core_1.IonicPlatform.emitter.on('push:ready', function () {
                 callback(self);
             });
         }

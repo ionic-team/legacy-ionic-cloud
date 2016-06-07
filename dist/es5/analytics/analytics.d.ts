@@ -28,6 +28,6 @@ export declare class Analytics {
      */
     register(opts?: any): PromiseWithNotify<any>;
     setGlobalProperties(prop: any): void;
-    track(eventCollection: any, eventData: any): boolean;
+    track(eventCollection: any, eventData: any): void;
     unsetGlobalProperty(prop: any): void;
 }

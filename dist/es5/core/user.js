@@ -1,6 +1,5 @@
 "use strict";
 var auth_1 = require('../auth/auth');
-var request_1 = require('./request');
 var promise_1 = require('./promise');
 var core_1 = require('./core');
 var storage_1 = require('./storage');
@@ -8,24 +7,6 @@ var logger_1 = require('./logger');
 var data_types_1 = require('./data-types');
 var AppUserContext = null;
 var storage = new storage_1.Storage();
-var userAPIBase = core_1.IonicPlatform.config.getURL('platform-api') + '/auth/users';
-var userAPIEndpoints = {
-    'self': function () {
-        return userAPIBase + '/self';
-    },
-    'get': function (userModel) {
-        return userAPIBase + '/' + userModel.id;
-    },
-    'remove': function (userModel) {
-        return userAPIBase + '/' + userModel.id;
-    },
-    'save': function (userModel) {
-        return userAPIBase + '/' + userModel.id;
-    },
-    'passwordReset': function (userModel) {
-        return userAPIBase + '/' + userModel.id + '/password-reset';
-    }
-};
 var UserContext = (function () {
     function UserContext() {
     }
@@ -117,9 +98,7 @@ var UserData = (function () {
 exports.UserData = UserData;
 var User = (function () {
     function User() {
-        this.logger = new logger_1.Logger({
-            'prefix': 'Ionic User:'
-        });
+        this.logger = new logger_1.Logger('Ionic User:');
         this._blockLoad = false;
         this._blockSave = false;
         this._blockDelete = false;
@@ -175,24 +154,24 @@ var User = (function () {
         var tempUser = new User();
         if (!tempUser._blockLoad) {
             tempUser._blockLoad = true;
-            request_1.request({
-                'uri': userAPIEndpoints.self(),
-                'method': 'GET',
-                'json': true
-            }).then(function (result) {
-                tempUser._blockLoad = false;
-                tempUser.logger.info('loaded user');
-                // set the custom data
-                tempUser.id = result.payload.data.uuid;
-                tempUser.data = new UserData(result.payload.data.custom);
-                tempUser.details = result.payload.data.details;
-                tempUser._fresh = false;
-                User.current(tempUser);
-                deferred.resolve(tempUser);
-            }, function (error) {
-                tempUser._blockLoad = false;
-                tempUser.logger.error(error);
-                deferred.reject(error);
+            core_1.IonicPlatform.client.get('/auth/users/self')
+                .end(function (err, res) {
+                if (err) {
+                    tempUser._blockLoad = false;
+                    tempUser.logger.error(err);
+                    deferred.reject(err);
+                }
+                else {
+                    tempUser._blockLoad = false;
+                    tempUser.logger.info('loaded user');
+                    // set the custom data
+                    tempUser.id = res.body.data.uuid;
+                    tempUser.data = new UserData(res.body.data.custom);
+                    tempUser.details = res.body.data.details;
+                    tempUser._fresh = false;
+                    User.current(tempUser);
+                    deferred.resolve(tempUser);
+                }
             });
         }
         else {
@@ -207,22 +186,22 @@ var User = (function () {
         tempUser.id = id;
         if (!tempUser._blockLoad) {
             tempUser._blockLoad = true;
-            request_1.request({
-                'uri': userAPIEndpoints.get(tempUser),
-                'method': 'GET',
-                'json': true
-            }).then(function (result) {
-                tempUser._blockLoad = false;
-                tempUser.logger.info('loaded user');
-                // set the custom data
-                tempUser.data = new UserData(result.payload.data.custom);
-                tempUser.details = result.payload.data.details;
-                tempUser._fresh = false;
-                deferred.resolve(tempUser);
-            }, function (error) {
-                tempUser._blockLoad = false;
-                tempUser.logger.error(error);
-                deferred.reject(error);
+            core_1.IonicPlatform.client.get("/auth/users/" + tempUser.id)
+                .end(function (err, res) {
+                if (err) {
+                    tempUser._blockLoad = false;
+                    tempUser.logger.error(err);
+                    deferred.reject(err);
+                }
+                else {
+                    tempUser._blockLoad = false;
+                    tempUser.logger.info('loaded user');
+                    // set the custom data
+                    tempUser.data = new UserData(res.body.data.custom);
+                    tempUser.details = res.body.data.details;
+                    tempUser._fresh = false;
+                    deferred.resolve(tempUser);
+                }
             });
         }
         else {
@@ -260,16 +239,15 @@ var User = (function () {
     };
     User.prototype.migrate = function () {
         var rawData = UserContext.getRawLegacyData();
-        if (rawData.__ionic_user_migrated) {
-            return true;
-        }
         if (rawData) {
-            var currentUser = Ionic.User.current();
-            var userData = new UserData(rawData.data.data);
-            for (var key in userData.data) {
-                currentUser.set(key, userData.data[key]);
+            if (!rawData.__ionic_user_migrated) {
+                var currentUser = Ionic.User.current();
+                var userData = new UserData(rawData.data.data);
+                for (var key in userData.data) {
+                    currentUser.set(key, userData.data[key]);
+                }
+                currentUser.set('__ionic_user_migrated', true);
             }
-            currentUser.set('__ionic_user_migrated', true);
         }
     };
     User.prototype.delete = function () {
@@ -279,18 +257,18 @@ var User = (function () {
             if (!self._blockDelete) {
                 self._blockDelete = true;
                 self._delete();
-                request_1.request({
-                    'uri': userAPIEndpoints.remove(this),
-                    'method': 'DELETE',
-                    'json': true
-                }).then(function (result) {
-                    self._blockDelete = false;
-                    self.logger.info('deleted ' + self);
-                    deferred.resolve(result);
-                }, function (error) {
-                    self._blockDelete = false;
-                    self.logger.error(error);
-                    deferred.reject(error);
+                core_1.IonicPlatform.client.delete("/auth/users/" + this.id)
+                    .end(function (err, res) {
+                    if (err) {
+                        self._blockDelete = false;
+                        self.logger.error(err);
+                        deferred.reject(err);
+                    }
+                    else {
+                        self._blockDelete = false;
+                        self.logger.info('deleted ' + self);
+                        deferred.resolve(res);
+                    }
                 });
             }
             else {
@@ -319,24 +297,25 @@ var User = (function () {
         if (!self._blockSave) {
             self._blockSave = true;
             self._store();
-            request_1.request({
-                'uri': userAPIEndpoints.save(this),
-                'method': 'PATCH',
-                'json': self.getFormat('api-save')
-            }).then(function (result) {
-                self._dirty = false;
-                if (!self.isFresh()) {
-                    self._unset = {};
+            core_1.IonicPlatform.client.patch("/auth/users/" + this.id)
+                .send(self.getFormat('api-save'))
+                .end(function (err, res) {
+                if (err) {
+                    self._dirty = true;
+                    self._blockSave = false;
+                    self.logger.error(err);
+                    deferred.reject(err);
                 }
-                self._fresh = false;
-                self._blockSave = false;
-                self.logger.info('saved user');
-                deferred.resolve(result);
-            }, function (error) {
-                self._dirty = true;
-                self._blockSave = false;
-                self.logger.error(error);
-                deferred.reject(error);
+                else {
+                    self._dirty = false;
+                    if (!self.isFresh()) {
+                        self._unset = {};
+                    }
+                    self._fresh = false;
+                    self._blockSave = false;
+                    self.logger.info('saved user');
+                    deferred.resolve(res);
+                }
             });
         }
         else {
@@ -348,15 +327,16 @@ var User = (function () {
     User.prototype.resetPassword = function () {
         var self = this;
         var deferred = new promise_1.DeferredPromise();
-        request_1.request({
-            'uri': userAPIEndpoints.passwordReset(this),
-            'method': 'POST'
-        }).then(function (result) {
-            self.logger.info('password reset for user');
-            deferred.resolve(result);
-        }, function (error) {
-            self.logger.error(error);
-            deferred.reject(error);
+        core_1.IonicPlatform.client.post("/auth/users/" + this.id + "/password-reset")
+            .end(function (err, res) {
+            if (err) {
+                self.logger.error(err);
+                deferred.reject(err);
+            }
+            else {
+                self.logger.info('password reset for user');
+                deferred.resolve(res);
+            }
         });
         return deferred.promise;
     };

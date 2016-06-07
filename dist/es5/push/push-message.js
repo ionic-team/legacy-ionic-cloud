@@ -1,28 +1,7 @@
 "use strict";
-var PushMessageAppStatus = (function () {
-    function PushMessageAppStatus() {
-        this.asleep = false;
-        this.closed = false;
-    }
-    Object.defineProperty(PushMessageAppStatus.prototype, "wasAsleep", {
-        get: function () {
-            return this.asleep;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PushMessageAppStatus.prototype, "wasClosed", {
-        get: function () {
-            return this.closed;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return PushMessageAppStatus;
-}());
-exports.PushMessageAppStatus = PushMessageAppStatus;
 var PushMessage = (function () {
     function PushMessage(raw) {
+        this.app = {};
         this._raw = raw || {};
         if (!this._raw.additionalData) {
             // this should only hit if we are serving up a development push
@@ -32,7 +11,6 @@ var PushMessage = (function () {
             };
         }
         this._payload = null;
-        this.app = null;
         this.text = null;
         this.title = null;
         this.count = null;
@@ -57,7 +35,6 @@ var PushMessage = (function () {
         this.count = this._raw.count || null;
         this.sound = this._raw.sound || null;
         this.image = this._raw.image || null;
-        this.app = new PushMessageAppStatus();
         if (!this._raw.additionalData.foreground) {
             this.app.asleep = true;
         }

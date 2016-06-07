@@ -1,14 +1,24 @@
 import { App } from '../core/app';
+import { Client } from '../core/client';
 import { Logger } from '../core/logger';
 import { PromiseWithNotify } from '../core/promise';
 import { PushToken } from './push-token';
+import { PushMessage } from './push-message';
+export interface PushOptions {
+    debug?: boolean;
+    deferInit?: boolean;
+    pluginConfig?: any;
+    onRegister?: (token: PushToken) => any;
+    onNotification?: (message: PushMessage) => any;
+    onError?: (err) => any;
+}
 export declare class Push {
+    client: Client;
     logger: Logger;
     app: App;
     registerCallback: any;
     notificationCallback: any;
     errorCallback: any;
-    private _emitter;
     private _debug;
     private _isReady;
     private _blockRegistration;
@@ -20,7 +30,7 @@ export declare class Push {
     private _plugin;
     private _config;
     private _token;
-    constructor(config: any);
+    constructor(config?: PushOptions);
     token: any;
     getStorageToken(): PushToken;
     clearStorageToken(): void;
@@ -37,7 +47,7 @@ export declare class Push {
      * @param {object} config Configuration object
      * @return {Push} returns the called Push instantiation
      */
-    init(config: any): this;
+    init(config?: PushOptions): this;
     saveToken(token: any, options: any): PromiseWithNotify<any>;
     /**
      * Registers the device with GCM/APNS to get a device token
@@ -45,11 +55,9 @@ export declare class Push {
      * @param {function} callback Callback Function
      * @return {void}
      */
-    register(callback: (token: PushToken) => void): boolean;
+    register(callback: (token: PushToken) => void): void;
     /**
      * Invalidate the current GCM/APNS token
-     *
-     * @return {Promise} the unregister result
      */
     unregister(): PromiseWithNotify<any>;
     /**

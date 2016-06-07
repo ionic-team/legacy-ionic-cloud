@@ -5,7 +5,6 @@ export declare class Deploy {
     private _plugin;
     private _isReady;
     private _channelTag;
-    private _emitter;
     private _checkTimeout;
     constructor();
     /**

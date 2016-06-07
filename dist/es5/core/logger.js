@@ -1,50 +1,24 @@
 "use strict";
 var Logger = (function () {
-    function Logger(opts) {
-        var options = opts || {};
-        this._silence = false;
-        this._prefix = null;
-        this._options = options;
-        this._bootstrap();
+    function Logger(prefix) {
+        this.prefix = prefix;
+        this.silent = false;
+        this.outfn = console.log.bind(console);
+        this.errfn = console.error.bind(console);
+        this.prefix = prefix;
     }
-    Logger.prototype.silence = function () {
-        this._silence = true;
-    };
-    Logger.prototype.verbose = function () {
-        this._silence = false;
-    };
-    Logger.prototype._bootstrap = function () {
-        if (this._options.prefix) {
-            this._prefix = this._options.prefix;
-        }
-    };
     Logger.prototype.info = function (data) {
-        if (!this._silence) {
-            if (this._prefix) {
-                console.log(this._prefix, data);
-            }
-            else {
-                console.log(data);
-            }
+        if (!this.silent) {
+            this.outfn(this.prefix, data);
         }
     };
     Logger.prototype.warn = function (data) {
-        if (!this._silence) {
-            if (this._prefix) {
-                console.log(this._prefix, data);
-            }
-            else {
-                console.log(data);
-            }
+        if (!this.silent) {
+            this.outfn(this.prefix, data);
         }
     };
     Logger.prototype.error = function (data) {
-        if (this._prefix) {
-            console.error(this._prefix, data);
-        }
-        else {
-            console.error(data);
-        }
+        this.errfn(this.prefix, data);
     };
     return Logger;
 }());
