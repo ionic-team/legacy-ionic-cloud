@@ -1,2 +1,3 @@
-dist
 typings
+*.js
+*.d.ts
