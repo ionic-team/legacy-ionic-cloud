@@ -23,8 +23,6 @@
   "bugs": {
     "url": "https://github.com/driftyco/ionic-platform-web-client/issues"
   },
-  "main": "dist/es5/index.js",
-  "typings": "dist/es5/index.d.ts",
   "homepage": "https://github.com/driftyco/ionic-platform-web-client#readme",
   "dependencies": {
     "es6-promise": "^3.2.1",
