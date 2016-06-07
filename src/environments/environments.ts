@@ -1,12 +1,6 @@
 import { IonicPlatform } from '../core/core';
 import { DeferredPromise, PromiseWithNotify } from '../core/promise';
 
-var envAPIEndpoints = {
-  'getEnv': function(appId, tag) {
-    return '/apps/' + appId + '/env/' + tag;
-  }
-};
-
 export class Environment {
   /**
    * Environment constructor
@@ -20,9 +14,9 @@ export class Environment {
    * Load an environment, calls loadEnvFromAPI
    *
    * @param {string} tag Environment tag
-   * @return {DeferredPromise} will resolve/reject with the config object or error
+   * @return {PromiseWithNotify} will resolve/reject with the config object or error
    */
-  public load(tag) {
+  public load(tag): PromiseWithNotify<any> {
     var deferred = new DeferredPromise();
 
     this.loadEnvFromAPI(tag).then(function(env) {
@@ -38,9 +32,9 @@ export class Environment {
    * Load an environment from the API
    *
    * @param {string} tag Environment tag
-   * @return {DeferredPromise} will resolve/reject with the config object or error
+   * @return {PromiseWithNotify} will resolve/reject with the config object or error
    */
-  private loadEnvFromAPI(tag) {
+  private loadEnvFromAPI(tag): PromiseWithNotify<any> {
     var deferred = new DeferredPromise();
     let appId = IonicPlatform.config.get('app_id');
 
