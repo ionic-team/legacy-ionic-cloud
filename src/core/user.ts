@@ -259,11 +259,10 @@ export class User {
   }
 
   getFormat(format) {
-    var self = this;
     var formatted = null;
     switch (format) {
       case 'api-save':
-        formatted = self.getAPIFormat();
+        formatted = this.getAPIFormat();
         break;
     }
     return formatted;
@@ -284,22 +283,21 @@ export class User {
   }
 
   delete(): PromiseWithNotify<any> {
-    var self = this;
     var deferred = new DeferredPromise();
 
-    if (self.isValid()) {
-      if (!self._blockDelete) {
-        self._blockDelete = true;
-        self._delete();
+    if (this.isValid()) {
+      if (!this._blockDelete) {
+        this._blockDelete = true;
+        this._delete();
         IonicPlatform.client.delete(`/auth/users/${this.id}`)
           .end((err, res) => {
             if (err) {
-              self._blockDelete = false;
+              this._blockDelete = false;
               IonicPlatform.logger.error('Ionic User:', err);
               deferred.reject(err);
             } else {
-              self._blockDelete = false;
-              IonicPlatform.logger.info('Ionic User: deleted ' + self);
+              this._blockDelete = false;
+              IonicPlatform.logger.info('Ionic User: deleted ' + this);
               deferred.resolve(res);
             }
           });
@@ -327,27 +325,26 @@ export class User {
   }
 
   save() {
-    var self = this;
     var deferred = new DeferredPromise();
 
-    if (!self._blockSave) {
-      self._blockSave = true;
-      self._store();
+    if (!this._blockSave) {
+      this._blockSave = true;
+      this._store();
       IonicPlatform.client.patch(`/auth/users/${this.id}`)
-        .send(self.getFormat('api-save'))
+        .send(this.getFormat('api-save'))
         .end((err, res) => {
           if (err) {
-            self._dirty = true;
-            self._blockSave = false;
+            this._dirty = true;
+            this._blockSave = false;
             IonicPlatform.logger.error('Ionic User:', err);
             deferred.reject(err);
           } else {
-            self._dirty = false;
-            if (!self.isFresh()) {
-              self._unset = {};
+            this._dirty = false;
+            if (!this.isFresh()) {
+              this._unset = {};
             }
-            self._fresh = false;
-            self._blockSave = false;
+            this._fresh = false;
+            this._blockSave = false;
             IonicPlatform.logger.info('Ionic User: saved user');
             deferred.resolve(res);
           }
@@ -361,7 +358,6 @@ export class User {
   }
 
   resetPassword() {
-    var self = this;
     var deferred = new DeferredPromise();
 
     IonicPlatform.client.post(`/auth/users/${this.id}/password-reset`)

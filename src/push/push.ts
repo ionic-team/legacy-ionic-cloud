@@ -227,7 +227,6 @@ export class Push {
    * Invalidate the current GCM/APNS token
    */
   unregister(): PromiseWithNotify<any> {
-    var self = this;
     var deferred = new DeferredPromise();
     var platform = null;
 
@@ -241,24 +240,24 @@ export class Push {
       deferred.reject('Could not detect the platform, are you on a device?');
     }
 
-    if (!self._blockUnregister) {
+    if (!this._blockUnregister) {
       if (this._plugin) {
         this._plugin.unregister(function() {}, function() {});
       }
       this.client.post('/push/tokens/invalidate')
         .send({
           'platform': platform,
-          'token': self.getStorageToken().token
+          'token': this.getStorageToken().token
         })
         .end((err, res) => {
           if (err) {
-            self._blockUnregister = false;
+            this._blockUnregister = false;
             IonicPlatform.logger.error('Ionic Push:', err);
             deferred.reject(err);
           } else {
-            self._blockUnregister = false;
-            IonicPlatform.logger.info('Ionic Push: unregistered push token: ' + self.getStorageToken().token);
-            self.clearStorageToken();
+            this._blockUnregister = false;
+            IonicPlatform.logger.info('Ionic Push: unregistered push token: ' + this.getStorageToken().token);
+            this.clearStorageToken();
             deferred.resolve(res);
           }
         });
@@ -348,7 +347,6 @@ export class Push {
   }
 
   _debugErrorCallback() {
-    var self = this;
     function callback(err) {
       IonicPlatform.logger.error('Ionic Push: (debug) unexpected error occured.');
       IonicPlatform.logger.error('Ionic Push:', err);
@@ -445,7 +443,6 @@ export class Push {
 
   /* Deprecated in favor of `getPushPlugin` */
   _getPushPlugin() {
-    var self = this;
     var PushPlugin = null;
     try {
       PushPlugin = window.PushNotification;
@@ -453,7 +450,7 @@ export class Push {
       IonicPlatform.logger.info('Ionic Push: something went wrong looking for the PushNotification plugin');
     }
 
-    if (!self.app.devPush && !PushPlugin && (IonicPlatform.device.isIOS() || IonicPlatform.device.isAndroid()) ) {
+    if (!this.app.devPush && !PushPlugin && (IonicPlatform.device.isIOS() || IonicPlatform.device.isAndroid()) ) {
       IonicPlatform.logger.error('Ionic Push: PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
     }
     return PushPlugin;

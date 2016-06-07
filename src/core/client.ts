@@ -1,5 +1,3 @@
-import { Auth } from '../auth/auth';
-import { IonicPlatform } from '../core/core';
 import * as request from 'superagent';
 
 export class Client {

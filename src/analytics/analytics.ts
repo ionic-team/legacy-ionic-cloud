@@ -35,8 +35,7 @@ export class Analytics {
   }
 
   _addGlobalPropertyDefaults() {
-    var self = this;
-    self.setGlobalProperties(function(eventCollection, eventData) {
+    this.setGlobalProperties(function(eventCollection, eventData) {
       eventData._user = JSON.parse(JSON.stringify(User.current()));
       eventData._app = {
         'app_id': IonicPlatform.config.get('app_id'), // eslint-disable-line
@@ -79,7 +78,6 @@ export class Analytics {
   }
 
   _enqueueEvent(collectionName, eventData) {
-    var self = this;
     if (options.dryRun) {
       IonicPlatform.logger.info('Ionic Analytics: event recieved but not sent (dryRun active):');
       IonicPlatform.logger.info('Ionic Analytics:', collectionName);
@@ -98,14 +96,14 @@ export class Analytics {
     eventData.keen.timestamp = new Date().toISOString();
 
     // Add the data to the queue
-    var eventQueue = self.cache.get('event_queue') || {};
+    var eventQueue = this.cache.get('event_queue') || {};
     if (!eventQueue[collectionName]) {
       eventQueue[collectionName] = [];
     }
     eventQueue[collectionName].push(eventData);
 
     // Write the queue to disk
-    self.cache.set('event_queue', eventQueue);
+    this.cache.set('event_queue', eventQueue);
   }
 
   _requestAnalyticsKey() {
@@ -122,7 +120,6 @@ export class Analytics {
   }
 
   _postEvent(name, data) {
-    var self = this;
     var payload = {
       'name': [data]
     };
@@ -133,7 +130,7 @@ export class Analytics {
 
     var requestOptions = {
       'method': 'POST',
-      'url': self._serviceHost + '/api/v1/events/' + IonicPlatform.config.get('app_id'),
+      'url': this._serviceHost + '/api/v1/events/' + IonicPlatform.config.get('app_id'),
       'json': payload,
       'headers': {
         'Authorization': ANALYTICS_KEY
@@ -144,14 +141,13 @@ export class Analytics {
   }
 
   _postEvents(events) {
-    var self = this;
     if (!ANALYTICS_KEY) {
       IonicPlatform.logger.info('Ionic Analytics: Cannot send events to the analytics server without an Analytics key.');
     }
 
     var requestOptions = {
       'method': 'POST',
-      'url': self._serviceHost + '/api/v1/events/' + IonicPlatform.config.get('app_id'),
+      'url': this._serviceHost + '/api/v1/events/' + IonicPlatform.config.get('app_id'),
       'json': events,
       'headers': {
         'Authorization': ANALYTICS_KEY
@@ -193,16 +189,15 @@ export class Analytics {
   }
 
   _handleDispatchError(error, request, eventQueue) {
-    var self = this;
     var responseCode = this._getRequestStatusCode(request);
     if (error === 'last_call_interrupted') {
-      self.cache.set('event_queue', {});
+      this.cache.set('event_queue', {});
     } else {
       // If we didn't connect to the server at all -> keep events
       if (!responseCode) {
         IonicPlatform.logger.error('Ionic Analytics: Error sending analytics data: Failed to connect to analytics server.');
       } else {
-        self.cache.set('event_queue', {});
+        this.cache.set('event_queue', {});
         IonicPlatform.logger.error('Ionic Analytics: Error sending analytics data: Server responded with error');
         IonicPlatform.logger.error('Ionic Analytics:', eventQueue);
       }
@@ -210,7 +205,6 @@ export class Analytics {
   }
 
   _handleRegisterError(error, request) {
-    var self = this;
     var responseCode = this._getRequestStatusCode(request);
     var docs = ' See http://docs.ionic.io/v1.0/docs/io-quick-start';
 
@@ -237,7 +231,6 @@ export class Analytics {
    * @return {Promise} The register promise
    */
   register(opts?: any): PromiseWithNotify<any> {
-
     var self = this;
     var deferred = new DeferredPromise();
 
@@ -272,7 +265,6 @@ export class Analytics {
   }
 
   setGlobalProperties(prop) {
-    var self = this;
     var propType = (typeof prop);
     switch (propType) {
       case 'object':
@@ -295,8 +287,6 @@ export class Analytics {
   }
 
   track(eventCollection, eventData) {
-    var self = this;
-
     if (!this.hasValidSettings) {
       return;
     }
@@ -323,20 +313,19 @@ export class Analytics {
     }
 
     if (this._useEventCaching) {
-      self._enqueueEvent(eventCollection, eventData);
+      this._enqueueEvent(eventCollection, eventData);
     } else {
       if (options.dryRun) {
         IonicPlatform.logger.info('Ionic Analytics: dryRun active, will not send event');
         IonicPlatform.logger.info('Ionic Analytics:', eventCollection);
         IonicPlatform.logger.info('Ionic Analytics:', eventData);
       } else {
-        self._postEvent(eventCollection, eventData);
+        this._postEvent(eventCollection, eventData);
       }
     }
   }
 
   unsetGlobalProperty(prop) {
-    var self = this;
     var propType = (typeof prop);
     switch (propType) {
       case 'string':
