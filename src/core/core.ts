@@ -47,8 +47,12 @@ export class Core {
   }
 
   private registerEventHandlers() {
-    this.emitter.on('auth:token-changed', (data) => {
+    this.emitter.on('auth:token-changed', data => {
       this.client.token = data['new'];
+    });
+
+    this.emitter.on('core:init', data => {
+      this.client.baseUrl = this.config.getURL('platform-api');
     });
 
     if (this.device.deviceType === 'unknown') {
