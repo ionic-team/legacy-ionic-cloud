@@ -112,7 +112,7 @@ export class Auth {
   static logout(): void {
     TokenContext.delete();
     TempTokenContext.delete();
-    User.current(new User());
+    User.current().clear();
   }
 
   static register(moduleId, module): void {
