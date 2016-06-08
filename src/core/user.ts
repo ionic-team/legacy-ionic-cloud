@@ -145,19 +145,21 @@ export class User {
   }
 
   static current(user?: User): User {
-    if (user) {
-      AppUserContext = user;
-      UserContext.store();
-      return AppUserContext;
-    } else {
-      if (!AppUserContext) {
-        AppUserContext = UserContext.load();
-      }
-      if (!AppUserContext) {
-        AppUserContext = new User();
-      }
-      return AppUserContext;
+    if (!AppUserContext) {
+      AppUserContext = UserContext.load();
     }
+    if (!AppUserContext) {
+      AppUserContext = new User();
+    }
+
+    if (user) {
+      AppUserContext.id = user.id;
+      AppUserContext.data = user.data;
+      AppUserContext.details = user.details;
+      AppUserContext._fresh = user._fresh;
+    }
+
+    return AppUserContext;
   }
 
   static fromContext(data): User {
@@ -193,7 +195,7 @@ export class User {
             tempUser._fresh = false;
 
             User.current(tempUser);
-            deferred.resolve(tempUser);
+            deferred.resolve(User.current());
           }
         });
     } else {
