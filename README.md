@@ -29,5 +29,4 @@ If you need support or find a bug with the web client, please submit an issue to
 
 ## Development
 
-1. Install Dependencies `npm install`
-2. Run `gulp build` (`gulp build-es5` for just Typescript)
+See `CONTRIBUTING.md`.

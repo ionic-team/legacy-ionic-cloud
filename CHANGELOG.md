@@ -1,10 +1,14 @@
 ## 0.8.0
 
-* **(breaking)** Configuration Update 
+* Move to Typescript
+* **(breaking)** Configuration Update
   (see the [docs](http://docs.ionic.io) for usage)
-* Added Ionic 2 support
-* Added ES6 distribution files
-
+* **(breaking)** Removed bower support
+* Added CommonJS ES5 distribution files
+* Start tests (`gulp test`)
+* Add `user.clear()` method for wiping user data and turning the user into a blank, unauthenticated user
+* Standardized ES and TS linting
+* Unify logger and event emitter
 
 ## 0.7.1
 
