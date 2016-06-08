@@ -1,7 +1,7 @@
 {
-  "name": "ionic-platform-web-client",
+  "name": "@ionic/platform-client",
   "version": "0.8.0-beta.1",
-  "description": "Ionic platform web client",
+  "description": "Ionic Platform Client",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/driftyco/ionic-platform-web-client.git"

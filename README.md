@@ -1,4 +1,4 @@
-# ionic-platform-web-client
+# Ionic Platform Client
 
 The client for using the Ionic Platform in your app. Check out [our docs](http://docs.ionic.io/docs/io-introduction).
 
@@ -7,7 +7,7 @@ The client for using the Ionic Platform in your app. Check out [our docs](http:/
 Using the latest [Ionic CLI](https://github.com/driftyco/ionic-cli), run the following commands in terminal:
 
 ```bash
-$ npm install --save ionic-platform-web-client
+$ npm install --save @ionic/platform-client
 
 # Register your app
 $ ionic io init
