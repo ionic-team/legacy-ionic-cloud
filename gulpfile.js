@@ -47,7 +47,11 @@ gulp.task('tslint', function() {
 
 gulp.task('lint', ['eslint', 'tslint']);
 
-gulp.task('build-es5', ['clean'], function() {
+gulp.task('build-es5', function(done) {
+  runSequence('build-es5-ts', 'version', done);
+});
+
+gulp.task('build-es5-ts', function() {
   var tsProject = ts.createProject('tsconfig.json');
   var tsResult = gulp.src(["typings/index.d.ts", "src/**/*.ts"])
     .pipe(ts(tsProject));
@@ -95,13 +99,13 @@ gulp.task('build-es5-bundle-min', ['build-es5-bundle-src'], function() {
 });
 
 gulp.task('version', function() {
-  return gulp.src('core/core.js')
+  return gulp.src(['core/core.js'])
     .pipe(replace('VERSION_STRING', pkg.version))
     .pipe(gulp.dest('core/'));
 });
 
 gulp.task('build', function(done) {
-  runSequence('lint', 'build-es5-bundle', 'version', done);
+  runSequence('lint', 'clean', 'build-es5-bundle', done);
 });
 
 gulp.task('default', ['build']);
