@@ -153,10 +153,10 @@ export class User {
     }
 
     if (user) {
-      AppUserContext.clear();
       AppUserContext.id = user.id;
       AppUserContext.data = user.data;
       AppUserContext.details = user.details;
+      AppUserContext._fresh = user._fresh;
     }
 
     return AppUserContext;
