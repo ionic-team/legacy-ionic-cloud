@@ -25,7 +25,6 @@
   },
   "homepage": "https://github.com/driftyco/ionic-platform-web-client#readme",
   "dependencies": {
-    "es6-promise": "^3.2.1",
     "superagent": "^1.8.3"
   },
   "devDependencies": {

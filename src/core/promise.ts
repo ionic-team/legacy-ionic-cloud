@@ -1,5 +1,3 @@
-import { Promise } from 'es6-promise';
-
 export interface ThenableWithNotify<T> {
   then<U>(onFulfilled?: (value: T) => U | ThenableWithNotify<U>, onRejected?: (error: any) => U | ThenableWithNotify<U>, onNotified?: (value: any) => U | ThenableWithNotify<U>): ThenableWithNotify<U>;
   catch<U>(onRejected?: (error: any) => U | ThenableWithNotify<U>): ThenableWithNotify<U>;
