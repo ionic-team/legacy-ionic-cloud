@@ -16,7 +16,7 @@ export class Environment {
    * @param {string} tag Environment tag
    * @return {PromiseWithNotify} will resolve/reject with the config object or error
    */
-  public load(tag): PromiseWithNotify<any> {
+  public load(tag): PromiseWithNotify<Object> {
     var deferred = new DeferredPromise();
 
     this.loadEnvFromAPI(tag).then(function(env) {
