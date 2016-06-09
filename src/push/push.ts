@@ -50,7 +50,7 @@ export class Push {
 
     // Check for the required values to use this service
     if (!app.id || !app.apiKey) {
-      IonicPlatform.logger.error('Ionic Push: no app_id found. (http://docs.ionic.io/docs/io-install)');
+      IonicPlatform.logger.error('Ionic Push: no app_id or api_key found. (http://docs.ionic.io/docs/io-install)');
       return;
     } else if (IonicPlatform.device.isAndroid() && !app.devPush && !app.gcmKey) {
       IonicPlatform.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
@@ -70,7 +70,7 @@ export class Push {
     this._registered = false;
     this._plugin = null;
 
-    if (config.deferInit) {
+    if (!config.deferInit) {
       IonicPlatform.onReady(() => {
         this.init(config);
       });
