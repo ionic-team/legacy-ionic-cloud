@@ -1,20 +1,20 @@
-var Analytics = require("./../analytics/analytics").Analytics;
-var App = require("./../core/app").App;
-var Auth = require("./../auth/auth").Auth;
-var BucketStorage = require("./../analytics/storage").BucketStorage;
-var config = require("./../core/config").config;
-var DOMSerializer = require("./../analytics/serializers").DOMSerializer;
-var DataType = require("./../core/data-types").DataType;
-var Deploy = require("./../deploy/deploy").Deploy;
-var EventEmitter = require("./../core/events").EventEmitter;
-var IonicPlatform = require("./../core/core").IonicPlatform;
-var Logger = require("./../core/logger").Logger;
-var Push = require("./../push/push").Push;
-var PushMessage = require("./../push/push-message").PushMessage;
-var PushToken = require("./../push/push-token").PushToken;
-var Storage = require("./../core/storage").Storage;
-var User = require("./../core/user").User;
-var promise = require("./../core/promise");
+var Analytics = require("./../dist/es5/analytics/analytics").Analytics;
+var App = require("./../dist/es5/core/app").App;
+var Auth = require("./../dist/es5/auth/auth").Auth;
+var BucketStorage = require("./../dist/es5/analytics/storage").BucketStorage;
+var config = require("./../dist/es5/core/config").config;
+var DOMSerializer = require("./../dist/es5/analytics/serializers").DOMSerializer;
+var DataType = require("./../dist/es5/core/data-types").DataType;
+var Deploy = require("./../dist/es5/deploy/deploy").Deploy;
+var EventEmitter = require("./../dist/es5/core/events").EventEmitter;
+var IonicPlatform = require("./../dist/es5/core/core").IonicPlatform;
+var Logger = require("./../dist/es5/core/logger").Logger;
+var Push = require("./../dist/es5/push/push").Push;
+var PushMessage = require("./../dist/es5/push/push-message").PushMessage;
+var PushToken = require("./../dist/es5/push/push-token").PushToken;
+var Storage = require("./../dist/es5/core/storage").Storage;
+var User = require("./../dist/es5/core/user").User;
+var promise = require("./../dist/es5/core/promise");
 
 // Declare the window object
 window.Ionic = window.Ionic || {};

@@ -24,20 +24,11 @@ gulp.task('test', ['build-es5-ts'], function(done) {
 });
 
 gulp.task('clean', function() {
-  return del([
-    '**/*.js',
-    '**/*.d.ts',
-    '!gulpfile.js',
-    '!karma.conf.js',
-    '!node_modules/**',
-    '!src/**',
-    '!typings/**',
-    '!spec/**'
-  ]);
+  return del(['dist/**/*']);
 });
 
 // https://github.com/adametry/gulp-eslint/issues/152
-gulp.task('eslint', shell.task('eslint gulpfile.js karma.conf.js src/**/*.js'));
+gulp.task('eslint', shell.task('eslint .'));
 
 gulp.task('tslint', function() {
   return gulp.src('src/**/*.ts')
@@ -57,8 +48,8 @@ gulp.task('build-es5-ts', function() {
     .pipe(ts(tsProject));
 
   return merge([
-    tsResult.dts.pipe(gulp.dest('.')),
-    tsResult.js.pipe(gulp.dest('.'))
+    tsResult.dts.pipe(gulp.dest('dist/es5')),
+    tsResult.js.pipe(gulp.dest('dist/es5'))
   ]);
 });
 
@@ -80,7 +71,7 @@ gulp.task('build-es5-bundle-src', ['build-es5'], function() {
     "src/auth/angular.js",
     "src/push/angular.js",
     "src/deploy/angular.js",
-    "index.js"
+    "dist/es5/index.js"
   ];
 
   return browserify(bundleFiles, { "debug": true })
@@ -99,9 +90,9 @@ gulp.task('build-es5-bundle-min', ['build-es5-bundle-src'], function() {
 });
 
 gulp.task('version', function() {
-  return gulp.src(['core/core.js'])
+  return gulp.src(['dist/es5/core/core.js'])
     .pipe(replace('VERSION_STRING', pkg.version))
-    .pipe(gulp.dest('core/'));
+    .pipe(gulp.dest('dist/es5/core/'));
 });
 
 gulp.task('build', function(done) {

@@ -1,9 +1,3 @@
 node_modules
-.DS_STORE
-**/*.js
-**/*.d.ts
-!gulpfile.js
-!karma.conf.js
-!src/**
-!typings/**
-!spec/**
+.DS_Store
+dist/**/*
