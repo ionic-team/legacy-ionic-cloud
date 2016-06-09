@@ -1,7 +1,6 @@
 import { Client } from './client';
 import { Cordova } from './cordova';
 import { Device } from './device';
-import { Environment } from '../environments';
 import { EventEmitter } from './events';
 import { Storage } from './storage';
 import { Logger } from './logger';
@@ -16,7 +15,6 @@ export class Core {
   cordova: Cordova;
   device: Device;
   emitter: EventEmitter;
-  env: Environment;
   logger: Logger;
   storage: Storage;
 
@@ -29,7 +27,6 @@ export class Core {
     this.client = new Client(this.config.getURL('platform-api'));
     this.device = new Device();
     this.cordova = new Cordova(this.device, this.logger);
-    this.env = new Environment();
     this.emitter = new EventEmitter();
     this.storage = new Storage();
     this.cordova.load();
