@@ -1,16 +1,15 @@
 {
-  "name": "@ionic/platform-client",
+  "name": "@ionic/cloud",
   "version": "0.8.0-beta.6",
-  "description": "Ionic Platform Client",
+  "description": "Ionic Cloud Client",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/driftyco/ionic-platform-web-client.git"
+    "url": "git+https://github.com/driftyco/ionic-cloud.git"
   },
   "keywords": [
     "Ionic",
     "ionic",
-    "platform",
-    "web",
+    "cloud",
     "client"
   ],
   "author": "Ionic",
@@ -21,9 +20,9 @@
   ],
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/driftyco/ionic-platform-web-client/issues"
+    "url": "https://github.com/driftyco/ionic-cloud/issues"
   },
-  "homepage": "https://github.com/driftyco/ionic-platform-web-client#readme",
+  "homepage": "https://github.com/driftyco/ionic-cloud#readme",
   "main": "dist/es5/index.js",
   "typings": "dist/es5/index.d.ts",
   "dependencies": {
