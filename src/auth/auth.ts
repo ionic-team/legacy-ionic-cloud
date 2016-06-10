@@ -1,53 +1,75 @@
 import { Client } from '../core/client';
 import { PromiseWithNotify, DeferredPromise } from '../core/promise';
 import { IonicPlatform } from '../core/core';
-import { PlatformLocalStorageStrategy, LocalSessionStorageStrategy } from '../core/storage';
+import { IStorageStrategy, LocalStorageStrategy, SessionStorageStrategy } from '../core/storage';
 import { User } from '../core/user';
 
 declare var window: any;
 
-var storage = new PlatformLocalStorageStrategy();
-var sessionStorage = new LocalSessionStorageStrategy();
-
 var authModules: Object = {};
 var authToken: string;
 
-export class TempTokenContext {
+export interface ITokenContext {
+  storage: IStorageStrategy;
+  label: string;
 
-  static get label() {
+  delete(): void;
+  store(token: string): void;
+  getRawData(): string;
+}
+
+export class TempTokenContext implements ITokenContext {
+
+  storage: IStorageStrategy;
+
+  constructor() {
+    this.storage = new SessionStorageStrategy();
+  }
+
+  get label(): string {
     return 'ionic_io_auth_' + IonicPlatform.config.get('app_id');
   }
 
-  static delete() {
-    sessionStorage.remove(TempTokenContext.label);
+  delete(): void {
+    this.storage.remove(this.label);
   }
 
-  static store() {
-    sessionStorage.set(TempTokenContext.label, authToken);
+  store(token: string): void {
+    this.storage.set(this.label, token);
   }
 
-  static getRawData() {
-    return sessionStorage.get(TempTokenContext.label) || false;
+  getRawData(): string {
+    return this.storage.get(this.label);
   }
 }
 
-export class TokenContext {
-  static get label() {
+export class TokenContext implements ITokenContext {
+
+  storage: IStorageStrategy;
+
+  constructor() {
+    this.storage = new LocalStorageStrategy();
+  }
+
+  get label(): string {
     return 'ionic_io_auth_' + IonicPlatform.config.get('app_id');
   }
 
-  static delete() {
-    storage.remove(TokenContext.label);
+  delete(): void {
+    this.storage.remove(tokenContext.label);
   }
 
-  static store() {
-    storage.set(TokenContext.label, authToken);
+  store(token: string): void {
+    this.storage.set(tokenContext.label, token);
   }
 
-  static getRawData() {
-    return storage.get(TokenContext.label) || false;
+  getRawData(): string {
+    return this.storage.get(tokenContext.label);
   }
 }
+
+let tempTokenContext = new TempTokenContext();
+let tokenContext = new TokenContext();
 
 export interface LoginOptions {
   remember?: boolean;
@@ -57,9 +79,9 @@ function storeToken(options: LoginOptions = {}, token: string) {
   let originalToken = authToken;
   authToken = token;
   if (options.remember) {
-    TokenContext.store();
+    tokenContext.store(authToken);
   } else {
-    TempTokenContext.store();
+    tempTokenContext.store(authToken);
   }
   IonicPlatform.emitter.emit('auth:token-changed', {'old': originalToken, 'new': authToken});
 }
@@ -75,8 +97,8 @@ function getAuthErrorDetails(err) {
 export class Auth {
 
   static isAuthenticated(): boolean {
-    var token = TokenContext.getRawData();
-    var tempToken = TempTokenContext.getRawData();
+    var token = tokenContext.getRawData();
+    var tempToken = tempTokenContext.getRawData();
     if (tempToken || token) {
       return true;
     }
@@ -110,8 +132,8 @@ export class Auth {
   }
 
   static logout(): void {
-    TokenContext.delete();
-    TempTokenContext.delete();
+    tokenContext.delete();
+    tempTokenContext.delete();
     User.current().clear();
   }
 
@@ -122,8 +144,8 @@ export class Auth {
   }
 
   static getUserToken(): string {
-    let usertoken = TokenContext.getRawData();
-    let temptoken = TempTokenContext.getRawData();
+    let usertoken = tokenContext.getRawData();
+    let temptoken = tempTokenContext.getRawData();
     let token = temptoken || usertoken;
 
     return token;

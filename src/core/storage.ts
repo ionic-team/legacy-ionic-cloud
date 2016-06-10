@@ -1,34 +1,36 @@
 import { PromiseWithNotify, DeferredPromise } from './promise';
 
-export class PlatformLocalStorageStrategy {
-  constructor() {
+export interface IStorageStrategy {
+  get(key: string): string;
+  remove(key: string): void;
+  set(key: string, value: string): void;
+}
 
+export class LocalStorageStrategy implements IStorageStrategy {
+  get(key: string): string {
+    return localStorage.getItem(key);
   }
 
-  get(key) {
-    return window.localStorage.getItem(key);
+  remove(key: string): void {
+    return localStorage.removeItem(key);
   }
 
-  remove(key) {
-    return window.localStorage.removeItem(key);
-  }
-
-  set(key, value) {
-    return window.localStorage.setItem(key, value);
+  set(key: string, value: string): void {
+    return localStorage.setItem(key, value);
   }
 }
 
-export class LocalSessionStorageStrategy {
-  get(key) {
-    return window.sessionStorage.getItem(key);
+export class SessionStorageStrategy implements IStorageStrategy {
+  get(key: string): string {
+    return sessionStorage.getItem(key);
   }
 
-  remove(key) {
-    return window.sessionStorage.removeItem(key);
+  remove(key: string): void {
+    return sessionStorage.removeItem(key);
   }
 
-  set(key, value) {
-    return window.sessionStorage.setItem(key, value);
+  set(key: string, value: string): void {
+    return sessionStorage.setItem(key, value);
   }
 }
 
@@ -37,10 +39,10 @@ var memoryLocks = {};
 
 export class Storage {
 
-  strategy: PlatformLocalStorageStrategy;
+  strategy: LocalStorageStrategy;
 
   constructor() {
-    this.strategy = new PlatformLocalStorageStrategy();
+    this.strategy = new LocalStorageStrategy();
   }
 
   /**
