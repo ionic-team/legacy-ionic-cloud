@@ -20,6 +20,10 @@ export interface PushOptions {
   onError?: (err) => any;
 }
 
+export interface SaveTokenOptions {
+  ignore_user?: boolean;
+}
+
 export class Push {
 
   client: Client;
@@ -134,25 +138,21 @@ export class Push {
     return this;
   }
 
-  saveToken(token, options): PromiseWithNotify<any> {
+  saveToken(token: PushToken, options: SaveTokenOptions = {}): PromiseWithNotify<any> {
     var deferred = new DeferredPromise();
-    var opts = options || {};
-    if (token.token) {
-      token = token.token;
-    }
 
     interface TokenData {
-      token: PushToken;
+      token: string;
       app_id: string;
       user_id?: string;
     }
 
     var tokenData: TokenData = {
-      'token': token,
+      'token': token.token,
       'app_id': IonicPlatform.config.get('app_id')
     };
 
-    if (!opts.ignore_user) {
+    if (!options.ignore_user) {
       var user = User.current();
       if (user.isAuthenticated()) {
         tokenData.user_id = user.id;
