@@ -13,7 +13,6 @@ describe("ionic platform config", function() {
     var c = new Config();
     expect(c.getURL('api')).toBe('https://apps.ionic.io');
     expect(c.getURL('push')).toBe('https://push.ionic.io');
-    expect(c.getURL('analytics')).toBe('https://analytics.ionic.io');
     expect(c.getURL('deploy')).toBe('https://apps.ionic.io');
     expect(c.getURL('platform-api')).toBe('https://api.ionic.io');
   });
@@ -25,14 +24,12 @@ describe("ionic platform config", function() {
       'dev_locations': {
         'api': 'api',
         'push': 'push',
-        'analytics': 'analytics',
         'deploy': 'deploy',
         'platform-api': 'platform-api'
       }
     });
     expect(c.getURL('api')).toBe('api');
     expect(c.getURL('push')).toBe('push');
-    expect(c.getURL('analytics')).toBe('analytics');
     expect(c.getURL('deploy')).toBe('deploy');
     expect(c.getURL('platform-api')).toBe('platform-api');
   });
