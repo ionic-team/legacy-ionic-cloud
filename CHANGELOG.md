@@ -10,6 +10,7 @@
 * Standardized ES and TS linting
 * Unify logger and event emitter
 * Remove Analytics (in favor of Ionic Insights)
+* Remove APIRequest (in favor of new service client)
 
 ## 0.7.1
 
