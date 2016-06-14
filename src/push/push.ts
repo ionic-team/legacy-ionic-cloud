@@ -442,17 +442,17 @@ export class Push {
 
   /* Deprecated in favor of `getPushPlugin` */
   _getPushPlugin() {
-    var PushPlugin = null;
-    try {
-      PushPlugin = window.PushNotification;
-    } catch (e) {
-      IonicPlatform.logger.info('Ionic Push: something went wrong looking for the PushNotification plugin');
+    let plugin = window.PushNotification;
+
+    if (!this.app.devPush && !plugin) {
+      if (IonicPlatform.device.isIOS() || IonicPlatform.device.isAndroid()) {
+        IonicPlatform.logger.error('Ionic Push: PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
+      } else {
+        IonicPlatform.logger.info('Ionic Push: PushNotification plugin not found. Native push notifications won\'t work in the browser.');
+      }
     }
 
-    if (!this.app.devPush && !PushPlugin && (IonicPlatform.device.isIOS() || IonicPlatform.device.isAndroid()) ) {
-      IonicPlatform.logger.error('Ionic Push: PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
-    }
-    return PushPlugin;
+    return plugin;
   }
 
   /**
