@@ -1,4 +1,4 @@
-var core = require('../../core/core');
+var core = require('../../dist/es5/core/core');
 
 describe("ionic platform core", function() {
 

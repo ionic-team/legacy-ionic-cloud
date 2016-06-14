@@ -1,6 +1,6 @@
-var DeferredPromise = require("../../core/promise").DeferredPromise;
+var DeferredPromise = require("../../dist/es5/core/promise").DeferredPromise;
 
-describe("client", function() {
+describe("promise", function() {
 
   it("should instantiate", function() {
     var deferred = new DeferredPromise();
