@@ -12,6 +12,19 @@ export interface DeployWatchOptions {
   initialDelay?: number;
 }
 
+export interface DeployDownloadOptions {
+  onProgress?: (p: number) => void;
+}
+
+export interface DeployExtractOptions {
+  onProgress?: (p: number) => void;
+}
+
+export interface DeployUpdateOptions {
+  deferLoad?: boolean;
+  onProgress?: (p: number) => void;
+}
+
 export class Deploy {
 
   private _plugin: any;
@@ -101,7 +114,7 @@ export class Deploy {
    * This should be used in conjunction with extract()
    * @return {Promise} The promise which will resolve with true/false.
    */
-  download(): Promise<boolean> {
+  download(options: DeployDownloadOptions = {}): Promise<boolean> {
     var self = this;
     var deferred = new DeferredPromise();
 
@@ -109,8 +122,9 @@ export class Deploy {
       if (self._getPlugin()) {
         self._plugin.download(IonicPlatform.config.get('app_id'), function(result) {
           if (result !== 'true' && result !== 'false') {
-            IonicPlatform.emitter.emit('deploy:download-progress', result);
-            IonicPlatform.emitter.emit('deploy:update-progress', result / 2);
+            if (options.onProgress) {
+              options.onProgress(result);
+            }
           } else {
             if (result === 'true') {
               IonicPlatform.logger.info('Ionic Deploy: download complete');
@@ -134,7 +148,7 @@ export class Deploy {
    * This should be called after a download() successfully resolves.
    * @return {Promise} The promise which will resolve with true/false.
    */
-  extract(): Promise<boolean> {
+  extract(options: DeployExtractOptions = {}): Promise<boolean> {
     var self = this;
     var deferred = new DeferredPromise();
 
@@ -142,8 +156,9 @@ export class Deploy {
       if (self._getPlugin()) {
         self._plugin.extract(IonicPlatform.config.get('app_id'), function(result) {
           if (result !== 'done') {
-            IonicPlatform.emitter.emit('deploy:extract-progress', result);
-            IonicPlatform.emitter.emit('deploy:update-progress', 50 + result / 2);
+            if (options.onProgress) {
+              options.onProgress(result);
+            }
           } else {
             if (result === 'true') {
               IonicPlatform.logger.info('Ionic Deploy: extraction complete');
@@ -335,14 +350,9 @@ export class Deploy {
    *
    * @param {boolean} deferLoad Defer loading the applied update after the installation
    */
-  update(deferLoad: boolean): Promise<boolean> {
+  update(options: DeployUpdateOptions = {}): Promise<boolean> {
     var deferred = new DeferredPromise();
     var self = this;
-    var deferLoading = false;
-
-    if (typeof deferLoad !== 'undefined') {
-      deferLoading = deferLoad;
-    }
 
     this.onReady(function() {
       if (self._getPlugin()) {
@@ -350,11 +360,25 @@ export class Deploy {
         self.check().then(function(result) {
           if (result === true) {
             // There are updates, download them
-            self.download().then(function(result) {
+            let downloadProgress = 0;
+            self.download({
+              'onProgress': (p: number) => {
+                downloadProgress = p / 2;
+                if (options.onProgress) {
+                  options.onProgress(downloadProgress);
+                }
+              }
+            }).then(function(result) {
               if (!result) { deferred.reject('download error'); }
-              self.extract().then(function(result) {
+              self.extract({
+                'onProgress': (p: number) => {
+                  if (options.onProgress) {
+                    options.onProgress(downloadProgress + p / 2);
+                  }
+                }
+              }).then(function(result) {
                 if (!result) { deferred.reject('extraction error'); }
-                if (!deferLoading) {
+                if (!options.deferLoad) {
                   deferred.resolve(true);
                   self._plugin.redirect(IonicPlatform.config.get('app_id'));
                 } else {
