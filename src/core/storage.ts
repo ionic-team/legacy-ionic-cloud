@@ -1,5 +1,3 @@
-import { DeferredPromise } from './promise';
-
 export interface IStorageStrategy {
   get(key: string): string;
   remove(key: string): void;
@@ -35,7 +33,6 @@ export class SessionStorageStrategy implements IStorageStrategy {
 }
 
 var objectCache = {};
-var memoryLocks = {};
 
 export class Storage {
 
