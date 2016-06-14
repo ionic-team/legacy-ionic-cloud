@@ -67,7 +67,6 @@ gulp.task('build-es5-bundle-src', ['build-es5'], function() {
   var bundleFiles = [
     "src/es5.js",
     "src/core/angular.js",
-    "src/analytics/angular.js",
     "src/auth/angular.js",
     "src/push/angular.js",
     "src/deploy/angular.js",
