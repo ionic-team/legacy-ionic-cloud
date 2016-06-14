@@ -89,7 +89,7 @@ export class Push {
     this._token = val;
   }
 
-  getStorageToken() {
+  getStorageToken(): PushToken {
     var storage = IonicPlatform.storage;
     var token = storage.retrieveObject('ionic_io_push_token');
     if (token) {
@@ -98,7 +98,7 @@ export class Push {
     return null;
   }
 
-  clearStorageToken() {
+  clearStorageToken(): void {
     var storage = IonicPlatform.storage;
     storage.deleteObject('ionic_io_push_token');
   }
@@ -116,7 +116,7 @@ export class Push {
    * @param {object} config Configuration object
    * @return {Push} returns the called Push instantiation
    */
-  init(config: PushOptions = {}) {
+  init(config: PushOptions = {}): void {
     this._getPushPlugin();
     if (!config.pluginConfig) { config.pluginConfig = {}; }
 
@@ -135,7 +135,6 @@ export class Push {
     this._isReady = true;
 
     IonicPlatform.emitter.emit('push:ready', { 'config': this._config });
-    return this;
   }
 
   saveToken(token: PushToken, options: SaveTokenOptions = {}): PromiseWithNotify<any> {
