@@ -13,10 +13,6 @@ $ npm install --save @ionic/cloud
 $ ionic io init
 ```
 
-## Issues
+## Issues & Local Development
 
-If you need support or find a bug with the client, please submit an issue to this repo. For general Ionic Cloud issues (not related to the client), please use our [issues repo](https://github.com/driftyco/ionic-cloud-issues/issues). Before submitting your issue, be sure to update the client and any associated Cordova plugins to their latest versions.
-
-## Development
-
-See `CONTRIBUTING.md`.
+See [`CONTRIBUTING.md`](https://github.com/driftyco/ionic-cloud/blob/master/CONTRIBUTING.md).

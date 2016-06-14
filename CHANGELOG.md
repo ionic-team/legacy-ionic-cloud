@@ -9,6 +9,7 @@
 * Add `user.clear()` method for wiping user data and turning the user into a blank, unauthenticated user
 * Standardized ES and TS linting
 * Unify logger and event emitter
+* Remove Analytics (in favor of Ionic Insights)
 
 ## 0.7.1
 
