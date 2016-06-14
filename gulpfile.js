@@ -73,19 +73,21 @@ gulp.task('build-es5-bundle-src', ['build-es5'], function() {
     "dist/es5/index.js"
   ];
 
+  fs.mkdirSync("dist/bundle");
+
   return browserify(bundleFiles, { "debug": true })
     .bundle()
     .on("error", function(err) { console.error("Error : " + err.message); })
-    .pipe(fs.createWriteStream("dist/ionic.io.bundle.js"));
+    .pipe(fs.createWriteStream("dist/bundle/ionic.cloud.js"));
 });
 
 gulp.task('build-es5-bundle-min', ['build-es5-bundle-src'], function() {
-  return gulp.src('dist/ionic.io.bundle.js')
+  return gulp.src('dist/bundle/ionic.cloud.js')
     .pipe(uglify().on('error', console.error))
     .pipe(rename(function(path) {
       path.basename += ".min";
     }))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest('dist/bundle'));
 });
 
 gulp.task('version', function() {
