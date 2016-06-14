@@ -1,4 +1,4 @@
-import { PromiseWithNotify, DeferredPromise } from '../core/promise';
+import { DeferredPromise } from '../core/promise';
 import { IonicPlatform } from '../core/core';
 
 declare var IonicDeploy: any;
@@ -6,6 +6,11 @@ declare var IonicDeploy: any;
 var NO_PLUGIN = 'IONIC_DEPLOY_MISSING_PLUGIN';
 var INITIAL_DELAY = 1 * 5 * 1000;
 var WATCH_INTERVAL = 1 * 60 * 1000;
+
+export interface DeployWatchOptions {
+  interval?: number;
+  initialDelay?: number;
+}
 
 export class Deploy {
 
@@ -64,7 +69,7 @@ export class Deploy {
    * @return {Promise} Will resolve with true if an update is available, false otherwise. A string or
    *   error will be passed to reject() in the event of a failure.
    */
-  check(): PromiseWithNotify<boolean> {
+  check(): Promise<boolean> {
     var self = this;
     var deferred = new DeferredPromise<boolean>();
 
@@ -94,10 +99,9 @@ export class Deploy {
    * Download and available update
    *
    * This should be used in conjunction with extract()
-   * @return {Promise} The promise which will resolve with true/false or use
-   *    notify to update the download progress.
+   * @return {Promise} The promise which will resolve with true/false.
    */
-  download(): PromiseWithNotify<boolean> {
+  download(): Promise<boolean> {
     var self = this;
     var deferred = new DeferredPromise();
 
@@ -105,7 +109,8 @@ export class Deploy {
       if (self._getPlugin()) {
         self._plugin.download(IonicPlatform.config.get('app_id'), function(result) {
           if (result !== 'true' && result !== 'false') {
-            deferred.notify(result);
+            IonicPlatform.emitter.emit('deploy:download-progress', result);
+            IonicPlatform.emitter.emit('deploy:update-progress', result / 2);
           } else {
             if (result === 'true') {
               IonicPlatform.logger.info('Ionic Deploy: download complete');
@@ -123,15 +128,13 @@ export class Deploy {
     return deferred.promise;
   }
 
-
   /**
    * Extract the last downloaded update
    *
    * This should be called after a download() successfully resolves.
-   * @return {Promise} The promise which will resolve with true/false or use
-   *                   notify to update the extraction progress.
+   * @return {Promise} The promise which will resolve with true/false.
    */
-  extract(): PromiseWithNotify<boolean> {
+  extract(): Promise<boolean> {
     var self = this;
     var deferred = new DeferredPromise();
 
@@ -139,7 +142,8 @@ export class Deploy {
       if (self._getPlugin()) {
         self._plugin.extract(IonicPlatform.config.get('app_id'), function(result) {
           if (result !== 'done') {
-            deferred.notify(result);
+            IonicPlatform.emitter.emit('deploy:extract-progress', result);
+            IonicPlatform.emitter.emit('deploy:update-progress', 50 + result / 2);
           } else {
             if (result === 'true') {
               IonicPlatform.logger.info('Ionic Deploy: extraction complete');
@@ -156,7 +160,6 @@ export class Deploy {
 
     return deferred.promise;
   }
-
 
   /**
    * Load the latest deployed version
@@ -175,24 +178,25 @@ export class Deploy {
     });
   }
 
-
   /**
-   * Watch constantly checks for updates, and triggers an
-   * event when one is ready.
-   * @param {object} options Watch configuration options
-   * @return {Promise} returns a promise that will get a notify() callback when an update is available
+   * Watch constantly checks for updates, and triggers an event when one is ready.
    */
-  watch(options): PromiseWithNotify<void> {
-    var deferred = new DeferredPromise<void>();
-    var opts = options || {};
+  watch(options: DeployWatchOptions = {}): void {
     var self = this;
 
-    if (typeof opts.initialDelay === 'undefined') { opts.initialDelay = INITIAL_DELAY; }
-    if (typeof opts.interval === 'undefined') { opts.interval = WATCH_INTERVAL; }
+    if (!options.initialDelay) {
+      options.initialDelay = INITIAL_DELAY;
+    }
+
+    if (!options.interval) {
+      options.interval = WATCH_INTERVAL;
+    }
 
     function checkForUpdates() {
       self.check().then(function(hasUpdate) {
-        if (hasUpdate) { deferred.notify(hasUpdate); }
+        if (hasUpdate) {
+          IonicPlatform.emitter.emit('deploy:update-ready');
+        }
       }, function(err) {
         IonicPlatform.logger.info('Ionic Deploy: unable to check for updates: ' + err);
       });
@@ -200,21 +204,18 @@ export class Deploy {
       // Check our timeout to make sure it wasn't cleared while we were waiting
       // for a server response
       if (this._checkTimeout) {
-        this._checkTimeout = setTimeout(checkForUpdates.bind(self), opts.interval);
+        this._checkTimeout = setTimeout(checkForUpdates.bind(self), options.interval);
       }
     }
 
     // Check after an initial short deplay
-    this._checkTimeout = setTimeout(checkForUpdates.bind(self), opts.initialDelay);
-
-    return deferred.promise;
+    this._checkTimeout = setTimeout(checkForUpdates.bind(self), options.initialDelay);
   }
 
   /**
    * Stop automatically looking for updates
-   * @return {void}
    */
-  unwatch() {
+  unwatch(): void {
     clearTimeout(this._checkTimeout);
     this._checkTimeout = null;
   }
@@ -225,7 +226,7 @@ export class Deploy {
    * @return {Promise} The resolver will be passed an object that has key/value
    *    pairs pertaining to the currently deployed update.
    */
-  info(): PromiseWithNotify<any> {
+  info(): Promise<any> {
     var deferred = new DeferredPromise();
     var self = this;
 
@@ -249,7 +250,7 @@ export class Deploy {
    *
    * @return {Promise} The resolver will be passed an array of deploy uuids
    */
-  getVersions(): PromiseWithNotify<any> {
+  getVersions(): Promise<any> {
     var deferred = new DeferredPromise();
     var self = this;
 
@@ -274,7 +275,7 @@ export class Deploy {
    * @param {string} uuid The deploy uuid you wish to remove from the device
    * @return {Promise} Standard resolve/reject resolution
    */
-  deleteVersion(uuid): PromiseWithNotify<any> {
+  deleteVersion(uuid): Promise<any> {
     var deferred = new DeferredPromise();
     var self = this;
 
@@ -300,7 +301,7 @@ export class Deploy {
    * @param {string} uuid The deploy uuid you wish to grab metadata for, can be left blank to grab latest known update metadata
    * @return {Promise} Standard resolve/reject resolution
    */
-  getMetadata(uuid): PromiseWithNotify<any> {
+  getMetadata(uuid): Promise<any> {
     var deferred = new DeferredPromise();
     var self = this;
 
@@ -324,18 +325,17 @@ export class Deploy {
    * See http://docs.ionic.io/docs/deploy-channels for more information
    *
    * @param {string} channelTag The channel tag to use
-   * @return {void}
    */
-  setChannel(channelTag) {
+  setChannel(channelTag: string): void {
     this._channelTag = channelTag;
   }
 
   /**
    * Update app with the latest deploy
+   *
    * @param {boolean} deferLoad Defer loading the applied update after the installation
-   * @return {Promise} A promise result
    */
-  update(deferLoad): PromiseWithNotify<boolean> {
+  update(deferLoad: boolean): Promise<boolean> {
     var deferred = new DeferredPromise();
     var self = this;
     var deferLoading = false;
@@ -350,7 +350,6 @@ export class Deploy {
         self.check().then(function(result) {
           if (result === true) {
             // There are updates, download them
-            var downloadProgress = 0;
             self.download().then(function(result) {
               if (!result) { deferred.reject('download error'); }
               self.extract().then(function(result) {
@@ -363,15 +362,9 @@ export class Deploy {
                 }
               }, function(error) {
                 deferred.reject(error);
-              }, function(update) {
-                var progress = downloadProgress + (update / 2);
-                deferred.notify(progress);
               });
             }, function(error) {
               deferred.reject(error);
-            }, function(update) {
-              downloadProgress = (update / 2);
-              deferred.notify(downloadProgress);
             });
           } else {
             deferred.resolve(false);

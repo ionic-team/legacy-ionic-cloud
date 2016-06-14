@@ -1,5 +1,5 @@
 import { Auth } from '../auth/auth';
-import { PromiseWithNotify, DeferredPromise } from './promise';
+import { DeferredPromise } from './promise';
 import { IonicPlatform } from './core';
 import { Storage } from './storage';
 import { DataType } from './data-types';
@@ -288,7 +288,7 @@ export class User {
     }
   }
 
-  delete(): PromiseWithNotify<any> {
+  delete(): Promise<any> {
     var deferred = new DeferredPromise();
 
     if (this.isValid()) {

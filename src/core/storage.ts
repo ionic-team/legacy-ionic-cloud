@@ -1,4 +1,4 @@
-import { PromiseWithNotify, DeferredPromise } from './promise';
+import { DeferredPromise } from './promise';
 
 export interface IStorageStrategy {
   get(key: string): string;
@@ -91,59 +91,5 @@ export class Storage {
     } catch (err) {
       return null;
     }
-  }
-
-  /**
-   * Locks the async call represented by the given promise and lock key.
-   * Only one asyncFunction given by the lockKey can be running at any time.
-   *
-   * @param {string} lockKey should be a string representing the name of this async call.
-   *        This is required for persistence.
-   * @param {function} asyncFunction Returns a promise of the async call.
-   * @returns {Promise} A new promise, identical to the one returned by asyncFunction,
-   *          but with two new errors: 'in_progress', and 'last_call_interrupted'.
-   */
-  lockedAsyncCall(lockKey, asyncFunction): PromiseWithNotify<any> {
-
-    var self = this;
-    var deferred = new DeferredPromise();
-
-    // If the memory lock is set, error out.
-    if (memoryLocks[lockKey]) {
-      deferred.reject('in_progress');
-      return deferred.promise;
-    }
-
-    // If there is a stored lock but no memory lock, flag a persistence error
-    if (this.strategy.get(lockKey) === 'locked') {
-      deferred.reject('last_call_interrupted');
-      deferred.promise.then(null, function() {
-        self.strategy.remove(lockKey);
-      });
-      return deferred.promise;
-    }
-
-    // Set stored and memory locks
-    memoryLocks[lockKey] = true;
-    self.strategy.set(lockKey, 'locked');
-
-    // Perform the async operation
-    asyncFunction().then(function(successData) {
-      deferred.resolve(successData);
-
-      // Remove stored and memory locks
-      delete memoryLocks[lockKey];
-      self.strategy.remove(lockKey);
-    }, function(errorData) {
-      deferred.reject(errorData);
-
-      // Remove stored and memory locks
-      delete memoryLocks[lockKey];
-      self.strategy.remove(lockKey);
-    }, function(notifyData) {
-      deferred.notify(notifyData);
-    });
-
-    return deferred.promise;
   }
 }
