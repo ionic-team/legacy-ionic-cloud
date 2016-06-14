@@ -1,7 +1,7 @@
 import { App } from '../core/app';
 import { IonicPlatform } from '../core/core';
 import { Client } from '../core/client';
-import { PromiseWithNotify, DeferredPromise } from '../core/promise';
+import { DeferredPromise } from '../core/promise';
 import { User } from '../core/user';
 
 import { PushToken } from './push-token';
@@ -137,7 +137,7 @@ export class Push {
     IonicPlatform.emitter.emit('push:ready', { 'config': this._config });
   }
 
-  saveToken(token: PushToken, options: SaveTokenOptions = {}): PromiseWithNotify<any> {
+  saveToken(token: PushToken, options: SaveTokenOptions = {}): Promise<any> {
     var deferred = new DeferredPromise();
 
     interface TokenData {
@@ -225,7 +225,7 @@ export class Push {
   /**
    * Invalidate the current GCM/APNS token
    */
-  unregister(): PromiseWithNotify<any> {
+  unregister(): Promise<any> {
     var deferred = new DeferredPromise();
     var platform = null;
 

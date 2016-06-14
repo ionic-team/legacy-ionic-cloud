@@ -1,5 +1,5 @@
 import { Client } from '../core/client';
-import { PromiseWithNotify, DeferredPromise } from '../core/promise';
+import { DeferredPromise } from '../core/promise';
 import { IonicPlatform } from '../core/core';
 import { IStorageStrategy, LocalStorageStrategy, SessionStorageStrategy } from '../core/storage';
 import { User } from '../core/user';
@@ -105,7 +105,7 @@ export class Auth {
     return false;
   }
 
-  static login(moduleId, options: LoginOptions = {}, data): PromiseWithNotify<User> {
+  static login(moduleId, options: LoginOptions = {}, data): Promise<User> {
     var deferred = new DeferredPromise<User>();
     var context = authModules[moduleId] || false;
     if (!context) {
@@ -158,9 +158,9 @@ abstract class AuthType {
     this.client = client;
   }
 
-  abstract authenticate(options: LoginOptions, data): PromiseWithNotify<any>;
+  abstract authenticate(options: LoginOptions, data): Promise<any>;
 
-  protected inAppBrowserFlow(authOptions: LoginOptions = {}, options, data): PromiseWithNotify<any> {
+  protected inAppBrowserFlow(authOptions: LoginOptions = {}, options, data): Promise<any> {
     var deferred = new DeferredPromise();
 
     if (!window || !window.cordova || !window.cordova.InAppBrowser) {
@@ -207,7 +207,7 @@ abstract class AuthType {
 
 class BasicAuth extends AuthType {
 
-  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+  authenticate(options: LoginOptions = {}, data): Promise<any> {
     var deferred = new DeferredPromise();
 
     this.client.post('/auth/login')
@@ -228,7 +228,7 @@ class BasicAuth extends AuthType {
     return deferred.promise;
   }
 
-  signup(data): PromiseWithNotify<any> {
+  signup(data): Promise<any> {
     var deferred = new DeferredPromise<boolean>();
 
     var userData: any = {
@@ -270,43 +270,43 @@ class BasicAuth extends AuthType {
 }
 
 class CustomAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+  authenticate(options: LoginOptions = {}, data): Promise<any> {
     return this.inAppBrowserFlow(options, { 'provider': 'custom' }, data);
   }
 }
 
 class TwitterAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+  authenticate(options: LoginOptions = {}, data): Promise<any> {
     return this.inAppBrowserFlow(options, { 'provider': 'twitter' }, data);
   }
 }
 
 class FacebookAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+  authenticate(options: LoginOptions = {}, data): Promise<any> {
     return this.inAppBrowserFlow(options, { 'provider': 'facebook' }, data);
   }
 }
 
 class GithubAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+  authenticate(options: LoginOptions = {}, data): Promise<any> {
     return this.inAppBrowserFlow(options, { 'provider': 'github' }, data);
   }
 }
 
 class GoogleAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+  authenticate(options: LoginOptions = {}, data): Promise<any> {
     return this.inAppBrowserFlow(options, { 'provider': 'google' }, data);
   }
 }
 
 class InstagramAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+  authenticate(options: LoginOptions = {}, data): Promise<any> {
     return this.inAppBrowserFlow(options, { 'provider': 'instagram' }, data);
   }
 }
 
 class LinkedInAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): PromiseWithNotify<any> {
+  authenticate(options: LoginOptions = {}, data): Promise<any> {
     return this.inAppBrowserFlow(options, { 'provider': 'linkedin' }, data);
   }
 }
