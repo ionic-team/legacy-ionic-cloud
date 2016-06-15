@@ -1,6 +1,6 @@
 import { Auth } from '../auth/auth';
 import { DeferredPromise } from './promise';
-import { IonicPlatform } from './core';
+import { IonicCloud } from './core';
 import { Storage } from './storage';
 import { DataType } from './data-types';
 
@@ -11,7 +11,7 @@ var storage = new Storage();
 
 class UserContext {
   static get label() {
-    return 'ionic_io_user_' + IonicPlatform.config.get('app_id');
+    return 'ionic_io_user_' + IonicCloud.config.get('app_id');
   }
 
   static delete() {
@@ -178,15 +178,15 @@ export class User {
 
     if (!tempUser._blockLoad) {
       tempUser._blockLoad = true;
-      IonicPlatform.client.get('/auth/users/self')
+      IonicCloud.client.get('/auth/users/self')
         .end((err, res) => {
           if (err) {
             tempUser._blockLoad = false;
-            IonicPlatform.logger.error('Ionic User:', err);
+            IonicCloud.logger.error('Ionic User:', err);
             deferred.reject(err);
           } else {
             tempUser._blockLoad = false;
-            IonicPlatform.logger.info('Ionic User: loaded user');
+            IonicCloud.logger.info('Ionic User: loaded user');
 
             // set the custom data
             tempUser.id = res.body.data.uuid;
@@ -199,7 +199,7 @@ export class User {
           }
         });
     } else {
-      IonicPlatform.logger.info('Ionic User: a load operation is already in progress for ' + this + '.');
+      IonicCloud.logger.info('Ionic User: a load operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 
@@ -214,15 +214,15 @@ export class User {
 
     if (!tempUser._blockLoad) {
       tempUser._blockLoad = true;
-      IonicPlatform.client.get(`/auth/users/${tempUser.id}`)
+      IonicCloud.client.get(`/auth/users/${tempUser.id}`)
         .end((err, res) => {
           if (err) {
             tempUser._blockLoad = false;
-            IonicPlatform.logger.error('Ionic User:', err);
+            IonicCloud.logger.error('Ionic User:', err);
             deferred.reject(err);
           } else {
             tempUser._blockLoad = false;
-            IonicPlatform.logger.info('Ionic User: loaded user');
+            IonicCloud.logger.info('Ionic User: loaded user');
 
             // set the custom data
             tempUser.data = new UserData(res.body.data.custom);
@@ -233,7 +233,7 @@ export class User {
           }
         });
     } else {
-      IonicPlatform.logger.info('Ionic User: a load operation is already in progress for ' + this + '.');
+      IonicCloud.logger.info('Ionic User: a load operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 
@@ -295,20 +295,20 @@ export class User {
       if (!this._blockDelete) {
         this._blockDelete = true;
         this._delete();
-        IonicPlatform.client.delete(`/auth/users/${this.id}`)
+        IonicCloud.client.delete(`/auth/users/${this.id}`)
           .end((err, res) => {
             if (err) {
               this._blockDelete = false;
-              IonicPlatform.logger.error('Ionic User:', err);
+              IonicCloud.logger.error('Ionic User:', err);
               deferred.reject(err);
             } else {
               this._blockDelete = false;
-              IonicPlatform.logger.info('Ionic User: deleted ' + this);
+              IonicCloud.logger.info('Ionic User: deleted ' + this);
               deferred.resolve(res);
             }
           });
       } else {
-        IonicPlatform.logger.info('Ionic User: a delete operation is already in progress for ' + this + '.');
+        IonicCloud.logger.info('Ionic User: a delete operation is already in progress for ' + this + '.');
         deferred.reject(false);
       }
     } else {
@@ -336,13 +336,13 @@ export class User {
     if (!this._blockSave) {
       this._blockSave = true;
       this._store();
-      IonicPlatform.client.patch(`/auth/users/${this.id}`)
+      IonicCloud.client.patch(`/auth/users/${this.id}`)
         .send(this.getFormat('api-save'))
         .end((err, res) => {
           if (err) {
             this._dirty = true;
             this._blockSave = false;
-            IonicPlatform.logger.error('Ionic User:', err);
+            IonicCloud.logger.error('Ionic User:', err);
             deferred.reject(err);
           } else {
             this._dirty = false;
@@ -351,12 +351,12 @@ export class User {
             }
             this._fresh = false;
             this._blockSave = false;
-            IonicPlatform.logger.info('Ionic User: saved user');
+            IonicCloud.logger.info('Ionic User: saved user');
             deferred.resolve(res);
           }
         });
     } else {
-      IonicPlatform.logger.info('Ionic User: a save operation is already in progress for ' + this + '.');
+      IonicCloud.logger.info('Ionic User: a save operation is already in progress for ' + this + '.');
       deferred.reject(false);
     }
 
@@ -366,13 +366,13 @@ export class User {
   resetPassword() {
     var deferred = new DeferredPromise();
 
-    IonicPlatform.client.post(`/auth/users/${this.id}/password-reset`)
+    IonicCloud.client.post(`/auth/users/${this.id}/password-reset`)
       .end((err, res) => {
         if (err) {
-          IonicPlatform.logger.error('Ionic User:', err);
+          IonicCloud.logger.error('Ionic User:', err);
           deferred.reject(err);
         } else {
-          IonicPlatform.logger.info('Ionic User: password reset for user');
+          IonicCloud.logger.info('Ionic User: password reset for user');
           deferred.resolve(res);
         }
       });

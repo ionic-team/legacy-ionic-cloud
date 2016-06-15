@@ -1,4 +1,4 @@
-import { IonicPlatform } from '../core/core';
+import { IonicCloud } from '../core/core';
 import { DeferredPromise } from '../core/promise';
 
 export class Environment {
@@ -36,9 +36,9 @@ export class Environment {
    */
   private loadEnvFromAPI(tag): Promise<any> {
     var deferred = new DeferredPromise();
-    let appId = IonicPlatform.config.get('app_id');
+    let appId = IonicCloud.config.get('app_id');
 
-    IonicPlatform.client.get(`/apps/${appId}/env/${tag}`)
+    IonicCloud.client.get(`/apps/${appId}/env/${tag}`)
       .end((err, res) => {
         if (err) {
           deferred.reject(err);
