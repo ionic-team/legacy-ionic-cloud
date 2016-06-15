@@ -1,8 +1,51 @@
-// Add Angular integrations if Angular is available
+// Angular 1 modules and factories for the bundle
 
 if (typeof angular === 'object' && angular.module) {
-  var pushInstance = null;
 
+  var pushInstance = null;
+  var deployInstance = null;
+
+  angular.module('ionic.cloud.core', [])
+
+  /**
+   * @private
+   * Provides a safe interface to store objects in persistent memory
+   */
+  .provider('persistentStorage', function() {
+    return {
+      '$get': [function() {
+        var storage = Ionic.getService('Storage');
+        if (!storage) {
+          storage = new Ionic.IO.Storage();
+          Ionic.addService('Storage', storage, true);
+        }
+        return storage;
+      }]
+    };
+  })
+
+  .factory('$ionicCore', [function() {
+    return Ionic.Core;
+  }])
+
+  .factory('$ionicUser', [function() {
+    return Ionic.User;
+  }])
+
+  .run([function() {
+    Ionic.io();
+  }]);
+
+  // Ionic Auth
+  // ----------
+  angular.module('ionic.cloud.auth', [])
+
+  .factory('$ionicAuth', [function() {
+    return Ionic.Auth;
+  }]);
+
+  // Ionic Push
+  // ----------
   angular.module('ionic.cloud.push', [])
 
   /**
@@ -58,4 +101,16 @@ if (typeof angular === 'object' && angular.module) {
     });
 
   }]);
+
+  // Ionic Deploy
+  // ------------
+  angular.module('ionic.cloud.deploy', [])
+
+  .factory('$ionicDeploy', [function() {
+    if (!deployInstance) {
+      deployInstance = new Ionic.Deploy();
+    }
+    return deployInstance;
+  }]);
+
 }
