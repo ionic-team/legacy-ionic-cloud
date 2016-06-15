@@ -15,9 +15,6 @@ export interface PushOptions {
   debug?: boolean;
   deferInit?: boolean;
   pluginConfig?: any;
-  onRegister?: (token: PushToken) => any;
-  onNotification?: (message: PushMessage) => any;
-  onError?: (err) => any;
 }
 
 export interface SaveTokenOptions {
@@ -108,9 +105,6 @@ export class Push {
    *
    * The config supports the following properties:
    *   - debug {Boolean} Enables some extra logging as well as some default callback handlers
-   *   - onNotification {Function} Callback function that is passed the notification object
-   *   - onRegister {Function} Callback function that is passed the registration object
-   *   - onError {Function} Callback function that is passed the error object
    *   - pluginConfig {Object} Plugin configuration: https://github.com/phonegap/phonegap-plugin-push
    *
    * @param {object} config Configuration object
@@ -125,11 +119,6 @@ export class Push {
       if (!config.pluginConfig.android) { config.pluginConfig.android = {}; }
       if (!config.pluginConfig.android.senderId) { config.pluginConfig.android.senderID = this.app.gcmKey; }
     }
-
-    // Store Callbacks
-    if (config.onRegister) { this.setRegisterCallback(config.onRegister); }
-    if (config.onNotification) { this.setNotificationCallback(config.onNotification); }
-    if (config.onError) { this.setErrorCallback(config.onError); }
 
     this._config = config;
     this._isReady = true;
@@ -185,7 +174,7 @@ export class Push {
 
   /**
    * Registers the device with GCM/APNS to get a device token
-   * Fires off the 'onRegister' callback if one has been provided in the init() config
+   *
    * @param {function} callback Callback Function
    * @return {void}
    */
@@ -211,9 +200,10 @@ export class Push {
           self._blockRegistration = false;
           self.token = new PushToken(data.registrationId);
           self._tokenReady = true;
-          if ((typeof callback === 'function')) {
+          if (typeof callback === 'function') {
             callback(self._token);
           }
+          IonicCloud.emitter.emit('push:register', { 'token': self._token });
         });
         self._debugCallbackRegistration();
         self._callbackRegistration();
@@ -278,52 +268,7 @@ export class Push {
     return notification.payload;
   }
 
-  /**
-   * Set the registration callback
-   *
-   * @param {function} callback Registration callback function
-   * @return {boolean} true if set correctly, otherwise false
-   */
-  setRegisterCallback(callback) {
-    if (typeof callback !== 'function') {
-      IonicCloud.logger.info('Ionic Push: setRegisterCallback() requires a valid callback function');
-      return false;
-    }
-    this.registerCallback = callback;
-    return true;
-  }
-
-  /**
-   * Set the notification callback
-   *
-   * @param {function} callback Notification callback function
-   * @return {boolean} true if set correctly, otherwise false
-   */
-  setNotificationCallback(callback) {
-    if (typeof callback !== 'function') {
-      IonicCloud.logger.info('Ionic Push: setNotificationCallback() requires a valid callback function');
-      return false;
-    }
-    this.notificationCallback = callback;
-    return true;
-  }
-
-  /**
-   * Set the error callback
-   *
-   * @param {function} callback Error callback function
-   * @return {boolean} true if set correctly, otherwise false
-   */
-  setErrorCallback(callback) {
-    if (typeof callback !== 'function') {
-      IonicCloud.logger.info('Ionic Push: setErrorCallback() requires a valid callback function');
-      return false;
-    }
-    this.errorCallback = callback;
-    return true;
-  }
-
-  _debugRegistrationCallback() {
+  private _debugRegistrationCallback() {
     var self = this;
     function callback(data) {
       self.token = new PushToken(data.registrationId);
@@ -332,7 +277,7 @@ export class Push {
     return callback;
   }
 
-  _debugNotificationCallback() {
+  private _debugNotificationCallback() {
     var self = this;
     function callback(notification) {
       self._processNotification(notification);
@@ -345,7 +290,7 @@ export class Push {
     return callback;
   }
 
-  _debugErrorCallback() {
+  private _debugErrorCallback() {
     function callback(err) {
       IonicCloud.logger.error('Ionic Push: (debug) unexpected error occured.');
       IonicCloud.logger.error('Ionic Push:', err);
@@ -353,7 +298,7 @@ export class Push {
     return callback;
   }
 
-  _registerCallback() {
+  private _registerCallback() {
     var self = this;
     function callback(data) {
       self.token = new PushToken(data.registrationId);
@@ -364,7 +309,7 @@ export class Push {
     return callback;
   }
 
-  _notificationCallback() {
+  private _notificationCallback() {
     var self = this;
     function callback(notification) {
       self._processNotification(notification);
@@ -376,7 +321,7 @@ export class Push {
     return callback;
   }
 
-  _errorCallback() {
+  private _errorCallback() {
     var self = this;
     function callback(err) {
       if (self.errorCallback) {
@@ -392,7 +337,7 @@ export class Push {
    * @private
    * @return {void}
    */
-  _debugCallbackRegistration() {
+  private _debugCallbackRegistration() {
     if (this._config.debug) {
       if (!this.app.devPush) {
         this._plugin.on('registration', this._debugRegistrationCallback());
@@ -400,7 +345,7 @@ export class Push {
         this._plugin.on('error', this._debugErrorCallback());
       } else {
         if (!this._registered) {
-          IonicCloud.emitter.on('push:token', this._debugRegistrationCallback());
+          IonicCloud.emitter.on('push:register', this._debugRegistrationCallback());
           IonicCloud.emitter.on('push:notification', this._debugNotificationCallback());
           IonicCloud.emitter.on('push:error', this._debugErrorCallback());
         }
@@ -413,14 +358,14 @@ export class Push {
    * Internal Method
    * @return {void}
    */
-  _callbackRegistration() {
+  private _callbackRegistration() {
     if (!this.app.devPush) {
       this._plugin.on('registration', this._registerCallback());
       this._plugin.on('notification', this._notificationCallback());
       this._plugin.on('error', this._errorCallback());
     } else {
       if (!this._registered) {
-        IonicCloud.emitter.on('push:token', this._registerCallback());
+        IonicCloud.emitter.on('push:register', this._registerCallback());
         IonicCloud.emitter.on('push:notification', this._notificationCallback());
         IonicCloud.emitter.on('push:error', this._errorCallback());
       }
@@ -435,13 +380,13 @@ export class Push {
    * @param {PushNotification} notification Push Notification object
    * @return {void}
    */
-  _processNotification(notification) {
+  private _processNotification(notification) {
     this._notification = notification;
     IonicCloud.emitter.emit('push:processNotification', notification);
   }
 
   /* Deprecated in favor of `getPushPlugin` */
-  _getPushPlugin() {
+  private _getPushPlugin() {
     let plugin = window.PushNotification;
 
     if (!this.app.devPush && !plugin) {
