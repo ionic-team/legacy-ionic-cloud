@@ -75,7 +75,7 @@ export class PushDevService {
         } else {
           var data = { 'registrationId': token };
           IonicCloud.logger.info('Ionic Push (dev): registered with development push service: ' + token);
-          IonicCloud.emitter.emit('push:token', data);
+          IonicCloud.emitter.emit('push:register', data);
           if (typeof callback === 'function') {
             callback(new PushToken(this._token));
           }
