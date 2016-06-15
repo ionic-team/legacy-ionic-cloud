@@ -1,14 +1,14 @@
 // Add Angular integrations if Angular is available
-if ((typeof angular === 'object') && angular.module) {
 
-  var IonicAngularDeploy = null;
+if (typeof angular === 'object' && angular.module) {
+  var deployInstance = null;
 
-  angular.module('ionic.service.deploy', [])
+  angular.module('ionic.cloud.deploy', [])
 
   .factory('$ionicDeploy', [function() {
-    if (!IonicAngularDeploy) {
-      IonicAngularDeploy = new Ionic.Deploy();
+    if (!deployInstance) {
+      deployInstance = new Ionic.Deploy();
     }
-    return IonicAngularDeploy;
+    return deployInstance;
   }]);
 }

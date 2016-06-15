@@ -1,9 +1,9 @@
 // Add Angular integrations if Angular is available
-if ((typeof angular === 'object') && angular.module) {
 
-  var IonicAngularPush = null;
+if (typeof angular === 'object' && angular.module) {
+  var pushInstance = null;
 
-  angular.module('ionic.service.push', [])
+  angular.module('ionic.cloud.push', [])
 
   /**
    * IonicPushAction Service
@@ -40,10 +40,10 @@ if ((typeof angular === 'object') && angular.module) {
   }])
 
   .factory('$ionicPush', [function() {
-    if (!IonicAngularPush) {
-      IonicAngularPush = new Ionic.Push({ 'deferInit': true });
+    if (!pushInstance) {
+      pushInstance = new Ionic.Push({ 'deferInit': true });
     }
-    return IonicAngularPush;
+    return pushInstance;
   }])
 
   .run(['$ionicCore', '$ionicPush', '$ionicPushAction', function($ionicCore, $ionicPush, $ionicPushAction) {
