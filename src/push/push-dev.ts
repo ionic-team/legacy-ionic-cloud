@@ -1,4 +1,4 @@
-import { IonicPlatform } from '../core/core';
+import { IonicCloud } from '../core/core';
 import { Client } from '../core/client';
 import { generateUUID } from '../util/util';
 import { PushToken } from './push-token';
@@ -37,7 +37,7 @@ export class PushDevService {
   private _push: any;
 
   constructor() {
-    this.client = IonicPlatform.client;
+    this.client = IonicCloud.client;
     this._token = null;
     this._watch = null;
   }
@@ -71,11 +71,11 @@ export class PushDevService {
       .send({'token': token})
       .end((err, res) => {
         if (err) {
-          IonicPlatform.logger.error('Ionic Push (dev): error connecting development push service: ' + err);
+          IonicCloud.logger.error('Ionic Push (dev): error connecting development push service: ' + err);
         } else {
           var data = { 'registrationId': token };
-          IonicPlatform.logger.info('Ionic Push (dev): registered with development push service: ' + token);
-          IonicPlatform.emitter.emit('push:token', data);
+          IonicCloud.logger.info('Ionic Push (dev): registered with development push service: ' + token);
+          IonicCloud.emitter.emit('push:token', data);
           if (typeof callback === 'function') {
             callback(new PushToken(this._token));
           }
@@ -97,7 +97,7 @@ export class PushDevService {
       .query({'token': this._token})
       .end((err, res) => {
         if (err) {
-          IonicPlatform.logger.error('Ionic Push (dev): unable to check for development pushes: ' + err);
+          IonicCloud.logger.error('Ionic Push (dev): unable to check for development pushes: ' + err);
         } else {
           if (res.body.data.message) {
             var message = {
@@ -105,8 +105,8 @@ export class PushDevService {
               'title': 'DEVELOPMENT PUSH'
             };
 
-            IonicPlatform.logger.warn('Ionic Push (dev): Development Push received. Development pushes will not contain payload data.');
-            IonicPlatform.emitter.emit('push:notification', message);
+            IonicCloud.logger.warn('Ionic Push (dev): Development Push received. Development pushes will not contain payload data.');
+            IonicCloud.emitter.emit('push:notification', message);
           }
         }
       });
@@ -118,7 +118,7 @@ export class PushDevService {
    */
   watch() {
     // Check for new dev pushes every 5 seconds
-    IonicPlatform.logger.info('Ionic Push (dev): watching for new notifications');
+    IonicCloud.logger.info('Ionic Push (dev): watching for new notifications');
     var self = this;
     if (!this._watch) {
       this._watch = setInterval(function() { self.checkForNotifications(); }, 5000);

@@ -4,7 +4,7 @@ var config = require("./../dist/es5/core/config").config;
 var DataType = require("./../dist/es5/core/data-types").DataType;
 var Deploy = require("./../dist/es5/deploy/deploy").Deploy;
 var EventEmitter = require("./../dist/es5/core/events").EventEmitter;
-var IonicPlatform = require("./../dist/es5/core/core").IonicPlatform;
+var IonicCloud = require("./../dist/es5/core/core").IonicCloud;
 var Logger = require("./../dist/es5/core/logger").Logger;
 var Push = require("./../dist/es5/push/push").Push;
 var PushMessage = require("./../dist/es5/push/push-message").PushMessage;
@@ -17,7 +17,7 @@ var promise = require("./../dist/es5/core/promise");
 window.Ionic = window.Ionic || {};
 
 // Ionic Modules
-Ionic.Core = IonicPlatform;
+Ionic.Core = IonicCloud;
 Ionic.User = User;
 Ionic.Auth = Auth;
 Ionic.Deploy = Deploy;

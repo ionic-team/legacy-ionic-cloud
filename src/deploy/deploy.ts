@@ -1,5 +1,5 @@
 import { DeferredPromise } from '../core/promise';
-import { IonicPlatform } from '../core/core';
+import { IonicCloud } from '../core/core';
 
 declare var IonicDeploy: any;
 
@@ -37,11 +37,11 @@ export class Deploy {
     this._plugin = false;
     this._isReady = false;
     this._channelTag = 'production';
-    IonicPlatform.logger.info('Ionic Deploy: init');
-    IonicPlatform.onReady(function() {
+    IonicCloud.logger.info('Ionic Deploy: init');
+    IonicCloud.onReady(function() {
       self.initialize();
       self._isReady = true;
-      IonicPlatform.emitter.emit('deploy:ready');
+      IonicCloud.emitter.emit('deploy:ready');
     });
   }
 
@@ -56,7 +56,7 @@ export class Deploy {
   _getPlugin() {
     if (this._plugin) { return this._plugin; }
     if (typeof IonicDeploy === 'undefined') {
-      IonicPlatform.logger.info('Ionic Deploy: plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
+      IonicCloud.logger.info('Ionic Deploy: plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
       return false;
     }
     this._plugin = IonicDeploy;
@@ -71,7 +71,7 @@ export class Deploy {
     var self = this;
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.init(IonicPlatform.config.get('app_id'), IonicPlatform.config.getURL('api'));
+        self._plugin.init(IonicCloud.config.get('app_id'), IonicCloud.config.getURL('api'));
       }
     });
   }
@@ -88,16 +88,16 @@ export class Deploy {
 
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.check(IonicPlatform.config.get('app_id'), self._channelTag, function(result) {
+        self._plugin.check(IonicCloud.config.get('app_id'), self._channelTag, function(result) {
           if (result && result === 'true') {
-            IonicPlatform.logger.info('Ionic Deploy: an update is available');
+            IonicCloud.logger.info('Ionic Deploy: an update is available');
             deferred.resolve(true);
           } else {
-            IonicPlatform.logger.info('Ionic Deploy: no updates available');
+            IonicCloud.logger.info('Ionic Deploy: no updates available');
             deferred.resolve(false);
           }
         }, function(error) {
-          IonicPlatform.logger.error('Ionic Deploy: encountered an error while checking for updates');
+          IonicCloud.logger.error('Ionic Deploy: encountered an error while checking for updates');
           deferred.reject(error);
         });
       } else {
@@ -120,14 +120,14 @@ export class Deploy {
 
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.download(IonicPlatform.config.get('app_id'), function(result) {
+        self._plugin.download(IonicCloud.config.get('app_id'), function(result) {
           if (result !== 'true' && result !== 'false') {
             if (options.onProgress) {
               options.onProgress(result);
             }
           } else {
             if (result === 'true') {
-              IonicPlatform.logger.info('Ionic Deploy: download complete');
+              IonicCloud.logger.info('Ionic Deploy: download complete');
             }
             deferred.resolve(result === 'true');
           }
@@ -154,14 +154,14 @@ export class Deploy {
 
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.extract(IonicPlatform.config.get('app_id'), function(result) {
+        self._plugin.extract(IonicCloud.config.get('app_id'), function(result) {
           if (result !== 'done') {
             if (options.onProgress) {
               options.onProgress(result);
             }
           } else {
             if (result === 'true') {
-              IonicPlatform.logger.info('Ionic Deploy: extraction complete');
+              IonicCloud.logger.info('Ionic Deploy: extraction complete');
             }
             deferred.resolve(result);
           }
@@ -188,7 +188,7 @@ export class Deploy {
     var self = this;
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.redirect(IonicPlatform.config.get('app_id'));
+        self._plugin.redirect(IonicCloud.config.get('app_id'));
       }
     });
   }
@@ -210,10 +210,10 @@ export class Deploy {
     function checkForUpdates() {
       self.check().then(function(hasUpdate) {
         if (hasUpdate) {
-          IonicPlatform.emitter.emit('deploy:update-ready');
+          IonicCloud.emitter.emit('deploy:update-ready');
         }
       }, function(err) {
-        IonicPlatform.logger.info('Ionic Deploy: unable to check for updates: ' + err);
+        IonicCloud.logger.info('Ionic Deploy: unable to check for updates: ' + err);
       });
 
       // Check our timeout to make sure it wasn't cleared while we were waiting
@@ -247,7 +247,7 @@ export class Deploy {
 
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.info(IonicPlatform.config.get('app_id'), function(result) {
+        self._plugin.info(IonicCloud.config.get('app_id'), function(result) {
           deferred.resolve(result);
         }, function(err) {
           deferred.reject(err);
@@ -271,7 +271,7 @@ export class Deploy {
 
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.getVersions(IonicPlatform.config.get('app_id'), function(result) {
+        self._plugin.getVersions(IonicCloud.config.get('app_id'), function(result) {
           deferred.resolve(result);
         }, function(err) {
           deferred.reject(err);
@@ -296,7 +296,7 @@ export class Deploy {
 
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.deleteVersion(IonicPlatform.config.get('app_id'), uuid, function(result) {
+        self._plugin.deleteVersion(IonicCloud.config.get('app_id'), uuid, function(result) {
           deferred.resolve(result);
         }, function(err) {
           deferred.reject(err);
@@ -322,7 +322,7 @@ export class Deploy {
 
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.getMetadata(IonicPlatform.config.get('app_id'), uuid, function(result) {
+        self._plugin.getMetadata(IonicCloud.config.get('app_id'), uuid, function(result) {
           deferred.resolve(result.metadata);
         }, function(err) {
           deferred.reject(err);
@@ -380,7 +380,7 @@ export class Deploy {
                 if (!result) { deferred.reject('extraction error'); }
                 if (!options.deferLoad) {
                   deferred.resolve(true);
-                  self._plugin.redirect(IonicPlatform.config.get('app_id'));
+                  self._plugin.redirect(IonicCloud.config.get('app_id'));
                 } else {
                   deferred.resolve(true);
                 }
@@ -416,7 +416,7 @@ export class Deploy {
     if (this._isReady) {
       callback(self);
     } else {
-      IonicPlatform.emitter.on('deploy:ready', function() {
+      IonicCloud.emitter.on('deploy:ready', function() {
         callback(self);
       });
     }

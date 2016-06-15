@@ -83,4 +83,4 @@ export class Core {
   }
 }
 
-export let IonicPlatform = new Core();
+export let IonicCloud = new Core();

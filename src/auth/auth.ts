@@ -1,6 +1,6 @@
 import { Client } from '../core/client';
 import { DeferredPromise } from '../core/promise';
-import { IonicPlatform } from '../core/core';
+import { IonicCloud } from '../core/core';
 import { IStorageStrategy, LocalStorageStrategy, SessionStorageStrategy } from '../core/storage';
 import { User } from '../core/user';
 
@@ -27,7 +27,7 @@ export class TempTokenContext implements ITokenContext {
   }
 
   get label(): string {
-    return 'ionic_io_auth_' + IonicPlatform.config.get('app_id');
+    return 'ionic_io_auth_' + IonicCloud.config.get('app_id');
   }
 
   delete(): void {
@@ -52,7 +52,7 @@ export class TokenContext implements ITokenContext {
   }
 
   get label(): string {
-    return 'ionic_io_auth_' + IonicPlatform.config.get('app_id');
+    return 'ionic_io_auth_' + IonicCloud.config.get('app_id');
   }
 
   delete(): void {
@@ -83,7 +83,7 @@ function storeToken(options: LoginOptions = {}, token: string) {
   } else {
     tempTokenContext.store(authToken);
   }
-  IonicPlatform.emitter.emit('auth:token-changed', {'old': originalToken, 'new': authToken});
+  IonicCloud.emitter.emit('auth:token-changed', {'old': originalToken, 'new': authToken});
 }
 
 function getAuthErrorDetails(err) {
@@ -171,7 +171,7 @@ abstract class AuthType {
 
       this.client.request(method, `/auth/login${provider}`)
         .send({
-          'app_id': IonicPlatform.config.get('app_id'),
+          'app_id': IonicCloud.config.get('app_id'),
           'callback': options.callback_uri || window.location.href,
           'data': data
         })
@@ -212,7 +212,7 @@ class BasicAuth extends AuthType {
 
     this.client.post('/auth/login')
       .send({
-        'app_id': IonicPlatform.config.get('app_id'),
+        'app_id': IonicCloud.config.get('app_id'),
         'email': data.email,
         'password': data.password
       })
@@ -232,7 +232,7 @@ class BasicAuth extends AuthType {
     var deferred = new DeferredPromise<boolean>();
 
     var userData: any = {
-      'app_id': IonicPlatform.config.get('app_id'),
+      'app_id': IonicCloud.config.get('app_id'),
       'email': data.email,
       'password': data.password
     };
@@ -311,11 +311,11 @@ class LinkedInAuth extends AuthType {
   }
 }
 
-Auth.register('basic', new BasicAuth(IonicPlatform.client));
-Auth.register('custom', new CustomAuth(IonicPlatform.client));
-Auth.register('facebook', new FacebookAuth(IonicPlatform.client));
-Auth.register('github', new GithubAuth(IonicPlatform.client));
-Auth.register('google', new GoogleAuth(IonicPlatform.client));
-Auth.register('instagram', new InstagramAuth(IonicPlatform.client));
-Auth.register('linkedin', new LinkedInAuth(IonicPlatform.client));
-Auth.register('twitter', new TwitterAuth(IonicPlatform.client));
+Auth.register('basic', new BasicAuth(IonicCloud.client));
+Auth.register('custom', new CustomAuth(IonicCloud.client));
+Auth.register('facebook', new FacebookAuth(IonicCloud.client));
+Auth.register('github', new GithubAuth(IonicCloud.client));
+Auth.register('google', new GoogleAuth(IonicCloud.client));
+Auth.register('instagram', new InstagramAuth(IonicCloud.client));
+Auth.register('linkedin', new LinkedInAuth(IonicCloud.client));
+Auth.register('twitter', new TwitterAuth(IonicCloud.client));
