@@ -24,7 +24,7 @@ export class Core {
   constructor() {
     this.config = config;
     this.logger = new Logger();
-    this.client = new Client(this.config.getURL('platform-api'));
+    this.client = new Client(this.config.getURL('api'));
     this.device = new Device();
     this.cordova = new Cordova(this.device, this.logger);
     this.emitter = new EventEmitter();
@@ -49,7 +49,7 @@ export class Core {
     });
 
     this.emitter.on('core:init', data => {
-      this.client.baseUrl = this.config.getURL('platform-api');
+      this.client.baseUrl = this.config.getURL('api');
     });
 
     if (this.device.deviceType === 'unknown') {

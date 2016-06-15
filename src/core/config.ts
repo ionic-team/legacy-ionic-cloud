@@ -1,25 +1,21 @@
+export interface ISettingsUrls {
+  api?: string;
+}
+
 export interface ISettings {
   app_id: string;
   gcm_key?: string;
-  api_key?: string;
   dev_push?: boolean;
-  dev_locations?: any;
+  urls?: any;
   [key: string]: any;
 }
 
 export class Config {
 
   private settings: ISettings;
-  private locations: any;
-
-  constructor() {
-    this.locations = {
-      'api': 'https://apps.ionic.io',
-      'push': 'https://push.ionic.io',
-      'deploy': 'https://apps.ionic.io',
-      'platform-api': 'https://api.ionic.io'
-    };
-  }
+  private urls: ISettingsUrls = {
+    'api': 'https://api.ionic.io'
+  };
 
   register(settings: ISettings) {
     this.settings = settings;
@@ -34,13 +30,13 @@ export class Config {
   }
 
   getURL(name: string): string {
-    let devLocations = this.settings && this.settings['dev_locations'] || {};
+    let urls = this.settings && this.settings['urls'] || {};
 
-    if (devLocations[name]) {
-      return devLocations[name];
+    if (urls[name]) {
+      return urls[name];
     }
 
-    return this.locations[name];
+    return this.urls[name];
   }
 
 }
