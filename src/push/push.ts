@@ -48,13 +48,13 @@ export class Push {
   constructor(config: PushOptions = {}) {
     this.client = IonicPlatform.client;
 
-    var app = new App(IonicPlatform.config.get('app_id'), IonicPlatform.config.get('api_key'));
+    var app = new App(IonicPlatform.config.get('app_id'));
     app.devPush = IonicPlatform.config.get('dev_push');
     app.gcmKey = IonicPlatform.config.get('gcm_key');
 
     // Check for the required values to use this service
-    if (!app.id || !app.apiKey) {
-      IonicPlatform.logger.error('Ionic Push: no app_id or api_key found. (http://docs.ionic.io/docs/io-install)');
+    if (!app.id) {
+      IonicPlatform.logger.error('Ionic Push: no app_id found. (http://docs.ionic.io/docs/io-install)');
       return;
     } else if (IonicPlatform.device.isAndroid() && !app.devPush && !app.gcmKey) {
       IonicPlatform.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');

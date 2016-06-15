@@ -1,6 +1,6 @@
 var Config = require('../../dist/es5/core/config').Config;
 
-describe("ionic platform config", function() {
+describe("config", function() {
 
   it("should instantiate", function() {
     var c = new Config();
@@ -38,12 +38,10 @@ describe("ionic platform config", function() {
     var c = new Config();
     c.register({
       'app_id': '1234abc',
-      'gcm_key': 'gcm_key_123',
-      'api_key': 'api_key_123'
+      'gcm_key': 'gcm_key_123'
     });
     expect(c.get('app_id')).toBe('1234abc');
     expect(c.get('gcm_key')).toBe('gcm_key_123');
-    expect(c.get('api_key')).toBe('api_key_123');
   });
 
   it("should return undefined for configs that aren't there", function() {
