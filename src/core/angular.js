@@ -1,6 +1,7 @@
 // Add Angular integrations if Angular is available
-if ((typeof angular === 'object') && angular.module) {
-  angular.module('ionic.service.core', [])
+
+if (typeof angular === 'object' && angular.module) {
+  angular.module('ionic.cloud.core', [])
 
   /**
    * @private
@@ -19,23 +20,13 @@ if ((typeof angular === 'object') && angular.module) {
     };
   })
 
-  .factory('$ionicCore', [
-    function() {
-      return Ionic.Core;
-    }
-  ])
+  .factory('$ionicCore', [function() {
+    return Ionic.Core;
+  }])
 
-  .factory('$ionicCoreSettings', [
-    function() {
-      return Ionic.IO.Config;
-    }
-  ])
-
-  .factory('$ionicUser', [
-    function() {
-      return Ionic.User;
-    }
-  ])
+  .factory('$ionicUser', [function() {
+    return Ionic.User;
+  }])
 
   .run([function() {
     Ionic.io();
