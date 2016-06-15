@@ -33,7 +33,7 @@
     "del": "^2.0.2",
     "es6-promise": "^3.2.1",
     "eslint": "^2.10.2",
-    "eslint-config-ionic": "0.0.2",
+    "eslint-config-ionic": "*",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.2.0",
     "gulp-footer": "^1.0.4",
@@ -55,7 +55,7 @@
     "phantomjs-prebuilt": "^2.1.7",
     "run-sequence": "^1.2.1",
     "tslint": "^3.10.2",
-    "tslint-ionic-rules": "0.0.2",
+    "tslint-ionic-rules": "*",
     "typescript": "^1.8.10",
     "typings": "^1.0.4",
     "watchify": "^3.7.0"
