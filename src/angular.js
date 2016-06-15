@@ -32,6 +32,10 @@ if (typeof angular === 'object' && angular.module) {
     return Ionic.User;
   }])
 
+  .factory('$ionicEventEmitter', ['$ionicCore', function($ionicCore) {
+    return $ionicCore.emitter;
+  }])
+
   .run([function() {
     Ionic.io();
   }]);
