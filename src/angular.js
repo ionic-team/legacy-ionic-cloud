@@ -38,7 +38,7 @@ if (typeof angular === 'object' && angular.module) {
 
   // Ionic Auth
   // ----------
-  angular.module('ionic.cloud.auth', [])
+  angular.module('ionic.cloud.auth', ['ionic.cloud.core'])
 
   .factory('$ionicAuth', [function() {
     return Ionic.Auth;
@@ -46,7 +46,7 @@ if (typeof angular === 'object' && angular.module) {
 
   // Ionic Push
   // ----------
-  angular.module('ionic.cloud.push', [])
+  angular.module('ionic.cloud.push', ['ionic.cloud.core'])
 
   /**
    * IonicPushAction Service
@@ -104,7 +104,7 @@ if (typeof angular === 'object' && angular.module) {
 
   // Ionic Deploy
   // ------------
-  angular.module('ionic.cloud.deploy', [])
+  angular.module('ionic.cloud.deploy', ['ionic.cloud.core'])
 
   .factory('$ionicDeploy', [function() {
     if (!deployInstance) {
