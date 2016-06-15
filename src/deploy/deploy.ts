@@ -71,7 +71,7 @@ export class Deploy {
     var self = this;
     this.onReady(function() {
       if (self._getPlugin()) {
-        self._plugin.init(IonicPlatform.config.get('app_id'), IonicPlatform.config.getURL('platform-api'));
+        self._plugin.init(IonicPlatform.config.get('app_id'), IonicPlatform.config.getURL('api'));
       }
     });
   }
