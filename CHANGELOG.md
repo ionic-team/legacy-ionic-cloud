@@ -1,16 +1,18 @@
+# Changelog
+
 ## 0.8.0
 
 * Move to Typescript
-* **(breaking)** Configuration Update
-  (see the [docs](http://docs.ionic.io) for usage)
-* **(breaking)** Removed bower support
-* Added CommonJS ES5 distribution files
+* **(breaking)** Configuration Update (see the [docs](http://docs.ionic.io) for usage)
+* **(breaking)** Remove bower support
+* Add CommonJS ES5 distribution files
 * Start tests (`gulp test`)
 * Add `user.clear()` method for wiping user data and turning the user into a blank, unauthenticated user
-* Standardized ES and TS linting
+* Standardize ES and TS linting
 * Unify logger and event emitter
-* Remove Analytics (in favor of Ionic Insights)
+* **(breaking)** Remove Analytics (in favor of Ionic Insights)
 * Remove APIRequest (in favor of new service client)
+* **(breaking)** Remove notify option of returned promises (progress reporting of deploy updates).
 
 ## 0.7.1
 
