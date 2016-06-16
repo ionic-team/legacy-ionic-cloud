@@ -1,4 +1,7 @@
 import { Client } from '../core/client';
+import { IonicPlatform } from '../core/core';
+
+import { DeferredPromise, PromiseWithNotify } from '../core/promise';
 
 export class Links {
 
@@ -7,8 +10,20 @@ export class Links {
     this.appId = appId;
   }
 
-  start() {
-    
-  }
+  static create(data): PromiseWithNotify<any> {
+    var q = new DeferredPromise();
 
+    let client = IonicPlatform.client;
+    client.post('/links/link')
+      .send(data)
+      .end((err, res) => {
+        if (err) {
+          q.reject(err);
+        } else {
+          q.resolve(res);
+        }
+      });
+
+    return q.promise;
+  }
 }
