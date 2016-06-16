@@ -318,7 +318,7 @@ export class User {
     return deferred.promise;
   }
 
-  _store() {
+  store() {
     if (this === User.current()) {
       UserContext.store();
     }
@@ -335,7 +335,7 @@ export class User {
 
     if (!this._blockSave) {
       this._blockSave = true;
-      this._store();
+      this.store();
       IonicCloud.client.patch(`/auth/users/${this.id}`)
         .send(this.getFormat('api-save'))
         .end((err, res) => {
