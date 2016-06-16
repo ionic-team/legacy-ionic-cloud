@@ -5,7 +5,7 @@ if (typeof angular === 'object' && angular.module) {
   var pushInstance = null;
   var deployInstance = null;
 
-  angular.module('ionic.cloud.core', [])
+  angular.module('ionic.cloud', [])
 
   /**
    * @private
@@ -24,6 +24,16 @@ if (typeof angular === 'object' && angular.module) {
     };
   })
 
+  .provider('$ionicCloud', function() {
+    this.init = function(value) {
+      Ionic.Core.init(value.core);
+    };
+
+    this.$get = function() {
+      return Ionic.Core;
+    };
+  })
+
   .factory('$ionicCore', [function() {
     return Ionic.Core;
   }])
@@ -36,21 +46,9 @@ if (typeof angular === 'object' && angular.module) {
     return $ionicCore.emitter;
   }])
 
-  .run([function() {
-    Ionic.io();
-  }]);
-
-  // Ionic Auth
-  // ----------
-  angular.module('ionic.cloud.auth', ['ionic.cloud.core'])
-
   .factory('$ionicAuth', [function() {
     return Ionic.Auth;
-  }]);
-
-  // Ionic Push
-  // ----------
-  angular.module('ionic.cloud.push', ['ionic.cloud.core'])
+  }])
 
   /**
    * IonicPushAction Service
@@ -93,8 +91,17 @@ if (typeof angular === 'object' && angular.module) {
     return pushInstance;
   }])
 
+  .factory('$ionicDeploy', [function() {
+    if (!deployInstance) {
+      deployInstance = new Ionic.Deploy();
+    }
+    return deployInstance;
+  }])
+
   .run(['$ionicCore', '$ionicPush', '$ionicPushAction', function($ionicCore, $ionicPush, $ionicPushAction) {
     // This is what kicks off the state redirection when a push notificaiton has the relevant details
+    Ionic.io();
+
     $ionicCore.emitter.on('push:processNotification', function(notification) {
       notification = Ionic.PushMessage.fromPluginJSON(notification);
       if (notification && notification.app) {
@@ -103,18 +110,6 @@ if (typeof angular === 'object' && angular.module) {
         }
       }
     });
-
-  }]);
-
-  // Ionic Deploy
-  // ------------
-  angular.module('ionic.cloud.deploy', ['ionic.cloud.core'])
-
-  .factory('$ionicDeploy', [function() {
-    if (!deployInstance) {
-      deployInstance = new Ionic.Deploy();
-    }
-    return deployInstance;
   }]);
 
 }

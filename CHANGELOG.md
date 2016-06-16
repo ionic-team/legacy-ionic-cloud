@@ -14,6 +14,7 @@
 * **(breaking)** Remove APIRequest (in favor of new service client)
 * **(breaking)** Remove notify option of returned promises (progress reporting of deploy updates).
 * **(breaking)** Remove push callbacks in favor of using the event emitter
+* Add `$ionicCloudProvider` for Angular 1 app config
 
 ## 0.7.1
 
