@@ -20,6 +20,12 @@ export interface SaveTokenOptions {
   ignore_user?: boolean;
 }
 
+interface ServiceTokenData {
+  token: string;
+  app_id: string;
+  user_id?: string;
+}
+
 export class Push {
 
   client: Client;
@@ -116,21 +122,15 @@ export class Push {
   }
 
   saveToken(token: PushToken, options: SaveTokenOptions = {}): Promise<any> {
-    var deferred = new DeferredPromise();
+    let deferred = new DeferredPromise();
 
-    interface TokenData {
-      token: string;
-      app_id: string;
-      user_id?: string;
-    }
-
-    var tokenData: TokenData = {
+    let tokenData: ServiceTokenData = {
       'token': token.token,
       'app_id': IonicCloud.config.get('app_id')
     };
 
     if (!options.ignore_user) {
-      var user = User.current();
+      let user = User.current();
       if (user.isAuthenticated()) {
         tokenData.user_id = user.id;
       }
@@ -177,7 +177,7 @@ export class Push {
     this._blockRegistration = true;
     this.onReady(function() {
       if (self.app.devPush) {
-        var IonicDevPush = new PushDevService();
+        let IonicDevPush = new PushDevService();
         self._debugCallbackRegistration();
         self._callbackRegistration();
         IonicDevPush.init(self, callback);
@@ -204,28 +204,19 @@ export class Push {
    * Invalidate the current GCM/APNS token
    */
   unregister(): Promise<any> {
-    var deferred = new DeferredPromise();
-    var platform = null;
-
-    if (IonicCloud.device.isAndroid()) {
-      platform = 'android';
-    } else if (IonicCloud.device.isIOS()) {
-      platform = 'ios';
-    }
-
-    if (!platform) {
-      deferred.reject('Could not detect the platform, are you on a device?');
-    }
+    let deferred = new DeferredPromise();
 
     if (!this._blockUnregister) {
+      let tokenData: ServiceTokenData = {
+        'token': this.getStorageToken().token,
+        'app_id': IonicCloud.config.get('app_id')
+      };
+
       if (this._plugin) {
         this._plugin.unregister(function() {}, function() {});
       }
       this.client.post('/push/tokens/invalidate')
-        .send({
-          'platform': platform,
-          'token': this.getStorageToken().token
-        })
+        .send(tokenData)
         .end((err, res) => {
           if (err) {
             this._blockUnregister = false;
