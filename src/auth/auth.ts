@@ -113,6 +113,7 @@ export class Auth {
     }
     context.authenticate.apply(context, [options, data]).then(function() {
       User.self().then(function(user) {
+        user.store();
         deferred.resolve(user);
       }, function(err) {
         deferred.reject(err);
