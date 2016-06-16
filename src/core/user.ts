@@ -294,7 +294,7 @@ export class User {
     if (this.isValid()) {
       if (!this._blockDelete) {
         this._blockDelete = true;
-        this._delete();
+        this.unstore();
         IonicCloud.client.delete(`/auth/users/${this.id}`)
           .end((err, res) => {
             if (err) {
@@ -324,7 +324,7 @@ export class User {
     }
   }
 
-  _delete() {
+  unstore() {
     if (this === User.current()) {
       UserContext.delete();
     }
