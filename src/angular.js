@@ -88,7 +88,7 @@ if (typeof angular === 'object' && angular.module) {
 
   .factory('$ionicPush', [function() {
     if (!pushInstance) {
-      pushInstance = new Ionic.Push({ 'deferInit': true });
+      pushInstance = new Ionic.Push();
     }
     return pushInstance;
   }])

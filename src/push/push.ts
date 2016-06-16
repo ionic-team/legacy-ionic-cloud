@@ -13,7 +13,6 @@ declare var PushNotification: any;
 
 export interface PushOptions {
   debug?: boolean;
-  deferInit?: boolean;
   pluginConfig?: any;
 }
 
@@ -25,10 +24,6 @@ export class Push {
 
   client: Client;
   app: App;
-
-  registerCallback: any;
-  notificationCallback: any;
-  errorCallback: any;
 
   private _debug: boolean;
   private _isReady: boolean;
@@ -45,23 +40,6 @@ export class Push {
   constructor(config: PushOptions = {}) {
     this.client = IonicCloud.client;
 
-    var app = new App(IonicCloud.config.get('app_id'));
-    app.devPush = IonicCloud.config.get('dev_push');
-    app.gcmKey = IonicCloud.config.get('gcm_key');
-
-    // Check for the required values to use this service
-    if (!app.id) {
-      IonicCloud.logger.error('Ionic Push: no app_id found. (http://docs.ionic.io/docs/io-install)');
-      return;
-    } else if (IonicCloud.device.isAndroid() && !app.devPush && !app.gcmKey) {
-      IonicCloud.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
-      return;
-    }
-
-    this.app = app;
-    this.registerCallback = null;
-    this.notificationCallback = null;
-    this.errorCallback = null;
     this._notification = false;
     this._debug = false;
     this._isReady = false;
@@ -71,11 +49,9 @@ export class Push {
     this._registered = false;
     this._plugin = null;
 
-    if (!config.deferInit) {
-      IonicCloud.onReady(() => {
-        this.init(config);
-      });
-    }
+    IonicCloud.onReady(() => {
+      this.init(config);
+    });
   }
 
   set token(val) {
@@ -111,6 +87,19 @@ export class Push {
    * @return {Push} returns the called Push instantiation
    */
   init(config: PushOptions = {}): void {
+    this.app = new App(IonicCloud.config.get('app_id'));
+    this.app.devPush = IonicCloud.config.get('dev_push');
+    this.app.gcmKey = IonicCloud.config.get('gcm_key');
+
+    // Check for the required values to use this service
+    if (!this.app.id) {
+      IonicCloud.logger.error('Ionic Push: no app_id found. (http://docs.ionic.io/docs/io-install)');
+      return;
+    } else if (IonicCloud.device.isAndroid() && !this.app.devPush && !this.app.gcmKey) {
+      IonicCloud.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
+      return;
+    }
+
     this._getPushPlugin();
     if (!config.pluginConfig) { config.pluginConfig = {}; }
 
@@ -203,7 +192,6 @@ export class Push {
           if (typeof callback === 'function') {
             callback(self._token);
           }
-          IonicCloud.emitter.emit('push:register', { 'token': self._token });
         });
         self._debugCallbackRegistration();
         self._callbackRegistration();
@@ -283,9 +271,6 @@ export class Push {
       self._processNotification(notification);
       var message = PushMessage.fromPluginJSON(notification);
       IonicCloud.logger.info('Ionic Push: (debug) notification received: ' + message);
-      if (!self.notificationCallback && self.app.devPush) {
-        alert(message.text);
-      }
     }
     return callback;
   }
@@ -298,37 +283,15 @@ export class Push {
     return callback;
   }
 
-  private _registerCallback() {
-    var self = this;
-    function callback(data) {
-      self.token = new PushToken(data.registrationId);
-      if (self.registerCallback) {
-        return self.registerCallback(self._token);
-      }
+  /**
+   * Registers callbacks with the PushPlugin
+   */
+  private _callbackRegistration() {
+    if (!this.app.devPush) {
+      this._plugin.on('registration', (data) => { IonicCloud.emitter.emit('push:register', { 'token': data.registrationId }); });
+      this._plugin.on('notification', (data) => { IonicCloud.emitter.emit('push:notification', data); });
+      this._plugin.on('error', (e) => { IonicCloud.emitter.emit('push:error', { 'err': e }); });
     }
-    return callback;
-  }
-
-  private _notificationCallback() {
-    var self = this;
-    function callback(notification) {
-      self._processNotification(notification);
-      var message = PushMessage.fromPluginJSON(notification);
-      if (self.notificationCallback) {
-        return self.notificationCallback(message);
-      }
-    }
-    return callback;
-  }
-
-  private _errorCallback() {
-    var self = this;
-    function callback(err) {
-      if (self.errorCallback) {
-        return self.errorCallback(err);
-      }
-    }
-    return callback;
   }
 
   /**
@@ -349,25 +312,6 @@ export class Push {
           IonicCloud.emitter.on('push:notification', this._debugNotificationCallback());
           IonicCloud.emitter.on('push:error', this._debugErrorCallback());
         }
-      }
-    }
-  }
-
-  /**
-   * Registers the user supplied callbacks with the PushPlugin
-   * Internal Method
-   * @return {void}
-   */
-  private _callbackRegistration() {
-    if (!this.app.devPush) {
-      this._plugin.on('registration', this._registerCallback());
-      this._plugin.on('notification', this._notificationCallback());
-      this._plugin.on('error', this._errorCallback());
-    } else {
-      if (!this._registered) {
-        IonicCloud.emitter.on('push:register', this._registerCallback());
-        IonicCloud.emitter.on('push:notification', this._notificationCallback());
-        IonicCloud.emitter.on('push:error', this._errorCallback());
       }
     }
   }
