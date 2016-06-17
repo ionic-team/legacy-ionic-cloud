@@ -20,19 +20,18 @@ export class Core {
   logger: ILogger;
   storage: Storage;
 
-  private pluginsReady: boolean = false;
   private _version = 'VERSION_STRING';
 
   constructor() {
     this.config = config;
     this.logger = new Logger();
-    this.client = new Client(this.config.getURL('api'));
-    this.device = new Device();
-    this.cordova = new Cordova(this.device, this.logger);
     this.emitter = new EventEmitter();
+    this.client = new Client(this.config.getURL('api'));
+    this.device = new Device(this.emitter);
+    this.cordova = new Cordova(this.device, this.emitter, { logger: this.logger });
     this.storage = new Storage();
-    this.cordova.load();
     this.registerEventHandlers();
+    this.cordova.load();
   }
 
   public init(cfg: ISettings) {
@@ -48,37 +47,23 @@ export class Core {
     return this._version;
   }
 
-  private registerEventHandlers() {
+  private registerEventHandlers(): void {
     this.emitter.on('auth:token-changed', (data) => {
       this.client.token = data['new'];
     });
 
-    if (this.device.deviceType === 'unknown') {
-      this.logger.info('Ionic Core: attempting to mock plugins');
-      this.pluginsReady = true;
-      this.emitter.emit('device:ready');
-    } else {
-      document.addEventListener('deviceready', () => {
-        this.logger.info('Ionic Core: plugins are ready');
-        this.pluginsReady = true;
-        this.emitter.emit('device:ready');
-      }, false);
-
-      document.addEventListener('resume', () => {
-        this.insights.track('mobileapp.opened');
-      }, false);
-    }
+    this.emitter.on('cordova:resume', (data) => {
+      this.insights.track('mobileapp.opened');
+    });
   }
 
   /**
-   * Fire a callback when core + plugins are ready. This will fire immediately if
-   * the components have already become available.
-   *
-   * @param {function} callback function to fire off
-   * @return {void}
+   * Fire a callback when core + plugins are ready. This will fire immediately
+   * if the components have already become available.
    */
   onReady(callback) {
-    if (this.pluginsReady) {
+    // There's a chance this event was already emitted
+    if (this.emitter.emitted('device:ready')) {
       callback(this);
     } else {
       this.emitter.on('device:ready', () => {

@@ -32,4 +32,15 @@ describe("event emitter", function() {
     expect(spy2.calls.allArgs()).toEqual([[{ 'data': false }]]);
   });
 
+  it("should count events", function() {
+    var emitter = new EventEmitter();
+
+    emitter.emit('event-1');
+    emitter.emit('event-1');
+    emitter.emit('event-1');
+    emitter.emit('event-2');
+    expect(emitter.emitted('event-1')).toBe(3);
+    expect(emitter.emitted('event-2')).toBe(1);
+  });
+
 });

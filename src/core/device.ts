@@ -1,3 +1,5 @@
+import { EventEmitter } from './events';
+
 declare var Connection: any;
 declare var navigator: any;
 
@@ -9,8 +11,20 @@ export class Device {
 
   public deviceType: string;
 
-  constructor() {
+  constructor(public emitter: EventEmitter) {
+    this.emitter = emitter;
     this.deviceType = this.determineDeviceType();
+    this.registerEventHandlers();
+  }
+
+  public registerEventHandlers(): void {
+    if (this.deviceType === 'unknown') {
+      this.emitter.emit('device:ready');
+    } else {
+      this.emitter.on('cordova:deviceready', () => {
+        this.emitter.emit('device:ready');
+      });
+    }
   }
 
   /**

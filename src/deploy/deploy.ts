@@ -55,7 +55,7 @@ export class Deploy {
   _getPlugin() {
     if (this._plugin) { return this._plugin; }
     if (typeof IonicDeploy === 'undefined') {
-      IonicCloud.logger.warn('Ionic Deploy: plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
+      IonicCloud.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
       return false;
     }
     this._plugin = IonicDeploy;

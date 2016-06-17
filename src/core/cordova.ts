@@ -1,13 +1,33 @@
 import { Device } from './device';
 import { ILogger } from './logger';
+import { EventEmitter } from './events';
 
 declare var cordova: any;
 
+export interface CordovaOptions {
+  logger?: ILogger;
+}
+
 export class Cordova {
 
-  constructor(public device: Device, protected logger: ILogger) {
+  logger: ILogger;
+
+  constructor(public device: Device, public emitter: EventEmitter, protected options: CordovaOptions = {}) {
     this.device = device;
-    this.logger = logger;
+    this.emitter = emitter;
+    this.options = options;
+    this.logger = this.options.logger;
+    this.registerEventHandlers();
+  }
+
+  public registerEventHandlers(): void {
+    let events = ['deviceready', 'pause', 'resume'];
+
+    for (let e of events) {
+      document.addEventListener(e, (...args) => {
+        this.emitter.emit('cordova:' + e, {'args': args});
+      }, false);
+    }
   }
 
   public load(): void {
@@ -29,8 +49,10 @@ export class Cordova {
               cordovaSrc = decodeURI(resource[1]);
             }
           } catch (e) {
-            this.logger.info('Ionic Cordova: could not find cordova_js_bootstrap_resource query param');
-            this.logger.info('Ionic Cordova:', e);
+            if (this.logger) {
+              this.logger.info('Ionic Cordova: could not find cordova_js_bootstrap_resource query param');
+              this.logger.info('Ionic Cordova:', e);
+            }
           }
           break;
 
@@ -39,15 +61,21 @@ export class Cordova {
       }
       cordovaScript.setAttribute('src', cordovaSrc);
       document.head.appendChild(cordovaScript);
-      this.logger.info('Ionic Cordova: injecting cordova.js');
+      if (this.logger) {
+        this.logger.info('Ionic Cordova: injecting cordova.js');
+      }
     }
   }
 
   private isAvailable(): boolean {
-    this.logger.info('Ionic Cordova: searching for cordova.js');
+    if (this.logger) {
+      this.logger.info('Ionic Cordova: searching for cordova.js');
+    }
 
     if (typeof cordova !== 'undefined') {
-      this.logger.info('Ionic Cordova: cordova.js has already been loaded');
+      if (this.logger) {
+        this.logger.info('Ionic Cordova: cordova.js has already been loaded');
+      }
       return true;
     }
 
@@ -61,11 +89,15 @@ export class Cordova {
         try {
           partsLength = parts.length;
           if (parts[partsLength - 1] === 'cordova.js') {
-            this.logger.info('Ionic Cordova: cordova.js has previously been included.');
+            if (this.logger) {
+              this.logger.info('Ionic Cordova: cordova.js has previously been included.');
+            }
             return true;
           }
         } catch (e) {
-          this.logger.info('Ionic Cordova: encountered error while testing for cordova.js presence, ' + e.toString());
+          if (this.logger) {
+            this.logger.info('Ionic Cordova: encountered error while testing for cordova.js presence, ' + e.toString());
+          }
         }
       }
     }
