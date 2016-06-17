@@ -1,6 +1,7 @@
 # Ionic Cloud Client
 
-The client for using the Ionic Cloud in your app. Check out [our docs](http://docs.ionic.io/docs/io-introduction).
+The client for using the Ionic Cloud (powerful user & social authentication,
+native push notifications, live deploys, etc.) in your app. Check out [our docs](http://docs.ionic.io/docs/io-introduction).
 
 ## Ionic 2
 
