@@ -1,7 +1,7 @@
 import { Client } from '../core/client';
-import { IonicPlatform } from '../core/core';
+import { IonicCloud } from '../core/core';
 
-import { DeferredPromise, PromiseWithNotify } from '../core/promise';
+import { DeferredPromise } from '../core/promise';
 
 export class Links {
 
@@ -10,20 +10,39 @@ export class Links {
     this.appId = appId;
   }
 
-  static create(data): PromiseWithNotify<any> {
-    var q = new DeferredPromise();
+  static _post(url, data) {
+    var q = new DeferredPromise<any>();
 
-    let client = IonicPlatform.client;
-    client.post('/links/link')
+    let appId = IonicCloud.config.get('app_id');
+    data.app_id = appId;
+
+    let client = IonicCloud.client;
+
+    client.post(url)
       .send(data)
       .end((err, res) => {
         if (err) {
-          q.reject(err);
+          q.reject({
+            error: err,
+            response: res,
+            data: (res.body && res.body.error) || {}
+          });
         } else {
-          q.resolve(res);
+          q.resolve({
+            response: res,
+            data: (res.body && res.body.data) || {}
+          });
         }
       });
 
     return q.promise;
+  }
+
+  static link(data): Promise<any> {
+    return Links._post('/links/link', data);
+  }
+
+  static content(data): Promise<any> {
+    return Links._post('/links/content', data);
   }
 }
