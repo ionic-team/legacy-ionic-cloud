@@ -17,6 +17,7 @@
 * Add `$ionicCloudProvider` for Angular 1 app config
 * Add `$ionicCurrentUser` for current user
 * Add `$ionicCloudConfig` for the cloud config object
+* **(breaking)** Remove dev_push
 
 ## 0.7.1
 

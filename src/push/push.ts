@@ -6,7 +6,6 @@ import { User } from '../core/user';
 
 import { PushToken } from './push-token';
 import { PushMessage } from './push-message';
-import { PushDevService } from './push-dev';
 
 declare var window: any;
 declare var PushNotification: any;
@@ -94,14 +93,13 @@ export class Push {
    */
   init(config: PushOptions = {}): void {
     this.app = new App(IonicCloud.config.get('app_id'));
-    this.app.devPush = IonicCloud.config.get('dev_push');
     this.app.gcmKey = IonicCloud.config.get('gcm_key');
 
     // Check for the required values to use this service
     if (!this.app.id) {
       IonicCloud.logger.error('Ionic Push: no app_id found. (http://docs.ionic.io/docs/io-install)');
       return;
-    } else if (IonicCloud.device.isAndroid() && !this.app.devPush && !this.app.gcmKey) {
+    } else if (IonicCloud.device.isAndroid() && !this.app.gcmKey) {
       IonicCloud.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
       return;
     }
@@ -176,26 +174,17 @@ export class Push {
     }
     this._blockRegistration = true;
     this.onReady(function() {
-      if (self.app.devPush) {
-        let IonicDevPush = new PushDevService();
-        self._debugCallbackRegistration();
-        self._callbackRegistration();
-        IonicDevPush.init(self, callback);
+      self._plugin = self._getPushPlugin().init(self._config.pluginConfig);
+      self._plugin.on('registration', function(data) {
         self._blockRegistration = false;
+        self.token = new PushToken(data.registrationId);
         self._tokenReady = true;
-      } else {
-        self._plugin = self._getPushPlugin().init(self._config.pluginConfig);
-        self._plugin.on('registration', function(data) {
-          self._blockRegistration = false;
-          self.token = new PushToken(data.registrationId);
-          self._tokenReady = true;
-          if (typeof callback === 'function') {
-            callback(self._token);
-          }
-        });
-        self._debugCallbackRegistration();
-        self._callbackRegistration();
-      }
+        if (typeof callback === 'function') {
+          callback(self._token);
+        }
+      });
+      self._debugCallbackRegistration();
+      self._callbackRegistration();
       self._registered = true;
     });
   }
@@ -278,11 +267,9 @@ export class Push {
    * Registers callbacks with the PushPlugin
    */
   private _callbackRegistration() {
-    if (!this.app.devPush) {
-      this._plugin.on('registration', (data) => { IonicCloud.emitter.emit('push:register', { 'token': data.registrationId }); });
-      this._plugin.on('notification', (data) => { IonicCloud.emitter.emit('push:notification', data); });
-      this._plugin.on('error', (e) => { IonicCloud.emitter.emit('push:error', { 'err': e }); });
-    }
+    this._plugin.on('registration', (data) => { IonicCloud.emitter.emit('push:register', { 'token': data.registrationId }); });
+    this._plugin.on('notification', (data) => { IonicCloud.emitter.emit('push:notification', data); });
+    this._plugin.on('error', (e) => { IonicCloud.emitter.emit('push:error', { 'err': e }); });
   }
 
   /**
@@ -293,17 +280,9 @@ export class Push {
    */
   private _debugCallbackRegistration() {
     if (this._config.debug) {
-      if (!this.app.devPush) {
-        this._plugin.on('registration', this._debugRegistrationCallback());
-        this._plugin.on('notification', this._debugNotificationCallback());
-        this._plugin.on('error', this._debugErrorCallback());
-      } else {
-        if (!this._registered) {
-          IonicCloud.emitter.on('push:register', this._debugRegistrationCallback());
-          IonicCloud.emitter.on('push:notification', this._debugNotificationCallback());
-          IonicCloud.emitter.on('push:error', this._debugErrorCallback());
-        }
-      }
+      this._plugin.on('registration', this._debugRegistrationCallback());
+      this._plugin.on('notification', this._debugNotificationCallback());
+      this._plugin.on('error', this._debugErrorCallback());
     }
   }
 
@@ -324,12 +303,8 @@ export class Push {
   private _getPushPlugin() {
     let plugin = window.PushNotification;
 
-    if (!this.app.devPush && !plugin) {
-      if (IonicCloud.device.isIOS() || IonicCloud.device.isAndroid()) {
-        IonicCloud.logger.error('Ionic Push: PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
-      } else {
-        IonicCloud.logger.info('Ionic Push: PushNotification plugin not found. Native push notifications won\'t work in the browser.');
-      }
+    if (!plugin && (IonicCloud.device.isIOS() || IonicCloud.device.isAndroid())) {
+      IonicCloud.logger.error('Ionic Push: PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
     }
 
     return plugin;

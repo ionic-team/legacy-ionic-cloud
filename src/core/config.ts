@@ -5,7 +5,6 @@ export interface ISettingsUrls {
 export interface ISettings {
   app_id: string;
   gcm_key?: string;
-  dev_push?: boolean;
   urls?: any;
   [key: string]: any;
 }

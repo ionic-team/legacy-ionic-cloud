@@ -13,10 +13,4 @@ describe("app", function() {
     expect(app.gcmKey).toBe("something");
   });
 
-  it("should accept devPush", function() {
-    var app = new App("1234abc");
-    app.devPush = true;
-    expect(app.devPush).toBe(true);
-  });
-
 });

@@ -1,6 +1,5 @@
 export class App {
 
-  public devPush: boolean;
   public gcmKey: string;
 
   constructor(public id: string) {
