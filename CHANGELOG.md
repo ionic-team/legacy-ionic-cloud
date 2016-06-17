@@ -15,6 +15,7 @@
 * **(breaking)** Remove notify option of returned promises (progress reporting of deploy updates).
 * **(breaking)** Remove push callbacks in favor of using the event emitter
 * Add `$ionicCloudProvider` for Angular 1 app config
+* Add `$ionicCurrentUser` for current user
 
 ## 0.7.1
 

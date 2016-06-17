@@ -42,6 +42,10 @@ if (typeof angular === 'object' && angular.module) {
     return Ionic.User;
   }])
 
+  .factory('$ionicCurrentUser', [function() {
+    return Ionic.User.current();
+  }])
+
   .factory('$ionicEventEmitter', ['$ionicCore', function($ionicCore) {
     return $ionicCore.emitter;
   }])
