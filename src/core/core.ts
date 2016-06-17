@@ -3,7 +3,7 @@ import { Cordova } from './cordova';
 import { Device } from './device';
 import { EventEmitter } from './events';
 import { Storage } from './storage';
-import { Logger } from './logger';
+import { ILogger, Logger } from './logger';
 import { ISettings, Config, config } from './config';
 
 declare var Ionic: any;
@@ -15,7 +15,7 @@ export class Core {
   cordova: Cordova;
   device: Device;
   emitter: EventEmitter;
-  logger: Logger;
+  logger: ILogger;
   storage: Storage;
 
   private pluginsReady: boolean = false;

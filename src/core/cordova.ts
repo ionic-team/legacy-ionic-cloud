@@ -1,11 +1,11 @@
 import { Device } from './device';
-import { Logger } from './logger';
+import { ILogger } from './logger';
 
 declare var cordova: any;
 
 export class Cordova {
 
-  constructor(public device: Device, protected logger: Logger) {
+  constructor(public device: Device, protected logger: ILogger) {
     this.device = device;
     this.logger = logger;
   }
