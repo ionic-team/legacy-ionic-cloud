@@ -2,6 +2,7 @@ export * from './app';
 export * from './core';
 export * from './data-types';
 export * from './events';
+export * from './insights';
 export * from './logger';
 export * from './promise';
 export * from './config';

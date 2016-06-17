@@ -1,3 +1,4 @@
+import { App } from '../core/app';
 import { Client } from '../core/client';
 
 export interface IStatSerialized {
@@ -34,14 +35,14 @@ export class Insights {
 
   private batch: Stat[];
 
-  constructor(public client: Client, public appId: string) {
+  constructor(public client: Client, public app: App) {
     this.client = client;
-    this.appId = appId;
+    this.app = app;
     this.batch = [];
   }
 
   track(stat: string, value: number = 1): void {
-    this.trackStat(new Stat(this.appId, stat, value));
+    this.trackStat(new Stat(this.app.id, stat, value));
   }
 
   protected trackStat(stat: Stat): void {

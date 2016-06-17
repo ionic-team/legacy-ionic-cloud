@@ -1,18 +1,22 @@
+import { App } from './app';
 import { Client } from './client';
 import { Cordova } from './cordova';
 import { Device } from './device';
 import { EventEmitter } from './events';
+import { Insights } from './insights';
 import { Storage } from './storage';
 import { ILogger, Logger } from './logger';
 import { ISettings, Config, config } from './config';
 
 export class Core {
 
+  app: App;
   client: Client;
   config: Config;
   cordova: Cordova;
   device: Device;
   emitter: EventEmitter;
+  insights: Insights;
   logger: ILogger;
   storage: Storage;
 
@@ -33,8 +37,11 @@ export class Core {
 
   public init(cfg: ISettings) {
     this.config.register(cfg);
-    this.logger.info('Ionic Core: init');
     this.emitter.emit('core:init');
+    this.client.baseUrl = this.config.getURL('api');
+    this.app = new App(this.config.get('app_id'));
+    this.insights = new Insights(this.client, this.app);
+    this.insights.track('mobileapp.opened');
   }
 
   public get version(): string {
@@ -42,12 +49,8 @@ export class Core {
   }
 
   private registerEventHandlers() {
-    this.emitter.on('auth:token-changed', data => {
+    this.emitter.on('auth:token-changed', (data) => {
       this.client.token = data['new'];
-    });
-
-    this.emitter.on('core:init', data => {
-      this.client.baseUrl = this.config.getURL('api');
     });
 
     if (this.device.deviceType === 'unknown') {
@@ -59,6 +62,10 @@ export class Core {
         this.logger.info('Ionic Core: plugins are ready');
         this.pluginsReady = true;
         this.emitter.emit('device:ready');
+      }, false);
+
+      document.addEventListener('resume', () => {
+        this.insights.track('mobileapp.opened');
       }, false);
     }
   }
