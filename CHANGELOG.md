@@ -16,6 +16,7 @@
 * **(breaking)** Remove push callbacks in favor of using the event emitter
 * Add `$ionicCloudProvider` for Angular 1 app config
 * Add `$ionicCurrentUser` for current user
+* Add `$ionicCloudConfig` for the cloud config object
 
 ## 0.7.1
 

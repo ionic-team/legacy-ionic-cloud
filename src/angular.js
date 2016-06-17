@@ -38,6 +38,10 @@ if (typeof angular === 'object' && angular.module) {
     return Ionic.Core;
   }])
 
+  .factory('$ionicCloudConfig', [function() {
+    return Ionic.Core.config;
+  }])
+
   .factory('$ionicUser', [function() {
     return Ionic.User;
   }])
