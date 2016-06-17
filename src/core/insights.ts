@@ -1,5 +1,6 @@
 import { App } from '../core/app';
 import { Client } from '../core/client';
+import { ILogger } from './logger';
 
 export interface IStatSerialized {
   app_id: string;
@@ -28,17 +29,36 @@ export class Stat {
   }
 }
 
+export interface InsightsOptions {
+  intervalSubmit?: number;
+  logger?: ILogger;
+  submitCount?: number;
+}
+
 export class Insights {
 
   public static SUBMIT_COUNT = 100;
   public submitCount = Insights.SUBMIT_COUNT;
+  public logger: ILogger;
 
   private batch: Stat[];
 
-  constructor(public client: Client, public app: App) {
+  constructor(public client: Client, public app: App, public options: InsightsOptions = {}) {
     this.client = client;
     this.app = app;
+    this.options = options;
+    this.logger = this.options.logger;
     this.batch = [];
+
+    if (options.intervalSubmit) {
+      setInterval(() => {
+        this.submit();
+      }, options.intervalSubmit);
+    }
+
+    if (options.submitCount) {
+      this.submitCount = options.submitCount;
+    }
   }
 
   track(stat: string, value: number = 1): void {
@@ -58,14 +78,31 @@ export class Insights {
   }
 
   protected submit() {
+    if (this.batch.length === 0) {
+      return;
+    }
+
     let insights: IStatSerialized[] = [];
 
     for (let stat of this.batch) {
       insights.push(stat.toJSON());
     }
 
-    return this.client.post('/insights')
-      .send({'insights': insights});
+    this.client.post('/insights')
+      .send({'insights': insights})
+      .end((err, res) => {
+        if (err) {
+          if (this.logger) {
+            this.logger.error('Ionic Insights: Could not send insights.', err);
+          }
+        } else {
+          if (this.logger) {
+            this.logger.info('Ionic Insights: Sent insights.');
+          }
+        }
+      });
+
+    this.batch = [];
   }
 
 }

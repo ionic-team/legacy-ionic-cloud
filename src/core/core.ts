@@ -40,7 +40,7 @@ export class Core {
     this.emitter.emit('core:init');
     this.client.baseUrl = this.config.getURL('api');
     this.app = new App(this.config.get('app_id'));
-    this.insights = new Insights(this.client, this.app);
+    this.insights = new Insights(this.client, this.app, { logger: this.logger, intervalSubmit: 60 * 1000 });
     this.insights.track('mobileapp.opened');
   }
 
