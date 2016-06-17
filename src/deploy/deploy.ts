@@ -37,7 +37,6 @@ export class Deploy {
     this._plugin = false;
     this._isReady = false;
     this._channelTag = 'production';
-    IonicCloud.logger.info('Ionic Deploy: init');
     IonicCloud.onReady(function() {
       self.initialize();
       self._isReady = true;
@@ -56,7 +55,7 @@ export class Deploy {
   _getPlugin() {
     if (this._plugin) { return this._plugin; }
     if (typeof IonicDeploy === 'undefined') {
-      IonicCloud.logger.info('Ionic Deploy: plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
+      IonicCloud.logger.warn('Ionic Deploy: plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
       return false;
     }
     this._plugin = IonicDeploy;

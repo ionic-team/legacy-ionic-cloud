@@ -295,7 +295,7 @@ export class Push {
       if (IonicCloud.device.isIOS() || IonicCloud.device.isAndroid()) {
         IonicCloud.logger.error('Ionic Push: PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
       } else {
-        IonicCloud.logger.error('Ionic Push: Disabled! Native push notifications will not work in a browser. Run your app on an actual device to use push.');
+        IonicCloud.logger.warn('Ionic Push: Disabled! Native push notifications will not work in a browser. Run your app on an actual device to use push.');
       }
     }
 
