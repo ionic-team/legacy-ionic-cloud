@@ -6,8 +6,6 @@ import { Storage } from './storage';
 import { ILogger, Logger } from './logger';
 import { ISettings, Config, config } from './config';
 
-declare var Ionic: any;
-
 export class Core {
 
   client: Client;
