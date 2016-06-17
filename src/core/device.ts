@@ -1,6 +1,10 @@
 declare var Connection: any;
 declare var navigator: any;
 
+export interface DeviceIsConnectedToNetworkOptions {
+  strictMode?: boolean;
+}
+
 export class Device {
 
   public deviceType: string;
@@ -25,15 +29,11 @@ export class Device {
     return this.deviceType === 'iphone' || this.deviceType === 'ipad';
   }
 
-  public isConnectedToNetwork(strictMode?): boolean {
-    if (typeof strictMode === 'undefined') {
-      strictMode = false;
-    }
-
+  public isConnectedToNetwork(options: DeviceIsConnectedToNetworkOptions = {}): boolean {
     if (typeof navigator.connection === 'undefined' ||
         typeof navigator.connection.type === 'undefined' ||
         typeof Connection === 'undefined') {
-      if (!strictMode) {
+      if (!options.strictMode) {
         return true;
       }
       return false;
