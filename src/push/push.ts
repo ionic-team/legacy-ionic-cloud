@@ -31,12 +31,10 @@ export class Push {
   app: App;
   plugin: any;
 
-  private _debug: boolean;
   private _isReady: boolean;
   private _blockRegistration: boolean;
   private _blockUnregister: boolean;
   private _blockSaveToken: boolean;
-  private _notification: any;
   private _registered: boolean;
   private _tokenReady: boolean;
   private _config: PushOptions;
@@ -45,8 +43,6 @@ export class Push {
   constructor(config: PushOptions = {}) {
     this.client = IonicCloud.client;
 
-    this._notification = false;
-    this._debug = false;
     this._isReady = false;
     this._tokenReady = false;
     this._blockRegistration = false;
