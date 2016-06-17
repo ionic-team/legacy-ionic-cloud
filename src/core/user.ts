@@ -65,17 +65,19 @@ export class UserData {
   }
 
   deserializerDataTypes() {
-    for (var x in this.data) {
-      // if we have an object, let's check for custom data types
-      if (typeof this.data[x] === 'object') {
-        // do we have a custom type?
-        if (this.data[x].__Ionic_DataTypeSchema) {
-          var name = this.data[x].__Ionic_DataTypeSchema;
-          var mapping = DataType.getMapping();
-          if (mapping[name]) {
-            // we have a custom type and a registered class, give the custom data type
-            // from storage
-            this.data[x] = mapping[name].fromStorage(this.data[x].value);
+    if (this.data) {
+      for (var x in this.data) {
+        // if we have an object, let's check for custom data types
+        if (typeof this.data[x] === 'object') {
+          // do we have a custom type?
+          if (this.data[x].__Ionic_DataTypeSchema) {
+            var name = this.data[x].__Ionic_DataTypeSchema;
+            var mapping = DataType.getMapping();
+            if (mapping[name]) {
+              // we have a custom type and a registered class, give the custom data type
+              // from storage
+              this.data[x] = mapping[name].fromStorage(this.data[x].value);
+            }
           }
         }
       }
