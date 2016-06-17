@@ -8,9 +8,40 @@ Using the latest [Ionic CLI](https://github.com/driftyco/ionic-cli), run the fol
 
 ```bash
 $ npm install --save @ionic/cloud
-
-# Register your app
 $ ionic io init
+```
+
+### Ionic 2
+
+For Ionic 2, we recommend using the [Angular 2 wrapper for the Cloud Client](https://github.com/driftyco/ionic-cloud-angular).
+
+### Ionic 1
+
+```javascript
+angular.module('myapp', ['ionic', 'ionic.cloud'])
+
+.config(function($ionicCloudProvider) {
+  $ionicCloudProvider.init({
+    "core": {
+      "app_id": "YOUR-APP-ID",
+      "gcm_key": "123456789" // GCM Project ID
+    }
+  });
+})
+```
+
+## Usage
+
+```javascript
+angular.module('myapp.controllers', ['ionic.cloud'])
+
+.controller('DashCtrl', function($scope, $ionicAuth, $ionicCurrentUser) {
+  $ionicAuth.signup({ 'email': 'hi@ionic.io', 'password': 'puppies123' }).then(function() {
+    // `$ionicCurrentUser` is now the authenticated user
+  }, function(err) {
+    // something went wrong!
+  });
+})
 ```
 
 ## Issues & Local Development
