@@ -11,6 +11,18 @@ $ npm install --save @ionic/cloud
 $ ionic io init
 ```
 
+For Ionic 1 apps, manually copy the distribution file into your project.
+
+```bash
+$ cp node_modules/@ionic/cloud/dist/bundle/ionic.cloud.min.js www/lib
+```
+
+Include it in your `index.html`.
+
+```html
+<script src="lib/ionic-cloud.min.js"></script>
+```
+
 ### Ionic 2
 
 For Ionic 2, we recommend using the [Angular 2 wrapper for the Cloud Client](https://github.com/driftyco/ionic-cloud-angular).
