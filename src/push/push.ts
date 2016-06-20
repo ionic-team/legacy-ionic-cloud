@@ -224,16 +224,6 @@ export class Push {
   }
 
   /**
-   * Convenience method to grab the payload object from a notification
-   *
-   * @param {PushNotification} notification Push Notification object
-   * @return {object} Payload object or an empty object
-   */
-  getPayload(notification) {
-    return notification.payload;
-  }
-
-  /**
    * Registers callbacks with the PushPlugin
    */
   private _callbackRegistration() {
