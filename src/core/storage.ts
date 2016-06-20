@@ -36,32 +36,46 @@ export interface StorageCache {
   [key: string]: any;
 }
 
+export interface StorageOptions {
+  cache?: boolean;
+}
+
 export class Storage {
 
-  private strategy: IStorageStrategy;
   private storageCache: StorageCache;
 
-  constructor(strategy: IStorageStrategy) {
+  constructor(private strategy: IStorageStrategy, public options: StorageOptions = {}) {
+    if (typeof options.cache === 'undefined') {
+      options.cache = true;
+    }
+
     this.strategy = strategy;
+    this.options = options;
     this.storageCache = {};
   }
 
-  set(key: string, value: any) {
+  set(key: string, value: any): void {
     let json = JSON.stringify(value);
 
     this.strategy.set(key, json);
-    this.storageCache[key] = value;
+    if (this.options.cache) {
+      this.storageCache[key] = value;
+    }
   }
 
-  delete(key: string) {
+  delete(key: string): void {
     this.strategy.remove(key);
-    delete this.storageCache[key];
+    if (this.options.cache) {
+      delete this.storageCache[key];
+    }
   }
 
-  get(key: string) {
-    let cached = this.storageCache[key];
-    if (cached) {
-      return cached;
+  get(key: string): any {
+    if (this.options.cache) {
+      let cached = this.storageCache[key];
+      if (cached) {
+        return cached;
+      }
     }
 
     let json = this.strategy.get(key);
@@ -71,7 +85,9 @@ export class Storage {
 
     try {
       let value = JSON.parse(json);
-      this.storageCache[key] = value;
+      if (this.options.cache) {
+        this.storageCache[key] = value;
+      }
       return value;
     } catch (err) {
       return null;
