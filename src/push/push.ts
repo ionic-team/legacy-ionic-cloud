@@ -244,10 +244,6 @@ export class Push {
         IonicCloud.logger.info('Ionic Push (debug): notification received: ' + message);
       }
 
-      if (message.app.asleep || message.app.closed) {
-        IonicCloud.insights.track('mobileapp.opened.push');
-      }
-
       IonicCloud.emitter.emit('push:notification', {'message': message, 'raw': data});
     });
 

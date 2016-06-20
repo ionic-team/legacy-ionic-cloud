@@ -48,12 +48,18 @@ export class Core {
   }
 
   private registerEventHandlers(): void {
+    this.emitter.on('cordova:resume', (data) => {
+      this.insights.track('mobileapp.opened');
+    });
+
     this.emitter.on('auth:token-changed', (data) => {
       this.client.token = data['new'];
     });
 
-    this.emitter.on('cordova:resume', (data) => {
-      this.insights.track('mobileapp.opened');
+    this.emitter.on('push:notification', (data) => {
+      if (data.message.app.asleep || data.message.app.closed) {
+        this.insights.track('mobileapp.opened.push');
+      }
     });
   }
 
