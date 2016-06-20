@@ -32,59 +32,47 @@ export class SessionStorageStrategy implements IStorageStrategy {
   }
 }
 
-var objectCache = {};
+export interface StorageCache {
+  [key: string]: any;
+}
 
 export class Storage {
 
-  strategy: LocalStorageStrategy;
+  private strategy: IStorageStrategy;
+  private storageCache: StorageCache;
 
-  constructor() {
-    this.strategy = new LocalStorageStrategy();
+  constructor(strategy: IStorageStrategy) {
+    this.strategy = strategy;
+    this.storageCache = {};
   }
 
-  /**
-   * Stores an object in local storage under the given key
-   * @param {string} key Name of the key to store values in
-   * @param {object} object The object to store with the key
-   * @return {void}
-   */
-  storeObject(key, object) {
-    // Convert object to JSON and store in localStorage
-    var json = JSON.stringify(object);
+  set(key: string, value: any) {
+    let json = JSON.stringify(value);
+
     this.strategy.set(key, json);
-
-    // Then store it in the object cache
-    objectCache[key] = object;
+    this.storageCache[key] = value;
   }
 
-  deleteObject(key) {
+  delete(key: string) {
     this.strategy.remove(key);
-    delete objectCache[key];
+    delete this.storageCache[key];
   }
 
-  /**
-   * Either retrieves the cached copy of an object,
-   * or the object itself from localStorage.
-   * @param {string} key The name of the key to pull from
-   * @return {mixed} Returns the previously stored Object or null
-   */
-  retrieveObject(key) {
-    // First check to see if it's the object cache
-    var cached = objectCache[key];
+  get(key: string) {
+    let cached = this.storageCache[key];
     if (cached) {
       return cached;
     }
 
-    // Deserialize the object from JSON
-    var json = this.strategy.get(key);
-
-    // null or undefined --> return null.
-    if (json === null) {
+    let json = this.strategy.get(key);
+    if (!json) {
       return null;
     }
 
     try {
-      return JSON.parse(json);
+      let value = JSON.parse(json);
+      this.storageCache[key] = value;
+      return value;
     } catch (err) {
       return null;
     }

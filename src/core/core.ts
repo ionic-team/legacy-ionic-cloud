@@ -4,7 +4,7 @@ import { Cordova } from './cordova';
 import { Device } from './device';
 import { EventEmitter } from './events';
 import { Insights } from './insights';
-import { Storage } from './storage';
+import { Storage, LocalStorageStrategy } from './storage';
 import { ILogger, Logger } from './logger';
 import { ISettings, Config, config } from './config';
 
@@ -29,7 +29,7 @@ export class Core {
     this.client = new Client(this.config.getURL('api'));
     this.device = new Device(this.emitter);
     this.cordova = new Cordova(this.device, this.emitter, { logger: this.logger });
-    this.storage = new Storage();
+    this.storage = new Storage(new LocalStorageStrategy());
     this.registerEventHandlers();
     this.cordova.load();
   }

@@ -1,13 +1,13 @@
 import { Auth } from '../auth/auth';
 import { DeferredPromise } from './promise';
 import { IonicCloud } from './core';
-import { Storage } from './storage';
+import { Storage, LocalStorageStrategy } from './storage';
 import { DataType } from './data-types';
 
 declare var Ionic: any;
 
 var AppUserContext = null;
-var storage = new Storage();
+var storage = new Storage(new LocalStorageStrategy());
 
 class UserContext {
   static get label() {
@@ -15,7 +15,7 @@ class UserContext {
   }
 
   static delete() {
-    storage.deleteObject(UserContext.label);
+    storage.delete(UserContext.label);
   }
 
   static store() {
@@ -23,27 +23,27 @@ class UserContext {
       UserContext.storeLegacyData(UserContext.getRawData());
     }
     if (User.current().data.data.__ionic_user_migrated) {
-      storage.storeObject(UserContext.label + '_legacy', { '__ionic_user_migrated': true });
+      storage.set(UserContext.label + '_legacy', { '__ionic_user_migrated': true });
     }
-    storage.storeObject(UserContext.label, User.current());
+    storage.set(UserContext.label, User.current());
   }
 
   static storeLegacyData(data) {
     if (!UserContext.getRawLegacyData()) {
-      storage.storeObject(UserContext.label + '_legacy', data);
+      storage.set(UserContext.label + '_legacy', data);
     }
   }
 
   static getRawData() {
-    return storage.retrieveObject(UserContext.label) || false;
+    return storage.get(UserContext.label) || false;
   }
 
   static getRawLegacyData() {
-    return storage.retrieveObject(UserContext.label + '_legacy') || false;
+    return storage.get(UserContext.label + '_legacy') || false;
   }
 
   static load() {
-    var data = storage.retrieveObject(UserContext.label) || false;
+    var data = storage.get(UserContext.label) || false;
     if (data) {
       UserContext.storeLegacyData(data);
       return User.fromContext(data);

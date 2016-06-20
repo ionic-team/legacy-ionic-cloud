@@ -56,14 +56,14 @@ export class Push {
   set token(val) {
     var storage = IonicCloud.storage;
     if (val instanceof PushToken) {
-      storage.storeObject('ionic_io_push_token', { 'token': val.token });
+      storage.set('ionic_io_push_token', { 'token': val.token });
     }
     this._token = val;
   }
 
   getStorageToken(): PushToken {
     var storage = IonicCloud.storage;
-    var token = storage.retrieveObject('ionic_io_push_token');
+    var token = storage.get('ionic_io_push_token');
     if (token) {
       return new PushToken(token.token);
     }
@@ -72,7 +72,7 @@ export class Push {
 
   clearStorageToken(): void {
     var storage = IonicCloud.storage;
-    storage.deleteObject('ionic_io_push_token');
+    storage.delete('ionic_io_push_token');
   }
 
   /**
