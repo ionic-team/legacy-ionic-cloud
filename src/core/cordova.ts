@@ -21,13 +21,17 @@ export class Cordova {
   }
 
   public registerEventHandlers(): void {
-    let events = ['deviceready', 'pause', 'resume'];
+    let events = ['pause', 'resume'];
 
-    for (let e of events) {
-      document.addEventListener(e, (...args) => {
-        this.emitter.emit('cordova:' + e, {'args': args});
-      }, false);
-    }
+    document.addEventListener('deviceready', (...args) => {
+      this.emitter.emit('cordova:deviceready', {'args': args});
+
+      for (let e of events) {
+        document.addEventListener(e, (...args) => {
+          this.emitter.emit('cordova:' + e, {'args': args});
+        }, false);
+      }
+    }, false);
   }
 
   public load(): void {
