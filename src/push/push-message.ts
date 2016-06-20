@@ -1,76 +1,40 @@
-export interface AppStatus {
+import { IPluginNotification } from './push-plugin';
+
+export interface IAppStatus {
   asleep?: boolean;
   closed?: boolean;
 }
 
 export class PushMessage {
 
-  app: AppStatus = {};
+  app: IAppStatus;
   text: string;
   title: string;
   count: number;
   sound: string;
   image: string;
+  raw: IPluginNotification;
+  payload: Object;
 
-  private _raw: any;
-  private _payload: any;
+  static fromPluginData(data: IPluginNotification) {
+    let message = new PushMessage();
 
-  constructor(raw) {
-    this._raw = raw || {};
+    message.raw = data;
+    message.text = data.message;
+    message.title = data.title;
+    message.count = data.count;
+    message.sound = data.sound;
+    message.image = data.image;
+    message.app = {
+      'asleep': !data.additionalData.foreground,
+      'closed': data.additionalData.coldstart
+    };
+    message.payload = data.additionalData['payload'];
 
-    if (!this._raw.additionalData) {
-      // this should only hit if we are serving up a development push
-      this._raw.additionalData = {
-        'coldstart': false,
-        'foreground': true
-      };
-    }
-
-    this._payload = null;
-    this.text = null;
-    this.title = null;
-    this.count = null;
-    this.sound = null;
-    this.image = null;
-  }
-
-  static fromPluginJSON(json) {
-    var message = new PushMessage(json);
-    message.processRaw();
     return message;
-  }
-
-  get payload() {
-    return this._payload || {};
-  }
-
-  processRaw() {
-    this.text = this._raw.message || null;
-    this.title = this._raw.title || null;
-    this.count = this._raw.count || null;
-    this.sound = this._raw.sound || null;
-    this.image = this._raw.image || null;
-
-    if (!this._raw.additionalData.foreground) {
-      this.app.asleep = true;
-    }
-
-    if (this._raw.additionalData.coldstart) {
-      this.app.closed = true;
-    }
-
-    if (this._raw.additionalData.payload) {
-      this._payload = this._raw.additionalData.payload;
-    }
-  }
-
-  getRawVersion() {
-    return this._raw;
   }
 
   toString() {
     return '<PushMessage [\'' + this.title + '\']>';
   }
 }
-
-

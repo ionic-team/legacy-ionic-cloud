@@ -6,6 +6,7 @@ import { User } from '../core/user';
 
 import { PushToken } from './push-token';
 import { PushMessage } from './push-message';
+import { IPluginRegistration, IPluginNotification } from './push-plugin';
 
 declare var window: any;
 declare var PushNotification: any;
@@ -179,7 +180,6 @@ export class Push {
             callback(self.token);
           }
         });
-        self._debugCallbackRegistration();
         self._callbackRegistration();
         self.registered = true;
       }
@@ -233,52 +233,38 @@ export class Push {
     return notification.payload;
   }
 
-  private _debugRegistrationCallback() {
-    var self = this;
-    function callback(data) {
-      self.token = new PushToken(data.registrationId);
-      IonicCloud.logger.info('Ionic Push: (debug) device token registered: ' + self.token);
-    }
-    return callback;
-  }
-
-  private _debugNotificationCallback() {
-    function callback(notification) {
-      var message = PushMessage.fromPluginJSON(notification);
-      IonicCloud.logger.info('Ionic Push: (debug) notification received: ' + message);
-    }
-    return callback;
-  }
-
-  private _debugErrorCallback() {
-    function callback(err) {
-      IonicCloud.logger.error('Ionic Push: (debug) unexpected error occured.');
-      IonicCloud.logger.error('Ionic Push:', err);
-    }
-    return callback;
-  }
-
   /**
    * Registers callbacks with the PushPlugin
    */
   private _callbackRegistration() {
-    this.plugin.on('registration', (data) => { IonicCloud.emitter.emit('push:register', { 'token': data.registrationId }); });
-    this.plugin.on('notification', (data) => { IonicCloud.emitter.emit('push:notification', data); });
-    this.plugin.on('error', (e) => { IonicCloud.emitter.emit('push:error', { 'err': e }); });
-  }
+    this.plugin.on('registration', (data: IPluginRegistration) => {
+      this.token = new PushToken(data.registrationId);
 
-  /**
-   * Registers the default debug callbacks with the PushPlugin when debug is enabled
-   * Internal Method
-   * @private
-   * @return {void}
-   */
-  private _debugCallbackRegistration() {
-    if (this.config.debug) {
-      this.plugin.on('registration', this._debugRegistrationCallback());
-      this.plugin.on('notification', this._debugNotificationCallback());
-      this.plugin.on('error', this._debugErrorCallback());
-    }
+      if (this.config.debug) {
+        IonicCloud.logger.info('Ionic Push (debug): device token registered: ' + this.token);
+      }
+
+      IonicCloud.emitter.emit('push:register', {'token': data.registrationId});
+    });
+
+    this.plugin.on('notification', (data: IPluginNotification) => {
+      let message = PushMessage.fromPluginData(data);
+
+      if (this.config.debug) {
+        IonicCloud.logger.info('Ionic Push (debug): notification received: ' + message);
+      }
+
+      IonicCloud.emitter.emit('push:notification', {'message': message, 'raw': data});
+    });
+
+    this.plugin.on('error', (e: Error) => {
+      if (this.config.debug) {
+        IonicCloud.logger.error('Ionic Push (debug): unexpected error occured.');
+        IonicCloud.logger.error('Ionic Push:', e);
+      }
+
+      IonicCloud.emitter.emit('push:error', {'err': e});
+    });
   }
 
   private _getPushPlugin() {
