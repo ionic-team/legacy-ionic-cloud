@@ -5,8 +5,9 @@ import { Device } from './device';
 import { EventEmitter } from './events';
 import { Insights } from './insights';
 import { Storage, LocalStorageStrategy } from './storage';
-import { ILogger, Logger } from './logger';
-import { ISettings, Config, config } from './config';
+import { Logger } from './logger';
+import { Config, config } from './config';
+import { ILogger, ISettings, IPushNotificationEvent } from '../interfaces';
 
 export class Core {
 
@@ -56,7 +57,7 @@ export class Core {
       this.client.token = data['new'];
     });
 
-    this.emitter.on('push:notification', (data) => {
+    this.emitter.on('push:notification', (data: IPushNotificationEvent) => {
       if (data.message.app.asleep || data.message.app.closed) {
         this.insights.track('mobileapp.opened.push');
       }

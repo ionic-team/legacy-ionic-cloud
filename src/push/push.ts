@@ -6,7 +6,7 @@ import { User } from '../core/user';
 
 import { PushToken } from './push-token';
 import { PushMessage } from './push-message';
-import { IPluginRegistration, IPluginNotification } from './push-plugin';
+import { IPluginRegistration, IPluginNotification } from '../interfaces';
 
 declare var window: any;
 declare var PushNotification: any;
@@ -193,32 +193,41 @@ export class Push {
     let deferred = new DeferredPromise();
 
     if (!this.blockUnregister) {
-      let tokenData: ServiceTokenData = {
-        'token': this.getStorageToken().token,
-        'app_id': IonicCloud.config.get('app_id')
-      };
+      let pushToken = this.getStorageToken();
 
-      if (this.plugin) {
-        this.plugin.unregister(function() {}, function() {});
+      if (!pushToken) {
+        deferred.resolve();
+      } else {
+        let tokenData: ServiceTokenData = {
+          'token': pushToken.token,
+          'app_id': IonicCloud.config.get('app_id')
+        };
+
+        if (this.plugin) {
+          this.plugin.unregister(function() {}, function() {});
+        }
+        this.client.post('/push/tokens/invalidate')
+          .send(tokenData)
+          .end((err, res) => {
+            this.blockUnregister = false;
+
+            if (err) {
+              IonicCloud.logger.error('Ionic Push:', err);
+              deferred.reject(err);
+            } else {
+              IonicCloud.logger.info('Ionic Push: unregistered push token: ' + pushToken.token);
+              this.clearStorageToken();
+              deferred.resolve();
+            }
+          });
       }
-      this.client.post('/push/tokens/invalidate')
-        .send(tokenData)
-        .end((err, res) => {
-          if (err) {
-            this.blockUnregister = false;
-            IonicCloud.logger.error('Ionic Push:', err);
-            deferred.reject(err);
-          } else {
-            this.blockUnregister = false;
-            IonicCloud.logger.info('Ionic Push: unregistered push token: ' + this.getStorageToken().token);
-            this.clearStorageToken();
-            deferred.resolve(res);
-          }
-        });
     } else {
-      IonicCloud.logger.info('Ionic Push: an unregister operation is already in progress.');
-      deferred.reject(false);
+      let msg = 'An unregister operation is already in progress.';
+      IonicCloud.logger.warn('Ionic Push: ' + msg);
+      deferred.reject(new Error(msg));
     }
+
+    this.blockUnregister = true;
 
     return deferred.promise;
   }

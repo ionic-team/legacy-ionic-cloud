@@ -1,12 +1,4 @@
-export interface ILogger {
-  silent: boolean;
-  infofn: (message?: any, ...optionalParams: any[]) => void;
-  warnfn: (message?: any, ...optionalParams: any[]) => void;
-  errorfn: (message?: any, ...optionalParams: any[]) => void;
-  info(message?: any, ...optionalParams: any[]);
-  warn(message?: any, ...optionalParams: any[]);
-  error(message?: any, ...optionalParams: any[]);
-}
+import { ILogger } from '../interfaces';
 
 export class Logger implements ILogger {
 

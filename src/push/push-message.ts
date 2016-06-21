@@ -1,11 +1,6 @@
-import { IPluginNotification } from './push-plugin';
+import { IPushMessage, IAppStatus, IPluginNotification } from '../interfaces';
 
-export interface IAppStatus {
-  asleep?: boolean;
-  closed?: boolean;
-}
-
-export class PushMessage {
+export class PushMessage implements IPushMessage {
 
   app: IAppStatus;
   text: string;

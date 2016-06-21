@@ -1,13 +1,6 @@
+import { ILogger, IStatSerialized } from '../interfaces';
 import { App } from '../core/app';
 import { Client } from '../core/client';
-import { ILogger } from './logger';
-
-export interface IStatSerialized {
-  app_id: string;
-  stat: string;
-  value: number;
-  created: string;
-}
 
 export class Stat {
   public created: Date;

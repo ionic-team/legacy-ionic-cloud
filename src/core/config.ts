@@ -1,13 +1,4 @@
-export interface ISettingsUrls {
-  api?: string;
-}
-
-export interface ISettings {
-  app_id: string;
-  gcm_key?: string;
-  urls?: any;
-  [key: string]: any;
-}
+import { ISettingsUrls, ISettings } from '../interfaces';
 
 export class Config {
 

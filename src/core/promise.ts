@@ -1,6 +1,6 @@
 export class DeferredPromise<U> {
-  public resolve: (value: any) => any;
-  public reject: (value: any) => any;
+  public resolve: (value?: any) => any;
+  public reject: (value?: any) => any;
 
   public promise: Promise<U>;
 

@@ -1,5 +1,5 @@
+import { ILogger } from '../interfaces';
 import { Device } from './device';
-import { ILogger } from './logger';
 import { EventEmitter } from './events';
 
 declare var cordova: any;
