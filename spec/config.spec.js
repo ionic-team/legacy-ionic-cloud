@@ -1,4 +1,4 @@
-var Config = require('../../dist/es5/core/config').Config;
+var Config = require('../../dist/es5/config').Config;
 
 describe("config", function() {
 

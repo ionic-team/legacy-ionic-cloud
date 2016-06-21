@@ -1,5 +1,5 @@
-import { DeferredPromise } from '../core/promise';
-import { IonicCloud } from '../core/core';
+import { DeferredPromise } from '../promise';
+import { IonicCloud } from '../core';
 
 declare var IonicDeploy: any;
 

@@ -19,6 +19,21 @@ export interface ISettings {
   [key: string]: any;
 }
 
+export interface IStorageStrategy {
+  get(key: string): string;
+  remove(key: string): void;
+  set(key: string, value: string): void;
+}
+
+export interface ITokenContext {
+  storage: IStorageStrategy;
+  label: string;
+
+  delete(): void;
+  store(token: string): void;
+  getRawData(): string;
+}
+
 export interface IAppStatus {
   asleep?: boolean;
   closed?: boolean;

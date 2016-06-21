@@ -1,4 +1,4 @@
-var Client = require("../../dist/es5/core/client").Client;
+var Client = require("../../dist/es5/client").Client;
 
 describe("client", function() {
 

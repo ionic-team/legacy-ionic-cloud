@@ -1,3 +1,4 @@
+import { ILogger, ISettings, IPushNotificationEvent } from './interfaces';
 import { App } from './app';
 import { Client } from './client';
 import { Cordova } from './cordova';
@@ -7,7 +8,6 @@ import { Insights } from './insights';
 import { Storage, LocalStorageStrategy } from './storage';
 import { Logger } from './logger';
 import { Config, config } from './config';
-import { ILogger, ISettings, IPushNotificationEvent } from '../interfaces';
 
 export class Core {
 

@@ -1,7 +1,7 @@
 import { Auth } from '../auth/auth';
-import { DeferredPromise } from './promise';
-import { IonicCloud } from './core';
-import { Storage, LocalStorageStrategy } from './storage';
+import { DeferredPromise } from '../promise';
+import { IonicCloud } from '../core';
+import { Storage, LocalStorageStrategy } from '../storage';
 import { DataType } from './data-types';
 
 declare var Ionic: any;

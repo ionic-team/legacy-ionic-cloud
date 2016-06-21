@@ -1,4 +1,4 @@
-var core = require('../../dist/es5/core/core');
+var core = require('../../dist/es5/core');
 
 describe("core", function() {
 

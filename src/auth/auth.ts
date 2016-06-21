@@ -1,22 +1,14 @@
-import { Client } from '../core/client';
-import { DeferredPromise } from '../core/promise';
-import { IonicCloud } from '../core/core';
-import { IStorageStrategy, LocalStorageStrategy, SessionStorageStrategy } from '../core/storage';
-import { User } from '../core/user';
+import { ITokenContext, IStorageStrategy } from '../interfaces';
+import { Client } from '../client';
+import { DeferredPromise } from '../promise';
+import { IonicCloud } from '../core';
+import { LocalStorageStrategy, SessionStorageStrategy } from '../storage';
+import { User } from '../user/user';
 
 declare var window: any;
 
 var authModules: Object = {};
 var authToken: string;
-
-export interface ITokenContext {
-  storage: IStorageStrategy;
-  label: string;
-
-  delete(): void;
-  store(token: string): void;
-  getRawData(): string;
-}
 
 export class TempTokenContext implements ITokenContext {
 

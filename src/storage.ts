@@ -1,8 +1,4 @@
-export interface IStorageStrategy {
-  get(key: string): string;
-  remove(key: string): void;
-  set(key: string, value: string): void;
-}
+import { IStorageStrategy } from './interfaces';
 
 export class LocalStorageStrategy implements IStorageStrategy {
   get(key: string): string {

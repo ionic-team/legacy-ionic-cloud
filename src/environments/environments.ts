@@ -1,5 +1,5 @@
-import { IonicCloud } from '../core/core';
-import { DeferredPromise } from '../core/promise';
+import { IonicCloud } from '../core';
+import { DeferredPromise } from '../promise';
 
 export class Environment {
   /**

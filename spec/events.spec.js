@@ -1,4 +1,4 @@
-var EventEmitter = require("../../dist/es5/core/events").EventEmitter;
+var EventEmitter = require("../../dist/es5/events").EventEmitter;
 
 describe("event emitter", function() {
 

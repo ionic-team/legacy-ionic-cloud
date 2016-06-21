@@ -1,12 +1,12 @@
-import { App } from '../core/app';
-import { IonicCloud } from '../core/core';
-import { Client } from '../core/client';
-import { DeferredPromise } from '../core/promise';
-import { User } from '../core/user';
-
-import { PushToken } from './push-token';
-import { PushMessage } from './push-message';
 import { IPluginRegistration, IPluginNotification } from '../interfaces';
+import { App } from '../app';
+import { IonicCloud } from '../core';
+import { Client } from '../client';
+import { DeferredPromise } from '../promise';
+import { User } from '../user/user';
+
+import { PushToken } from './token';
+import { PushMessage } from './message';
 
 declare var window: any;
 declare var PushNotification: any;

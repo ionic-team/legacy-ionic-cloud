@@ -1,4 +1,4 @@
-import { ILogger } from '../interfaces';
+import { ILogger } from './interfaces';
 import { Device } from './device';
 import { EventEmitter } from './events';
 

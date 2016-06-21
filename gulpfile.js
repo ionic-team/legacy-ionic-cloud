@@ -88,9 +88,9 @@ gulp.task('build-es5-bundle-min', ['build-es5-bundle-src'], function() {
 });
 
 gulp.task('version', function() {
-  return gulp.src(['dist/es5/core/core.js'])
+  return gulp.src(['dist/es5/core.js'])
     .pipe(replace('VERSION_STRING', pkg.version))
-    .pipe(gulp.dest('dist/es5/core/'));
+    .pipe(gulp.dest('dist/es5/'));
 });
 
 gulp.task('build', function(done) {

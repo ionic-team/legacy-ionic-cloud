@@ -1,4 +1,4 @@
-var storage = require('../../dist/es5/core/storage');
+var storage = require('../../dist/es5/storage');
 
 describe("storage with localStorage", function() {
 

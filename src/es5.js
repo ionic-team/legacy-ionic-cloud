@@ -1,17 +1,17 @@
-var App = require("./../dist/es5/core/app").App;
+var App = require("./../dist/es5/app").App;
 var Auth = require("./../dist/es5/auth/auth").Auth;
-var config = require("./../dist/es5/core/config").config;
-var DataType = require("./../dist/es5/core/data-types").DataType;
+var config = require("./../dist/es5/config").config;
+var DataType = require("./../dist/es5/user/data-types").DataType;
 var Deploy = require("./../dist/es5/deploy/deploy").Deploy;
-var EventEmitter = require("./../dist/es5/core/events").EventEmitter;
-var IonicCloud = require("./../dist/es5/core/core").IonicCloud;
-var Logger = require("./../dist/es5/core/logger").Logger;
+var EventEmitter = require("./../dist/es5/events").EventEmitter;
+var IonicCloud = require("./../dist/es5/core").IonicCloud;
+var Logger = require("./../dist/es5/logger").Logger;
 var Push = require("./../dist/es5/push/push").Push;
-var PushMessage = require("./../dist/es5/push/push-message").PushMessage;
-var PushToken = require("./../dist/es5/push/push-token").PushToken;
-var Storage = require("./../dist/es5/core/storage").Storage;
-var User = require("./../dist/es5/core/user").User;
-var promise = require("./../dist/es5/core/promise");
+var PushMessage = require("./../dist/es5/push/message").PushMessage;
+var PushToken = require("./../dist/es5/push/token").PushToken;
+var Storage = require("./../dist/es5/storage").Storage;
+var User = require("./../dist/es5/user/user").User;
+var promise = require("./../dist/es5/promise");
 
 // Declare the window object
 window.Ionic = window.Ionic || {};
