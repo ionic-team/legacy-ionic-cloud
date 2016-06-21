@@ -1,3 +1,7 @@
+export interface IDetailedError<D> extends Error {
+  details?: D;
+}
+
 export interface ILogger {
   silent: boolean;
   infofn: (message?: any, ...optionalParams: any[]) => void;

@@ -1,11 +1,19 @@
-export class DeferredPromise<U> {
-  public resolve: (value?: any) => any;
-  public reject: (value?: any) => any;
+import { IDetailedError } from '../interfaces';
 
-  public promise: Promise<U>;
+export class DetailedError<D> extends Error implements IDetailedError {
+  constructor(message?: string, public details?: D) {
+    super(message);
+  }
+}
+
+export class DeferredPromise<T, E extends Error> {
+  public resolve: (value?: T) => void;
+  public reject: (err?: E) => void;
+
+  public promise: Promise<T>;
 
   constructor() {
-    this.promise = new Promise<U>((resolve, reject) => {
+    this.promise = new Promise<T>((resolve, reject) => {
       this.resolve = resolve;
       this.reject = reject;
     });
