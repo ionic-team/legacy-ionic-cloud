@@ -35,11 +35,12 @@ export class Database {
     this._hz_settings = {
       lazyWrites: settings.lazyWrites || false,
       authType: AuthType[AuthType[settings.authType]] || AuthType[AuthType.anonymous],
-      host: settings.host || "horizon.ionicjs.com:35100",
+      host: settings.host || 'horizon.ionicjs.com:35100',
       path: 'horizon/' + settings.app_id + '/horizon',
       secure: true
     }; 
-    if(settings.secure !== undefined){
+
+    if (settings.secure !== undefined) {
       this._hz_settings.secure = settings.secure;
     }
     this.settings.retries = settings.retries || 10;
@@ -47,7 +48,7 @@ export class Database {
   }
 
   connect(): any {
-    if(this.horizon){
+    if (this.horizon) {
       return this;
     }
     this.horizon = Horizon(this._hz_settings);
@@ -58,7 +59,7 @@ export class Database {
 
   private _registerListeners(): void {
     this.horizon.onReady( () => {
-      console.log("connected to horizon");
+      console.log('connected to horizon');
       this._curr_retry = 0;
     });
 
@@ -69,12 +70,12 @@ export class Database {
 
   private _reconnect(): void {
     this._curr_retry++;
-    if(this._curr_retry > this.settings.retries){
-      console.log("Retry Limit Reached. Failed to connect to DB.");
+    if (this._curr_retry > this.settings.retries) {
+      console.log('Retry Limit Reached. Failed to connect to DB.');
       this._failed = true;
-    }else{
+    }else {
       setTimeout( () => {
-        console.log("Retrying connection. Remaining attempts: " + (this.settings.retries - this._curr_retry));
+        console.log('Retrying connection. Remaining attempts: ' + (this.settings.retries - this._curr_retry));
         this.horizon.connect();
       }, 50 * Math.pow(2, this._curr_retry));
     }
