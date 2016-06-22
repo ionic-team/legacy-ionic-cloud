@@ -1,4 +1,4 @@
-export type EventHandler = (data: Object) => any;
+import { EventHandler, IEventEmitter } from './interfaces';
 
 interface EventsEmitted {
   [key: string]: number;
@@ -8,7 +8,7 @@ interface EventHandlers {
   [key: string]: EventHandler[];
 }
 
-export class EventEmitter {
+export class EventEmitter implements IEventEmitter {
 
   private eventHandlers: EventHandlers = {};
   private eventsEmitted: EventsEmitted = {};
@@ -19,6 +19,18 @@ export class EventEmitter {
     }
 
     this.eventHandlers[event].push(callback);
+  }
+
+  once(event: string, callback: () => void) {
+    if (this.emitted(event)) {
+      callback();
+    } else {
+      this.on(event, () => {
+        if (!this.emitted(event)) {
+          callback();
+        }
+      });
+    }
   }
 
   emit(event: string, data: Object = null) {

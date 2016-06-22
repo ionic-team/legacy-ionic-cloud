@@ -1,4 +1,4 @@
-import { EventEmitter } from './events';
+import { IDevice, IEventEmitter } from './interfaces';
 
 declare var Connection: any;
 declare var navigator: any;
@@ -7,17 +7,17 @@ export interface DeviceIsConnectedToNetworkOptions {
   strictMode?: boolean;
 }
 
-export class Device {
+export class Device implements IDevice {
 
   public deviceType: string;
 
-  constructor(public emitter: EventEmitter) {
+  constructor(public emitter: IEventEmitter) {
     this.emitter = emitter;
     this.deviceType = this.determineDeviceType();
     this.registerEventHandlers();
   }
 
-  public registerEventHandlers(): void {
+  private registerEventHandlers(): void {
     if (this.deviceType === 'unknown') {
       this.emitter.emit('device:ready');
     } else {

@@ -1,4 +1,4 @@
-import { IStorageStrategy } from './interfaces';
+import { IStorage, IStorageStrategy } from './interfaces';
 
 export class LocalStorageStrategy implements IStorageStrategy {
   get(key: string): string {
@@ -36,7 +36,7 @@ export interface StorageOptions {
   cache?: boolean;
 }
 
-export class Storage {
+export class Storage implements IStorage {
 
   private storageCache: StorageCache;
 

@@ -1,36 +1,23 @@
-import { ILogger, ISettings, IPushNotificationEvent } from './interfaces';
+import { ICore, IConfig, ISettings, ILogger, IEventEmitter, IClient, IDevice, ICordova, IStorage, IPushNotificationEvent } from './interfaces';
 import { App } from './app';
-import { Client } from './client';
-import { Cordova } from './cordova';
-import { Device } from './device';
-import { EventEmitter } from './events';
 import { Insights } from './insights';
-import { Storage, LocalStorageStrategy } from './storage';
-import { Logger } from './logger';
-import { Config, config } from './config';
 
-export class Core {
+export class Core implements ICore {
 
   app: App;
-  client: Client;
-  config: Config;
-  cordova: Cordova;
-  device: Device;
-  emitter: EventEmitter;
   insights: Insights;
-  logger: ILogger;
-  storage: Storage;
 
   private _version = 'VERSION_STRING';
 
-  constructor() {
-    this.config = config;
-    this.logger = new Logger();
-    this.emitter = new EventEmitter();
-    this.client = new Client(this.config.getURL('api'));
-    this.device = new Device(this.emitter);
-    this.cordova = new Cordova(this.device, this.emitter, { logger: this.logger });
-    this.storage = new Storage(new LocalStorageStrategy());
+  constructor(
+    public config: IConfig,
+    public logger: ILogger,
+    public emitter: IEventEmitter,
+    public client: IClient,
+    public device: IDevice,
+    public cordova: ICordova,
+    public storage: IStorage
+  ) {
     this.registerEventHandlers();
     this.cordova.load();
   }
@@ -63,21 +50,4 @@ export class Core {
       }
     });
   }
-
-  /**
-   * Fire a callback when core + plugins are ready. This will fire immediately
-   * if the components have already become available.
-   */
-  onReady(callback) {
-    // There's a chance this event was already emitted
-    if (this.emitter.emitted('device:ready')) {
-      callback(this);
-    } else {
-      this.emitter.on('device:ready', () => {
-        callback(this);
-      });
-    }
-  }
 }
-
-export let IonicCloud = new Core();

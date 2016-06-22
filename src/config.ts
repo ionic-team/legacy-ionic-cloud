@@ -1,6 +1,6 @@
-import { ISettingsUrls, ISettings } from './interfaces';
+import { ISettingsUrls, ISettings, IConfig } from './interfaces';
 
-export class Config {
+export class Config implements IConfig {
 
   private settings: ISettings;
   private urls: ISettingsUrls = {
@@ -30,5 +30,3 @@ export class Config {
   }
 
 }
-
-export let config = new Config();

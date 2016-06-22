@@ -1,11 +1,11 @@
+import { ICore } from '../interfaces';
 import { DeferredPromise } from '../promise';
-import { IonicCloud } from '../core';
 
 declare var IonicDeploy: any;
 
-var NO_PLUGIN = 'IONIC_DEPLOY_MISSING_PLUGIN';
-var INITIAL_DELAY = 1 * 5 * 1000;
-var WATCH_INTERVAL = 1 * 60 * 1000;
+const NO_PLUGIN = new Error('Missing deploy plugin: `ionic-plugin-deploy`');
+const INITIAL_DELAY = 1 * 5 * 1000;
+const WATCH_INTERVAL = 1 * 60 * 1000;
 
 export interface DeployWatchOptions {
   interval?: number;
@@ -25,22 +25,21 @@ export interface DeployUpdateOptions {
   onProgress?: (p: number) => void;
 }
 
+export interface DeployOptions {
+}
+
 export class Deploy {
 
   private _plugin: any;
-  private _isReady: boolean;
   private _channelTag: string;
   private _checkTimeout: any;
 
-  constructor() {
-    var self = this;
+  constructor(config: DeployOptions = {}, public core: ICore) {
     this._plugin = false;
-    this._isReady = false;
     this._channelTag = 'production';
-    IonicCloud.onReady(function() {
-      self.initialize();
-      self._isReady = true;
-      IonicCloud.emitter.emit('deploy:ready');
+    this.core.emitter.once('device:ready', () => {
+      this.init(config);
+      this.core.emitter.emit('deploy:ready');
     });
   }
 
@@ -55,7 +54,7 @@ export class Deploy {
   _getPlugin() {
     if (this._plugin) { return this._plugin; }
     if (typeof IonicDeploy === 'undefined') {
-      IonicCloud.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
+      this.core.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
       return false;
     }
     this._plugin = IonicDeploy;
@@ -64,15 +63,11 @@ export class Deploy {
 
   /**
    * Initialize the Deploy Plugin
-   * @return {void}
    */
-  initialize() {
-    var self = this;
-    this.onReady(function() {
-      if (self._getPlugin()) {
-        self._plugin.init(IonicCloud.config.get('app_id'), IonicCloud.config.getURL('api'));
-      }
-    });
+  init(config: DeployOptions = {}): void {
+    if (this._getPlugin()) {
+      this._plugin.init(this.core.config.get('app_id'), this.core.config.getURL('api'));
+    }
   }
 
   /**
@@ -82,21 +77,20 @@ export class Deploy {
    *   error will be passed to reject() in the event of a failure.
    */
   check(): Promise<boolean> {
-    var self = this;
-    var deferred = new DeferredPromise<boolean>();
+    let deferred = new DeferredPromise<boolean, Error>();
 
-    this.onReady(function() {
-      if (self._getPlugin()) {
-        self._plugin.check(IonicCloud.config.get('app_id'), self._channelTag, function(result) {
+    this.core.emitter.once('deploy:ready', () => {
+      if (this._getPlugin()) {
+        this._plugin.check(this.core.config.get('app_id'), this._channelTag, (result) => {
           if (result && result === 'true') {
-            IonicCloud.logger.info('Ionic Deploy: an update is available');
+            this.core.logger.info('Ionic Deploy: an update is available');
             deferred.resolve(true);
           } else {
-            IonicCloud.logger.info('Ionic Deploy: no updates available');
+            this.core.logger.info('Ionic Deploy: no updates available');
             deferred.resolve(false);
           }
-        }, function(error) {
-          IonicCloud.logger.error('Ionic Deploy: encountered an error while checking for updates');
+        }, (error) => {
+          this.core.logger.error('Ionic Deploy: encountered an error while checking for updates');
           deferred.reject(error);
         });
       } else {
@@ -114,23 +108,22 @@ export class Deploy {
    * @return {Promise} The promise which will resolve with true/false.
    */
   download(options: DeployDownloadOptions = {}): Promise<boolean> {
-    var self = this;
-    var deferred = new DeferredPromise();
+    let deferred = new DeferredPromise<boolean, Error>();
 
-    this.onReady(function() {
-      if (self._getPlugin()) {
-        self._plugin.download(IonicCloud.config.get('app_id'), function(result) {
+    this.core.emitter.once('deploy:ready', () => {
+      if (this._getPlugin()) {
+        this._plugin.download(this.core.config.get('app_id'), (result) => {
           if (result !== 'true' && result !== 'false') {
             if (options.onProgress) {
               options.onProgress(result);
             }
           } else {
             if (result === 'true') {
-              IonicCloud.logger.info('Ionic Deploy: download complete');
+              this.core.logger.info('Ionic Deploy: download complete');
             }
             deferred.resolve(result === 'true');
           }
-        }, function(error) {
+        }, (error) => {
           deferred.reject(error);
         });
       } else {
@@ -148,23 +141,22 @@ export class Deploy {
    * @return {Promise} The promise which will resolve with true/false.
    */
   extract(options: DeployExtractOptions = {}): Promise<boolean> {
-    var self = this;
-    var deferred = new DeferredPromise();
+    let deferred = new DeferredPromise<boolean, Error>();
 
-    this.onReady(function() {
-      if (self._getPlugin()) {
-        self._plugin.extract(IonicCloud.config.get('app_id'), function(result) {
+    this.core.emitter.once('deploy:ready', () => {
+      if (this._getPlugin()) {
+        this._plugin.extract(this.core.config.get('app_id'), (result) => {
           if (result !== 'done') {
             if (options.onProgress) {
               options.onProgress(result);
             }
           } else {
             if (result === 'true') {
-              IonicCloud.logger.info('Ionic Deploy: extraction complete');
+              this.core.logger.info('Ionic Deploy: extraction complete');
             }
-            deferred.resolve(result);
+            deferred.resolve(result === 'true');
           }
-        }, function(error) {
+        }, (error) => {
           deferred.reject(error);
         });
       } else {
@@ -184,10 +176,9 @@ export class Deploy {
    * @return {void}
    */
   load() {
-    var self = this;
-    this.onReady(function() {
-      if (self._getPlugin()) {
-        self._plugin.redirect(IonicCloud.config.get('app_id'));
+    this.core.emitter.once('deploy:ready', () => {
+      if (this._getPlugin()) {
+        this._plugin.redirect(this.core.config.get('app_id'));
       }
     });
   }
@@ -207,12 +198,12 @@ export class Deploy {
     }
 
     function checkForUpdates() {
-      self.check().then(function(hasUpdate) {
+      self.check().then((hasUpdate) => {
         if (hasUpdate) {
-          IonicCloud.emitter.emit('deploy:update-ready');
+          self.core.emitter.emit('deploy:update-ready');
         }
-      }, function(err) {
-        IonicCloud.logger.info('Ionic Deploy: unable to check for updates: ' + err);
+      }, (err) => {
+        self.core.logger.info('Ionic Deploy: unable to check for updates: ' + err);
       });
 
       // Check our timeout to make sure it wasn't cleared while we were waiting
@@ -241,14 +232,13 @@ export class Deploy {
    *    pairs pertaining to the currently deployed update.
    */
   info(): Promise<any> {
-    var deferred = new DeferredPromise();
-    var self = this;
+    let deferred = new DeferredPromise<any, Error>(); // TODO
 
-    this.onReady(function() {
-      if (self._getPlugin()) {
-        self._plugin.info(IonicCloud.config.get('app_id'), function(result) {
+    this.core.emitter.once('deploy:ready', () => {
+      if (this._getPlugin()) {
+        this._plugin.info(this.core.config.get('app_id'), (result) => {
           deferred.resolve(result);
-        }, function(err) {
+        }, (err) => {
           deferred.reject(err);
         });
       } else {
@@ -265,14 +255,13 @@ export class Deploy {
    * @return {Promise} The resolver will be passed an array of deploy uuids
    */
   getVersions(): Promise<any> {
-    var deferred = new DeferredPromise();
-    var self = this;
+    let deferred = new DeferredPromise<any, Error>(); // TODO
 
-    this.onReady(function() {
-      if (self._getPlugin()) {
-        self._plugin.getVersions(IonicCloud.config.get('app_id'), function(result) {
+    this.core.emitter.once('deploy:ready', () => {
+      if (this._getPlugin()) {
+        this._plugin.getVersions(this.core.config.get('app_id'), (result) => {
           deferred.resolve(result);
-        }, function(err) {
+        }, (err) => {
           deferred.reject(err);
         });
       } else {
@@ -290,14 +279,13 @@ export class Deploy {
    * @return {Promise} Standard resolve/reject resolution
    */
   deleteVersion(uuid): Promise<any> {
-    var deferred = new DeferredPromise();
-    var self = this;
+    let deferred = new DeferredPromise<any, Error>(); // TODO
 
-    this.onReady(function() {
-      if (self._getPlugin()) {
-        self._plugin.deleteVersion(IonicCloud.config.get('app_id'), uuid, function(result) {
+    this.core.emitter.once('deploy:ready', () => {
+      if (this._getPlugin()) {
+        this._plugin.deleteVersion(this.core.config.get('app_id'), uuid, (result) => {
           deferred.resolve(result);
-        }, function(err) {
+        }, (err) => {
           deferred.reject(err);
         });
       } else {
@@ -316,14 +304,13 @@ export class Deploy {
    * @return {Promise} Standard resolve/reject resolution
    */
   getMetadata(uuid): Promise<any> {
-    var deferred = new DeferredPromise();
-    var self = this;
+    let deferred = new DeferredPromise<any, Error>(); // TODO
 
-    this.onReady(function() {
-      if (self._getPlugin()) {
-        self._plugin.getMetadata(IonicCloud.config.get('app_id'), uuid, function(result) {
+    this.core.emitter.once('deploy:ready', () => {
+      if (this._getPlugin()) {
+        this._plugin.getMetadata(this.core.config.get('app_id'), uuid, (result) => {
           deferred.resolve(result.metadata);
-        }, function(err) {
+        }, (err) => {
           deferred.reject(err);
         });
       } else {
@@ -346,53 +333,50 @@ export class Deploy {
 
   /**
    * Update app with the latest deploy
-   *
-   * @param {boolean} deferLoad Defer loading the applied update after the installation
    */
   update(options: DeployUpdateOptions = {}): Promise<boolean> {
-    var deferred = new DeferredPromise();
-    var self = this;
+    let deferred = new DeferredPromise<boolean, Error>();
 
-    this.onReady(function() {
-      if (self._getPlugin()) {
+    this.core.emitter.once('deploy:ready', () => {
+      if (this._getPlugin()) {
         // Check for updates
-        self.check().then(function(result) {
+        this.check().then((result) => {
           if (result === true) {
             // There are updates, download them
             let downloadProgress = 0;
-            self.download({
+            this.download({
               'onProgress': (p: number) => {
                 downloadProgress = p / 2;
                 if (options.onProgress) {
                   options.onProgress(downloadProgress);
                 }
               }
-            }).then(function(result) {
-              if (!result) { deferred.reject('download error'); }
-              self.extract({
+            }).then((result) => {
+              if (!result) { deferred.reject(new Error('Error while downloading')); }
+              this.extract({
                 'onProgress': (p: number) => {
                   if (options.onProgress) {
                     options.onProgress(downloadProgress + p / 2);
                   }
                 }
-              }).then(function(result) {
-                if (!result) { deferred.reject('extraction error'); }
+              }).then((result) => {
+                if (!result) { deferred.reject(new Error('Error while extracting')); }
                 if (!options.deferLoad) {
                   deferred.resolve(true);
-                  self._plugin.redirect(IonicCloud.config.get('app_id'));
+                  this._plugin.redirect(this.core.config.get('app_id'));
                 } else {
                   deferred.resolve(true);
                 }
-              }, function(error) {
+              }, (error) => {
                 deferred.reject(error);
               });
-            }, function(error) {
+            }, (error) => {
               deferred.reject(error);
             });
           } else {
             deferred.resolve(false);
           }
-        }, function(error) {
+        }, (error) => {
           deferred.reject(error);
         });
       } else {
@@ -402,23 +386,4 @@ export class Deploy {
 
     return deferred.promise;
   }
-
-  /**
-   * Fire a callback when deploy is ready. This will fire immediately if
-   * deploy has already become available.
-   *
-   * @param {Function} callback Callback function to fire off
-   * @return {void}
-   */
-  onReady(callback) {
-    var self = this;
-    if (this._isReady) {
-      callback(self);
-    } else {
-      IonicCloud.emitter.on('deploy:ready', function() {
-        callback(self);
-      });
-    }
-  }
-
 }

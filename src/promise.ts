@@ -1,6 +1,6 @@
-import { IDetailedError } from '../interfaces';
+import { IDetailedError } from './interfaces';
 
-export class DetailedError<D> extends Error implements IDetailedError {
+export class DetailedError<D> extends Error implements IDetailedError<D> {
   constructor(message?: string, public details?: D) {
     super(message);
   }

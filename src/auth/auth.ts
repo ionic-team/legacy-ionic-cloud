@@ -1,25 +1,13 @@
-import { ITokenContext, IStorageStrategy } from '../interfaces';
-import { Client } from '../client';
-import { DeferredPromise } from '../promise';
-import { IonicCloud } from '../core';
-import { LocalStorageStrategy, SessionStorageStrategy } from '../storage';
-import { User } from '../user/user';
+import { IConfig, IClient, IEventEmitter, ITokenContext, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, IAuth, IUser, IAuthType, BasicAuthSignupData, IBasicAuthType, IAuthModules } from '../interfaces';
+import { DetailedError, DeferredPromise } from '../promise';
 
 declare var window: any;
 
-var authModules: Object = {};
-var authToken: string;
-
 export class TempTokenContext implements ITokenContext {
-
-  storage: IStorageStrategy;
-
-  constructor() {
-    this.storage = new SessionStorageStrategy();
-  }
+  constructor(public storage: IStorageStrategy, public config: IConfig) {}
 
   get label(): string {
-    return 'ionic_io_auth_' + IonicCloud.config.get('app_id');
+    return 'ionic_io_auth_' + this.config.get('app_id');
   }
 
   delete(): void {
@@ -35,49 +23,6 @@ export class TempTokenContext implements ITokenContext {
   }
 }
 
-export class TokenContext implements ITokenContext {
-
-  storage: IStorageStrategy;
-
-  constructor() {
-    this.storage = new LocalStorageStrategy();
-  }
-
-  get label(): string {
-    return 'ionic_io_auth_' + IonicCloud.config.get('app_id');
-  }
-
-  delete(): void {
-    this.storage.remove(tokenContext.label);
-  }
-
-  store(token: string): void {
-    this.storage.set(tokenContext.label, token);
-  }
-
-  getRawData(): string {
-    return this.storage.get(tokenContext.label);
-  }
-}
-
-let tempTokenContext = new TempTokenContext();
-let tokenContext = new TokenContext();
-
-export interface LoginOptions {
-  remember?: boolean;
-}
-
-function storeToken(options: LoginOptions = {}, token: string) {
-  let originalToken = authToken;
-  authToken = token;
-  if (options.remember) {
-    tokenContext.store(authToken);
-  } else {
-    tempTokenContext.store(authToken);
-  }
-  IonicCloud.emitter.emit('auth:token-changed', {'old': originalToken, 'new': authToken});
-}
-
 function getAuthErrorDetails(err) {
   var details = [];
   try {
@@ -86,87 +31,98 @@ function getAuthErrorDetails(err) {
   return details;
 }
 
-export class Auth {
+export class Auth implements IAuth {
 
-  static isAuthenticated(): boolean {
-    var token = tokenContext.getRawData();
-    var tempToken = tempTokenContext.getRawData();
+  private authToken: string;
+
+  constructor(
+    public emitter: IEventEmitter,
+    public authModules: IAuthModules,
+    public tokenContext: ITokenContext,
+    public tempTokenContext: ITokenContext,
+    public userService: ISingleUserService
+  ) {}
+
+  isAuthenticated(): boolean {
+    let token = this.tokenContext.getRawData();
+    let tempToken = this.tempTokenContext.getRawData();
+
     if (tempToken || token) {
       return true;
     }
     return false;
   }
 
-  static login(moduleId, options: LoginOptions = {}, data): Promise<User> {
-    var deferred = new DeferredPromise<User>();
-    var context = authModules[moduleId] || false;
+  login(moduleId: AuthModuleId, options: LoginOptions = {}, data): Promise<IUser> {
+    let context = this.authModules[moduleId];
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
     }
-    context.authenticate.apply(context, [options, data]).then(function() {
-      User.self().then(function(user) {
+
+    return context.authenticate(data).then((token: string) => {
+      this.storeToken(options, token);
+
+      return this.userService.self().then((user) => {
         user.store();
-        deferred.resolve(user);
-      }, function(err) {
-        deferred.reject(err);
+        return user;
       });
-    }, function(err) {
-      deferred.reject(err);
     });
-    return deferred.promise;
   }
 
-  static signup(data) {
-    var context = authModules['basic'] || false;
+  signup(data: BasicAuthSignupData): Promise<void> {
+    let context = this.authModules.basic;
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
     }
     return context.signup.apply(context, [data]);
   }
 
-  static logout(): void {
-    tokenContext.delete();
-    tempTokenContext.delete();
-    var user = User.current();
+  logout(): void {
+    this.tokenContext.delete();
+    this.tempTokenContext.delete();
+    let user = this.userService.current();
     user.unstore();
     user.clear();
   }
 
-  static register(moduleId, module): void {
-    if (!authModules[moduleId]) {
-      authModules[moduleId] = module;
-    }
-  }
-
-  static getUserToken(): string {
-    let usertoken = tokenContext.getRawData();
-    let temptoken = tempTokenContext.getRawData();
+  getUserToken(): string {
+    let usertoken = this.tokenContext.getRawData();
+    let temptoken = this.tempTokenContext.getRawData();
     let token = temptoken || usertoken;
 
     return token;
   }
 
-}
-
-abstract class AuthType {
-  constructor(public client: Client) {
-    this.client = client;
+  storeToken(options: LoginOptions = {}, token: string) {
+    let originalToken = this.authToken;
+    this.authToken = token;
+    if (options.remember) {
+      this.tokenContext.store(this.authToken);
+    } else {
+      this.tempTokenContext.store(this.authToken);
+    }
+    this.emitter.emit('auth:token-changed', {'old': originalToken, 'new': this.authToken});
   }
 
-  abstract authenticate(options: LoginOptions, data): Promise<any>;
+}
 
-  protected inAppBrowserFlow(authOptions: LoginOptions = {}, options, data): Promise<any> {
-    var deferred = new DeferredPromise();
+abstract class AuthType implements IAuthType {
+  constructor(public config: IConfig, public client: IClient) {}
+
+  abstract authenticate(data): Promise<any>;
+
+  protected inAppBrowserFlow(options, data): Promise<string> {
+    let deferred = new DeferredPromise<string, Error>();
 
     if (!window || !window.cordova || !window.cordova.InAppBrowser) {
-      deferred.reject('Missing InAppBrowser plugin');
+      deferred.reject(new Error('InAppBrowser plugin missing'));
     } else {
       let method = options.uri_method ? options.uri_method : 'POST';
       let provider = options.provider ? '/' + options.provider : '';
 
       this.client.request(method, `/auth/login${provider}`)
         .send({
-          'app_id': IonicCloud.config.get('app_id'),
+          'app_id': this.config.get('app_id'),
           'callback': options.callback_uri || window.location.href,
           'data': data
         })
@@ -185,10 +141,9 @@ abstract class AuthType {
                   var part = paramParts[i].split('=');
                   params[part[0]] = part[1];
                 }
-                storeToken(authOptions, params.token);
                 tempBrowser.close();
                 tempBrowser = null;
-                deferred.resolve(true);
+                deferred.resolve(params.token);
               }
             });
           }
@@ -200,14 +155,14 @@ abstract class AuthType {
 
 }
 
-class BasicAuth extends AuthType {
+class BasicAuth extends AuthType implements IBasicAuthType {
 
-  authenticate(options: LoginOptions = {}, data): Promise<any> {
-    var deferred = new DeferredPromise();
+  authenticate(data): Promise<string> {
+    var deferred = new DeferredPromise<string, Error>();
 
     this.client.post('/auth/login')
       .send({
-        'app_id': IonicCloud.config.get('app_id'),
+        'app_id': this.config.get('app_id'),
         'email': data.email,
         'password': data.password
       })
@@ -215,19 +170,18 @@ class BasicAuth extends AuthType {
         if (err) {
           deferred.reject(err);
         } else {
-          storeToken(options, res.body.data.token);
-          deferred.resolve(true);
+          deferred.resolve(res.body.data.token);
         }
       });
 
     return deferred.promise;
   }
 
-  signup(data): Promise<any> {
-    var deferred = new DeferredPromise<boolean>();
+  signup(data: BasicAuthSignupData): Promise<void> {
+    var deferred = new DeferredPromise<void, DetailedError<string[]>>();
 
     var userData: any = {
-      'app_id': IonicCloud.config.get('app_id'),
+      'app_id': this.config.get('app_id'),
       'email': data.email,
       'password': data.password
     };
@@ -254,9 +208,9 @@ class BasicAuth extends AuthType {
               }
             }
           }
-          deferred.reject({ 'errors': errors });
+          deferred.reject(new DetailedError('Error creating user', errors));
         } else {
-          deferred.resolve(true);
+          deferred.resolve();
         }
       });
 
@@ -265,52 +219,43 @@ class BasicAuth extends AuthType {
 }
 
 class CustomAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): Promise<any> {
-    return this.inAppBrowserFlow(options, { 'provider': 'custom' }, data);
+  authenticate(data): Promise<any> {
+    return this.inAppBrowserFlow({ 'provider': 'custom' }, data);
   }
 }
 
 class TwitterAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): Promise<any> {
-    return this.inAppBrowserFlow(options, { 'provider': 'twitter' }, data);
+  authenticate(data): Promise<any> {
+    return this.inAppBrowserFlow({ 'provider': 'twitter' }, data);
   }
 }
 
 class FacebookAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): Promise<any> {
-    return this.inAppBrowserFlow(options, { 'provider': 'facebook' }, data);
+  authenticate(data): Promise<any> {
+    return this.inAppBrowserFlow({ 'provider': 'facebook' }, data);
   }
 }
 
 class GithubAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): Promise<any> {
-    return this.inAppBrowserFlow(options, { 'provider': 'github' }, data);
+  authenticate(data): Promise<any> {
+    return this.inAppBrowserFlow({ 'provider': 'github' }, data);
   }
 }
 
 class GoogleAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): Promise<any> {
-    return this.inAppBrowserFlow(options, { 'provider': 'google' }, data);
+  authenticate(data): Promise<any> {
+    return this.inAppBrowserFlow({ 'provider': 'google' }, data);
   }
 }
 
 class InstagramAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): Promise<any> {
-    return this.inAppBrowserFlow(options, { 'provider': 'instagram' }, data);
+  authenticate(data): Promise<any> {
+    return this.inAppBrowserFlow({ 'provider': 'instagram' }, data);
   }
 }
 
 class LinkedInAuth extends AuthType {
-  authenticate(options: LoginOptions = {}, data): Promise<any> {
-    return this.inAppBrowserFlow(options, { 'provider': 'linkedin' }, data);
+  authenticate(data): Promise<any> {
+    return this.inAppBrowserFlow({ 'provider': 'linkedin' }, data);
   }
 }
-
-Auth.register('basic', new BasicAuth(IonicCloud.client));
-Auth.register('custom', new CustomAuth(IonicCloud.client));
-Auth.register('facebook', new FacebookAuth(IonicCloud.client));
-Auth.register('github', new GithubAuth(IonicCloud.client));
-Auth.register('google', new GoogleAuth(IonicCloud.client));
-Auth.register('instagram', new InstagramAuth(IonicCloud.client));
-Auth.register('linkedin', new LinkedInAuth(IonicCloud.client));
-Auth.register('twitter', new TwitterAuth(IonicCloud.client));

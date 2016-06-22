@@ -1,6 +1,4 @@
-import { ILogger } from './interfaces';
-import { Device } from './device';
-import { EventEmitter } from './events';
+import { ICordova, ILogger, IDevice, IEventEmitter } from './interfaces';
 
 declare var cordova: any;
 
@@ -8,19 +6,16 @@ export interface CordovaOptions {
   logger?: ILogger;
 }
 
-export class Cordova {
+export class Cordova implements ICordova {
 
   logger: ILogger;
 
-  constructor(public device: Device, public emitter: EventEmitter, protected options: CordovaOptions = {}) {
-    this.device = device;
-    this.emitter = emitter;
-    this.options = options;
+  constructor(public device: IDevice, public emitter: IEventEmitter, protected options: CordovaOptions = {}) {
     this.logger = this.options.logger;
     this.registerEventHandlers();
   }
 
-  public registerEventHandlers(): void {
+  private registerEventHandlers(): void {
     let events = ['pause', 'resume'];
 
     document.addEventListener('deviceready', (...args) => {

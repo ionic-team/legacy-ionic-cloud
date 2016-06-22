@@ -1,18 +1,19 @@
 import * as request from 'superagent';
+import { IClient } from './interfaces';
 
-export class Client {
+export class Client implements IClient {
+
+  private req: any;
 
   constructor(
     public baseUrl: string,
     public token?: string,
-    public req?: any  // TODO: use superagent types
+    req?: any  // TODO: use superagent types
   ) {
     if (typeof req === 'undefined') {
       req = request;
     }
 
-    this.baseUrl = baseUrl;
-    this.token = token;
     this.req = req;
   }
 

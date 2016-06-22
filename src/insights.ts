@@ -1,6 +1,5 @@
-import { ILogger, IStatSerialized } from './interfaces';
+import { ILogger, IClient, IStatSerialized } from './interfaces';
 import { App } from './app';
-import { Client } from './client';
 
 export class Stat {
   public created: Date;
@@ -36,7 +35,7 @@ export class Insights {
 
   private batch: Stat[];
 
-  constructor(public client: Client, public app: App, public options: InsightsOptions = {}) {
+  constructor(public client: IClient, public app: App, public options: InsightsOptions = {}) {
     this.client = client;
     this.app = app;
     this.options = options;

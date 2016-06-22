@@ -4,6 +4,7 @@ export interface IDetailedError<D> extends Error {
 
 export interface ILogger {
   silent: boolean;
+
   infofn: (message?: any, ...optionalParams: any[]) => void;
   warnfn: (message?: any, ...optionalParams: any[]) => void;
   errorfn: (message?: any, ...optionalParams: any[]) => void;
@@ -23,10 +24,104 @@ export interface ISettings {
   [key: string]: any;
 }
 
+export interface IConfig {
+  register(settings: ISettings);
+  get(name: string): any;
+  getURL(name: string): string;
+}
+
+export interface IClient {
+  baseUrl: string;
+  token: string;
+
+  get(endpoint: string);
+  post(endpoint: string);
+  put(endpoint: string);
+  patch(endpoint: string);
+  delete(endpoint: string);
+  request(method: string, endpoint: string);
+}
+
+export type EventHandler = (data: Object) => any;
+
+export interface IEventEmitter {
+  on(event: string, callback: EventHandler);
+  once(event: string, callback: () => void);
+  emit(event: string, data?: Object);
+  emitted(event: string): number;
+}
+
+export interface IStorage {
+  get(key: string): any;
+  set(key: string, value: any): void;
+  delete(key: string): void;
+}
+
 export interface IStorageStrategy {
   get(key: string): string;
   remove(key: string): void;
   set(key: string, value: string): void;
+}
+
+export interface IDevice {
+  deviceType: string;
+
+  isAndroid(): boolean;
+  isIOS(): boolean;
+}
+
+export interface ICordova {
+  load(): void;
+}
+
+export interface ICore {
+  version: string;
+  config: IConfig;
+  logger: ILogger;
+  emitter: IEventEmitter;
+  client: IClient;
+  device: IDevice;
+  cordova: ICordova;
+  storage: IStorage;
+
+  init(cfg: ISettings);
+}
+
+export interface IUserData {
+  data: Object;
+
+  get(key: string, defaultValue: any);
+  set(key: string, value: any);
+  unset(key: string);
+}
+
+export interface IUser {
+  id: string;
+  fresh: boolean;
+  details: Object;
+  data: IUserData;
+
+  isAnonymous(): boolean;
+  get(key: string, defaultValue: any);
+  set(key: string, value: any);
+  unset(key: string);
+  clear();
+  store();
+  unstore();
+  save(): Promise<void>;
+  delete(): Promise<void>;
+  serialize(): Object;
+}
+
+export interface ISingleUserService {
+  current(): IUser;
+  store();
+  unstore();
+  self(): Promise<IUser>;
+  load(id: string);
+  delete(): Promise<void>;
+  save(): Promise<void>;
+  resetPassword(): Promise<void>;
 }
 
 export interface ITokenContext {
@@ -36,6 +131,52 @@ export interface ITokenContext {
   delete(): void;
   store(token: string): void;
   getRawData(): string;
+}
+
+export type AuthModuleId = "basic" | "custom" | "facebook" | "github" | "google" | "instagram" | "linkedin" | "twitter";
+
+export interface IAuthType {
+  authenticate(data): Promise<any>;
+}
+
+export interface BasicAuthSignupData {
+  email: string;
+  password: string;
+  username?: string;
+  image?: string;
+  name?: string;
+  custom?: Object;
+}
+
+export interface IBasicAuthType extends IAuthType {
+  signup(data: BasicAuthSignupData): Promise<void>;
+}
+
+export interface IAuthModules {
+  basic: IBasicAuthType;
+  custom: IAuthType;
+  facebook: IAuthType;
+  github: IAuthType;
+  google: IAuthType;
+  instagram: IAuthType;
+  linkedin: IAuthType;
+  twitter: IAuthType;
+}
+
+export interface LoginOptions {
+  remember?: boolean;
+}
+
+export interface IAuth {
+  authModules: IAuthModules;
+  tokenContext: ITokenContext;
+  tempTokenContext: ITokenContext;
+  userService: ISingleUserService;
+
+  isAuthenticated(): boolean;
+  login(moduleId: AuthModuleId, options: LoginOptions, data): Promise<IUser>;
+  logout(): void;
+  signup(data: BasicAuthSignupData): Promise<void>;
 }
 
 export interface IAppStatus {

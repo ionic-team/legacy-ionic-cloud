@@ -1,60 +1,58 @@
-import { Auth } from '../auth/auth';
+import { ICore, IConfig, IStorage, IUserData, IUser, ISingleUserService } from '../interfaces';
 import { DeferredPromise } from '../promise';
-import { IonicCloud } from '../core';
-import { Storage, LocalStorageStrategy } from '../storage';
 import { DataType } from './data-types';
 
 declare var Ionic: any;
 
-var AppUserContext = null;
-var storage = new Storage(new LocalStorageStrategy());
+export class UserContext {
+  constructor(public storage: IStorage, public config: IConfig) {}
 
-class UserContext {
-  static get label() {
-    return 'ionic_io_user_' + IonicCloud.config.get('app_id');
+  get label() {
+    return 'ionic_io_user_' + this.config.get('app_id');
   }
 
-  static delete() {
-    storage.delete(UserContext.label);
+  unstore() {
+    this.storage.delete(this.label);
   }
 
-  static store() {
-    if (UserContext.getRawData()) {
-      UserContext.storeLegacyData(UserContext.getRawData());
+  store(user: IUser) {
+    if (this.getRawData()) {
+      this.storeLegacyData(this.getRawData());
     }
-    if (User.current().data.data.__ionic_user_migrated) {
-      storage.set(UserContext.label + '_legacy', { '__ionic_user_migrated': true });
-    }
-    storage.set(UserContext.label, User.current());
+    this.storage.set(this.label, user);
   }
 
-  static storeLegacyData(data) {
-    if (!UserContext.getRawLegacyData()) {
-      storage.set(UserContext.label + '_legacy', data);
+  storeLegacyData(data) {
+    if (!this.getRawLegacyData()) {
+      this.storage.set(this.label + '_legacy', data);
     }
   }
 
-  static getRawData() {
-    return storage.get(UserContext.label) || false;
+  getRawData() {
+    return this.storage.get(this.label) || false;
   }
 
-  static getRawLegacyData() {
-    return storage.get(UserContext.label + '_legacy') || false;
+  getRawLegacyData() {
+    return this.storage.get(this.label + '_legacy') || false;
   }
 
-  static load() {
-    var data = storage.get(UserContext.label) || false;
+  load(user: IUser): IUser {
+    var data = this.storage.get(this.label) || false;
     if (data) {
-      UserContext.storeLegacyData(data);
-      return User.fromContext(data);
+      this.storeLegacyData(data);
+      user.id = data.id;
+      user.data = new UserData(data.data.data);
+      user.details = data.details || {};
+      user.fresh = data.fresh;
+      return user;
     }
     return;
   }
 }
 
-export class UserData {
+export class UserData implements IUserData {
 
-  data: any;
+  data: Object;
 
   constructor(data = {}) {
     this.data = {};
@@ -84,15 +82,7 @@ export class UserData {
     }
   }
 
-  set(key, value) {
-    this.data[key] = value;
-  }
-
-  unset(key) {
-    delete this.data[key];
-  }
-
-  get(key, defaultValue) {
+  get(key: string, defaultValue: any) {
     if (this.data.hasOwnProperty(key)) {
       return this.data[key];
     } else {
@@ -102,33 +92,29 @@ export class UserData {
       return defaultValue || null;
     }
   }
-}
 
-export class User {
-
-  data: UserData;
-  details: any;
-
-  private _blockLoad: boolean;
-  private _blockSave: boolean;
-  private _blockDelete: boolean;
-  private _dirty: boolean;
-  private _fresh: boolean;
-  private _unset: any;
-  private _id: string;
-
-  constructor() {
-    this._blockLoad = false;
-    this._blockSave = false;
-    this._blockDelete = false;
-    this._dirty = false;
-    this._fresh = true;
-    this._unset = {};
-    this.data = new UserData();
+  set(key: string, value: any) {
+    this.data[key] = value;
   }
 
-  isDirty(): boolean {
-    return this._dirty;
+  unset(key: string) {
+    delete this.data[key];
+  }
+}
+
+export class User implements IUser {
+
+  public id: string;
+  public fresh: boolean; // user has not yet been persisted
+  public details: Object;
+  public data: IUserData;
+
+  private _unset: any;
+
+  constructor(public service: ISingleUserService) {
+    this.fresh = true;
+    this._unset = {};
+    this.data = new UserData();
   }
 
   isAnonymous(): boolean {
@@ -139,272 +125,200 @@ export class User {
     }
   }
 
-  isAuthenticated(): boolean {
-    if (this === User.current()) {
-      return Auth.isAuthenticated();
-    }
-    return false;
+  get(key: string, defaultValue: any) {
+    return this.data.get(key, defaultValue);
   }
 
-  static current(user?: User): User {
-    if (!AppUserContext) {
-      AppUserContext = UserContext.load();
-    }
-    if (!AppUserContext) {
-      AppUserContext = new User();
-    }
-
-    if (user) {
-      AppUserContext.id = user.id;
-      AppUserContext.data = user.data;
-      AppUserContext.details = user.details;
-      AppUserContext._fresh = user._fresh;
-    }
-
-    return AppUserContext;
+  set(key: string, value: any) {
+    delete this._unset[key];
+    return this.data.set(key, value);
   }
 
-  static fromContext(data): User {
-    var user = new User();
-    user.id = data._id;
-    user.data = new UserData(data.data.data);
-    user.details = data.details || {};
-    user._fresh = data._fresh;
-    user._dirty = data._dirty;
-    return user;
+  unset(key: string) {
+    this._unset[key] = true;
+    return this.data.unset(key);
   }
 
-  static self(): Promise<User> {
-    var deferred = new DeferredPromise();
-    var tempUser = new User();
-
-    if (!tempUser._blockLoad) {
-      tempUser._blockLoad = true;
-      IonicCloud.client.get('/auth/users/self')
-        .end((err, res) => {
-          if (err) {
-            tempUser._blockLoad = false;
-            IonicCloud.logger.error('Ionic User:', err);
-            deferred.reject(err);
-          } else {
-            tempUser._blockLoad = false;
-            IonicCloud.logger.info('Ionic User: loaded user');
-
-            // set the custom data
-            tempUser.id = res.body.data.uuid;
-            tempUser.data = new UserData(res.body.data.custom);
-            tempUser.details = res.body.data.details;
-            tempUser._fresh = false;
-
-            User.current(tempUser);
-            deferred.resolve(User.current());
-          }
-        });
-    } else {
-      IonicCloud.logger.info('Ionic User: a load operation is already in progress for ' + this + '.');
-      deferred.reject(false);
-    }
-
-    return deferred.promise;
+  clear() {
+    this.id = null;
+    this.data = new UserData();
+    this.details = {};
+    this.fresh = true;
   }
 
-  static load(id) {
-    var deferred = new DeferredPromise();
-
-    var tempUser = new User();
-    tempUser.id = id;
-
-    if (!tempUser._blockLoad) {
-      tempUser._blockLoad = true;
-      IonicCloud.client.get(`/auth/users/${tempUser.id}`)
-        .end((err, res) => {
-          if (err) {
-            tempUser._blockLoad = false;
-            IonicCloud.logger.error('Ionic User:', err);
-            deferred.reject(err);
-          } else {
-            tempUser._blockLoad = false;
-            IonicCloud.logger.info('Ionic User: loaded user');
-
-            // set the custom data
-            tempUser.data = new UserData(res.body.data.custom);
-            tempUser.details = res.body.data.details;
-            tempUser._fresh = false;
-
-            deferred.resolve(tempUser);
-          }
-        });
-    } else {
-      IonicCloud.logger.info('Ionic User: a load operation is already in progress for ' + this + '.');
-      deferred.reject(false);
-    }
-
-    return deferred.promise;
+  save(): Promise<void> {
+    this._unset = {};
+    return this.service.save();
   }
 
-  clear(): User {
-    return User.current(new User());
-  }
-
-  isFresh() {
-    return this._fresh;
-  }
-
-  isValid() {
-    if (this.id) {
-      return true;
-    }
-    return false;
-  }
-
-  getAPIFormat() {
-    var apiFormat: any = {};
-    for (var key in this.details) {
-      apiFormat[key] = this.details[key];
-    }
-    apiFormat.custom = this.data.data;
-    return apiFormat;
-  }
-
-  getFormat(format) {
-    var formatted = null;
-    switch (format) {
-      case 'api-save':
-        formatted = this.getAPIFormat();
-        break;
-    }
-    return formatted;
-  }
-
-  migrate() {
-    var rawData = UserContext.getRawLegacyData();
-    if (rawData) {
-      if (!rawData.__ionic_user_migrated) {
-        var currentUser = Ionic.User.current();
-        var userData = new UserData(rawData.data.data);
-        for (var key in userData.data) {
-          currentUser.set(key, userData.data[key]);
-        }
-        currentUser.set('__ionic_user_migrated', true);
-      }
-    }
-  }
-
-  delete(): Promise<any> {
-    var deferred = new DeferredPromise();
-
-    if (this.isValid()) {
-      if (!this._blockDelete) {
-        this._blockDelete = true;
-        this.unstore();
-        IonicCloud.client.delete(`/auth/users/${this.id}`)
-          .end((err, res) => {
-            if (err) {
-              this._blockDelete = false;
-              IonicCloud.logger.error('Ionic User:', err);
-              deferred.reject(err);
-            } else {
-              this._blockDelete = false;
-              IonicCloud.logger.info('Ionic User: deleted ' + this);
-              deferred.resolve(res);
-            }
-          });
-      } else {
-        IonicCloud.logger.info('Ionic User: a delete operation is already in progress for ' + this + '.');
-        deferred.reject(false);
-      }
-    } else {
-      deferred.reject(false);
-    }
-
-    return deferred.promise;
+  delete(): Promise<void> {
+    return this.service.delete();
   }
 
   store() {
-    if (this === User.current()) {
-      UserContext.store();
-    }
+    this.service.store();
   }
 
   unstore() {
-    if (this === User.current()) {
-      UserContext.delete();
-    }
+    this.service.unstore();
   }
 
-  save() {
-    var deferred = new DeferredPromise();
-
-    if (!this._blockSave) {
-      this._blockSave = true;
-      this.store();
-      IonicCloud.client.patch(`/auth/users/${this.id}`)
-        .send(this.getFormat('api-save'))
-        .end((err, res) => {
-          if (err) {
-            this._dirty = true;
-            this._blockSave = false;
-            IonicCloud.logger.error('Ionic User:', err);
-            deferred.reject(err);
-          } else {
-            this._dirty = false;
-            if (!this.isFresh()) {
-              this._unset = {};
-            }
-            this._fresh = false;
-            this._blockSave = false;
-            IonicCloud.logger.info('Ionic User: saved user');
-            deferred.resolve(res);
-          }
-        });
-    } else {
-      IonicCloud.logger.info('Ionic User: a save operation is already in progress for ' + this + '.');
-      deferred.reject(false);
+  serialize(): Object {
+    var apiFormat = {};
+    for (var key in this.details) {
+      apiFormat[key] = this.details[key];
     }
-
-    return deferred.promise;
+    apiFormat['custom'] = this.data.data;
+    return apiFormat;
   }
 
-  resetPassword() {
-    var deferred = new DeferredPromise();
+  toString() {
+    return '<IonicUser [\'' + this.id + '\']>';
+  }
+}
 
-    IonicCloud.client.post(`/auth/users/${this.id}/password-reset`)
+export interface SingleUserServiceOptions {}
+
+export class SingleUserService implements ISingleUserService {
+
+  private user: IUser;
+
+  constructor(public config: SingleUserServiceOptions = {}, public core: ICore, public context: UserContext) {}
+
+  current(): IUser {
+    if (!this.user) {
+      this.user = this.context.load(new User(this));
+    }
+
+    if (!this.user) {
+      this.user = new User(this);
+    }
+
+    return this.user;
+  }
+
+  store() {
+    this.context.store(this.current());
+  }
+
+  unstore() {
+    this.context.unstore();
+  }
+
+  self(): Promise<IUser> {
+    let deferred = new DeferredPromise<IUser, Error>();
+    let user = this.current();
+
+    this.core.client.get('/auth/users/self')
       .end((err, res) => {
         if (err) {
-          IonicCloud.logger.error('Ionic User:', err);
+          this.core.logger.error('Ionic User:', err);
           deferred.reject(err);
         } else {
-          IonicCloud.logger.info('Ionic User: password reset for user');
-          deferred.resolve(res);
+          this.core.logger.info('Ionic User: loaded user');
+
+          user.id = res.body.data.uuid;
+          user.data = new UserData(res.body.data.custom);
+          user.details = res.body.data.details;
+          user.fresh = false;
+
+          deferred.resolve(user);
         }
       });
 
     return deferred.promise;
   }
 
-  set id(v: string) {
-    this._id = v;
+  load(id: string) {
+    let deferred = new DeferredPromise<IUser, Error>();
+    let user = this.current();
+    user.id = id;
+
+    this.core.client.get(`/auth/users/${user.id}`)
+      .end((err, res) => {
+        if (err) {
+          this.core.logger.error('Ionic User:', err);
+          deferred.reject(err);
+        } else {
+          this.core.logger.info('Ionic User: loaded user');
+
+          user.data = new UserData(res.body.data.custom);
+          user.details = res.body.data.details;
+          user.fresh = false;
+
+          deferred.resolve(user);
+        }
+      });
+
+    return deferred.promise;
   }
 
-  get id() {
-    return this._id || null;
+  delete(): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
+
+    if (this.user.id) {
+      this.unstore();
+      this.core.client.delete(`/auth/users/${this.user.id}`)
+        .end((err, res) => {
+          if (err) {
+            this.core.logger.error('Ionic User:', err);
+            deferred.reject(err);
+          } else {
+            this.core.logger.info('Ionic User: deleted ' + this);
+            deferred.resolve();
+          }
+        });
+    } else {
+      deferred.reject();
+    }
+
+    return deferred.promise;
   }
 
-  toString() {
-    return '<IonicUser [\'' + this.id + '\']>';
+  save(): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
+
+    this.store();
+
+    if (this.user.id) {
+      this.core.client.patch(`/auth/users/${this.user.id}`)
+        .send(this.user.serialize())
+        .end((err, res) => {
+          if (err) {
+            this.core.logger.error('Ionic User:', err);
+            deferred.reject(err);
+          } else {
+            this.user.fresh = false;
+            this.core.logger.info('Ionic User: saved user');
+            deferred.resolve();
+          }
+        });
+    } else {
+      deferred.reject();
+    }
+
+    return deferred.promise;
   }
 
-  set(key, value) {
-    delete this._unset[key];
-    return this.data.set(key, value);
+  resetPassword(): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
+
+    if (this.user.id) {
+      this.core.client.post(`/auth/users/${this.user.id}/password-reset`)
+        .end((err, res) => {
+          if (err) {
+            this.core.logger.error('Ionic User:', err);
+            deferred.reject(err);
+          } else {
+            this.core.logger.info('Ionic User: password reset for user');
+            deferred.resolve();
+          }
+        });
+    } else {
+      deferred.reject();
+    }
+
+    return deferred.promise;
   }
 
-  get(key, defaultValue) {
-    return this.data.get(key, defaultValue);
-  }
-
-  unset(key) {
-    this._unset[key] = true;
-    return this.data.unset(key);
-  }
 }
