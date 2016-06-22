@@ -1,13 +1,13 @@
 import * as request from 'superagent';
-import { IClient } from './interfaces';
+import { IClient, ITokenContext } from './interfaces';
 
 export class Client implements IClient {
 
-  private req: any;
+  public req: any;
 
   constructor(
+    public tokenContext: ITokenContext,
     public baseUrl: string,
-    public token?: string,
     req?: any  // TODO: use superagent types
   ) {
     if (typeof req === 'undefined') {
@@ -50,9 +50,10 @@ export class Client implements IClient {
     }
 
     let req = fn(this.baseUrl + endpoint);
+    let token = this.tokenContext.get();
 
-    if (this.token) {
-      req.set('Authorization', `Bearer ${this.token}`);
+    if (token) {
+      req.set('Authorization', `Bearer ${token}`);
     }
 
     return req;

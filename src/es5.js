@@ -1,5 +1,5 @@
 var App = require("./../dist/es5/app").App;
-var auth = require("./../dist/es5/auth/auth");
+var auth = require("./../dist/es5/auth");
 var config = require("./../dist/es5/config");
 var DataType = require("./../dist/es5/user/data-types").DataType;
 var Deploy = require("./../dist/es5/deploy/deploy").Deploy;
@@ -53,7 +53,9 @@ Ionic.Cloud.Promise = promise.Promise;
 Ionic.Cloud.DeferredPromise = promise.DeferredPromise;
 Ionic.Cloud.Storage = storage.Storage;
 Ionic.Cloud.UserContext = user.UserContext;
+Ionic.Cloud.SingleUserService = user.SingleUserService;
 Ionic.Cloud.AuthTokenContext = auth.AuthTokenContext;
+Ionic.Cloud.CombinedAuthTokenContext = auth.CombinedAuthTokenContext;
 Ionic.Cloud.LocalStorageStrategy = storage.LocalStorageStrategy;
 Ionic.Cloud.SessionStorageStrategy = storage.SessionStorageStrategy;
 Ionic.Cloud.Config = config.Config;

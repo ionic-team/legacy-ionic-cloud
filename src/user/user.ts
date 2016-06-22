@@ -1,4 +1,4 @@
-import { ICore, IConfig, IStorage, IUserData, IUser, ISingleUserService } from '../interfaces';
+import { IConfig, IClient, IStorage, IUserData, UserDetails, StoredUser, IUser, ISingleUserService } from '../interfaces';
 import { DeferredPromise } from '../promise';
 import { DataType } from './data-types';
 
@@ -16,36 +16,20 @@ export class UserContext {
   }
 
   store(user: IUser) {
-    if (this.getRawData()) {
-      this.storeLegacyData(this.getRawData());
-    }
-    this.storage.set(this.label, user);
-  }
-
-  storeLegacyData(data) {
-    if (!this.getRawLegacyData()) {
-      this.storage.set(this.label + '_legacy', data);
-    }
-  }
-
-  getRawData() {
-    return this.storage.get(this.label) || false;
-  }
-
-  getRawLegacyData() {
-    return this.storage.get(this.label + '_legacy') || false;
+    this.storage.set(this.label, user.serializeForStorage());
   }
 
   load(user: IUser): IUser {
-    var data = this.storage.get(this.label) || false;
+    let data = this.storage.get(this.label);
+
     if (data) {
-      this.storeLegacyData(data);
       user.id = data.id;
       user.data = new UserData(data.data.data);
       user.details = data.details || {};
       user.fresh = data.fresh;
       return user;
     }
+
     return;
   }
 }
@@ -106,7 +90,7 @@ export class User implements IUser {
 
   public id: string;
   public fresh: boolean; // user has not yet been persisted
-  public details: Object;
+  public details: UserDetails;
   public data: IUserData;
 
   private _unset: any;
@@ -163,13 +147,24 @@ export class User implements IUser {
     this.service.unstore();
   }
 
-  serialize(): Object {
-    var apiFormat = {};
-    for (var key in this.details) {
-      apiFormat[key] = this.details[key];
-    }
-    apiFormat['custom'] = this.data.data;
-    return apiFormat;
+  serializeForAPI(): UserDetails {
+    return {
+      'email': this.details.email,
+      'password': this.details.password,
+      'username': this.details.username,
+      'image': this.details.image,
+      'name': this.details.name,
+      'custom': this.data.data
+    };
+  }
+
+  serializeForStorage(): StoredUser {
+    return {
+      'id': this.id,
+      'data': this.data.data,
+      'details': this.details,
+      'fresh': this.fresh
+    };
   }
 
   toString() {
@@ -183,7 +178,7 @@ export class SingleUserService implements ISingleUserService {
 
   private user: IUser;
 
-  constructor(public config: SingleUserServiceOptions = {}, public core: ICore, public context: UserContext) {}
+  constructor(public config: SingleUserServiceOptions = {}, public client: IClient, public context: UserContext) {}
 
   current(): IUser {
     if (!this.user) {
@@ -209,14 +204,11 @@ export class SingleUserService implements ISingleUserService {
     let deferred = new DeferredPromise<IUser, Error>();
     let user = this.current();
 
-    this.core.client.get('/auth/users/self')
+    this.client.get('/auth/users/self')
       .end((err, res) => {
         if (err) {
-          this.core.logger.error('Ionic User:', err);
           deferred.reject(err);
         } else {
-          this.core.logger.info('Ionic User: loaded user');
-
           user.id = res.body.data.uuid;
           user.data = new UserData(res.body.data.custom);
           user.details = res.body.data.details;
@@ -234,14 +226,11 @@ export class SingleUserService implements ISingleUserService {
     let user = this.current();
     user.id = id;
 
-    this.core.client.get(`/auth/users/${user.id}`)
+    this.client.get(`/auth/users/${user.id}`)
       .end((err, res) => {
         if (err) {
-          this.core.logger.error('Ionic User:', err);
           deferred.reject(err);
         } else {
-          this.core.logger.info('Ionic User: loaded user');
-
           user.data = new UserData(res.body.data.custom);
           user.details = res.body.data.details;
           user.fresh = false;
@@ -256,20 +245,18 @@ export class SingleUserService implements ISingleUserService {
   delete(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
 
-    if (this.user.id) {
+    if (this.user.isAnonymous()) {
+      deferred.reject(new Error('User is anonymous and cannot be deleted from the API.'));
+    } else {
       this.unstore();
-      this.core.client.delete(`/auth/users/${this.user.id}`)
+      this.client.delete(`/auth/users/${this.user.id}`)
         .end((err, res) => {
           if (err) {
-            this.core.logger.error('Ionic User:', err);
             deferred.reject(err);
           } else {
-            this.core.logger.info('Ionic User: deleted ' + this);
             deferred.resolve();
           }
         });
-    } else {
-      deferred.reject();
     }
 
     return deferred.promise;
@@ -280,21 +267,19 @@ export class SingleUserService implements ISingleUserService {
 
     this.store();
 
-    if (this.user.id) {
-      this.core.client.patch(`/auth/users/${this.user.id}`)
-        .send(this.user.serialize())
+    if (this.user.isAnonymous()) {
+      deferred.reject(new Error('User is anonymous and cannot be updated in the API. Use load(<id>) or signup a user using auth.'));
+    } else {
+      this.client.patch(`/auth/users/${this.user.id}`)
+        .send(this.user.serializeForAPI())
         .end((err, res) => {
           if (err) {
-            this.core.logger.error('Ionic User:', err);
             deferred.reject(err);
           } else {
             this.user.fresh = false;
-            this.core.logger.info('Ionic User: saved user');
             deferred.resolve();
           }
         });
-    } else {
-      deferred.reject();
     }
 
     return deferred.promise;
@@ -303,19 +288,17 @@ export class SingleUserService implements ISingleUserService {
   resetPassword(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
 
-    if (this.user.id) {
-      this.core.client.post(`/auth/users/${this.user.id}/password-reset`)
+    if (this.user.isAnonymous()) {
+      deferred.reject(new Error('User is anonymous; password cannot be reset using the API.'));
+    } else {
+      this.client.post(`/auth/users/${this.user.id}/password-reset`)
         .end((err, res) => {
           if (err) {
-            this.core.logger.error('Ionic User:', err);
             deferred.reject(err);
           } else {
-            this.core.logger.info('Ionic User: password reset for user');
             deferred.resolve();
           }
         });
-    } else {
-      deferred.reject();
     }
 
     return deferred.promise;

@@ -32,7 +32,6 @@ export interface IConfig {
 
 export interface IClient {
   baseUrl: string;
-  token: string;
 
   get(endpoint: string);
   post(endpoint: string);
@@ -87,6 +86,13 @@ export interface ICore {
   init(cfg: ISettings);
 }
 
+export interface StoredUser {
+  id: string;
+  data: Object;
+  details: Object;
+  fresh: boolean;
+}
+
 export interface IUserData {
   data: Object;
 
@@ -95,10 +101,19 @@ export interface IUserData {
   unset(key: string);
 }
 
+export interface UserDetails {
+  email?: string;
+  password?: string;
+  username?: string;
+  image?: string;
+  name?: string;
+  custom?: Object;
+}
+
 export interface IUser {
   id: string;
   fresh: boolean;
-  details: Object;
+  details: UserDetails;
   data: IUserData;
 
   isAnonymous(): boolean;
@@ -110,7 +125,8 @@ export interface IUser {
   unstore();
   save(): Promise<void>;
   delete(): Promise<void>;
-  serialize(): Object;
+  serializeForAPI(): Object;
+  serializeForStorage(): Object;
 }
 
 export interface ISingleUserService {
@@ -124,13 +140,15 @@ export interface ISingleUserService {
   resetPassword(): Promise<void>;
 }
 
-export interface ITokenContext {
-  storage: IStorageStrategy;
-  label: string;
+export interface TokenContextStoreOptions {}
 
+export interface ITokenContext {
+  label: string;
+  storage: IStorageStrategy;
+
+  get(): string;
+  store(token: string, options?: TokenContextStoreOptions): void;
   delete(): void;
-  store(token: string): void;
-  getRawData(): string;
 }
 
 export type AuthModuleId = "basic" | "custom" | "facebook" | "github" | "google" | "instagram" | "linkedin" | "twitter";
@@ -139,17 +157,8 @@ export interface IAuthType {
   authenticate(data): Promise<any>;
 }
 
-export interface BasicAuthSignupData {
-  email: string;
-  password: string;
-  username?: string;
-  image?: string;
-  name?: string;
-  custom?: Object;
-}
-
 export interface IBasicAuthType extends IAuthType {
-  signup(data: BasicAuthSignupData): Promise<void>;
+  signup(data: UserDetails): Promise<void>;
 }
 
 export interface IAuthModules {
@@ -170,13 +179,12 @@ export interface LoginOptions {
 export interface IAuth {
   authModules: IAuthModules;
   tokenContext: ITokenContext;
-  tempTokenContext: ITokenContext;
   userService: ISingleUserService;
 
   isAuthenticated(): boolean;
   login(moduleId: AuthModuleId, options: LoginOptions, data): Promise<IUser>;
   logout(): void;
-  signup(data: BasicAuthSignupData): Promise<void>;
+  signup(data: UserDetails): Promise<void>;
 }
 
 export interface IAppStatus {

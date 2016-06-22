@@ -42,11 +42,11 @@ export class EventEmitter implements IEventEmitter {
       this.eventsEmitted[event] = 0;
     }
 
-    this.eventsEmitted[event] += 1;
-
     for (let callback of this.eventHandlers[event]) {
       callback(data);
     }
+
+    this.eventsEmitted[event] += 1;
   }
 
   emitted(event: string): number {

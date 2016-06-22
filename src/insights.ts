@@ -35,10 +35,7 @@ export class Insights {
 
   private batch: Stat[];
 
-  constructor(public client: IClient, public app: App, public options: InsightsOptions = {}) {
-    this.client = client;
-    this.app = app;
-    this.options = options;
+  constructor(public options: InsightsOptions = {}, public client: IClient, public app: App) {
     this.logger = this.options.logger;
     this.batch = [];
 

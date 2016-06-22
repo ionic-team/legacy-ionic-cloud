@@ -40,7 +40,7 @@ export class Storage implements IStorage {
 
   private storageCache: StorageCache;
 
-  constructor(private strategy: IStorageStrategy, public options: StorageOptions = {}) {
+  constructor(public options: StorageOptions = {}, private strategy: IStorageStrategy) {
     if (typeof options.cache === 'undefined') {
       options.cache = true;
     }

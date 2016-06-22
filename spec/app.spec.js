@@ -1,4 +1,4 @@
-var App = require("../../dist/es5/app").App;
+var App = require("../dist/es5/app").App;
 
 describe("app", function() {
 

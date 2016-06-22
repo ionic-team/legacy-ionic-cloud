@@ -1,25 +1,49 @@
-import { IConfig, IClient, IEventEmitter, ITokenContext, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, IAuth, IUser, IAuthType, BasicAuthSignupData, IBasicAuthType, IAuthModules } from '../interfaces';
-import { DetailedError, DeferredPromise } from '../promise';
+import { IConfig, IClient, IEventEmitter, TokenContextStoreOptions, ITokenContext, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, IAuth, IUser, IAuthType, UserDetails, IBasicAuthType, IAuthModules } from './interfaces';
+import { DetailedError, DeferredPromise } from './promise';
 
 declare var window: any;
 
-export class TempTokenContext implements ITokenContext {
-  constructor(public storage: IStorageStrategy, public config: IConfig) {}
+export class AuthTokenContext implements ITokenContext {
+  constructor(public label: string, public storage: IStorageStrategy) {}
 
-  get label(): string {
-    return 'ionic_io_auth_' + this.config.get('app_id');
+  get(): string {
+    return this.storage.get(this.label);
+  }
+
+  store(token: string, options: TokenContextStoreOptions = {}): void {
+    this.storage.set(this.label, token);
   }
 
   delete(): void {
     this.storage.remove(this.label);
   }
+}
 
-  store(token: string): void {
-    this.storage.set(this.label, token);
+export interface CombinedAuthTokenContextStoreOptions extends TokenContextStoreOptions {
+  permanent?: boolean;
+}
+
+export class CombinedAuthTokenContext implements ITokenContext {
+  constructor(public label: string, public storage: IStorageStrategy, public tempStorage: IStorageStrategy) {}
+
+  get(): string {
+    let permToken = this.storage.get(this.label);
+    let tempToken = this.tempStorage.get(this.label);
+    let token = tempToken || permToken;
+    return token;
   }
 
-  getRawData(): string {
-    return this.storage.get(this.label);
+  store(token: string, options: CombinedAuthTokenContextStoreOptions = {'permanent': true}): void {
+    if (options.permanent) {
+      this.storage.set(this.label, token);
+    } else {
+      this.tempStorage.set(this.label, token);
+    }
+  }
+
+  delete(): void {
+    this.storage.remove(this.label);
+    this.tempStorage.remove(this.label);
   }
 }
 
@@ -31,23 +55,23 @@ function getAuthErrorDetails(err) {
   return details;
 }
 
+export interface AuthOptions {}
+
 export class Auth implements IAuth {
 
   private authToken: string;
 
   constructor(
+    public config: AuthOptions = {},
     public emitter: IEventEmitter,
     public authModules: IAuthModules,
-    public tokenContext: ITokenContext,
-    public tempTokenContext: ITokenContext,
+    public tokenContext: CombinedAuthTokenContext,
     public userService: ISingleUserService
   ) {}
 
   isAuthenticated(): boolean {
-    let token = this.tokenContext.getRawData();
-    let tempToken = this.tempTokenContext.getRawData();
-
-    if (tempToken || token) {
+    let token = this.tokenContext.get();
+    if (token) {
       return true;
     }
     return false;
@@ -69,7 +93,7 @@ export class Auth implements IAuth {
     });
   }
 
-  signup(data: BasicAuthSignupData): Promise<void> {
+  signup(data: UserDetails): Promise<void> {
     let context = this.authModules.basic;
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
@@ -79,34 +103,25 @@ export class Auth implements IAuth {
 
   logout(): void {
     this.tokenContext.delete();
-    this.tempTokenContext.delete();
     let user = this.userService.current();
     user.unstore();
     user.clear();
   }
 
-  getUserToken(): string {
-    let usertoken = this.tokenContext.getRawData();
-    let temptoken = this.tempTokenContext.getRawData();
-    let token = temptoken || usertoken;
-
-    return token;
+  getToken(): string {
+    return this.tokenContext.get();
   }
 
   storeToken(options: LoginOptions = {}, token: string) {
     let originalToken = this.authToken;
     this.authToken = token;
-    if (options.remember) {
-      this.tokenContext.store(this.authToken);
-    } else {
-      this.tempTokenContext.store(this.authToken);
-    }
+    this.tokenContext.store(this.authToken, {'permanent': options.remember});
     this.emitter.emit('auth:token-changed', {'old': originalToken, 'new': this.authToken});
   }
 
 }
 
-abstract class AuthType implements IAuthType {
+export abstract class AuthType implements IAuthType {
   constructor(public config: IConfig, public client: IClient) {}
 
   abstract authenticate(data): Promise<any>;
@@ -155,7 +170,7 @@ abstract class AuthType implements IAuthType {
 
 }
 
-class BasicAuth extends AuthType implements IBasicAuthType {
+export class BasicAuth extends AuthType implements IBasicAuthType {
 
   authenticate(data): Promise<string> {
     var deferred = new DeferredPromise<string, Error>();
@@ -177,7 +192,7 @@ class BasicAuth extends AuthType implements IBasicAuthType {
     return deferred.promise;
   }
 
-  signup(data: BasicAuthSignupData): Promise<void> {
+  signup(data: UserDetails): Promise<void> {
     var deferred = new DeferredPromise<void, DetailedError<string[]>>();
 
     var userData: any = {
@@ -218,43 +233,43 @@ class BasicAuth extends AuthType implements IBasicAuthType {
   }
 }
 
-class CustomAuth extends AuthType {
+export class CustomAuth extends AuthType {
   authenticate(data): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'custom' }, data);
   }
 }
 
-class TwitterAuth extends AuthType {
+export class TwitterAuth extends AuthType {
   authenticate(data): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'twitter' }, data);
   }
 }
 
-class FacebookAuth extends AuthType {
+export class FacebookAuth extends AuthType {
   authenticate(data): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'facebook' }, data);
   }
 }
 
-class GithubAuth extends AuthType {
+export class GithubAuth extends AuthType {
   authenticate(data): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'github' }, data);
   }
 }
 
-class GoogleAuth extends AuthType {
+export class GoogleAuth extends AuthType {
   authenticate(data): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'google' }, data);
   }
 }
 
-class InstagramAuth extends AuthType {
+export class InstagramAuth extends AuthType {
   authenticate(data): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'instagram' }, data);
   }
 }
 
-class LinkedInAuth extends AuthType {
+export class LinkedInAuth extends AuthType {
   authenticate(data): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'linkedin' }, data);
   }

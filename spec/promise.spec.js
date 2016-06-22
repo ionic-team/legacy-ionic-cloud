@@ -1,4 +1,4 @@
-var DeferredPromise = require("../../dist/es5/promise").DeferredPromise;
+var DeferredPromise = require("../dist/es5/promise").DeferredPromise;
 
 describe("promise", function() {
 

@@ -10,12 +10,11 @@ export class Cordova implements ICordova {
 
   logger: ILogger;
 
-  constructor(public device: IDevice, public emitter: IEventEmitter, protected options: CordovaOptions = {}) {
+  constructor(protected options: CordovaOptions = {}, public device: IDevice, public emitter: IEventEmitter) {
     this.logger = this.options.logger;
-    this.registerEventHandlers();
   }
 
-  private registerEventHandlers(): void {
+  public bootstrap(): void {
     let events = ['pause', 'resume'];
 
     document.addEventListener('deviceready', (...args) => {
@@ -27,6 +26,8 @@ export class Cordova implements ICordova {
         }, false);
       }
     }, false);
+
+    this.load();
   }
 
   public load(): void {

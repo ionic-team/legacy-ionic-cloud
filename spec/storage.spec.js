@@ -1,4 +1,4 @@
-var storage = require('../../dist/es5/storage');
+var storage = require('../dist/es5/storage');
 
 describe("storage with localStorage", function() {
 
@@ -13,7 +13,7 @@ describe("storage with localStorage", function() {
       var options = { 'cache': cacheOptions[i] };
 
       beforeEach(function() {
-        s = new storage.Storage(strategy, options);
+        s = new storage.Storage(options, strategy);
       });
 
       it("should store and retrieve", function() {

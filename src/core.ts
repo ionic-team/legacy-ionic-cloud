@@ -19,15 +19,17 @@ export class Core implements ICore {
     public storage: IStorage
   ) {
     this.registerEventHandlers();
-    this.cordova.load();
   }
 
-  public init(cfg: ISettings) {
-    this.config.register(cfg);
+  public init(cfg?: ISettings) {
+    if (cfg) {
+      this.config.register(cfg);
+    }
+
     this.emitter.emit('core:init');
     this.client.baseUrl = this.config.getURL('api');
     this.app = new App(this.config.get('app_id'));
-    this.insights = new Insights(this.client, this.app, { logger: this.logger, intervalSubmit: 60 * 1000 });
+    this.insights = new Insights({ logger: this.logger, intervalSubmit: 60 * 1000 }, this.client, this.app);
     this.insights.track('mobileapp.opened');
   }
 
@@ -38,10 +40,6 @@ export class Core implements ICore {
   private registerEventHandlers(): void {
     this.emitter.on('cordova:resume', (data) => {
       this.insights.track('mobileapp.opened');
-    });
-
-    this.emitter.on('auth:token-changed', (data) => {
-      this.client.token = data['new'];
     });
 
     this.emitter.on('push:notification', (data: IPushNotificationEvent) => {

@@ -21,7 +21,7 @@ export class Device implements IDevice {
     if (this.deviceType === 'unknown') {
       this.emitter.emit('device:ready');
     } else {
-      this.emitter.on('cordova:deviceready', () => {
+      this.emitter.once('cordova:deviceready', () => {
         this.emitter.emit('device:ready');
       });
     }
