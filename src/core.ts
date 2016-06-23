@@ -1,4 +1,4 @@
-import { ICore, IConfig, ISettings, ILogger, IEventEmitter, IClient, IDevice, ICordova, IStorage, IPushNotificationEvent } from './interfaces';
+import { ICore, IConfig, ISettings, ILogger, IEventEmitter, IClient, IPushNotificationEvent } from './interfaces';
 import { App } from './app';
 import { Insights } from './insights';
 
@@ -13,10 +13,7 @@ export class Core implements ICore {
     public config: IConfig,
     public logger: ILogger,
     public emitter: IEventEmitter,
-    public client: IClient,
-    public device: IDevice,
-    public cordova: ICordova,
-    public storage: IStorage
+    public client: IClient
   ) {
     this.registerEventHandlers();
   }

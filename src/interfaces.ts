@@ -79,9 +79,6 @@ export interface ICore {
   logger: ILogger;
   emitter: IEventEmitter;
   client: IClient;
-  device: IDevice;
-  cordova: ICordova;
-  storage: IStorage;
 
   init(cfg: ISettings);
 }
@@ -99,6 +96,11 @@ export interface IUserData {
   get(key: string, defaultValue: any);
   set(key: string, value: any);
   unset(key: string);
+}
+
+export interface UserLoginCredentials {
+  email: string;
+  password: string;
 }
 
 export interface UserDetails {

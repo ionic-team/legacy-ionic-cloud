@@ -1,4 +1,4 @@
-import { IConfig, IClient, IEventEmitter, TokenContextStoreOptions, ITokenContext, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, IAuth, IUser, IAuthType, UserDetails, IBasicAuthType, IAuthModules } from './interfaces';
+import { IConfig, IClient, IEventEmitter, TokenContextStoreOptions, ITokenContext, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, IAuth, IUser, IAuthType, UserLoginCredentials, UserDetails, IBasicAuthType, IAuthModules } from './interfaces';
 import { DetailedError, DeferredPromise } from './promise';
 
 declare var window: any;
@@ -77,7 +77,7 @@ export class Auth implements IAuth {
     return false;
   }
 
-  login(moduleId: AuthModuleId, options: LoginOptions = {}, data): Promise<IUser> {
+  login(moduleId: AuthModuleId, options: LoginOptions = {}, data: UserLoginCredentials): Promise<IUser> {
     let context = this.authModules[moduleId];
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
@@ -125,6 +125,19 @@ export abstract class AuthType implements IAuthType {
   constructor(public config: IConfig, public client: IClient) {}
 
   abstract authenticate(data): Promise<any>;
+
+  static createAuthModules(config: IConfig, client: IClient): IAuthModules {
+    return {
+      'basic': new BasicAuth(config, client),
+      'custom': new CustomAuth(config, client),
+      'twitter': new TwitterAuth(config, client),
+      'facebook': new FacebookAuth(config, client),
+      'github': new GithubAuth(config, client),
+      'google': new GoogleAuth(config, client),
+      'instagram': new InstagramAuth(config, client),
+      'linkedin': new LinkedInAuth(config, client)
+    };
+  }
 
   protected inAppBrowserFlow(options, data): Promise<string> {
     let deferred = new DeferredPromise<string, Error>();

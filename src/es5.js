@@ -35,6 +35,7 @@ Ionic.DataTypes = DataType.getMapping();
 // Cloud Namespace
 Ionic.Cloud = {};
 Ionic.Cloud.App = App;
+Ionic.Cloud.AuthType = auth.AuthType;
 Ionic.Cloud.AuthTypes = {};
 Ionic.Cloud.AuthTypes.BasicAuth = auth.BasicAuth;
 Ionic.Cloud.AuthTypes.CustomAuth = auth.CustomAuth;

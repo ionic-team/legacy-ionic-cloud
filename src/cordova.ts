@@ -2,17 +2,11 @@ import { ICordova, ILogger, IDevice, IEventEmitter } from './interfaces';
 
 declare var cordova: any;
 
-export interface CordovaOptions {
-  logger?: ILogger;
-}
+export interface CordovaOptions {}
 
 export class Cordova implements ICordova {
 
-  logger: ILogger;
-
-  constructor(protected options: CordovaOptions = {}, public device: IDevice, public emitter: IEventEmitter) {
-    this.logger = this.options.logger;
-  }
+  constructor(protected options: CordovaOptions = {}, public device: IDevice, public emitter: IEventEmitter, public logger: ILogger) {}
 
   public bootstrap(): void {
     let events = ['pause', 'resume'];

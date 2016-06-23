@@ -1,4 +1,4 @@
-import { ICore, IAuth, IPluginRegistration, IPluginNotification } from '../interfaces';
+import { IConfig, IAuth, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification } from '../interfaces';
 import { App } from '../app';
 import { DeferredPromise } from '../promise';
 
@@ -34,16 +34,21 @@ export class Push {
   private registered: boolean = false;
   private tokenReady: boolean = false;
 
-  private config: PushOptions;
+  private options: PushOptions;
   private _token: PushToken = null;
 
   constructor(
-    config: PushOptions = {},
-    public core: ICore,
-    public auth: IAuth
+    options: PushOptions = {},
+    public config: IConfig,
+    public auth: IAuth,
+    public device: IDevice,
+    public client: IClient,
+    public emitter: IEventEmitter,
+    public storage: IStorage,
+    public logger: ILogger
   ) {
-    this.core.emitter.once('device:ready', () => {
-      this.init(config);
+    this.emitter.once('device:ready', () => {
+      this.init(options);
     });
   }
 
@@ -52,16 +57,14 @@ export class Push {
   }
 
   set token(val) {
-    var storage = this.core.storage;
     if (val instanceof PushToken) {
-      storage.set('ionic_io_push_token', { 'token': val.token });
+      this.storage.set('ionic_io_push_token', { 'token': val.token });
     }
     this._token = val;
   }
 
   getStorageToken(): PushToken {
-    var storage = this.core.storage;
-    var token = storage.get('ionic_io_push_token');
+    var token = this.storage.get('ionic_io_push_token');
     if (token) {
       return new PushToken(token.token);
     }
@@ -69,8 +72,7 @@ export class Push {
   }
 
   clearStorageToken(): void {
-    var storage = this.core.storage;
-    storage.delete('ionic_io_push_token');
+    this.storage.delete('ionic_io_push_token');
   }
 
   /**
@@ -83,29 +85,29 @@ export class Push {
    * @param {object} config Configuration object
    * @return {Push} returns the called Push instantiation
    */
-  init(config: PushOptions = {}): void {
-    this.app = new App(this.core.config.get('app_id'));
-    this.app.gcmKey = this.core.config.get('gcm_key');
+  init(options: PushOptions = {}): void {
+    this.app = new App(this.config.get('app_id'));
+    this.app.gcmKey = this.config.get('gcm_key');
 
     // Check for the required values to use this service
     if (!this.app.id) {
-      this.core.logger.error('Ionic Push: no app_id found. (http://docs.ionic.io/docs/io-install)');
+      this.logger.error('Ionic Push: no app_id found. (http://docs.ionic.io/docs/io-install)');
       return;
-    } else if (this.core.device.isAndroid() && !this.app.gcmKey) {
-      this.core.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
+    } else if (this.device.isAndroid() && !this.app.gcmKey) {
+      this.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
       return;
     }
 
-    if (!config.pluginConfig) { config.pluginConfig = {}; }
+    if (!options.pluginConfig) { options.pluginConfig = {}; }
 
-    if (this.core.device.isAndroid()) {
+    if (this.device.isAndroid()) {
       // inject gcm key for PushPlugin
-      if (!config.pluginConfig.android) { config.pluginConfig.android = {}; }
-      if (!config.pluginConfig.android.senderId) { config.pluginConfig.android.senderID = this.app.gcmKey; }
+      if (!options.pluginConfig.android) { options.pluginConfig.android = {}; }
+      if (!options.pluginConfig.android.senderId) { options.pluginConfig.android.senderID = this.app.gcmKey; }
     }
 
-    this.config = config;
-    this.core.emitter.emit('push:ready', { 'config': this.config });
+    this.options = options;
+    this.emitter.emit('push:ready', { 'options': this.options });
   }
 
   saveToken(token: PushToken, options: SaveTokenOptions = {}): Promise<void> {
@@ -113,7 +115,7 @@ export class Push {
 
     let tokenData: ServiceTokenData = {
       'token': token.token,
-      'app_id': this.core.config.get('app_id')
+      'app_id': this.config.get('app_id')
     };
 
     if (!options.ignore_user) {
@@ -124,24 +126,24 @@ export class Push {
     }
 
     if (!this.blockSaveToken) {
-      this.core.client.post('/push/tokens')
+      this.client.post('/push/tokens')
         .send(tokenData)
         .end((err, res) => {
           if (err) {
             this.blockSaveToken = false;
-            this.core.logger.error('Ionic Push:', err);
+            this.logger.error('Ionic Push:', err);
             deferred.reject(err);
           } else {
             this.blockSaveToken = false;
-            this.core.logger.info('Ionic Push: saved push token: ' + token);
+            this.logger.info('Ionic Push: saved push token: ' + token);
             if (tokenData.user_id) {
-              this.core.logger.info('Ionic Push: added push token to user: ' + tokenData.user_id);
+              this.logger.info('Ionic Push: added push token to user: ' + tokenData.user_id);
             }
             deferred.resolve();
           }
         });
     } else {
-      this.core.logger.info('Ionic Push: a token save operation is already in progress.');
+      this.logger.info('Ionic Push: a token save operation is already in progress.');
       deferred.reject();
     }
 
@@ -152,17 +154,17 @@ export class Push {
    * Registers the device with GCM/APNS to get a device token
    */
   register(callback: (token: PushToken) => void): void {
-    this.core.logger.info('Ionic Push: register');
+    this.logger.info('Ionic Push: register');
     if (this.blockRegistration) {
-      this.core.logger.info('Ionic Push: another registration is already in progress.');
+      this.logger.info('Ionic Push: another registration is already in progress.');
       return;
     }
     this.blockRegistration = true;
-    this.core.emitter.once('push:ready', () => {
+    this.emitter.once('push:ready', () => {
       let pushPlugin = this._getPushPlugin();
 
       if (pushPlugin) {
-        this.plugin = pushPlugin.init(this.config.pluginConfig);
+        this.plugin = pushPlugin.init(this.options.pluginConfig);
         this.plugin.on('registration', (data) => {
           this.blockRegistration = false;
           this.token = new PushToken(data.registrationId);
@@ -191,22 +193,22 @@ export class Push {
       } else {
         let tokenData: ServiceTokenData = {
           'token': pushToken.token,
-          'app_id': this.core.config.get('app_id')
+          'app_id': this.config.get('app_id')
         };
 
         if (this.plugin) {
           this.plugin.unregister(function() {}, function() {});
         }
-        this.core.client.post('/push/tokens/invalidate')
+        this.client.post('/push/tokens/invalidate')
           .send(tokenData)
           .end((err, res) => {
             this.blockUnregister = false;
 
             if (err) {
-              this.core.logger.error('Ionic Push:', err);
+              this.logger.error('Ionic Push:', err);
               deferred.reject(err);
             } else {
-              this.core.logger.info('Ionic Push: unregistered push token: ' + pushToken.token);
+              this.logger.info('Ionic Push: unregistered push token: ' + pushToken.token);
               this.clearStorageToken();
               deferred.resolve();
             }
@@ -214,7 +216,7 @@ export class Push {
       }
     } else {
       let msg = 'An unregister operation is already in progress.';
-      this.core.logger.warn('Ionic Push: ' + msg);
+      this.logger.warn('Ionic Push: ' + msg);
       deferred.reject(new Error(msg));
     }
 
@@ -230,30 +232,30 @@ export class Push {
     this.plugin.on('registration', (data: IPluginRegistration) => {
       this.token = new PushToken(data.registrationId);
 
-      if (this.config.debug) {
-        this.core.logger.info('Ionic Push (debug): device token registered: ' + this.token);
+      if (this.options.debug) {
+        this.logger.info('Ionic Push (debug): device token registered: ' + this.token);
       }
 
-      this.core.emitter.emit('push:register', {'token': data.registrationId});
+      this.emitter.emit('push:register', {'token': data.registrationId});
     });
 
     this.plugin.on('notification', (data: IPluginNotification) => {
       let message = PushMessage.fromPluginData(data);
 
-      if (this.config.debug) {
-        this.core.logger.info('Ionic Push (debug): notification received: ' + message);
+      if (this.options.debug) {
+        this.logger.info('Ionic Push (debug): notification received: ' + message);
       }
 
-      this.core.emitter.emit('push:notification', {'message': message, 'raw': data});
+      this.emitter.emit('push:notification', {'message': message, 'raw': data});
     });
 
     this.plugin.on('error', (e: Error) => {
-      if (this.config.debug) {
-        this.core.logger.error('Ionic Push (debug): unexpected error occured.');
-        this.core.logger.error('Ionic Push:', e);
+      if (this.options.debug) {
+        this.logger.error('Ionic Push (debug): unexpected error occured.');
+        this.logger.error('Ionic Push:', e);
       }
 
-      this.core.emitter.emit('push:error', {'err': e});
+      this.emitter.emit('push:error', {'err': e});
     });
   }
 
@@ -261,10 +263,10 @@ export class Push {
     let plugin = window.PushNotification;
 
     if (!plugin) {
-      if (this.core.device.isIOS() || this.core.device.isAndroid()) {
-        this.core.logger.error('Ionic Push: PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
+      if (this.device.isIOS() || this.device.isAndroid()) {
+        this.logger.error('Ionic Push: PushNotification plugin is required. Have you run `ionic plugin add phonegap-plugin-push` ?');
       } else {
-        this.core.logger.warn('Ionic Push: Disabled! Native push notifications will not work in a browser. Run your app on an actual device to use push.');
+        this.logger.warn('Ionic Push: Disabled! Native push notifications will not work in a browser. Run your app on an actual device to use push.');
       }
     }
 

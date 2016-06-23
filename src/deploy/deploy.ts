@@ -1,4 +1,4 @@
-import { ICore } from '../interfaces';
+import { IConfig, IEventEmitter, ILogger } from '../interfaces';
 import { DeferredPromise } from '../promise';
 
 declare var IonicDeploy: any;
@@ -25,8 +25,7 @@ export interface DeployUpdateOptions {
   onProgress?: (p: number) => void;
 }
 
-export interface DeployOptions {
-}
+export interface DeployOptions {}
 
 export class Deploy {
 
@@ -34,12 +33,17 @@ export class Deploy {
   private _channelTag: string;
   private _checkTimeout: any;
 
-  constructor(config: DeployOptions = {}, public core: ICore) {
+  constructor(
+    options: DeployOptions = {},
+    public config: IConfig,
+    public emitter: IEventEmitter,
+    public logger: ILogger
+  ) {
     this._plugin = false;
     this._channelTag = 'production';
-    this.core.emitter.once('device:ready', () => {
-      this.init(config);
-      this.core.emitter.emit('deploy:ready');
+    this.emitter.once('device:ready', () => {
+      this.init(options);
+      this.emitter.emit('deploy:ready');
     });
   }
 
@@ -54,7 +58,7 @@ export class Deploy {
   _getPlugin() {
     if (this._plugin) { return this._plugin; }
     if (typeof IonicDeploy === 'undefined') {
-      this.core.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
+      this.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
       return false;
     }
     this._plugin = IonicDeploy;
@@ -64,9 +68,9 @@ export class Deploy {
   /**
    * Initialize the Deploy Plugin
    */
-  init(config: DeployOptions = {}): void {
+  init(options: DeployOptions = {}): void {
     if (this._getPlugin()) {
-      this._plugin.init(this.core.config.get('app_id'), this.core.config.getURL('api'));
+      this._plugin.init(this.config.get('app_id'), this.config.getURL('api'));
     }
   }
 
@@ -79,18 +83,18 @@ export class Deploy {
   check(): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
 
-    this.core.emitter.once('deploy:ready', () => {
+    this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.check(this.core.config.get('app_id'), this._channelTag, (result) => {
+        this._plugin.check(this.config.get('app_id'), this._channelTag, (result) => {
           if (result && result === 'true') {
-            this.core.logger.info('Ionic Deploy: an update is available');
+            this.logger.info('Ionic Deploy: an update is available');
             deferred.resolve(true);
           } else {
-            this.core.logger.info('Ionic Deploy: no updates available');
+            this.logger.info('Ionic Deploy: no updates available');
             deferred.resolve(false);
           }
         }, (error) => {
-          this.core.logger.error('Ionic Deploy: encountered an error while checking for updates');
+          this.logger.error('Ionic Deploy: encountered an error while checking for updates');
           deferred.reject(error);
         });
       } else {
@@ -110,16 +114,16 @@ export class Deploy {
   download(options: DeployDownloadOptions = {}): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
 
-    this.core.emitter.once('deploy:ready', () => {
+    this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.download(this.core.config.get('app_id'), (result) => {
+        this._plugin.download(this.config.get('app_id'), (result) => {
           if (result !== 'true' && result !== 'false') {
             if (options.onProgress) {
               options.onProgress(result);
             }
           } else {
             if (result === 'true') {
-              this.core.logger.info('Ionic Deploy: download complete');
+              this.logger.info('Ionic Deploy: download complete');
             }
             deferred.resolve(result === 'true');
           }
@@ -143,16 +147,16 @@ export class Deploy {
   extract(options: DeployExtractOptions = {}): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
 
-    this.core.emitter.once('deploy:ready', () => {
+    this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.extract(this.core.config.get('app_id'), (result) => {
+        this._plugin.extract(this.config.get('app_id'), (result) => {
           if (result !== 'done') {
             if (options.onProgress) {
               options.onProgress(result);
             }
           } else {
             if (result === 'true') {
-              this.core.logger.info('Ionic Deploy: extraction complete');
+              this.logger.info('Ionic Deploy: extraction complete');
             }
             deferred.resolve(result === 'true');
           }
@@ -176,9 +180,9 @@ export class Deploy {
    * @return {void}
    */
   load() {
-    this.core.emitter.once('deploy:ready', () => {
+    this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.redirect(this.core.config.get('app_id'));
+        this._plugin.redirect(this.config.get('app_id'));
       }
     });
   }
@@ -200,10 +204,10 @@ export class Deploy {
     function checkForUpdates() {
       self.check().then((hasUpdate) => {
         if (hasUpdate) {
-          self.core.emitter.emit('deploy:update-ready');
+          self.emitter.emit('deploy:update-ready');
         }
       }, (err) => {
-        self.core.logger.info('Ionic Deploy: unable to check for updates: ' + err);
+        self.logger.info('Ionic Deploy: unable to check for updates: ' + err);
       });
 
       // Check our timeout to make sure it wasn't cleared while we were waiting
@@ -234,9 +238,9 @@ export class Deploy {
   info(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
-    this.core.emitter.once('deploy:ready', () => {
+    this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.info(this.core.config.get('app_id'), (result) => {
+        this._plugin.info(this.config.get('app_id'), (result) => {
           deferred.resolve(result);
         }, (err) => {
           deferred.reject(err);
@@ -257,9 +261,9 @@ export class Deploy {
   getVersions(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
-    this.core.emitter.once('deploy:ready', () => {
+    this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.getVersions(this.core.config.get('app_id'), (result) => {
+        this._plugin.getVersions(this.config.get('app_id'), (result) => {
           deferred.resolve(result);
         }, (err) => {
           deferred.reject(err);
@@ -281,9 +285,9 @@ export class Deploy {
   deleteVersion(uuid): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
-    this.core.emitter.once('deploy:ready', () => {
+    this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.deleteVersion(this.core.config.get('app_id'), uuid, (result) => {
+        this._plugin.deleteVersion(this.config.get('app_id'), uuid, (result) => {
           deferred.resolve(result);
         }, (err) => {
           deferred.reject(err);
@@ -306,9 +310,9 @@ export class Deploy {
   getMetadata(uuid): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
-    this.core.emitter.once('deploy:ready', () => {
+    this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.getMetadata(this.core.config.get('app_id'), uuid, (result) => {
+        this._plugin.getMetadata(this.config.get('app_id'), uuid, (result) => {
           deferred.resolve(result.metadata);
         }, (err) => {
           deferred.reject(err);
@@ -337,7 +341,7 @@ export class Deploy {
   update(options: DeployUpdateOptions = {}): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
 
-    this.core.emitter.once('deploy:ready', () => {
+    this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
         // Check for updates
         this.check().then((result) => {
@@ -363,7 +367,7 @@ export class Deploy {
                 if (!result) { deferred.reject(new Error('Error while extracting')); }
                 if (!options.deferLoad) {
                   deferred.resolve(true);
-                  this._plugin.redirect(this.core.config.get('app_id'));
+                  this._plugin.redirect(this.config.get('app_id'));
                 } else {
                   deferred.resolve(true);
                 }

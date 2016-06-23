@@ -5,7 +5,7 @@ if (typeof angular === 'object' && angular.module) {
   var emitter = new Ionic.Cloud.EventEmitter();
   var logger = new Ionic.Cloud.Logger();
   var device = new Ionic.Cloud.Device(emitter);
-  var cordova = new Ionic.Cloud.Cordova({ 'logger': logger }, device, emitter);
+  var cordova = new Ionic.Cloud.Cordova({}, device, emitter, logger);
 
   angular.element(document).ready(function() {
     cordova.bootstrap();
@@ -30,10 +30,8 @@ if (typeof angular === 'object' && angular.module) {
       $ionicCloudConfigProvider.register(value);
     };
 
-    this.$get = ['$ionicCloudLogger', '$ionicCloudDevice', '$ionicCloudCordova', '$ionicCloudConfig', '$ionicCloudClient', '$ionicEventEmitter', '$ionicCloudStorage', function($ionicCloudLogger, $ionicCloudDevice, $ionicCloudCordova, $ionicCloudConfig, $ionicCloudClient, $ionicEventEmitter, $ionicCloudStorage) {
-      var core = new Ionic.Core($ionicCloudConfig, $ionicCloudLogger, $ionicEventEmitter, $ionicCloudClient, $ionicCloudDevice, $ionicCloudCordova, $ionicCloudStorage);
-      core.init();
-      return core;
+    this.$get = ['$ionicCloudConfig', '$ionicCloudLogger', '$ionicEventEmitter', '$ionicCloudClient', function($ionicCloudConfig, $ionicCloudLogger, $ionicEventEmitter, $ionicCloudClient) {
+      return new Ionic.Core($ionicCloudConfig, $ionicCloudLogger, $ionicEventEmitter, $ionicCloudClient);
     }];
   }])
 
@@ -79,26 +77,20 @@ if (typeof angular === 'object' && angular.module) {
   }])
 
   .factory('$ionicAuth', ['$ionicCloudConfig', '$ionicCloudClient', '$ionicAuthTokenContext', '$ionicEventEmitter', '$ionicSingleUserService', function($ionicCloudConfig, $ionicCloudClient, $ionicAuthTokenContext, $ionicEventEmitter, $ionicSingleUserService) {
-    var authModules = {
-      'basic': new Ionic.Cloud.AuthTypes.BasicAuth($ionicCloudConfig, $ionicCloudClient),
-      'custom': new Ionic.Cloud.AuthTypes.CustomAuth($ionicCloudConfig, $ionicCloudClient),
-      'twitter': new Ionic.Cloud.AuthTypes.TwitterAuth($ionicCloudConfig, $ionicCloudClient),
-      'facebook': new Ionic.Cloud.AuthTypes.FacebookAuth($ionicCloudConfig, $ionicCloudClient),
-      'github': new Ionic.Cloud.AuthTypes.GithubAuth($ionicCloudConfig, $ionicCloudClient),
-      'google': new Ionic.Cloud.AuthTypes.GoogleAuth($ionicCloudConfig, $ionicCloudClient),
-      'instagram': new Ionic.Cloud.AuthTypes.InstagramAuth($ionicCloudConfig, $ionicCloudClient),
-      'linkedin': new Ionic.Cloud.AuthTypes.LinkedInAuth($ionicCloudConfig, $ionicCloudClient)
-    };
-
+    var authModules = Ionic.Cloud.AuthType.createAuthModules($ionicCloudConfig, $ionicCloudClient);
     return new Ionic.Auth({}, $ionicEventEmitter, authModules, $ionicAuthTokenContext, $ionicSingleUserService);
   }])
 
-  .factory('$ionicPush', ['$ionicCloud', '$ionicAuth', function($ionicCloud, $ionicAuth) {
-    return new Ionic.Push({}, $ionicCloud, $ionicAuth);
+  .factory('$ionicPush', ['$ionicCloudConfig', '$ionicAuth', '$ionicCloudDevice', '$ionicCloudClient', '$ionicEventEmitter', '$ionicCloudStorage', '$ionicCloudLogger', function($ionicCloudConfig, $ionicAuth, $ionicCloudDevice, $ionicCloudClient, $ionicEventEmitter, $ionicCloudStorage, $ionicCloudLogger) {
+    return new Ionic.Push({}, $ionicCloudConfig, $ionicAuth, $ionicCloudDevice, $ionicCloudClient, $ionicEventEmitter, $ionicCloudStorage, $ionicCloudLogger);
   }])
 
-  .factory('$ionicDeploy', ['$ionicCloud', function($ionicCloud) {
-    return new Ionic.Deploy({}, $ionicCloud);
+  .factory('$ionicDeploy', ['$ionicCloudConfig', '$ionicEventEmitter', '$ionicCloudLogger', function($ionicCloudConfig, $ionicEventEmitter, $ionicCloudLogger) {
+    return new Ionic.Deploy({}, $ionicCloudConfig, $ionicEventEmitter, $ionicCloudLogger);
+  }])
+
+  .run(['$ionicCloud', function($ionicCloud) {
+    $ionicCloud.init();
   }]);
 
 }

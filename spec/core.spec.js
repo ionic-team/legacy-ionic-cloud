@@ -14,7 +14,7 @@ describe("core", function() {
     var logger = new Logger();
     var emitter = new EventEmitter();
     var device = new Device(emitter);
-    var cordova = new Cordova({ 'logger': logger }, device, emitter);
+    var cordova = new Cordova({}, device, emitter, logger);
     var storage = new Storage({}, new LocalStorageStrategy());
     var c = new Core(config, logger, emitter, device, cordova, storage);
     expect(c.version).toBe('VERSION_STRING');
