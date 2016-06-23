@@ -70,7 +70,7 @@ export interface IDevice {
 }
 
 export interface ICordova {
-  load(): void;
+  bootstrap(): void;
 }
 
 export interface ICore {
@@ -80,7 +80,7 @@ export interface ICore {
   emitter: IEventEmitter;
   client: IClient;
 
-  init(cfg: ISettings);
+  init(cfg?: ISettings);
 }
 
 export interface StoredUser {

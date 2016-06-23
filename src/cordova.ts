@@ -24,7 +24,7 @@ export class Cordova implements ICordova {
     this.load();
   }
 
-  public load(): void {
+  private load(): void {
     if (!this.isAvailable()) {
       var cordovaScript = document.createElement('script');
       var cordovaSrc = 'cordova.js';

@@ -126,19 +126,6 @@ export abstract class AuthType implements IAuthType {
 
   abstract authenticate(data): Promise<any>;
 
-  static createAuthModules(config: IConfig, client: IClient): IAuthModules {
-    return {
-      'basic': new BasicAuth(config, client),
-      'custom': new CustomAuth(config, client),
-      'twitter': new TwitterAuth(config, client),
-      'facebook': new FacebookAuth(config, client),
-      'github': new GithubAuth(config, client),
-      'google': new GoogleAuth(config, client),
-      'instagram': new InstagramAuth(config, client),
-      'linkedin': new LinkedInAuth(config, client)
-    };
-  }
-
   protected inAppBrowserFlow(options, data): Promise<string> {
     let deferred = new DeferredPromise<string, Error>();
 

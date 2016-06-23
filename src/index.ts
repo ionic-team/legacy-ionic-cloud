@@ -1,12 +1,13 @@
 export * from './interfaces';
 
-export { Auth, CombinedAuthTokenContext, CombinedAuthTokenContextStoreOptions, AuthType } from './auth';
+export { Auth, CombinedAuthTokenContext, CombinedAuthTokenContextStoreOptions, AuthType, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
 export { Client } from './client';
 export { Config } from './config';
 export { Cordova } from './cordova';
 export { Core } from './core';
 export { Deploy, DeployWatchOptions, DeployDownloadOptions, DeployExtractOptions, DeployUpdateOptions } from './deploy/deploy';
 export { Device } from './device';
+export { Container as DIContainer } from './di';
 export { EventEmitter } from './events';
 export { Insights, InsightsOptions } from './insights';
 export { Logger } from './logger';

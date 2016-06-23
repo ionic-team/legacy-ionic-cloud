@@ -1,23 +1,24 @@
 var App = require("./../dist/es5/app").App;
-var auth = require("./../dist/es5/auth");
-var config = require("./../dist/es5/config");
+var Core = require("./../dist/es5/core").Core;
 var DataType = require("./../dist/es5/user/data-types").DataType;
 var Deploy = require("./../dist/es5/deploy/deploy").Deploy;
 var EventEmitter = require("./../dist/es5/events").EventEmitter;
-var Core = require("./../dist/es5/core").Core;
 var Logger = require("./../dist/es5/logger").Logger;
 var Push = require("./../dist/es5/push/push").Push;
 var PushMessage = require("./../dist/es5/push/message").PushMessage;
 var PushToken = require("./../dist/es5/push/token").PushToken;
-var storage = require("./../dist/es5/storage");
+var auth = require("./../dist/es5/auth");
 var client = require("./../dist/es5/client");
+var config = require("./../dist/es5/config");
 var cordova = require("./../dist/es5/cordova");
 var device = require("./../dist/es5/device");
-var user = require("./../dist/es5/user/user");
+var di = require("./../dist/es5/di");
 var promise = require("./../dist/es5/promise");
+var storage = require("./../dist/es5/storage");
+var user = require("./../dist/es5/user/user");
 
 // Declare the window object
-window.Ionic = window.Ionic || {};
+window.Ionic = new di.Container();
 
 // Ionic Modules
 Ionic.Core = Core;
