@@ -230,6 +230,62 @@ export interface IPushNotificationEvent {
   data: IPluginNotification;
 }
 
+export interface PushOptions {
+  debug?: boolean;
+  pluginConfig?: any;
+}
+
+export interface SaveTokenOptions {
+  ignore_user?: boolean;
+}
+
+export interface IPushToken {
+  token: string;
+}
+
+export interface IPush {
+  token: IPushToken;
+
+  saveToken(token: IPushToken, options: SaveTokenOptions): Promise<void>;
+  register(callback: (token: IPushToken) => void): void;
+  unregister(): Promise<void>;
+}
+
+export interface DeployWatchOptions {
+  interval?: number;
+  initialDelay?: number;
+}
+
+export interface DeployDownloadOptions {
+  onProgress?: (p: number) => void;
+}
+
+export interface DeployExtractOptions {
+  onProgress?: (p: number) => void;
+}
+
+export interface DeployUpdateOptions {
+  deferLoad?: boolean;
+  onProgress?: (p: number) => void;
+}
+
+export interface DeployOptions {}
+
+export interface IDeploy {
+  check(): Promise<boolean>;
+  download(options?: DeployDownloadOptions): Promise<boolean>;
+  extract(options?: DeployExtractOptions): Promise<boolean>;
+  update(options?: DeployUpdateOptions): Promise<boolean>;
+  watch(options?: DeployWatchOptions): void;
+  unwatch(): void;
+  load();
+  info(): Promise<any>;
+  getVersions(): Promise<any>;
+  deleteVersion(uuid: string): Promise<any>;
+  getMetadata(uuid: string): Promise<any>;
+  setChannel(channelTag: string): void;
+}
+
 export interface IStatSerialized {
   app_id: string;
   stat: string;

@@ -1,4 +1,4 @@
-import { IConfig, IEventEmitter, ILogger, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth } from './definitions';
+import { IConfig, IEventEmitter, ILogger, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy } from './definitions';
 import { Auth, CombinedAuthTokenContext, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
 import { Client } from './client';
 import { Config } from './config';
@@ -121,12 +121,12 @@ export class Container {
   }
 
   @cache
-  get push(): Push {
+  get push(): IPush {
     return new Push({}, this.config, this.auth, this.device, this.client, this.eventEmitter, this.storage, this.logger);
   }
 
   @cache
-  get deploy(): Deploy {
+  get deploy(): IDeploy {
     return new Deploy({}, this.config, this.eventEmitter, this.logger);
   }
 

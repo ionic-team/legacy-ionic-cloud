@@ -1,4 +1,4 @@
-import { IConfig, IEventEmitter, ILogger } from '../definitions';
+import { IConfig, IEventEmitter, ILogger, IDeploy, DeployWatchOptions, DeployDownloadOptions, DeployExtractOptions, DeployUpdateOptions, DeployOptions } from '../definitions';
 import { DeferredPromise } from '../promise';
 
 declare var window: any;
@@ -8,27 +8,7 @@ const NO_PLUGIN = new Error('Missing deploy plugin: `ionic-plugin-deploy`');
 const INITIAL_DELAY = 1 * 5 * 1000;
 const WATCH_INTERVAL = 1 * 60 * 1000;
 
-export interface DeployWatchOptions {
-  interval?: number;
-  initialDelay?: number;
-}
-
-export interface DeployDownloadOptions {
-  onProgress?: (p: number) => void;
-}
-
-export interface DeployExtractOptions {
-  onProgress?: (p: number) => void;
-}
-
-export interface DeployUpdateOptions {
-  deferLoad?: boolean;
-  onProgress?: (p: number) => void;
-}
-
-export interface DeployOptions {}
-
-export class Deploy {
+export class Deploy implements IDeploy {
 
   private _plugin: any;
   private _channelTag: string;
@@ -284,7 +264,7 @@ export class Deploy {
    * @param {string} uuid The deploy uuid you wish to remove from the device
    * @return {Promise} Standard resolve/reject resolution
    */
-  deleteVersion(uuid): Promise<any> {
+  deleteVersion(uuid: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -309,7 +289,7 @@ export class Deploy {
    * @param {string} uuid The deploy uuid you wish to grab metadata for, can be left blank to grab latest known update metadata
    * @return {Promise} Standard resolve/reject resolution
    */
-  getMetadata(uuid): Promise<any> {
+  getMetadata(uuid: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {

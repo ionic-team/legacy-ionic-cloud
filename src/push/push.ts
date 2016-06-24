@@ -1,4 +1,4 @@
-import { IConfig, IAuth, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification } from '../definitions';
+import { IConfig, IAuth, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushOptions, IPush, SaveTokenOptions } from '../definitions';
 import { App } from '../app';
 import { DeferredPromise } from '../promise';
 
@@ -8,22 +8,13 @@ import { PushMessage } from './message';
 declare var window: any;
 declare var PushNotification: any;
 
-export interface PushOptions {
-  debug?: boolean;
-  pluginConfig?: any;
-}
-
-export interface SaveTokenOptions {
-  ignore_user?: boolean;
-}
-
 interface ServiceTokenData {
   token: string;
   app_id: string;
   user_id?: string;
 }
 
-export class Push {
+export class Push implements IPush {
 
   app: App;
   plugin: any;
@@ -35,7 +26,7 @@ export class Push {
   private tokenReady: boolean = false;
 
   private options: PushOptions;
-  private _token: PushToken = null;
+  private _token: IPushToken;
 
   constructor(
     options: PushOptions = {},
@@ -52,27 +43,22 @@ export class Push {
     });
   }
 
-  get token() {
+  get token(): IPushToken {
+    if (!this._token) {
+      this._token = new PushToken(this.storage.get('ionic_io_push_token').token);
+    }
+
     return this._token;
   }
 
-  set token(val) {
-    if (val instanceof PushToken) {
+  set token(val: IPushToken) {
+    if (!val) {
+      this.storage.delete('ionic_io_push_token');
+    } else {
       this.storage.set('ionic_io_push_token', { 'token': val.token });
     }
+
     this._token = val;
-  }
-
-  getStorageToken(): PushToken {
-    var token = this.storage.get('ionic_io_push_token');
-    if (token) {
-      return new PushToken(token.token);
-    }
-    return null;
-  }
-
-  clearStorageToken(): void {
-    this.storage.delete('ionic_io_push_token');
   }
 
   /**
@@ -110,7 +96,7 @@ export class Push {
     this.emitter.emit('push:ready', { 'options': this.options });
   }
 
-  saveToken(token: PushToken, options: SaveTokenOptions = {}): Promise<void> {
+  saveToken(token: IPushToken, options: SaveTokenOptions = {}): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
 
     let tokenData: ServiceTokenData = {
@@ -182,11 +168,11 @@ export class Push {
   /**
    * Invalidate the current GCM/APNS token
    */
-  unregister(): Promise<any> {
-    let deferred = new DeferredPromise();
+  unregister(): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
 
     if (!this.blockUnregister) {
-      let pushToken = this.getStorageToken();
+      let pushToken = this.token;
 
       if (!pushToken) {
         deferred.resolve();
@@ -209,7 +195,7 @@ export class Push {
               deferred.reject(err);
             } else {
               this.logger.info('Ionic Push: unregistered push token: ' + pushToken.token);
-              this.clearStorageToken();
+              this.token = null;
               deferred.resolve();
             }
           });
