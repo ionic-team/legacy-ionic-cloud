@@ -1,4 +1,4 @@
-import { ILogger, IClient, IStatSerialized } from './interfaces';
+import { ILogger, IClient, IStatSerialized } from './definitions';
 import { App } from './app';
 
 export class Stat {

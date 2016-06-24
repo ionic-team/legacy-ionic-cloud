@@ -1,4 +1,4 @@
-import { ICordova, ILogger, IDevice, IEventEmitter } from './interfaces';
+import { ICordova, ILogger, IDevice, IEventEmitter } from './definitions';
 
 declare var cordova: any;
 

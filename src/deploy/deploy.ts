@@ -1,4 +1,4 @@
-import { IConfig, IEventEmitter, ILogger } from '../interfaces';
+import { IConfig, IEventEmitter, ILogger } from '../definitions';
 import { DeferredPromise } from '../promise';
 
 declare var window: any;

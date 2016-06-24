@@ -1,4 +1,4 @@
-import { IPushMessage, IAppStatus, IPluginNotification } from '../interfaces';
+import { IPushMessage, IAppStatus, IPluginNotification } from '../definitions';
 
 export class PushMessage implements IPushMessage {
 

@@ -1,4 +1,4 @@
-import { IConfig, IAuth, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification } from '../interfaces';
+import { IConfig, IAuth, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification } from '../definitions';
 import { App } from '../app';
 import { DeferredPromise } from '../promise';
 

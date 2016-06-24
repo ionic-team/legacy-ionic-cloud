@@ -1,4 +1,4 @@
-import { ISettingsUrls, ISettings, IConfig } from './interfaces';
+import { ISettingsUrls, ISettings, IConfig } from './definitions';
 
 export class Config implements IConfig {
 

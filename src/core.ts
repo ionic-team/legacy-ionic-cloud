@@ -1,4 +1,4 @@
-import { ICore, IConfig, ISettings, ILogger, IEventEmitter, IClient, IPushNotificationEvent } from './interfaces';
+import { ICore, IConfig, ISettings, ILogger, IEventEmitter, IClient, IPushNotificationEvent } from './definitions';
 import { App } from './app';
 import { Insights } from './insights';
 

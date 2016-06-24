@@ -1,5 +1,5 @@
 import * as request from 'superagent';
-import { IClient, ITokenContext } from './interfaces';
+import { IClient, ITokenContext } from './definitions';
 
 export class Client implements IClient {
 

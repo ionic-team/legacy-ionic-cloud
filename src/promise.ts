@@ -1,4 +1,4 @@
-import { IDetailedError } from './interfaces';
+import { IDetailedError } from './definitions';
 
 export class DetailedError<D> extends Error implements IDetailedError<D> {
   constructor(message?: string, public details?: D) {

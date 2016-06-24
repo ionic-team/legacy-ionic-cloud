@@ -1,4 +1,4 @@
-import { EventHandler, IEventEmitter } from './interfaces';
+import { EventHandler, IEventEmitter } from './definitions';
 
 interface EventsEmitted {
   [key: string]: number;

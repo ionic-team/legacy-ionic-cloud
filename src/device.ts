@@ -1,4 +1,4 @@
-import { IDevice, IEventEmitter } from './interfaces';
+import { IDevice, IEventEmitter } from './definitions';
 
 declare var Connection: any;
 declare var navigator: any;

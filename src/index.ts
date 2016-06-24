@@ -1,4 +1,4 @@
-export * from './interfaces';
+export * from './definitions';
 
 export { Auth, CombinedAuthTokenContext, CombinedAuthTokenContextStoreOptions, AuthType, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
 export { Client } from './client';

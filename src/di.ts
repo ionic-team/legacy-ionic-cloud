@@ -1,4 +1,4 @@
-import { IConfig, IEventEmitter, ILogger, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth } from './interfaces';
+import { IConfig, IEventEmitter, ILogger, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth } from './definitions';
 import { Auth, CombinedAuthTokenContext, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
 import { Client } from './client';
 import { Config } from './config';

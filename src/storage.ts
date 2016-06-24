@@ -1,4 +1,4 @@
-import { IStorage, IStorageStrategy } from './interfaces';
+import { IStorage, IStorageStrategy } from './definitions';
 
 export class LocalStorageStrategy implements IStorageStrategy {
   get(key: string): string {

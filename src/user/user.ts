@@ -1,4 +1,4 @@
-import { IConfig, IClient, IStorage, IUserData, UserDetails, StoredUser, IUser, ISingleUserService } from '../interfaces';
+import { IConfig, IClient, IStorage, IUserData, UserDetails, StoredUser, IUser, ISingleUserService } from '../definitions';
 import { DeferredPromise } from '../promise';
 import { DataType } from './data-types';
 
