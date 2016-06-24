@@ -1,6 +1,7 @@
 import { IConfig, IEventEmitter, ILogger } from '../interfaces';
 import { DeferredPromise } from '../promise';
 
+declare var window: any;
 declare var IonicDeploy: any;
 
 const NO_PLUGIN = new Error('Missing deploy plugin: `ionic-plugin-deploy`');
@@ -56,13 +57,14 @@ export class Deploy {
    * @return {IonicDeploy} Returns the plugin or false
    */
   _getPlugin() {
-    if (this._plugin) { return this._plugin; }
-    if (typeof IonicDeploy === 'undefined') {
+    if (typeof window.IonicDeploy === 'undefined') {
       this.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
-      return false;
+      return;
     }
-    this._plugin = IonicDeploy;
-    return IonicDeploy;
+    if (!this._plugin) {
+      this._plugin = window.IonicDeploy;
+    }
+    return this._plugin;
   }
 
   /**
