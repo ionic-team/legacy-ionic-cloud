@@ -1,5 +1,5 @@
-import { IConfig, IEventEmitter, ILogger, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy } from './definitions';
-import { Auth, CombinedAuthTokenContext, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
+import { IConfig, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy } from './definitions';
+import { CombinedAuthTokenContext, Auth, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
 import { Client } from './client';
 import { Config } from './config';
 import { Cordova } from './cordova';
@@ -61,9 +61,9 @@ export class Container {
   }
 
   @cache
-  get authTokenContext(): CombinedAuthTokenContext {
+  get authTokenContext(): ICombinedTokenContext {
     let label = 'ionic_io_auth_' + this.config.get('app_id');
-    return new CombinedAuthTokenContext(label, this.localStorageStrategy, this.sessionStorageStrategy);
+    return new CombinedAuthTokenContext({'storage': this.localStorageStrategy, 'tempStorage': this.sessionStorageStrategy}, label);
   }
 
   @cache
@@ -73,61 +73,61 @@ export class Container {
 
   @cache
   get core(): ICore {
-    return new Core(this.config, this.logger, this.eventEmitter, this.client);
+    return new Core({'config': this.config, 'logger': this.logger, 'emitter': this.eventEmitter, 'client': this.client});
   }
 
   @cache
   get device(): IDevice {
-    return new Device(this.eventEmitter);
+    return new Device({'emitter': this.eventEmitter});
   }
 
   @cache
   get cordova(): ICordova {
-    return new Cordova({}, this.device, this.eventEmitter, this.logger);
+    return new Cordova({'device': this.device, 'emitter': this.eventEmitter, 'logger': this.logger});
   }
 
   @cache
   get storage(): IStorage {
-    return new Storage({}, this.localStorageStrategy);
+    return new Storage({'strategy': this.localStorageStrategy});
   }
 
   @cache
-  get userContext(): UserContext {
-    return new UserContext(this.storage, this.config);
+  get userContext(): IUserContext {
+    return new UserContext({'storage': this.storage, 'config': this.config});
   }
 
   @cache
   get singleUserService(): ISingleUserService {
-    return new SingleUserService({}, this.client, this.userContext);
+    return new SingleUserService({'client': this.client, 'context': this.userContext});
   }
 
   @cache
   get authModules(): IAuthModules {
     return {
-      'basic': new BasicAuth(this.config, this.client),
-      'custom': new CustomAuth(this.config, this.client),
-      'twitter': new TwitterAuth(this.config, this.client),
-      'facebook': new FacebookAuth(this.config, this.client),
-      'github': new GithubAuth(this.config, this.client),
-      'google': new GoogleAuth(this.config, this.client),
-      'instagram': new InstagramAuth(this.config, this.client),
-      'linkedin': new LinkedInAuth(this.config, this.client)
+      'basic': new BasicAuth({'config': this.config, 'client': this.client}),
+      'custom': new CustomAuth({'config': this.config, 'client': this.client}),
+      'twitter': new TwitterAuth({'config': this.config, 'client': this.client}),
+      'facebook': new FacebookAuth({'config': this.config, 'client': this.client}),
+      'github': new GithubAuth({'config': this.config, 'client': this.client}),
+      'google': new GoogleAuth({'config': this.config, 'client': this.client}),
+      'instagram': new InstagramAuth({'config': this.config, 'client': this.client}),
+      'linkedin': new LinkedInAuth({'config': this.config, 'client': this.client})
     };
   }
 
   @cache
   get auth(): IAuth {
-    return new Auth({}, this.eventEmitter, this.authModules, this.authTokenContext, this.singleUserService);
+    return new Auth({'emitter': this.eventEmitter, 'authModules': this.authModules, 'tokenContext': this.authTokenContext, 'userService': this.singleUserService});
   }
 
   @cache
   get push(): IPush {
-    return new Push({}, this.config, this.auth, this.device, this.client, this.eventEmitter, this.storage, this.logger);
+    return new Push({'config': this.config, 'auth': this.auth, 'device': this.device, 'client': this.client, 'emitter': this.eventEmitter, 'storage': this.storage, 'logger': this.logger});
   }
 
   @cache
   get deploy(): IDeploy {
-    return new Deploy({}, this.config, this.eventEmitter, this.logger);
+    return new Deploy({'config': this.config, 'emitter': this.eventEmitter, 'logger': this.logger});
   }
 
 }

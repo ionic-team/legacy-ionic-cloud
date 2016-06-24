@@ -1,4 +1,6 @@
-export class App {
+import { IApp } from './definitions';
+
+export class App implements IApp {
 
   public gcmKey: string;
 

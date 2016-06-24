@@ -1,6 +1,6 @@
 export * from './definitions';
 
-export { Auth, CombinedAuthTokenContext, CombinedAuthTokenContextStoreOptions, AuthType, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
+export { Auth, AuthType, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
 export { Client } from './client';
 export { Config } from './config';
 export { Cordova } from './cordova';
@@ -9,8 +9,8 @@ export { Deploy } from './deploy/deploy';
 export { Device } from './device';
 export { Container as DIContainer } from './di';
 export { EventEmitter } from './events';
-export { Insights, InsightsOptions } from './insights';
+export { Insights } from './insights';
 export { Logger } from './logger';
 export { Push } from './push/push';
 export { Storage, LocalStorageStrategy, SessionStorageStrategy } from './storage';
-export { UserContext, User, SingleUserService, SingleUserServiceOptions } from './user/user';
+export { UserContext, User, SingleUserService } from './user/user';

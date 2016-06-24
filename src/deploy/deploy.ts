@@ -1,4 +1,4 @@
-import { IConfig, IEventEmitter, ILogger, IDeploy, DeployWatchOptions, DeployDownloadOptions, DeployExtractOptions, DeployUpdateOptions, DeployOptions } from '../definitions';
+import { IConfig, IEventEmitter, ILogger, IDeploy, DeployWatchOptions, DeployDownloadOptions, DeployExtractOptions, DeployUpdateOptions, DeployDependencies, DeployOptions } from '../definitions';
 import { DeferredPromise } from '../promise';
 
 declare var window: any;
@@ -10,18 +10,22 @@ const WATCH_INTERVAL = 1 * 60 * 1000;
 
 export class Deploy implements IDeploy {
 
+  public config: IConfig;
+  public emitter: IEventEmitter;
+  public logger: ILogger;
+
   private _plugin: any;
-  private _channelTag: string;
+  private _channelTag: string = 'production';
   private _checkTimeout: any;
 
   constructor(
-    options: DeployOptions = {},
-    public config: IConfig,
-    public emitter: IEventEmitter,
-    public logger: ILogger
+    deps: DeployDependencies,
+    options: DeployOptions = {}
   ) {
-    this._plugin = false;
-    this._channelTag = 'production';
+    this.config = deps.config;
+    this.emitter = deps.emitter;
+    this.logger = deps.logger;
+
     this.emitter.once('device:ready', () => {
       this.init(options);
       this.emitter.emit('deploy:ready');

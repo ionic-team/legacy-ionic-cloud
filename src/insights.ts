@@ -1,5 +1,4 @@
-import { ILogger, IClient, IStatSerialized } from './definitions';
-import { App } from './app';
+import { InsightsDependencies, InsightsOptions, IInsights, IApp, IClient, ILogger, IStatSerialized } from './definitions';
 
 export class Stat {
   public created: Date;
@@ -21,22 +20,20 @@ export class Stat {
   }
 }
 
-export interface InsightsOptions {
-  intervalSubmit?: number;
-  logger?: ILogger;
-  submitCount?: number;
-}
-
-export class Insights {
+export class Insights implements IInsights {
 
   public static SUBMIT_COUNT = 100;
   public submitCount = Insights.SUBMIT_COUNT;
+  public app: IApp;
+  public client: IClient;
   public logger: ILogger;
 
   private batch: Stat[];
 
-  constructor(public options: InsightsOptions = {}, public client: IClient, public app: App) {
-    this.logger = this.options.logger;
+  constructor(deps: InsightsDependencies, public options: InsightsOptions = {}) {
+    this.app = deps.app;
+    this.client = deps.client;
+    this.logger = deps.logger;
     this.batch = [];
 
     if (options.intervalSubmit) {
@@ -81,13 +78,9 @@ export class Insights {
       .send({'insights': insights})
       .end((err, res) => {
         if (err) {
-          if (this.logger) {
-            this.logger.error('Ionic Insights: Could not send insights.', err);
-          }
+          this.logger.error('Ionic Insights: Could not send insights.', err);
         } else {
-          if (this.logger) {
-            this.logger.info('Ionic Insights: Sent insights.');
-          }
+          this.logger.info('Ionic Insights: Sent insights.');
         }
       });
 

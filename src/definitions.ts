@@ -2,6 +2,11 @@ export interface IDetailedError<D> extends Error {
   details?: D;
 }
 
+export interface IApp {
+  id: string;
+  gcmKey: string;
+}
+
 export interface ILogger {
   silent: boolean;
 
@@ -50,7 +55,17 @@ export interface IEventEmitter {
   emitted(event: string): number;
 }
 
+export interface StorageDependencies {
+  strategy: IStorageStrategy;
+}
+
+export interface StorageOptions {
+  cache?: boolean;
+}
+
 export interface IStorage {
+  strategy: IStorageStrategy;
+
   get(key: string): any;
   set(key: string, value: any): void;
   delete(key: string): void;
@@ -62,6 +77,10 @@ export interface IStorageStrategy {
   set(key: string, value: string): void;
 }
 
+export interface DeviceDependencies {
+  emitter: IEventEmitter;
+}
+
 export interface IDevice {
   deviceType: string;
 
@@ -69,8 +88,23 @@ export interface IDevice {
   isIOS(): boolean;
 }
 
+export interface CordovaDependencies {
+  device: IDevice;
+  emitter: IEventEmitter;
+  logger: ILogger;
+}
+
+export interface CordovaOptions {}
+
 export interface ICordova {
   bootstrap(): void;
+}
+
+export interface CoreDependencies {
+  config: IConfig;
+  logger: ILogger;
+  emitter: IEventEmitter;
+  client: IClient;
 }
 
 export interface ICore {
@@ -81,6 +115,21 @@ export interface ICore {
   client: IClient;
 
   init(cfg?: ISettings);
+}
+
+export interface UserContextDependencies {
+  config: IConfig;
+  storage: IStorage;
+}
+
+export interface IUserContext {
+  config: IConfig;
+  storage: IStorage;
+  label: string;
+
+  load(user: IUser): IUser;
+  store(user: IUser): void;
+  unstore(): void;
 }
 
 export interface StoredUser {
@@ -131,7 +180,17 @@ export interface IUser {
   serializeForStorage(): Object;
 }
 
+export interface SingleUserServiceDependencies {
+  client: IClient;
+  context: IUserContext;
+}
+
+export interface SingleUserServiceOptions {}
+
 export interface ISingleUserService {
+  client: IClient;
+  context: IUserContext;
+
   current(): IUser;
   store();
   unstore();
@@ -142,18 +201,42 @@ export interface ISingleUserService {
   resetPassword(): Promise<void>;
 }
 
-export interface TokenContextStoreOptions {}
+export interface TokenContextDependencies {
+  storage: IStorageStrategy;
+}
+
+export interface ITokenContextStoreOptions {}
 
 export interface ITokenContext {
   label: string;
   storage: IStorageStrategy;
 
   get(): string;
-  store(token: string, options?: TokenContextStoreOptions): void;
+  store(token: string, options: ITokenContextStoreOptions): void;
   delete(): void;
 }
 
+export interface CombinedTokenContextDependencies {
+  storage: IStorageStrategy;
+  tempStorage: IStorageStrategy;
+}
+
+export interface ICombinedTokenContextStoreOptions extends ITokenContextStoreOptions {
+  permanent?: boolean;
+}
+
+export interface ICombinedTokenContext extends ITokenContext {
+  tempStorage: IStorageStrategy;
+
+  store(token: string, options: ICombinedTokenContextStoreOptions): void;
+}
+
 export type AuthModuleId = "basic" | "custom" | "facebook" | "github" | "google" | "instagram" | "linkedin" | "twitter";
+
+export interface AuthTypeDependencies {
+  config: IConfig;
+  client: IClient;
+}
 
 export interface IAuthType {
   authenticate(data): Promise<any>;
@@ -178,9 +261,18 @@ export interface LoginOptions {
   remember?: boolean;
 }
 
+export interface AuthDependencies {
+  emitter: IEventEmitter;
+  authModules: IAuthModules;
+  tokenContext: ICombinedTokenContext;
+  userService: ISingleUserService;
+}
+
+export interface AuthOptions {}
+
 export interface IAuth {
   authModules: IAuthModules;
-  tokenContext: ITokenContext;
+  tokenContext: ICombinedTokenContext;
   userService: ISingleUserService;
 
   isAuthenticated(): boolean;
@@ -230,13 +322,23 @@ export interface IPushNotificationEvent {
   data: IPluginNotification;
 }
 
+export interface SaveTokenOptions {
+  ignore_user?: boolean;
+}
+
+export interface PushDependencies {
+  config: IConfig;
+  auth: IAuth;
+  device: IDevice;
+  client: IClient;
+  emitter: IEventEmitter;
+  storage: IStorage;
+  logger: ILogger;
+}
+
 export interface PushOptions {
   debug?: boolean;
   pluginConfig?: any;
-}
-
-export interface SaveTokenOptions {
-  ignore_user?: boolean;
 }
 
 export interface IPushToken {
@@ -271,6 +373,12 @@ export interface DeployUpdateOptions {
 
 export interface DeployOptions {}
 
+export interface DeployDependencies {
+  config: IConfig;
+  emitter: IEventEmitter;
+  logger: ILogger;
+}
+
 export interface IDeploy {
   check(): Promise<boolean>;
   download(options?: DeployDownloadOptions): Promise<boolean>;
@@ -291,4 +399,22 @@ export interface IStatSerialized {
   stat: string;
   value: number;
   created: string;
+}
+
+export interface InsightsDependencies {
+  app: IApp;
+  client: IClient;
+  logger: ILogger;
+}
+
+export interface InsightsOptions {
+  intervalSubmit?: number;
+  submitCount?: number;
+}
+
+export interface IInsights {
+  app: IApp;
+  client: IClient;
+  logger: ILogger;
+  submitCount: number;
 }

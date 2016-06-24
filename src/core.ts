@@ -1,4 +1,4 @@
-import { ICore, IConfig, ISettings, ILogger, IEventEmitter, IClient, IPushNotificationEvent } from './definitions';
+import { CoreDependencies, ICore, IConfig, ISettings, ILogger, IEventEmitter, IClient, IPushNotificationEvent } from './definitions';
 import { App } from './app';
 import { Insights } from './insights';
 
@@ -7,14 +7,20 @@ export class Core implements ICore {
   app: App;
   insights: Insights;
 
+  public config: IConfig;
+  public logger: ILogger;
+  public emitter: IEventEmitter;
+  public client: IClient;
+
   private _version = 'VERSION_STRING';
 
   constructor(
-    public config: IConfig,
-    public logger: ILogger,
-    public emitter: IEventEmitter,
-    public client: IClient
+    public deps: CoreDependencies
   ) {
+    this.config = this.deps.config;
+    this.logger = this.deps.logger;
+    this.emitter = this.deps.emitter;
+    this.client = this.deps.client;
     this.registerEventHandlers();
   }
 
@@ -26,7 +32,7 @@ export class Core implements ICore {
     this.emitter.emit('core:init');
     this.client.baseUrl = this.config.getURL('api');
     this.app = new App(this.config.get('app_id'));
-    this.insights = new Insights({ logger: this.logger, intervalSubmit: 60 * 1000 }, this.client, this.app);
+    this.insights = new Insights({ 'app': this.app, 'client': this.client, 'logger': this.logger }, { intervalSubmit: 60 * 1000 });
     this.insights.track('mobileapp.opened');
   }
 

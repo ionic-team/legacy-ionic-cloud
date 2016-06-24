@@ -1,21 +1,27 @@
-import { IConfig, IClient, IStorage, IUserData, UserDetails, StoredUser, IUser, ISingleUserService } from '../definitions';
+import { IConfig, IClient, IStorage, UserContextDependencies, IUserContext, IUserData, UserDetails, StoredUser, IUser, SingleUserServiceDependencies, SingleUserServiceOptions, ISingleUserService } from '../definitions';
 import { DeferredPromise } from '../promise';
 import { DataType } from './data-types';
 
 declare var Ionic: any;
 
-export class UserContext {
-  constructor(public storage: IStorage, public config: IConfig) {}
+export class UserContext implements IUserContext {
+  public storage: IStorage;
+  public config: IConfig;
 
-  get label() {
+  constructor(deps: UserContextDependencies) {
+    this.config = deps.config;
+    this.storage = deps.storage;
+  }
+
+  get label(): string {
     return 'ionic_io_user_' + this.config.get('app_id');
   }
 
-  unstore() {
+  unstore(): void {
     this.storage.delete(this.label);
   }
 
-  store(user: IUser) {
+  store(user: IUser): void {
     this.storage.set(this.label, user.serializeForStorage());
   }
 
@@ -172,13 +178,16 @@ export class User implements IUser {
   }
 }
 
-export interface SingleUserServiceOptions {}
-
 export class SingleUserService implements ISingleUserService {
 
+  public client: IClient;
+  public context: IUserContext;
   private user: IUser;
 
-  constructor(public config: SingleUserServiceOptions = {}, public client: IClient, public context: UserContext) {}
+  constructor(deps: SingleUserServiceDependencies, public config: SingleUserServiceOptions = {}) {
+    this.client = deps.client;
+    this.context = deps.context;
+  }
 
   current(): IUser {
     if (!this.user) {

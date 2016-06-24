@@ -1,4 +1,4 @@
-import { IDevice, IEventEmitter } from './definitions';
+import { DeviceDependencies, IDevice, IEventEmitter } from './definitions';
 
 declare var Connection: any;
 declare var navigator: any;
@@ -10,9 +10,10 @@ export interface DeviceIsConnectedToNetworkOptions {
 export class Device implements IDevice {
 
   public deviceType: string;
+  public emitter: IEventEmitter;
 
-  constructor(public emitter: IEventEmitter) {
-    this.emitter = emitter;
+  constructor(public deps: DeviceDependencies) {
+    this.emitter = this.deps.emitter;
     this.deviceType = this.determineDeviceType();
     this.registerEventHandlers();
   }

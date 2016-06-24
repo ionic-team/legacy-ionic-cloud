@@ -1,4 +1,4 @@
-import { IConfig, IAuth, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushOptions, IPush, SaveTokenOptions } from '../definitions';
+import { IConfig, IAuth, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
 import { App } from '../app';
 import { DeferredPromise } from '../promise';
 
@@ -19,6 +19,14 @@ export class Push implements IPush {
   app: App;
   plugin: any;
 
+  public config: IConfig;
+  public auth: IAuth;
+  public device: IDevice;
+  public client: IClient;
+  public emitter: IEventEmitter;
+  public storage: IStorage;
+  public logger: ILogger;
+
   private blockRegistration: boolean = false;
   private blockUnregister: boolean = false;
   private blockSaveToken: boolean = false;
@@ -29,15 +37,17 @@ export class Push implements IPush {
   private _token: IPushToken;
 
   constructor(
-    options: PushOptions = {},
-    public config: IConfig,
-    public auth: IAuth,
-    public device: IDevice,
-    public client: IClient,
-    public emitter: IEventEmitter,
-    public storage: IStorage,
-    public logger: ILogger
+    deps: PushDependencies,
+    options: PushOptions = {}
   ) {
+    this.config = deps.config;
+    this.auth = deps.auth;
+    this.device = deps.device;
+    this.client = deps.client;
+    this.emitter = deps.emitter;
+    this.storage = deps.storage;
+    this.logger = deps.logger;
+
     this.emitter.once('device:ready', () => {
       this.init(options);
     });

@@ -1,4 +1,4 @@
-import { IStorage, IStorageStrategy } from './definitions';
+import { StorageOptions, StorageDependencies, IStorage, IStorageStrategy } from './definitions';
 
 export class LocalStorageStrategy implements IStorageStrategy {
   get(key: string): string {
@@ -28,25 +28,17 @@ export class SessionStorageStrategy implements IStorageStrategy {
   }
 }
 
-export interface StorageCache {
+interface StorageCache {
   [key: string]: any;
-}
-
-export interface StorageOptions {
-  cache?: boolean;
 }
 
 export class Storage implements IStorage {
 
+  public strategy: IStorageStrategy;
   private storageCache: StorageCache;
 
-  constructor(public options: StorageOptions = {}, private strategy: IStorageStrategy) {
-    if (typeof options.cache === 'undefined') {
-      options.cache = true;
-    }
-
-    this.strategy = strategy;
-    this.options = options;
+  constructor(deps: StorageDependencies, public options: StorageOptions = {'cache': true}) {
+    this.strategy = deps.strategy;
     this.storageCache = {};
   }
 

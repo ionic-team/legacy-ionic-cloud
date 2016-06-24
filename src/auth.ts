@@ -1,16 +1,20 @@
-import { IConfig, IClient, IEventEmitter, TokenContextStoreOptions, ITokenContext, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, IAuth, IUser, IAuthType, UserLoginCredentials, UserDetails, IBasicAuthType, IAuthModules } from './definitions';
+import { IConfig, IClient, IEventEmitter, TokenContextDependencies, CombinedTokenContextDependencies, ITokenContext, ICombinedTokenContext, ICombinedTokenContextStoreOptions, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, AuthDependencies, AuthOptions, IAuth, IUser, AuthTypeDependencies, IAuthType, UserLoginCredentials, UserDetails, IBasicAuthType, IAuthModules } from './definitions';
 import { DetailedError, DeferredPromise } from './promise';
 
 declare var window: any;
 
 export class AuthTokenContext implements ITokenContext {
-  constructor(public label: string, public storage: IStorageStrategy) {}
+  public storage: IStorageStrategy;
+
+  constructor(deps: TokenContextDependencies, public label: string) {
+    this.storage = deps.storage;
+  }
 
   get(): string {
     return this.storage.get(this.label);
   }
 
-  store(token: string, options: TokenContextStoreOptions = {}): void {
+  store(token: string): void {
     this.storage.set(this.label, token);
   }
 
@@ -19,12 +23,14 @@ export class AuthTokenContext implements ITokenContext {
   }
 }
 
-export interface CombinedAuthTokenContextStoreOptions extends TokenContextStoreOptions {
-  permanent?: boolean;
-}
+export class CombinedAuthTokenContext implements ICombinedTokenContext {
+  public storage: IStorageStrategy;
+  public tempStorage: IStorageStrategy;
 
-export class CombinedAuthTokenContext implements ITokenContext {
-  constructor(public label: string, public storage: IStorageStrategy, public tempStorage: IStorageStrategy) {}
+  constructor(deps: CombinedTokenContextDependencies, public label: string) {
+    this.storage = deps.storage;
+    this.tempStorage = deps.tempStorage;
+  }
 
   get(): string {
     let permToken = this.storage.get(this.label);
@@ -33,7 +39,7 @@ export class CombinedAuthTokenContext implements ITokenContext {
     return token;
   }
 
-  store(token: string, options: CombinedAuthTokenContextStoreOptions = {'permanent': true}): void {
+  store(token: string, options: ICombinedTokenContextStoreOptions = {'permanent': true}): void {
     if (options.permanent) {
       this.storage.set(this.label, token);
     } else {
@@ -55,19 +61,24 @@ function getAuthErrorDetails(err) {
   return details;
 }
 
-export interface AuthOptions {}
-
 export class Auth implements IAuth {
+
+  public emitter: IEventEmitter;
+  public authModules: IAuthModules;
+  public tokenContext: ICombinedTokenContext;
+  public userService: ISingleUserService;
 
   private authToken: string;
 
   constructor(
-    public config: AuthOptions = {},
-    public emitter: IEventEmitter,
-    public authModules: IAuthModules,
-    public tokenContext: CombinedAuthTokenContext,
-    public userService: ISingleUserService
-  ) {}
+    public deps: AuthDependencies,
+    public config: AuthOptions = {}
+  ) {
+    this.emitter = deps.emitter;
+    this.authModules = deps.authModules;
+    this.tokenContext = deps.tokenContext;
+    this.userService = deps.userService;
+  }
 
   isAuthenticated(): boolean {
     let token = this.tokenContext.get();
@@ -122,7 +133,13 @@ export class Auth implements IAuth {
 }
 
 export abstract class AuthType implements IAuthType {
-  constructor(public config: IConfig, public client: IClient) {}
+  public config: IConfig;
+  public client: IClient;
+
+  constructor(deps: AuthTypeDependencies) {
+    this.config = deps.config;
+    this.client = deps.client;
+  }
 
   abstract authenticate(data): Promise<any>;
 
