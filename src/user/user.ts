@@ -213,7 +213,7 @@ export class SingleUserService implements ISingleUserService {
     let deferred = new DeferredPromise<IUser, Error>();
     let user = this.current();
 
-    this.client.get('/auth/users/self')
+    this.client.get('/users/self')
       .end((err, res) => {
         if (err) {
           deferred.reject(err);
@@ -235,7 +235,7 @@ export class SingleUserService implements ISingleUserService {
     let user = this.current();
     user.id = id;
 
-    this.client.get(`/auth/users/${user.id}`)
+    this.client.get(`/users/${user.id}`)
       .end((err, res) => {
         if (err) {
           deferred.reject(err);
@@ -258,7 +258,7 @@ export class SingleUserService implements ISingleUserService {
       deferred.reject(new Error('User is anonymous and cannot be deleted from the API.'));
     } else {
       this.unstore();
-      this.client.delete(`/auth/users/${this.user.id}`)
+      this.client.delete(`/users/${this.user.id}`)
         .end((err, res) => {
           if (err) {
             deferred.reject(err);
@@ -279,7 +279,7 @@ export class SingleUserService implements ISingleUserService {
     if (this.user.isAnonymous()) {
       deferred.reject(new Error('User is anonymous and cannot be updated in the API. Use load(<id>) or signup a user using auth.'));
     } else {
-      this.client.patch(`/auth/users/${this.user.id}`)
+      this.client.patch(`/users/${this.user.id}`)
         .send(this.user.serializeForAPI())
         .end((err, res) => {
           if (err) {
@@ -300,7 +300,7 @@ export class SingleUserService implements ISingleUserService {
     if (this.user.isAnonymous()) {
       deferred.reject(new Error('User is anonymous; password cannot be reset using the API.'));
     } else {
-      this.client.post(`/auth/users/${this.user.id}/password-reset`)
+      this.client.post(`/users/${this.user.id}/password-reset`)
         .end((err, res) => {
           if (err) {
             deferred.reject(err);

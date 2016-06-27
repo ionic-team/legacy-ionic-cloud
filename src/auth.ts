@@ -224,7 +224,7 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     if (data.name) { userData.name = data.name; }
     if (data.custom) { userData.custom = data.custom; }
 
-    this.client.post('/auth/users')
+    this.client.post('/users')
       .send(userData)
       .end((err, res) => {
         if (err) {
