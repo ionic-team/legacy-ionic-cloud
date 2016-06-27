@@ -14,7 +14,6 @@ export class Core implements ICore {
     public cfg?: ISettings
   ) {
     this.config = deps.config;
-    this.config.register(cfg);
     this.logger = deps.logger;
     this.emitter = deps.emitter;
     this.insights = deps.insights;

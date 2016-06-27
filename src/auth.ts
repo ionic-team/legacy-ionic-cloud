@@ -71,8 +71,8 @@ export class Auth implements IAuth {
   private authToken: string;
 
   constructor(
-    public deps: AuthDependencies,
-    public config: AuthOptions = {}
+    deps: AuthDependencies,
+    public options: AuthOptions = {}
   ) {
     this.emitter = deps.emitter;
     this.authModules = deps.authModules;
