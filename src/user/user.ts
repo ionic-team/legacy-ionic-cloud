@@ -145,8 +145,8 @@ export class User implements IUser {
     return this.service.delete();
   }
 
-  refresh(): Promise<void> {
-    return this.service.refresh();
+  load(id?: string): Promise<void> {
+    return this.service.load(id);
   }
 
   store() {
@@ -213,37 +213,16 @@ export class SingleUserService implements ISingleUserService {
     this.context.unstore();
   }
 
-  refresh(): Promise<void> {
+  load(id: string = 'self'): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
     let user = this.current();
-
-    this.client.get('/users/self')
-      .end((err, res) => {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          user.id = res.body.data.uuid;
-          user.data = new UserData(res.body.data.custom);
-          user.details = res.body.data.details;
-          user.fresh = false;
-
-          deferred.resolve();
-        }
-      });
-
-    return deferred.promise;
-  }
-
-  load(id: string): Promise<void> {
-    let deferred = new DeferredPromise<void, Error>();
-    let user = this.current();
-    user.id = id;
 
     this.client.get(`/users/${user.id}`)
       .end((err, res) => {
         if (err) {
           deferred.reject(err);
         } else {
+          user.id = res.body.data.uuid;
           user.data = new UserData(res.body.data.custom);
           user.details = res.body.data.details;
           user.fresh = false;

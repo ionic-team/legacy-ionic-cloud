@@ -192,8 +192,7 @@ export interface ISingleUserService {
   current(): IUser;
   store();
   unstore();
-  refresh(): Promise<void>;
-  load(id: string): Promise<void>;
+  load(id?: string): Promise<void>;
   delete(): Promise<void>;
   save(): Promise<void>;
   resetPassword(): Promise<void>;
