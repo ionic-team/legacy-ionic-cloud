@@ -1,5 +1,6 @@
-import { IConfig, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy } from './definitions';
+import { IConfig, IApp, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
 import { CombinedAuthTokenContext, Auth, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
+import { App } from './app';
 import { Client } from './client';
 import { Config } from './config';
 import { Cordova } from './cordova';
@@ -7,6 +8,7 @@ import { Core } from './core';
 import { Deploy } from './deploy/deploy';
 import { Device } from './device';
 import { EventEmitter } from './events';
+import { Insights } from './insights';
 import { Logger } from './logger';
 import { Push } from './push/push';
 import { Storage, LocalStorageStrategy, SessionStorageStrategy } from './storage';
@@ -51,6 +53,14 @@ export class Container {
   }
 
   @cache
+  get app(): IApp {
+    let config = this.config;
+    let app = new App(config.get('app_id'));
+    app.gcmKey = config.get('gcm_key');
+    return app;
+  }
+
+  @cache
   get localStorageStrategy(): IStorageStrategy {
     return new LocalStorageStrategy();
   }
@@ -72,8 +82,13 @@ export class Container {
   }
 
   @cache
+  get insights(): IInsights {
+    return new Insights({ 'app': this.app, 'client': this.client, 'logger': this.logger }, { 'intervalSubmit': 60 * 1000 });
+  }
+
+  @cache
   get core(): ICore {
-    return new Core({'config': this.config, 'logger': this.logger, 'emitter': this.eventEmitter, 'client': this.client});
+    return new Core({'config': this.config, 'logger': this.logger, 'emitter': this.eventEmitter, 'insights': this.insights});
   }
 
   @cache
@@ -122,7 +137,7 @@ export class Container {
 
   @cache
   get push(): IPush {
-    return new Push({'config': this.config, 'auth': this.auth, 'device': this.device, 'client': this.client, 'emitter': this.eventEmitter, 'storage': this.storage, 'logger': this.logger});
+    return new Push({'config': this.config, 'app': this.app, 'auth': this.auth, 'device': this.device, 'client': this.client, 'emitter': this.eventEmitter, 'storage': this.storage, 'logger': this.logger});
   }
 
   @cache

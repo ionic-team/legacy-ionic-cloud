@@ -1,5 +1,4 @@
-import { IConfig, IAuth, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
-import { App } from '../app';
+import { IConfig, IApp, IAuth, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
 import { DeferredPromise } from '../promise';
 
 import { PushToken } from './token';
@@ -16,9 +15,9 @@ interface ServiceTokenData {
 
 export class Push implements IPush {
 
-  app: App;
-  plugin: any;
+  public plugin: any;
 
+  public app: IApp;
   public config: IConfig;
   public auth: IAuth;
   public device: IDevice;
@@ -40,6 +39,7 @@ export class Push implements IPush {
     deps: PushDependencies,
     options: PushOptions = {}
   ) {
+    this.app = deps.app;
     this.config = deps.config;
     this.auth = deps.auth;
     this.device = deps.device;
@@ -47,43 +47,6 @@ export class Push implements IPush {
     this.emitter = deps.emitter;
     this.storage = deps.storage;
     this.logger = deps.logger;
-
-    this.emitter.once('device:ready', () => {
-      this.init(options);
-    });
-  }
-
-  get token(): IPushToken {
-    if (!this._token) {
-      this._token = new PushToken(this.storage.get('ionic_io_push_token').token);
-    }
-
-    return this._token;
-  }
-
-  set token(val: IPushToken) {
-    if (!val) {
-      this.storage.delete('ionic_io_push_token');
-    } else {
-      this.storage.set('ionic_io_push_token', { 'token': val.token });
-    }
-
-    this._token = val;
-  }
-
-  /**
-   * Init method to setup push behavior/options
-   *
-   * The config supports the following properties:
-   *   - debug {Boolean} Enables some extra logging as well as some default callback handlers
-   *   - pluginConfig {Object} Plugin configuration: https://github.com/phonegap/phonegap-plugin-push
-   *
-   * @param {object} config Configuration object
-   * @return {Push} returns the called Push instantiation
-   */
-  init(options: PushOptions = {}): void {
-    this.app = new App(this.config.get('app_id'));
-    this.app.gcmKey = this.config.get('gcm_key');
 
     // Check for the required values to use this service
     if (!this.app.id) {
@@ -103,7 +66,24 @@ export class Push implements IPush {
     }
 
     this.options = options;
-    this.emitter.emit('push:ready', { 'options': this.options });
+  }
+
+  get token(): IPushToken {
+    if (!this._token) {
+      this._token = new PushToken(this.storage.get('ionic_io_push_token').token);
+    }
+
+    return this._token;
+  }
+
+  set token(val: IPushToken) {
+    if (!val) {
+      this.storage.delete('ionic_io_push_token');
+    } else {
+      this.storage.set('ionic_io_push_token', { 'token': val.token });
+    }
+
+    this._token = val;
   }
 
   saveToken(token: IPushToken, options: SaveTokenOptions = {}): Promise<void> {
@@ -156,7 +136,7 @@ export class Push implements IPush {
       return;
     }
     this.blockRegistration = true;
-    this.emitter.once('push:ready', () => {
+    this.emitter.once('device:ready', () => {
       let pushPlugin = this._getPushPlugin();
 
       if (pushPlugin) {

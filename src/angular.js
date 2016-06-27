@@ -70,8 +70,8 @@ if (typeof angular === 'object' && angular.module) {
     return Ionic.deploy;
   }])
 
-  .run(['$ionicCloud', function($ionicCloud) {
-    $ionicCloud.init();
+  .run([function() {
+    // TODO
   }]);
 
 }

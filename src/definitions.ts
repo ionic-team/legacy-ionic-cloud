@@ -104,7 +104,7 @@ export interface CoreDependencies {
   config: IConfig;
   logger: ILogger;
   emitter: IEventEmitter;
-  client: IClient;
+  insights: IInsights;
 }
 
 export interface ICore {
@@ -112,9 +112,7 @@ export interface ICore {
   config: IConfig;
   logger: ILogger;
   emitter: IEventEmitter;
-  client: IClient;
-
-  init(cfg?: ISettings);
+  insights: IInsights;
 }
 
 export interface UserContextDependencies {
@@ -327,6 +325,7 @@ export interface SaveTokenOptions {
 }
 
 export interface PushDependencies {
+  app: IApp;
   config: IConfig;
   auth: IAuth;
   device: IDevice;
@@ -346,6 +345,7 @@ export interface IPushToken {
 }
 
 export interface IPush {
+  plugin: any;
   token: IPushToken;
 
   saveToken(token: IPushToken, options: SaveTokenOptions): Promise<void>;
@@ -417,4 +417,6 @@ export interface IInsights {
   client: IClient;
   logger: ILogger;
   submitCount: number;
+
+  track(stat: string, value?: number): void;
 }

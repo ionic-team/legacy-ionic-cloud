@@ -1,38 +1,24 @@
-import { CoreDependencies, ICore, IConfig, ISettings, ILogger, IEventEmitter, IClient, IPushNotificationEvent } from './definitions';
-import { App } from './app';
-import { Insights } from './insights';
+import { CoreDependencies, ICore, IConfig, ISettings, ILogger, IEventEmitter, IInsights, IPushNotificationEvent } from './definitions';
 
 export class Core implements ICore {
-
-  app: App;
-  insights: Insights;
 
   public config: IConfig;
   public logger: ILogger;
   public emitter: IEventEmitter;
-  public client: IClient;
+  public insights: IInsights;
 
   private _version = 'VERSION_STRING';
 
   constructor(
-    public deps: CoreDependencies
+    deps: CoreDependencies,
+    public cfg?: ISettings
   ) {
-    this.config = this.deps.config;
-    this.logger = this.deps.logger;
-    this.emitter = this.deps.emitter;
-    this.client = this.deps.client;
+    this.config = deps.config;
+    this.config.register(cfg);
+    this.logger = deps.logger;
+    this.emitter = deps.emitter;
+    this.insights = deps.insights;
     this.registerEventHandlers();
-  }
-
-  public init(cfg?: ISettings) {
-    if (cfg) {
-      this.config.register(cfg);
-    }
-
-    this.emitter.emit('core:init');
-    this.client.baseUrl = this.config.getURL('api');
-    this.app = new App(this.config.get('app_id'));
-    this.insights = new Insights({ 'app': this.app, 'client': this.client, 'logger': this.logger }, { intervalSubmit: 60 * 1000 });
     this.insights.track('mobileapp.opened');
   }
 

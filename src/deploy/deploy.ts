@@ -27,7 +27,10 @@ export class Deploy implements IDeploy {
     this.logger = deps.logger;
 
     this.emitter.once('device:ready', () => {
-      this.init(options);
+      if (this._getPlugin()) {
+        this._plugin.init(this.config.get('app_id'), this.config.getURL('api'));
+      }
+
       this.emitter.emit('deploy:ready');
     });
   }
@@ -49,15 +52,6 @@ export class Deploy implements IDeploy {
       this._plugin = window.IonicDeploy;
     }
     return this._plugin;
-  }
-
-  /**
-   * Initialize the Deploy Plugin
-   */
-  init(options: DeployOptions = {}): void {
-    if (this._getPlugin()) {
-      this._plugin.init(this.config.get('app_id'), this.config.getURL('api'));
-    }
   }
 
   /**
