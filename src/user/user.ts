@@ -145,6 +145,10 @@ export class User implements IUser {
     return this.service.delete();
   }
 
+  refresh(): Promise<void> {
+    return this.service.refresh();
+  }
+
   store() {
     this.service.store();
   }
@@ -209,8 +213,8 @@ export class SingleUserService implements ISingleUserService {
     this.context.unstore();
   }
 
-  self(): Promise<IUser> {
-    let deferred = new DeferredPromise<IUser, Error>();
+  refresh(): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
     let user = this.current();
 
     this.client.get('/users/self')
@@ -223,15 +227,15 @@ export class SingleUserService implements ISingleUserService {
           user.details = res.body.data.details;
           user.fresh = false;
 
-          deferred.resolve(user);
+          deferred.resolve();
         }
       });
 
     return deferred.promise;
   }
 
-  load(id: string) {
-    let deferred = new DeferredPromise<IUser, Error>();
+  load(id: string): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
     let user = this.current();
     user.id = id;
 
@@ -244,7 +248,7 @@ export class SingleUserService implements ISingleUserService {
           user.details = res.body.data.details;
           user.fresh = false;
 
-          deferred.resolve(user);
+          deferred.resolve();
         }
       });
 

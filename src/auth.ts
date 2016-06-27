@@ -97,7 +97,8 @@ export class Auth implements IAuth {
     return context.authenticate(data).then((token: string) => {
       this.storeToken(options, token);
 
-      return this.userService.self().then((user) => {
+      return this.userService.refresh().then(() => {
+        let user = this.userService.current();
         user.store();
         return user;
       });
