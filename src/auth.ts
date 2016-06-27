@@ -88,7 +88,7 @@ export class Auth implements IAuth {
     return false;
   }
 
-  login(moduleId: AuthModuleId, options: LoginOptions = {}, data: UserLoginCredentials): Promise<IUser> {
+  login(moduleId: AuthModuleId, options: LoginOptions = {'remember': true}, data: UserLoginCredentials): Promise<IUser> {
     let context = this.authModules[moduleId];
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
@@ -123,7 +123,7 @@ export class Auth implements IAuth {
     return this.tokenContext.get();
   }
 
-  storeToken(options: LoginOptions = {}, token: string) {
+  storeToken(options: LoginOptions = {'remember': true}, token: string) {
     let originalToken = this.authToken;
     this.authToken = token;
     this.tokenContext.store(this.authToken, {'permanent': options.remember});
