@@ -20,10 +20,10 @@ interface Modules {
 
 let modules: Modules = {};
 
-function cache(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+function cache<T>(target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<T>) {
   let method = descriptor.get;
 
-  descriptor.get = function() {
+  descriptor.get = function(): T {
     if (typeof modules[propertyKey] === 'undefined') {
       let value = method.apply(this, arguments);
       modules[propertyKey] = value;
@@ -32,7 +32,7 @@ function cache(target: any, propertyKey: string, descriptor: PropertyDescriptor)
     return modules[propertyKey];
   };
 
-  descriptor.set = (value) => {};
+  descriptor.set = (value: T) => {};
 }
 
 export class Container {
