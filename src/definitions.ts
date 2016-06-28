@@ -145,11 +145,6 @@ export interface IUserData {
   unset(key: string);
 }
 
-export interface UserLoginCredentials {
-  email: string;
-  password: string;
-}
-
 export interface UserDetails {
   email?: string;
   password?: string;

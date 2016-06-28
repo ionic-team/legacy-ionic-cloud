@@ -1,4 +1,4 @@
-import { IConfig, IClient, IEventEmitter, TokenContextDependencies, CombinedTokenContextDependencies, ITokenContext, ICombinedTokenContext, ICombinedTokenContextStoreOptions, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, AuthDependencies, AuthOptions, IAuth, IUser, AuthTypeDependencies, IAuthType, UserLoginCredentials, UserDetails, IBasicAuthType, IAuthModules } from './definitions';
+import { IConfig, IClient, IEventEmitter, TokenContextDependencies, CombinedTokenContextDependencies, ITokenContext, ICombinedTokenContext, ICombinedTokenContextStoreOptions, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, AuthDependencies, AuthOptions, IAuth, IUser, AuthTypeDependencies, IAuthType, UserDetails, IBasicAuthType, IAuthModules } from './definitions';
 import { DetailedError, DeferredPromise } from './promise';
 
 declare var window: any;
@@ -88,7 +88,7 @@ export class Auth implements IAuth {
     return false;
   }
 
-  login(moduleId: AuthModuleId, options: LoginOptions = {'remember': true}, data: UserLoginCredentials): Promise<IUser> {
+  login(moduleId: AuthModuleId, data: Object, options: LoginOptions = {'remember': true}): Promise<IUser> {
     let context = this.authModules[moduleId];
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
