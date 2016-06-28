@@ -11,8 +11,12 @@ if (typeof angular === 'object' && angular.module) {
   .provider('$ionicCloudConfig', function() {
     var config = Ionic.config;
 
-    this.register = function(value) {
-      config.register(value.core);
+    this.register = function(settings) {
+      config.register(settings.core);
+      if (settings.logger) {
+        var logger = Ionic.logger;
+        logger.silent = settings.logger.silent;
+      }
     };
 
     this.$get = function() {
