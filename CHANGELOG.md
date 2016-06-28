@@ -7,17 +7,10 @@
 * **(breaking)** Remove bower support
 * Add CommonJS ES5 distribution files
 * Start tests (`gulp test`)
-* Add `user.clear()` method for wiping user data and turning the user into a blank, unauthenticated user
 * Standardize ES and TS linting
-* Unify logger and event emitter
+* Switch everything to use dependency injection
 * **(breaking)** Remove Analytics (in favor of Ionic Insights)
-* **(breaking)** Remove APIRequest (in favor of new service client)
-* **(breaking)** Remove notify option of returned promises (progress reporting of deploy updates).
-* **(breaking)** Remove push callbacks in favor of using the event emitter
-* Add `$ionicCloudProvider` for Angular 1 app config
-* Add `$ionicCurrentUser` for current user
-* Add `$ionicCloudConfig` for the cloud config object
-* **(breaking)** Remove dev_push
+* [See more in the Migration Guide](https://github.com/driftyco/ionic-cloud/wiki/Migration-Guide).
 
 ## 0.7.1
 
