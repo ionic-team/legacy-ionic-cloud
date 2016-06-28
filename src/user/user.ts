@@ -277,23 +277,4 @@ export class SingleUserService implements ISingleUserService {
     return deferred.promise;
   }
 
-  resetPassword(): Promise<void> {
-    let deferred = new DeferredPromise<void, Error>();
-
-    if (this.user.isAnonymous()) {
-      deferred.reject(new Error('User is anonymous; password cannot be reset using the API.'));
-    } else {
-      this.client.post(`/users/${this.user.id}/password-reset`)
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            deferred.resolve();
-          }
-        });
-    }
-
-    return deferred.promise;
-  }
-
 }
