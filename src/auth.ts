@@ -1,4 +1,4 @@
-import { IConfig, IClient, IEventEmitter, TokenContextDependencies, CombinedTokenContextDependencies, ITokenContext, ICombinedTokenContext, ICombinedTokenContextStoreOptions, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, AuthDependencies, AuthOptions, IAuth, IUser, AuthTypeDependencies, IAuthType, UserDetails, IBasicAuthType, IAuthModules } from './definitions';
+import { IConfig, IClient, IEventEmitter, TokenContextDependencies, CombinedTokenContextDependencies, ITokenContext, ICombinedTokenContext, ICombinedTokenContextStoreOptions, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, AuthDependencies, AuthOptions, IAuth, IUser, AuthTypeDependencies, IAuthType, UserDetails, BasicLoginCredentials, IBasicAuthType, IAuthModules } from './definitions';
 import { DetailedError } from './errors';
 import { DeferredPromise } from './promise';
 
@@ -89,7 +89,7 @@ export class Auth implements IAuth {
     return false;
   }
 
-  login(moduleId: AuthModuleId, data: Object, options: LoginOptions = {'remember': true}): Promise<IUser> {
+  login(moduleId: AuthModuleId, data?: Object, options: LoginOptions = {'remember': true}): Promise<IUser> {
     let context = this.authModules[moduleId];
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
@@ -143,9 +143,9 @@ export abstract class AuthType implements IAuthType {
     this.client = deps.client;
   }
 
-  abstract authenticate(data): Promise<any>;
+  abstract authenticate(data?: Object): Promise<any>;
 
-  protected inAppBrowserFlow(options, data): Promise<string> {
+  protected inAppBrowserFlow(options, data: Object = {}): Promise<string> {
     let deferred = new DeferredPromise<string, Error>();
 
     if (!window || !window.cordova || !window.cordova.InAppBrowser) {
@@ -191,22 +191,26 @@ export abstract class AuthType implements IAuthType {
 
 export class BasicAuth extends AuthType implements IBasicAuthType {
 
-  authenticate(data): Promise<string> {
+  authenticate(data: BasicLoginCredentials): Promise<string> {
     var deferred = new DeferredPromise<string, Error>();
 
-    this.client.post('/auth/login')
-      .send({
-        'app_id': this.config.get('app_id'),
-        'email': data.email,
-        'password': data.password
-      })
-      .end((err, res) => {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          deferred.resolve(res.body.data.token);
-        }
-      });
+    if (!data.email || !data.password) {
+      deferred.reject(new Error('email and password are required for basic authentication'));
+    } else {
+      this.client.post('/auth/login')
+        .send({
+          'app_id': this.config.get('app_id'),
+          'email': data.email,
+          'password': data.password
+        })
+        .end((err, res) => {
+          if (err) {
+            deferred.reject(err);
+          } else {
+            deferred.resolve(res.body.data.token);
+          }
+        });
+    }
 
     return deferred.promise;
   }
@@ -253,43 +257,43 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
 }
 
 export class CustomAuth extends AuthType {
-  authenticate(data): Promise<any> {
+  authenticate(data: Object = {}): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'custom' }, data);
   }
 }
 
 export class TwitterAuth extends AuthType {
-  authenticate(data): Promise<any> {
+  authenticate(data: Object = {}): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'twitter' }, data);
   }
 }
 
 export class FacebookAuth extends AuthType {
-  authenticate(data): Promise<any> {
+  authenticate(data: Object = {}): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'facebook' }, data);
   }
 }
 
 export class GithubAuth extends AuthType {
-  authenticate(data): Promise<any> {
+  authenticate(data: Object = {}): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'github' }, data);
   }
 }
 
 export class GoogleAuth extends AuthType {
-  authenticate(data): Promise<any> {
+  authenticate(data: Object = {}): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'google' }, data);
   }
 }
 
 export class InstagramAuth extends AuthType {
-  authenticate(data): Promise<any> {
+  authenticate(data: Object = {}): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'instagram' }, data);
   }
 }
 
 export class LinkedInAuth extends AuthType {
-  authenticate(data): Promise<any> {
+  authenticate(data: Object = {}): Promise<any> {
     return this.inAppBrowserFlow({ 'provider': 'linkedin' }, data);
   }
 }

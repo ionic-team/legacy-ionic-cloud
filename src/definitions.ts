@@ -233,6 +233,11 @@ export interface IAuthType {
   authenticate(data): Promise<any>;
 }
 
+export interface BasicLoginCredentials {
+  email: string;
+  password: string;
+}
+
 export interface IBasicAuthType extends IAuthType {
   signup(data: UserDetails): Promise<void>;
 }
