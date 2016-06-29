@@ -217,7 +217,7 @@ export class SingleUserService implements ISingleUserService {
     let deferred = new DeferredPromise<void, Error>();
     let user = this.current();
 
-    this.client.get(`/users/${user.id}`)
+    this.client.get(`/users/${id}`)
       .end((err, res) => {
         if (err) {
           deferred.reject(err);
