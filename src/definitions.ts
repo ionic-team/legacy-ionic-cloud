@@ -190,7 +190,6 @@ export interface ISingleUserService {
   load(id?: string): Promise<void>;
   delete(): Promise<void>;
   save(): Promise<void>;
-  resetPassword(): Promise<void>;
 }
 
 export interface TokenContextDependencies {
