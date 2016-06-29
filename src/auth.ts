@@ -1,5 +1,6 @@
 import { IConfig, IClient, IEventEmitter, TokenContextDependencies, CombinedTokenContextDependencies, ITokenContext, ICombinedTokenContext, ICombinedTokenContextStoreOptions, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, AuthDependencies, AuthOptions, IAuth, IUser, AuthTypeDependencies, IAuthType, UserDetails, IBasicAuthType, IAuthModules } from './definitions';
-import { DetailedError, DeferredPromise } from './promise';
+import { DetailedError } from './errors';
+import { DeferredPromise } from './promise';
 
 declare var window: any;
 
