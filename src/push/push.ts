@@ -30,7 +30,6 @@ export class Push implements IPush {
   private blockUnregister: boolean = false;
   private blockSaveToken: boolean = false;
   private registered: boolean = false;
-  private tokenReady: boolean = false;
 
   private options: PushOptions;
   private _token: IPushToken;
@@ -119,8 +118,7 @@ export class Push implements IPush {
           }
         });
     } else {
-      this.logger.info('Ionic Push: a token save operation is already in progress.');
-      deferred.reject();
+      deferred.reject(new Error('A token save operation is already in progress.'));
     }
 
     return deferred.promise;
@@ -129,30 +127,32 @@ export class Push implements IPush {
   /**
    * Registers the device with GCM/APNS to get a device token
    */
-  register(callback: (token: PushToken) => void): void {
-    this.logger.info('Ionic Push: register');
-    if (this.blockRegistration) {
-      this.logger.info('Ionic Push: another registration is already in progress.');
-      return;
-    }
-    this.blockRegistration = true;
-    this.emitter.once('device:ready', () => {
-      let pushPlugin = this._getPushPlugin();
+  register(): Promise<IPushToken> {
+    let deferred = new DeferredPromise<IPushToken, Error>();
 
-      if (pushPlugin) {
-        this.plugin = pushPlugin.init(this.options.pluginConfig);
-        this.plugin.on('registration', (data) => {
-          this.blockRegistration = false;
-          this.token = new PushToken(data.registrationId);
-          this.tokenReady = true;
-          if (typeof callback === 'function') {
-            callback(this.token);
-          }
-        });
-        this._callbackRegistration();
-        this.registered = true;
-      }
-    });
+    if (this.blockRegistration) {
+      deferred.reject(new Error('Another registration is already in progress.'));
+    } else {
+      this.blockRegistration = true;
+      this.emitter.once('device:ready', () => {
+        let pushPlugin = this._getPushPlugin();
+
+        if (pushPlugin) {
+          this.plugin = pushPlugin.init(this.options.pluginConfig);
+          this.plugin.on('registration', (data) => {
+            this.blockRegistration = false;
+            this.token = new PushToken(data.registrationId);
+            deferred.resolve(this.token);
+          });
+          this._callbackRegistration();
+          this.registered = true;
+        } else {
+          deferred.reject(new Error('Push plugin not found! See logs.'));
+        }
+      });
+    }
+
+    return deferred.promise;
   }
 
   /**
@@ -191,9 +191,7 @@ export class Push implements IPush {
           });
       }
     } else {
-      let msg = 'An unregister operation is already in progress.';
-      this.logger.warn('Ionic Push: ' + msg);
-      deferred.reject(new Error(msg));
+      deferred.reject(new Error('An unregister operation is already in progress.'));
     }
 
     this.blockUnregister = true;
