@@ -85,8 +85,8 @@ export class Push implements IPush {
     this._token = val;
   }
 
-  saveToken(token: IPushToken, options: SaveTokenOptions = {}): Promise<void> {
-    let deferred = new DeferredPromise<void, Error>();
+  saveToken(token: IPushToken, options: SaveTokenOptions = {}): Promise<IPushToken> {
+    let deferred = new DeferredPromise<IPushToken, Error>();
 
     let tokenData: ServiceTokenData = {
       'token': token.token,
@@ -114,7 +114,7 @@ export class Push implements IPush {
             if (tokenData.user_id) {
               this.logger.info('Ionic Push: added push token to user: ' + tokenData.user_id);
             }
-            deferred.resolve();
+            deferred.resolve(token);
           }
         });
     } else {
