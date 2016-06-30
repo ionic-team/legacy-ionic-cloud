@@ -114,6 +114,7 @@ export class Push implements IPush {
             if (tokenData.user_id) {
               this.logger.info('Ionic Push: added push token to user: ' + tokenData.user_id);
             }
+            token.saved = true;
             deferred.resolve(token);
           }
         });
@@ -142,6 +143,7 @@ export class Push implements IPush {
           this.plugin.on('registration', (data) => {
             this.blockRegistration = false;
             this.token = new PushToken(data.registrationId);
+            this.token.registered = true;
             deferred.resolve(this.token);
           });
           this._callbackRegistration();

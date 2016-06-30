@@ -339,6 +339,8 @@ export interface PushOptions {
 }
 
 export interface IPushToken {
+  registered: boolean;
+  saved: boolean;
   token: string;
 }
 
@@ -346,8 +348,8 @@ export interface IPush {
   plugin: any;
   token: IPushToken;
 
-  saveToken(token: IPushToken, options: SaveTokenOptions): Promise<void>;
-  register(callback: (token: IPushToken) => void): void;
+  saveToken(token: IPushToken, options: SaveTokenOptions): Promise<IPushToken>;
+  register(): Promise<IPushToken>;
   unregister(): Promise<void>;
 }
 
