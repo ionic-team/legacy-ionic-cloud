@@ -1,4 +1,4 @@
-[![npm version](https://badge.fury.io/js/%40ionic%2Fcloud.svg)](https://badge.fury.io/js/%40ionic%2Fcloud)
+[![npm](https://img.shields.io/npm/v/@ionic/cloud.svg?maxAge=2592000)](https://www.npmjs.com/package/@ionic/cloud)
 
 # Ionic Cloud Client
 
