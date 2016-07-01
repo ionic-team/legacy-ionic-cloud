@@ -38,7 +38,7 @@ export class Client implements IClient {
   }
 
   request(method: string, endpoint: string) {
-    return this.supplement(this.req.bind(method), endpoint);
+    return this.supplement(this.req.bind(this.req, method), endpoint);
   }
 
   private supplement(

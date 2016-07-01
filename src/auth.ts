@@ -164,7 +164,7 @@ export abstract class AuthType implements IAuthType {
           if (err) {
             deferred.reject(err);
           } else {
-            var loc = res.payload.data.url;
+            var loc = res.body.data.url;
             var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no,clearcache=yes,clearsessioncache=yes');
             tempBrowser.addEventListener('loadstart', function(data) {
               if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
