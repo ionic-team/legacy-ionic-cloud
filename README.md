@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/%40ionic%2Fcloud.svg)](https://badge.fury.io/js/%40ionic%2Fcloud)
+
 # Ionic Cloud Client
 
 The client for using the Ionic Cloud (powerful user & social authentication,
