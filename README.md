@@ -11,6 +11,8 @@ For Ionic 2, we recommend using the [Angular 2 wrapper for the Cloud Client](htt
 
 ## Ionic 1
 
+Coming from `ionic-platform-web-client`? Things have changed! See our [migration guide](https://github.com/driftyco/ionic-cloud/wiki/Migration-Guide).
+
 ### Installation
 
 ```bash
