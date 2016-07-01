@@ -96,7 +96,7 @@ export class User implements IUser {
 
   public id: string;
   public fresh: boolean; // user has not yet been persisted
-  public details: UserDetails;
+  public details: UserDetails = {};
   public data: IUserData;
 
   private _unset: any;
