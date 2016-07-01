@@ -178,7 +178,7 @@ export class User implements IUser {
   }
 
   toString() {
-    return '<IonicUser [\'' + this.id + '\']>';
+    return `<User [${this.isAnonymous() ? 'anonymous' : this.id}]>`;
   }
 }
 

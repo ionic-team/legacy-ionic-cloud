@@ -9,6 +9,6 @@ export class App implements IApp {
   }
 
   toString() {
-    return '<App [\'' + this.id + '\'>';
+    return `<App [${this.id}]>`;
   }
 }

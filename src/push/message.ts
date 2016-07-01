@@ -30,6 +30,6 @@ export class PushMessage implements IPushMessage {
   }
 
   toString() {
-    return '<PushMessage [\'' + this.title + '\']>';
+    return `<PushMessage ["${this.title}"]>`;
   }
 }
