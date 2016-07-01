@@ -24,9 +24,10 @@ export class Insights implements IInsights {
 
   public static SUBMIT_COUNT = 100;
   public submitCount = Insights.SUBMIT_COUNT;
-  public app: IApp;
-  public client: IClient;
-  public logger: ILogger;
+
+  private app: IApp;
+  private client: IClient;
+  private logger: ILogger;
 
   private batch: Stat[];
 

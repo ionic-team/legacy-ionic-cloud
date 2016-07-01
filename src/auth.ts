@@ -5,7 +5,7 @@ import { DeferredPromise } from './promise';
 declare var window: any;
 
 export class AuthTokenContext implements ITokenContext {
-  public storage: IStorageStrategy;
+  private storage: IStorageStrategy;
 
   constructor(deps: TokenContextDependencies, public label: string) {
     this.storage = deps.storage;
@@ -25,8 +25,8 @@ export class AuthTokenContext implements ITokenContext {
 }
 
 export class CombinedAuthTokenContext implements ICombinedTokenContext {
-  public storage: IStorageStrategy;
-  public tempStorage: IStorageStrategy;
+  private storage: IStorageStrategy;
+  private tempStorage: IStorageStrategy;
 
   constructor(deps: CombinedTokenContextDependencies, public label: string) {
     this.storage = deps.storage;
@@ -64,10 +64,10 @@ function getAuthErrorDetails(err) {
 
 export class Auth implements IAuth {
 
-  public emitter: IEventEmitter;
-  public authModules: IAuthModules;
-  public tokenContext: ICombinedTokenContext;
-  public userService: ISingleUserService;
+  private emitter: IEventEmitter;
+  private authModules: IAuthModules;
+  private tokenContext: ICombinedTokenContext;
+  private userService: ISingleUserService;
 
   private authToken: string;
 

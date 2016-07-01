@@ -4,9 +4,9 @@ declare var cordova: any;
 
 export class Cordova implements ICordova {
 
-  public device: IDevice;
-  public emitter: IEventEmitter;
-  public logger: ILogger;
+  private device: IDevice;
+  private emitter: IEventEmitter;
+  private logger: ILogger;
 
   constructor(deps: CordovaDependencies, protected options: CordovaOptions = {}) {
     this.device = deps.device;

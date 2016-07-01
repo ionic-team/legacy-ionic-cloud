@@ -34,7 +34,7 @@ interface StorageCache {
 
 export class Storage implements IStorage {
 
-  public strategy: IStorageStrategy;
+  private strategy: IStorageStrategy;
   private storageCache: StorageCache;
 
   constructor(deps: StorageDependencies, public options: StorageOptions = {'cache': true}) {

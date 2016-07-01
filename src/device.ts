@@ -10,7 +10,7 @@ export interface DeviceIsConnectedToNetworkOptions {
 export class Device implements IDevice {
 
   public deviceType: string;
-  public emitter: IEventEmitter;
+  private emitter: IEventEmitter;
 
   constructor(public deps: DeviceDependencies) {
     this.emitter = this.deps.emitter;

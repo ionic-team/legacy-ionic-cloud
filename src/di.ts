@@ -132,17 +132,36 @@ export class Container {
 
   @cache
   get auth(): IAuth {
-    return new Auth({'emitter': this.eventEmitter, 'authModules': this.authModules, 'tokenContext': this.authTokenContext, 'userService': this.singleUserService});
+    return new Auth({
+      'emitter': this.eventEmitter,
+      'authModules': this.authModules,
+      'tokenContext': this.authTokenContext,
+      'userService': this.singleUserService
+    });
   }
 
   @cache
   get push(): IPush {
-    return new Push({'config': this.config, 'app': this.app, 'auth': this.auth, 'device': this.device, 'client': this.client, 'emitter': this.eventEmitter, 'storage': this.storage, 'logger': this.logger});
+    return new Push({
+      'config': this.config,
+      'app': this.app,
+      'auth': this.auth,
+      'userService': this.singleUserService,
+      'device': this.device,
+      'client': this.client,
+      'emitter': this.eventEmitter,
+      'storage': this.storage,
+      'logger': this.logger
+    });
   }
 
   @cache
   get deploy(): IDeploy {
-    return new Deploy({'config': this.config, 'emitter': this.eventEmitter, 'logger': this.logger});
+    return new Deploy({
+      'config': this.config,
+      'emitter': this.eventEmitter,
+      'logger': this.logger
+    });
   }
 
 }

@@ -64,8 +64,6 @@ export interface StorageOptions {
 }
 
 export interface IStorage {
-  strategy: IStorageStrategy;
-
   get(key: string): any;
   set(key: string, value: any): void;
   delete(key: string): void;
@@ -109,10 +107,6 @@ export interface CoreDependencies {
 
 export interface ICore {
   version: string;
-  config: IConfig;
-  logger: ILogger;
-  emitter: IEventEmitter;
-  insights: IInsights;
 }
 
 export interface UserContextDependencies {
@@ -121,8 +115,6 @@ export interface UserContextDependencies {
 }
 
 export interface IUserContext {
-  config: IConfig;
-  storage: IStorage;
   label: string;
 
   load(user: IUser): IUser;
@@ -154,6 +146,10 @@ export interface UserDetails {
   custom?: Object;
 }
 
+export interface UserDependencies {
+  service: ISingleUserService;
+}
+
 export interface IUser {
   id: string;
   fresh: boolean;
@@ -181,9 +177,6 @@ export interface SingleUserServiceDependencies {
 export interface SingleUserServiceOptions {}
 
 export interface ISingleUserService {
-  client: IClient;
-  context: IUserContext;
-
   current(): IUser;
   store();
   unstore();
@@ -200,7 +193,6 @@ export interface ITokenContextStoreOptions {}
 
 export interface ITokenContext {
   label: string;
-  storage: IStorageStrategy;
 
   get(): string;
   store(token: string, options: ITokenContextStoreOptions): void;
@@ -217,8 +209,6 @@ export interface ICombinedTokenContextStoreOptions extends ITokenContextStoreOpt
 }
 
 export interface ICombinedTokenContext extends ITokenContext {
-  tempStorage: IStorageStrategy;
-
   store(token: string, options: ICombinedTokenContextStoreOptions): void;
 }
 
@@ -267,10 +257,6 @@ export interface AuthDependencies {
 export interface AuthOptions {}
 
 export interface IAuth {
-  authModules: IAuthModules;
-  tokenContext: ICombinedTokenContext;
-  userService: ISingleUserService;
-
   isAuthenticated(): boolean;
   login(moduleId: AuthModuleId, options: LoginOptions, data): Promise<IUser>;
   logout(): void;
@@ -326,6 +312,7 @@ export interface PushDependencies {
   app: IApp;
   config: IConfig;
   auth: IAuth;
+  userService: ISingleUserService;
   device: IDevice;
   client: IClient;
   emitter: IEventEmitter;
@@ -413,9 +400,6 @@ export interface InsightsOptions {
 }
 
 export interface IInsights {
-  app: IApp;
-  client: IClient;
-  logger: ILogger;
   submitCount: number;
 
   track(stat: string, value?: number): void;

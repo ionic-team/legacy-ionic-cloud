@@ -2,10 +2,10 @@ import { CoreDependencies, ICore, IConfig, ISettings, ILogger, IEventEmitter, II
 
 export class Core implements ICore {
 
-  public config: IConfig;
-  public logger: ILogger;
-  public emitter: IEventEmitter;
-  public insights: IInsights;
+  private config: IConfig;
+  private logger: ILogger;
+  private emitter: IEventEmitter;
+  private insights: IInsights;
 
   private _version = 'VERSION_STRING';
 

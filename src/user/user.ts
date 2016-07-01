@@ -1,12 +1,12 @@
-import { IConfig, IClient, IStorage, UserContextDependencies, IUserContext, IUserData, UserDetails, StoredUser, IUser, SingleUserServiceDependencies, SingleUserServiceOptions, ISingleUserService } from '../definitions';
+import { IConfig, IClient, IStorage, UserContextDependencies, IUserContext, IUserData, UserDetails, StoredUser, UserDependencies, IUser, SingleUserServiceDependencies, SingleUserServiceOptions, ISingleUserService } from '../definitions';
 import { DeferredPromise } from '../promise';
 import { DataType } from './data-types';
 
 declare var Ionic: any;
 
 export class UserContext implements IUserContext {
-  public storage: IStorage;
-  public config: IConfig;
+  private storage: IStorage;
+  private config: IConfig;
 
   constructor(deps: UserContextDependencies) {
     this.config = deps.config;
@@ -94,6 +94,8 @@ export class UserData implements IUserData {
 
 export class User implements IUser {
 
+  private service: ISingleUserService;
+
   public id: string;
   public fresh: boolean; // user has not yet been persisted
   public details: UserDetails = {};
@@ -101,7 +103,8 @@ export class User implements IUser {
 
   private _unset: any;
 
-  constructor(public service: ISingleUserService) {
+  constructor(deps: UserDependencies) {
+    this.service = deps.service;
     this.fresh = true;
     this._unset = {};
     this.data = new UserData();
@@ -184,8 +187,8 @@ export class User implements IUser {
 
 export class SingleUserService implements ISingleUserService {
 
-  public client: IClient;
-  public context: IUserContext;
+  private client: IClient;
+  private context: IUserContext;
   private user: IUser;
 
   constructor(deps: SingleUserServiceDependencies, public config: SingleUserServiceOptions = {}) {
@@ -195,11 +198,11 @@ export class SingleUserService implements ISingleUserService {
 
   current(): IUser {
     if (!this.user) {
-      this.user = this.context.load(new User(this));
+      this.user = this.context.load(new User({'service': this}));
     }
 
     if (!this.user) {
-      this.user = new User(this);
+      this.user = new User({'service': this});
     }
 
     return this.user;

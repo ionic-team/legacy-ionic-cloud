@@ -1,4 +1,4 @@
-import { IConfig, IApp, IAuth, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
+import { IConfig, IApp, IAuth, ISingleUserService, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
 import { DeferredPromise } from '../promise';
 
 import { PushToken } from './token';
@@ -17,14 +17,15 @@ export class Push implements IPush {
 
   public plugin: any;
 
-  public app: IApp;
-  public config: IConfig;
-  public auth: IAuth;
-  public device: IDevice;
-  public client: IClient;
-  public emitter: IEventEmitter;
-  public storage: IStorage;
-  public logger: ILogger;
+  private app: IApp;
+  private config: IConfig;
+  private auth: IAuth;
+  private userService: ISingleUserService;
+  private device: IDevice;
+  private client: IClient;
+  private emitter: IEventEmitter;
+  private storage: IStorage;
+  private logger: ILogger;
 
   private blockRegistration: boolean = false;
   private blockUnregister: boolean = false;
@@ -41,6 +42,7 @@ export class Push implements IPush {
     this.app = deps.app;
     this.config = deps.config;
     this.auth = deps.auth;
+    this.userService = deps.userService;
     this.device = deps.device;
     this.client = deps.client;
     this.emitter = deps.emitter;
@@ -94,7 +96,7 @@ export class Push implements IPush {
     };
 
     if (!options.ignore_user) {
-      let user = this.auth.userService.current();
+      let user = this.userService.current();
       if (this.auth.isAuthenticated()) {
         tokenData.user_id = user.id;
       }
