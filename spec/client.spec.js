@@ -5,7 +5,10 @@ var Client = require("../dist/es5/client").Client;
 
 describe("client", function() {
 
-  var tokenContext = new CombinedAuthTokenContext("test", new LocalStorageStrategy(), new SessionStorageStrategy());
+  var tokenContext = new CombinedAuthTokenContext({
+    "storage": new LocalStorageStrategy(),
+    "tempStorage": new SessionStorageStrategy()
+  }, "test");
 
   beforeEach(function() {
     tokenContext.delete();
@@ -36,7 +39,7 @@ describe("client", function() {
   it("should supplement with request method", function() {
     tokenContext.store("token");
     var c = new Client(tokenContext, 'url');
-    var req = c.request('get', '/test');
+    var req = c.request('GET', '/test');
     expect(req.get('Authorization')).toBe('Bearer token');
     expect(req.url).toBe("url/test");
     expect(req.method).toBe("GET");

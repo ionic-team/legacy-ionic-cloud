@@ -13,7 +13,7 @@ describe("storage with localStorage", function() {
       var options = { 'cache': cacheOptions[i] };
 
       beforeEach(function() {
-        s = new storage.Storage(options, strategy);
+        s = new storage.Storage({ "strategy": strategy }, options);
       });
 
       it("should store and retrieve", function() {

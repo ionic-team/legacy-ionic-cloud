@@ -12,7 +12,7 @@ export class Config implements IConfig {
   }
 
   get(name: string): any {
-    if (!this.settings.core) {
+    if (!this.settings || !this.settings.core) {
       return undefined;
     }
 
@@ -20,7 +20,7 @@ export class Config implements IConfig {
   }
 
   getURL(name: string): string {
-    let urls = this.settings.core.urls || {};
+    let urls = (this.settings && this.settings.core && this.settings.core.urls) || {};
 
     if (urls[name]) {
       return urls[name];
