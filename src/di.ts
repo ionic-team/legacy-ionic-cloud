@@ -49,7 +49,7 @@ export class Container {
 
   @cache
   get logger(): ILogger {
-    return new Logger();
+    return new Logger(this.config.settings.logger);
   }
 
   @cache
@@ -142,8 +142,10 @@ export class Container {
 
   @cache
   get push(): IPush {
+    let config = this.config;
+
     return new Push({
-      'config': this.config,
+      'config': config,
       'app': this.app,
       'auth': this.auth,
       'userService': this.singleUserService,
@@ -152,7 +154,7 @@ export class Container {
       'emitter': this.eventEmitter,
       'storage': this.storage,
       'logger': this.logger
-    });
+    }, config.settings.push);
   }
 
   @cache

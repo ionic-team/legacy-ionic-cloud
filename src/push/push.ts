@@ -63,7 +63,7 @@ export class Push implements IPush {
     if (this.device.isAndroid()) {
       // inject gcm key for PushPlugin
       if (!options.pluginConfig.android) { options.pluginConfig.android = {}; }
-      if (!options.pluginConfig.android.senderId) { options.pluginConfig.android.senderID = this.app.gcmKey; }
+      if (!options.pluginConfig.android.senderID) { options.pluginConfig.android.senderID = this.app.gcmKey; }
     }
 
     this.options = options;

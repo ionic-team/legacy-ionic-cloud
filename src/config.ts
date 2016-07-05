@@ -2,7 +2,7 @@ import { ISettingsUrls, ISettings, IConfig } from './definitions';
 
 export class Config implements IConfig {
 
-  private settings: ISettings;
+  public settings: ISettings;
   private urls: ISettingsUrls = {
     'api': 'https://api.ionic.io'
   };
@@ -12,15 +12,15 @@ export class Config implements IConfig {
   }
 
   get(name: string): any {
-    if (!this.settings) {
+    if (!this.settings.core) {
       return undefined;
     }
 
-    return this.settings[name];
+    return this.settings.core[name];
   }
 
   getURL(name: string): string {
-    let urls = this.settings && this.settings['urls'] || {};
+    let urls = this.settings.core.urls || {};
 
     if (urls[name]) {
       return urls[name];

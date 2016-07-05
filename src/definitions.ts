@@ -7,9 +7,11 @@ export interface IApp {
   gcmKey: string;
 }
 
-export interface ILogger {
-  silent: boolean;
+export interface LoggerOptions {
+  silent?: boolean;
+}
 
+export interface ILogger {
   infofn: (message?: any, ...optionalParams: any[]) => void;
   warnfn: (message?: any, ...optionalParams: any[]) => void;
   errorfn: (message?: any, ...optionalParams: any[]) => void;
@@ -22,14 +24,20 @@ export interface ISettingsUrls {
   api?: string;
 }
 
-export interface ISettings {
+export interface ICoreSettings {
   app_id: string;
-  gcm_key?: string;
   urls?: any;
-  [key: string]: any;
+}
+
+export interface ISettings {
+  core: ICoreSettings;
+  push?: PushOptions;
+  logger?: LoggerOptions;
 }
 
 export interface IConfig {
+  settings: ISettings;
+
   register(settings: ISettings);
   get(name: string): any;
   getURL(name: string): string;
@@ -320,9 +328,31 @@ export interface PushDependencies {
   logger: ILogger;
 }
 
+export interface PushPluginConfig {
+  android?: {
+    senderID?: string;
+    icon?: string;
+    iconColor?: string;
+    sound?: boolean;
+    vibrate?: boolean;
+    clearBadge?: boolean;
+    clearNotifications?: boolean;
+    forceShow?: boolean;
+    topics?: string[];
+  };
+  ios?: {
+    alert?: boolean | string;
+    badge?: boolean | string;
+    sound?: boolean | string;
+    clearBadge?: boolean | string;
+    categories?: any;
+  };
+}
+
 export interface PushOptions {
+  gcm_key?: string;
   debug?: boolean;
-  pluginConfig?: any;
+  pluginConfig?: PushPluginConfig;
 }
 
 export interface IPushToken {
