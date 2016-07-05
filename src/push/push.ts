@@ -31,12 +31,11 @@ export class Push implements IPush {
   private blockSaveToken: boolean = false;
   private registered: boolean = false;
 
-  private options: PushOptions;
   private _token: IPushToken;
 
   constructor(
     deps: PushDependencies,
-    options: PushOptions = {}
+    public options: PushOptions = {}
   ) {
     this.config = deps.config;
     this.auth = deps.auth;

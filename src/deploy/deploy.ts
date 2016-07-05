@@ -20,7 +20,7 @@ export class Deploy implements IDeploy {
 
   constructor(
     deps: DeployDependencies,
-    options: DeployOptions = {}
+    public options: DeployOptions = {}
   ) {
     this.config = deps.config;
     this.emitter = deps.emitter;

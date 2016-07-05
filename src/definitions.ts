@@ -260,6 +260,7 @@ export interface AuthDependencies {
 export interface AuthOptions {}
 
 export interface IAuth {
+  options: AuthOptions;
   isAuthenticated(): boolean;
   login(moduleId: AuthModuleId, options: LoginOptions, data): Promise<IUser>;
   logout(): void;
@@ -356,6 +357,7 @@ export interface IPushToken {
 }
 
 export interface IPush {
+  options: PushOptions;
   plugin: any;
   token: IPushToken;
 
@@ -391,6 +393,8 @@ export interface DeployDependencies {
 }
 
 export interface IDeploy {
+  options: DeployOptions;
+
   check(): Promise<boolean>;
   download(options?: DeployDownloadOptions): Promise<boolean>;
   extract(options?: DeployExtractOptions): Promise<boolean>;
