@@ -12,11 +12,7 @@ if (typeof angular === 'object' && angular.module) {
     var config = Ionic.config;
 
     this.register = function(settings) {
-      config.register(settings.core);
-      if (settings.logger) {
-        var logger = Ionic.logger;
-        logger.silent = settings.logger.silent;
-      }
+      config.register(settings);
     };
 
     this.$get = function() {

@@ -2,11 +2,6 @@ export interface IDetailedError<D> extends Error {
   details?: D;
 }
 
-export interface IApp {
-  id: string;
-  gcmKey: string;
-}
-
 export interface LoggerOptions {
   silent?: boolean;
 }
@@ -317,7 +312,6 @@ export interface SaveTokenOptions {
 }
 
 export interface PushDependencies {
-  app: IApp;
   config: IConfig;
   auth: IAuth;
   userService: ISingleUserService;
@@ -419,7 +413,7 @@ export interface IStatSerialized {
 }
 
 export interface InsightsDependencies {
-  app: IApp;
+  config: IConfig;
   client: IClient;
   logger: ILogger;
 }

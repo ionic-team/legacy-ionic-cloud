@@ -1,4 +1,4 @@
-import { IConfig, IApp, IAuth, ISingleUserService, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
+import { IConfig, IAuth, ISingleUserService, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
 import { DeferredPromise } from '../promise';
 
 import { PushToken } from './token';
@@ -17,7 +17,6 @@ export class Push implements IPush {
 
   public plugin: any;
 
-  private app: IApp;
   private config: IConfig;
   private auth: IAuth;
   private userService: ISingleUserService;
@@ -39,7 +38,6 @@ export class Push implements IPush {
     deps: PushDependencies,
     options: PushOptions = {}
   ) {
-    this.app = deps.app;
     this.config = deps.config;
     this.auth = deps.auth;
     this.userService = deps.userService;
@@ -50,10 +48,7 @@ export class Push implements IPush {
     this.logger = deps.logger;
 
     // Check for the required values to use this service
-    if (!this.app.id) {
-      this.logger.error('Ionic Push: no app_id found. (http://docs.ionic.io/docs/io-install)');
-      return;
-    } else if (this.device.isAndroid() && !this.app.gcmKey) {
+    if (this.device.isAndroid() && !this.options.gcm_key) {
       this.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
       return;
     }
@@ -63,7 +58,7 @@ export class Push implements IPush {
     if (this.device.isAndroid()) {
       // inject gcm key for PushPlugin
       if (!options.pluginConfig.android) { options.pluginConfig.android = {}; }
-      if (!options.pluginConfig.android.senderID) { options.pluginConfig.android.senderID = this.app.gcmKey; }
+      if (!options.pluginConfig.android.senderID) { options.pluginConfig.android.senderID = this.options.gcm_key; }
     }
 
     this.options = options;

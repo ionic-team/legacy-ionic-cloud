@@ -1,4 +1,3 @@
-var App = require("./../dist/es5/app").App;
 var Core = require("./../dist/es5/core").Core;
 var DataType = require("./../dist/es5/user/data-types").DataType;
 var Deploy = require("./../dist/es5/deploy/deploy").Deploy;
@@ -35,7 +34,6 @@ Ionic.DataTypes = DataType.getMapping();
 
 // Cloud Namespace
 Ionic.Cloud = {};
-Ionic.Cloud.App = App;
 Ionic.Cloud.AuthType = auth.AuthType;
 Ionic.Cloud.AuthTypes = {};
 Ionic.Cloud.AuthTypes.BasicAuth = auth.BasicAuth;

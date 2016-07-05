@@ -1,4 +1,4 @@
-import { InsightsDependencies, InsightsOptions, IInsights, IApp, IClient, ILogger, IStatSerialized } from './definitions';
+import { InsightsDependencies, InsightsOptions, IInsights, IConfig, IClient, ILogger, IStatSerialized } from './definitions';
 
 export class Stat {
   public created: Date;
@@ -25,14 +25,14 @@ export class Insights implements IInsights {
   public static SUBMIT_COUNT = 100;
   public submitCount = Insights.SUBMIT_COUNT;
 
-  private app: IApp;
+  private config: IConfig;
   private client: IClient;
   private logger: ILogger;
 
   private batch: Stat[];
 
   constructor(deps: InsightsDependencies, public options: InsightsOptions = {}) {
-    this.app = deps.app;
+    this.config = deps.config;
     this.client = deps.client;
     this.logger = deps.logger;
     this.batch = [];
@@ -49,7 +49,7 @@ export class Insights implements IInsights {
   }
 
   track(stat: string, value: number = 1): void {
-    this.trackStat(new Stat(this.app.id, stat, value));
+    this.trackStat(new Stat(this.config.get('app_id'), stat, value));
   }
 
   protected trackStat(stat: Stat): void {

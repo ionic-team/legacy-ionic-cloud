@@ -1,6 +1,5 @@
-import { IConfig, IApp, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
+import { IConfig, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
 import { CombinedAuthTokenContext, Auth, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
-import { App } from './app';
 import { Client } from './client';
 import { Config } from './config';
 import { Cordova } from './cordova';
@@ -53,14 +52,6 @@ export class Container {
   }
 
   @cache
-  get app(): IApp {
-    let config = this.config;
-    let app = new App(config.get('app_id'));
-    app.gcmKey = config.get('gcm_key');
-    return app;
-  }
-
-  @cache
   get localStorageStrategy(): IStorageStrategy {
     return new LocalStorageStrategy();
   }
@@ -83,12 +74,23 @@ export class Container {
 
   @cache
   get insights(): IInsights {
-    return new Insights({ 'app': this.app, 'client': this.client, 'logger': this.logger }, { 'intervalSubmit': 60 * 1000 });
+    return new Insights({
+      'config': this.config,
+      'client': this.client,
+      'logger': this.logger
+    }, {
+      'intervalSubmit': 60 * 1000
+    });
   }
 
   @cache
   get core(): ICore {
-    return new Core({'config': this.config, 'logger': this.logger, 'emitter': this.eventEmitter, 'insights': this.insights});
+    return new Core({
+      'config': this.config,
+      'logger': this.logger,
+      'emitter': this.eventEmitter,
+      'insights': this.insights
+    });
   }
 
   @cache
@@ -146,7 +148,6 @@ export class Container {
 
     return new Push({
       'config': config,
-      'app': this.app,
       'auth': this.auth,
       'userService': this.singleUserService,
       'device': this.device,
