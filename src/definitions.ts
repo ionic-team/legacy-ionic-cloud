@@ -145,16 +145,6 @@ export interface IUserData {
   unset(key: string);
 }
 
-export interface ForgotPasswordDetails {
-  email?: string;
-}
-
-export interface ResetPasswordDetails {
-  code: string;
-  newPassword: string;
-  newPasswordVerify: string;
-}
-
 export interface UserDetails {
   email?: string;
   password?: string;
@@ -250,8 +240,8 @@ export interface BasicLoginCredentials {
 
 export interface IBasicAuthType extends IAuthType {
   signup(data: UserDetails): Promise<void>;
-  requestPasswordReset(data: ForgotPasswordDetails): Promise<string>;
-  confirmPasswordReset(data: ResetPasswordDetails): Promise<string>;
+  requestPasswordReset(email: string): Promise<void>;
+  confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void>;
 }
 
 export interface IAuthModules {
@@ -287,8 +277,8 @@ export interface IAuth {
   login(moduleId: AuthModuleId, options: LoginOptions, data): Promise<IUser>;
   logout(): void;
   signup(data: UserDetails): Promise<void>;
-  requestPasswordReset(data: ForgotPasswordDetails): Promise<string>;
-  confirmPasswordReset(data: ResetPasswordDetails): Promise<string>;
+  requestPasswordReset(email: string): Promise<void>;
+  confirmPasswordReset(email: string, code: number, new_password: string): Promise<void>;
 }
 
 export interface IAppStatus {

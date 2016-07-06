@@ -2,7 +2,7 @@ import {
     IConfig, IClient, IEventEmitter, TokenContextDependencies, CombinedTokenContextDependencies, ITokenContext,
     ICombinedTokenContext, ICombinedTokenContextStoreOptions, IStorageStrategy, ISingleUserService, AuthModuleId,
     LoginOptions, AuthDependencies, AuthOptions, IAuth, IUser, AuthTypeDependencies, IAuthType, UserDetails,
-    BasicLoginCredentials, IBasicAuthType, IAuthModules, ForgotPasswordDetails, ResetPasswordDetails
+    BasicLoginCredentials, IBasicAuthType, IAuthModules
 } from './definitions';
 import { DetailedError } from './errors';
 import { DeferredPromise } from './promise';
@@ -119,18 +119,14 @@ export class Auth implements IAuth {
     return context.signup.apply(context, [data]);
   }
 
-  requestPasswordReset(data?: Object): Promise<string> {
+  requestPasswordReset(email: string): Promise<void> {
     let context = this.authModules.basic;
-    return context.requestPasswordReset.apply(context, [data]).then((body) => {
-      return body.message;
-    });
+    return context.requestPasswordReset(email);
   }
 
-  confirmPasswordReset(data?: Object): Promise<string> {
+  confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void> {
     let context = this.authModules.basic;
-    return context.confirmPasswordReset.apply(context, [data]).then((body) => {
-      return body.message;
-    });
+    return context.confirmPasswordReset(email, code, newPassword);
   }
 
   logout(): void {
@@ -234,46 +230,46 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     return deferred.promise;
   }
 
-  requestPasswordReset(data: ForgotPasswordDetails): Promise<string> {
-    var deferred = new DeferredPromise<string, Error>();
+  requestPasswordReset(email: string): Promise<void> {
+    var deferred = new DeferredPromise<void, Error>();
 
-    if (!data.email) {
-      deferred.reject(new Error('Email is required for password reset request.'))
+    if (!email) {
+      deferred.reject(new Error('Email is required for password reset request.'));
     } else {
       this.client.post('/users/password/reset')
           .send({
             'app_id': this.config.get('app_id'),
-            'email': data.email,
+            'email': email,
             'cloud_client': true
           })
           .end((err, res) => {
             if (err) {
               deferred.reject(err);
             } else {
-              deferred.resolve(res.body);
+              deferred.resolve();
             }
           });
     }
     return deferred.promise;
   }
 
-  confirmPasswordReset(data: ResetPasswordDetails): Promise<string> {
-    var deferred = new DeferredPromise<string, Error>();
+  confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void> {
+    var deferred = new DeferredPromise<void, Error>();
 
-    if (!data.code || !data.newPassword || !data.newPasswordVerify) {
-        deferred.reject(new Error('Code, new password, and new password verification are required.'));
+    if (!code || !email || !newPassword) {
+        deferred.reject(new Error('Code, new password, and email are required.'));
     } else {
       this.client.post('/users/password')
           .send({
-            'reset_token': data.code,
-            'new_password': data.newPassword,
-            'new_password_verify': data.newPasswordVerify
+            'reset_token': code,
+            'new_password': newPassword,
+            'email': email
           })
           .end((err, res) => {
             if (err) {
               deferred.reject(err);
             } else {
-              deferred.resolve(res.body);
+              deferred.resolve();
             }
           });
     }
