@@ -10,9 +10,9 @@ const WATCH_INTERVAL = 1 * 60 * 1000;
 
 export class Deploy implements IDeploy {
 
-  public config: IConfig;
-  public emitter: IEventEmitter;
-  public logger: ILogger;
+  private config: IConfig;
+  private emitter: IEventEmitter;
+  private logger: ILogger;
 
   public channel: DeployChannel = 'production';
   public plugin: any;
