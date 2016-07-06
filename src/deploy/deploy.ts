@@ -44,7 +44,7 @@ export class Deploy implements IDeploy {
    *
    * @return {IonicDeploy} Returns the plugin or false
    */
-  _getPlugin() {
+  private _getPlugin() {
     if (typeof window.IonicDeploy === 'undefined') {
       this.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
       return;
