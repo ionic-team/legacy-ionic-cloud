@@ -16,6 +16,9 @@ var ts = require('gulp-typescript');
 var tslint = require('gulp-tslint');
 var uglify = require('gulp-uglify');
 
+/* Docs tasks */
+require('./scripts/docs/gulp-tasks')(gulp);
+
 gulp.task('test', ['build-es5-ts'], function(done) {
   new KarmaServer({
     "configFile": __dirname + '/karma.conf.js',
