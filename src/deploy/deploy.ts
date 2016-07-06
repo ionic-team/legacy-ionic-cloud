@@ -14,8 +14,8 @@ export class Deploy implements IDeploy {
   public emitter: IEventEmitter;
   public logger: ILogger;
 
-  private _plugin: any;
   public channel: DeployChannel = 'production';
+  public plugin: any;
 
   private _checkTimeout: any;
 
@@ -29,7 +29,7 @@ export class Deploy implements IDeploy {
 
     this.emitter.once('device:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.init(this.config.get('app_id'), this.config.getURL('api'));
+        this.plugin.init(this.config.get('app_id'), this.config.getURL('api'));
       }
 
       this.emitter.emit('deploy:ready');
@@ -49,10 +49,10 @@ export class Deploy implements IDeploy {
       this.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
       return;
     }
-    if (!this._plugin) {
-      this._plugin = window.IonicDeploy;
+    if (!this.plugin) {
+      this.plugin = window.IonicDeploy;
     }
-    return this._plugin;
+    return this.plugin;
   }
 
   /**
@@ -66,7 +66,7 @@ export class Deploy implements IDeploy {
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.check(this.config.get('app_id'), this._channelTag, (result) => {
+        this.plugin.check(this.config.get('app_id'), this.channel, (result) => {
           if (result && result === 'true') {
             this.logger.info('Ionic Deploy: an update is available');
             deferred.resolve(true);
@@ -97,7 +97,7 @@ export class Deploy implements IDeploy {
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.download(this.config.get('app_id'), (result) => {
+        this.plugin.download(this.config.get('app_id'), (result) => {
           if (result !== 'true' && result !== 'false') {
             if (options.onProgress) {
               options.onProgress(result);
@@ -130,7 +130,7 @@ export class Deploy implements IDeploy {
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.extract(this.config.get('app_id'), (result) => {
+        this.plugin.extract(this.config.get('app_id'), (result) => {
           if (result !== 'done') {
             if (options.onProgress) {
               options.onProgress(result);
@@ -163,7 +163,7 @@ export class Deploy implements IDeploy {
   load() {
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.redirect(this.config.get('app_id'));
+        this.plugin.redirect(this.config.get('app_id'));
       }
     });
   }
@@ -221,7 +221,7 @@ export class Deploy implements IDeploy {
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.info(this.config.get('app_id'), (result) => {
+        this.plugin.info(this.config.get('app_id'), (result) => {
           deferred.resolve(result);
         }, (err) => {
           deferred.reject(err);
@@ -244,7 +244,7 @@ export class Deploy implements IDeploy {
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.getVersions(this.config.get('app_id'), (result) => {
+        this.plugin.getVersions(this.config.get('app_id'), (result) => {
           deferred.resolve(result);
         }, (err) => {
           deferred.reject(err);
@@ -268,7 +268,7 @@ export class Deploy implements IDeploy {
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.deleteVersion(this.config.get('app_id'), uuid, (result) => {
+        this.plugin.deleteVersion(this.config.get('app_id'), uuid, (result) => {
           deferred.resolve(result);
         }, (err) => {
           deferred.reject(err);
@@ -293,7 +293,7 @@ export class Deploy implements IDeploy {
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
-        this._plugin.getMetadata(this.config.get('app_id'), uuid, (result) => {
+        this.plugin.getMetadata(this.config.get('app_id'), uuid, (result) => {
           deferred.resolve(result.metadata);
         }, (err) => {
           deferred.reject(err);
@@ -338,7 +338,7 @@ export class Deploy implements IDeploy {
                 if (!result) { deferred.reject(new Error('Error while extracting')); }
                 if (!options.deferLoad) {
                   deferred.resolve(true);
-                  this._plugin.redirect(this.config.get('app_id'));
+                  this.plugin.redirect(this.config.get('app_id'));
                 } else {
                   deferred.resolve(true);
                 }
