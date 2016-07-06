@@ -1,4 +1,4 @@
-import { IConfig, IEventEmitter, ILogger, IDeploy, DeployWatchOptions, DeployDownloadOptions, DeployExtractOptions, DeployUpdateOptions, DeployDependencies, DeployOptions } from '../definitions';
+import { IConfig, IEventEmitter, ILogger, DeployChannel, IDeploy, DeployWatchOptions, DeployDownloadOptions, DeployExtractOptions, DeployUpdateOptions, DeployDependencies, DeployOptions } from '../definitions';
 import { DeferredPromise } from '../promise';
 
 declare var window: any;
@@ -15,7 +15,8 @@ export class Deploy implements IDeploy {
   public logger: ILogger;
 
   private _plugin: any;
-  private _channelTag: string = 'production';
+  public channel: DeployChannel = 'production';
+
   private _checkTimeout: any;
 
   constructor(
@@ -303,16 +304,6 @@ export class Deploy implements IDeploy {
     });
 
     return deferred.promise;
-  }
-
-  /**
-   * Set the deploy channel that should be checked for updatse
-   * See http://docs.ionic.io/docs/deploy-channels for more information
-   *
-   * @param {string} channelTag The channel tag to use
-   */
-  setChannel(channelTag: string): void {
-    this._channelTag = channelTag;
   }
 
   /**

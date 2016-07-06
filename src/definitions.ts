@@ -215,7 +215,7 @@ export interface ICombinedTokenContext extends ITokenContext {
   store(token: string, options: ICombinedTokenContextStoreOptions): void;
 }
 
-export type AuthModuleId = "basic" | "custom" | "facebook" | "github" | "google" | "instagram" | "linkedin" | "twitter";
+export type AuthModuleId = 'basic' | 'custom' | 'facebook' | 'github' | 'google' | 'instagram' | 'linkedin' | 'twitter';
 
 export interface AuthTypeDependencies {
   config: IConfig;
@@ -384,6 +384,8 @@ export interface DeployUpdateOptions {
   onProgress?: (p: number) => void;
 }
 
+export type DeployChannel = 'dev' | 'staging' | 'production' | string;
+
 export interface DeployOptions {}
 
 export interface DeployDependencies {
@@ -393,6 +395,7 @@ export interface DeployDependencies {
 }
 
 export interface IDeploy {
+  channel: DeployChannel;
   options: DeployOptions;
 
   check(): Promise<boolean>;
@@ -406,7 +409,6 @@ export interface IDeploy {
   getVersions(): Promise<any>;
   deleteVersion(uuid: string): Promise<any>;
   getMetadata(uuid: string): Promise<any>;
-  setChannel(channelTag: string): void;
 }
 
 export interface IStatSerialized {
