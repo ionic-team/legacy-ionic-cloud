@@ -1,5 +1,6 @@
 gulpfile.js
 karma.conf.js
+scripts
 spec
 src
 tsconfig.json
