@@ -14,7 +14,7 @@ export class UserContext implements IUserContext {
   }
 
   get label(): string {
-    return 'ionic_io_user_' + this.config.get('app_id');
+    return 'ionic_user_' + this.config.get('app_id');
   }
 
   unstore(): void {

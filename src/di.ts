@@ -63,7 +63,7 @@ export class Container {
 
   @cache
   get authTokenContext(): ICombinedTokenContext {
-    let label = 'ionic_io_auth_' + this.config.get('app_id');
+    let label = 'ionic_auth_' + this.config.get('app_id');
     return new CombinedAuthTokenContext({'storage': this.localStorageStrategy, 'tempStorage': this.sessionStorageStrategy}, label);
   }
 
