@@ -1,31 +1,35 @@
 import { StorageOptions, StorageDependencies, IStorage, IStorageStrategy } from './definitions';
 
 export class LocalStorageStrategy implements IStorageStrategy {
+
   get(key: string): string {
     return localStorage.getItem(key);
-  }
-
-  remove(key: string): void {
-    return localStorage.removeItem(key);
   }
 
   set(key: string, value: string): void {
     return localStorage.setItem(key, value);
   }
+
+  delete(key: string): void {
+    return localStorage.removeItem(key);
+  }
+
 }
 
 export class SessionStorageStrategy implements IStorageStrategy {
+
   get(key: string): string {
     return sessionStorage.getItem(key);
-  }
-
-  remove(key: string): void {
-    return sessionStorage.removeItem(key);
   }
 
   set(key: string, value: string): void {
     return sessionStorage.setItem(key, value);
   }
+
+  delete(key: string): void {
+    return sessionStorage.removeItem(key);
+  }
+
 }
 
 interface StorageCache {
@@ -37,12 +41,13 @@ export class Storage implements IStorage {
   private strategy: IStorageStrategy;
   private storageCache: StorageCache;
 
-  constructor(deps: StorageDependencies, public options: StorageOptions = {'cache': true}) {
+  constructor(deps: StorageDependencies, public options: StorageOptions = {'prefix': 'ionic', 'cache': true}) {
     this.strategy = deps.strategy;
     this.storageCache = {};
   }
 
   set(key: string, value: any): void {
+    key = this.standardizeKey(key);
     let json = JSON.stringify(value);
 
     this.strategy.set(key, json);
@@ -52,13 +57,15 @@ export class Storage implements IStorage {
   }
 
   delete(key: string): void {
-    this.strategy.remove(key);
+    key = this.standardizeKey(key);
+    this.strategy.delete(key);
     if (this.options.cache) {
       delete this.storageCache[key];
     }
   }
 
   get(key: string): any {
+    key = this.standardizeKey(key);
     if (this.options.cache) {
       let cached = this.storageCache[key];
       if (cached) {
@@ -81,4 +88,9 @@ export class Storage implements IStorage {
       return null;
     }
   }
+
+  private standardizeKey(key: string): string {
+    return `${this.options.prefix}_${key}`;
+  }
+
 }

@@ -1,11 +1,11 @@
-import { IConfig, IClient, IEventEmitter, TokenContextDependencies, CombinedTokenContextDependencies, ITokenContext, ICombinedTokenContext, ICombinedTokenContextStoreOptions, IStorageStrategy, ISingleUserService, AuthModuleId, LoginOptions, AuthDependencies, AuthOptions, IAuth, IUser, AuthTypeDependencies, IAuthType, UserDetails, BasicLoginCredentials, IBasicAuthType, IAuthModules } from './definitions';
+import { IConfig, IClient, IEventEmitter, TokenContextDependencies, CombinedTokenContextDependencies, ITokenContext, ICombinedTokenContext, ICombinedTokenContextStoreOptions, IStorage, ISingleUserService, AuthModuleId, LoginOptions, AuthDependencies, AuthOptions, IAuth, IUser, AuthTypeDependencies, IAuthType, UserDetails, BasicLoginCredentials, IBasicAuthType, IAuthModules } from './definitions';
 import { DetailedError } from './errors';
 import { DeferredPromise } from './promise';
 
 declare var window: any;
 
 export class AuthTokenContext implements ITokenContext {
-  private storage: IStorageStrategy;
+  private storage: IStorage;
 
   constructor(deps: TokenContextDependencies, public label: string) {
     this.storage = deps.storage;
@@ -20,13 +20,13 @@ export class AuthTokenContext implements ITokenContext {
   }
 
   delete(): void {
-    this.storage.remove(this.label);
+    this.storage.delete(this.label);
   }
 }
 
 export class CombinedAuthTokenContext implements ICombinedTokenContext {
-  private storage: IStorageStrategy;
-  private tempStorage: IStorageStrategy;
+  private storage: IStorage;
+  private tempStorage: IStorage;
 
   constructor(deps: CombinedTokenContextDependencies, public label: string) {
     this.storage = deps.storage;
@@ -49,8 +49,8 @@ export class CombinedAuthTokenContext implements ICombinedTokenContext {
   }
 
   delete(): void {
-    this.storage.remove(this.label);
-    this.tempStorage.remove(this.label);
+    this.storage.delete(this.label);
+    this.tempStorage.delete(this.label);
   }
 }
 

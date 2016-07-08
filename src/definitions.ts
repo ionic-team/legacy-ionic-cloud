@@ -63,6 +63,7 @@ export interface StorageDependencies {
 }
 
 export interface StorageOptions {
+  prefix?: string;
   cache?: boolean;
 }
 
@@ -74,8 +75,8 @@ export interface IStorage {
 
 export interface IStorageStrategy {
   get(key: string): string;
-  remove(key: string): void;
   set(key: string, value: string): void;
+  delete(key: string): void;
 }
 
 export interface DeviceDependencies {
@@ -189,7 +190,7 @@ export interface ISingleUserService {
 }
 
 export interface TokenContextDependencies {
-  storage: IStorageStrategy;
+  storage: IStorage;
 }
 
 export interface ITokenContextStoreOptions {}
@@ -202,9 +203,8 @@ export interface ITokenContext {
   delete(): void;
 }
 
-export interface CombinedTokenContextDependencies {
-  storage: IStorageStrategy;
-  tempStorage: IStorageStrategy;
+export interface CombinedTokenContextDependencies extends TokenContextDependencies {
+  tempStorage: IStorage;
 }
 
 export interface ICombinedTokenContextStoreOptions extends ITokenContextStoreOptions {
@@ -418,7 +418,16 @@ export interface IStatSerialized {
   created: string;
 }
 
+export interface IInsightsSession {
+  startTime: Date;
+  endTime: Date;
+
+  start();
+  end();
+}
+
 export interface InsightsDependencies {
+  storage: IStorage;
   config: IConfig;
   client: IClient;
   logger: ILogger;

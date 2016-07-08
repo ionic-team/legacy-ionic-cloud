@@ -65,7 +65,7 @@ export class Push implements IPush {
 
   get token(): IPushToken {
     if (!this._token) {
-      this._token = new PushToken(this.storage.get('ionic_push_token').token);
+      this._token = new PushToken(this.storage.get('push_token').token);
     }
 
     return this._token;
@@ -73,9 +73,9 @@ export class Push implements IPush {
 
   set token(val: IPushToken) {
     if (!val) {
-      this.storage.delete('ionic_push_token');
+      this.storage.delete('push_token');
     } else {
-      this.storage.set('ionic_push_token', { 'token': val.token });
+      this.storage.set('push_token', { 'token': val.token });
     }
 
     this._token = val;

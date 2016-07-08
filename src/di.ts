@@ -63,8 +63,8 @@ export class Container {
 
   @cache
   get authTokenContext(): ICombinedTokenContext {
-    let label = 'ionic_auth_' + this.config.get('app_id');
-    return new CombinedAuthTokenContext({'storage': this.localStorageStrategy, 'tempStorage': this.sessionStorageStrategy}, label);
+    let label = 'auth_' + this.config.get('app_id');
+    return new CombinedAuthTokenContext({'storage': this.localStorage, 'tempStorage': this.sessionStorage}, label);
   }
 
   @cache
@@ -75,6 +75,7 @@ export class Container {
   @cache
   get insights(): IInsights {
     return new Insights({
+      'storage': this.localStorage,
       'config': this.config,
       'client': this.client,
       'logger': this.logger
@@ -104,13 +105,18 @@ export class Container {
   }
 
   @cache
-  get storage(): IStorage {
+  get localStorage(): IStorage {
     return new Storage({'strategy': this.localStorageStrategy});
   }
 
   @cache
+  get sessionStorage(): IStorage {
+    return new Storage({'strategy': this.sessionStorageStrategy});
+  }
+
+  @cache
   get userContext(): IUserContext {
-    return new UserContext({'storage': this.storage, 'config': this.config});
+    return new UserContext({'storage': this.localStorage, 'config': this.config});
   }
 
   @cache
@@ -153,7 +159,7 @@ export class Container {
       'device': this.device,
       'client': this.client,
       'emitter': this.eventEmitter,
-      'storage': this.storage,
+      'storage': this.localStorage,
       'logger': this.logger
     }, config.settings.push);
   }
