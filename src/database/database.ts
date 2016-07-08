@@ -1,19 +1,11 @@
 import * as Horizon from '@horizon/client';
+import { DBSettings } from '../definitions';
 
 
 enum AuthType {
   unauthenticated,
   anonymous,
   token
-}
-
-export interface DBSettings {
-  app_id: string;
-  lazyWrites?: boolean;
-  authType?: string;
-  host?: string;
-  secure?: boolean;
-  retries?: number;
 }
 
 interface HorizonSettings {

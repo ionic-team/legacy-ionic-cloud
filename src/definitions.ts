@@ -24,10 +24,20 @@ export interface ICoreSettings {
   urls?: any;
 }
 
+export interface DBSettings {
+  app_id: string;
+  lazyWrites?: boolean;
+  authType?: string;
+  host?: string;
+  secure?: boolean;
+  retries?: number;
+}
+
 export interface ISettings {
   core: ICoreSettings;
   push?: PushOptions;
   logger?: LoggerOptions;
+  database?: DBSettings;
 }
 
 export interface IConfig {
@@ -114,6 +124,7 @@ export interface CoreDependencies {
 
 export interface ICore {
   version: string;
+  init();
 }
 
 export interface UserContextDependencies {
