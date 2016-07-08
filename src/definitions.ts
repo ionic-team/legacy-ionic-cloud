@@ -67,9 +67,9 @@ export interface StorageOptions {
   cache?: boolean;
 }
 
-export interface IStorage {
-  get(key: string): any;
-  set(key: string, value: any): void;
+export interface IStorage<T> {
+  get(key: string): T;
+  set(key: string, value: T): void;
   delete(key: string): void;
 }
 
@@ -115,7 +115,7 @@ export interface ICore {
 
 export interface UserContextDependencies {
   config: IConfig;
-  storage: IStorage;
+  storage: IStorage<StoredUser>;
 }
 
 export interface IUserContext {
@@ -169,8 +169,8 @@ export interface IUser {
   unstore();
   save(): Promise<void>;
   delete(): Promise<void>;
-  serializeForAPI(): Object;
-  serializeForStorage(): Object;
+  serializeForAPI(): UserDetails;
+  serializeForStorage(): StoredUser;
 }
 
 export interface SingleUserServiceDependencies {
@@ -190,7 +190,7 @@ export interface ISingleUserService {
 }
 
 export interface TokenContextDependencies {
-  storage: IStorage;
+  storage: IStorage<string>;
 }
 
 export interface ITokenContextStoreOptions {}
@@ -204,7 +204,7 @@ export interface ITokenContext {
 }
 
 export interface CombinedTokenContextDependencies extends TokenContextDependencies {
-  tempStorage: IStorage;
+  tempStorage: IStorage<string>;
 }
 
 export interface ICombinedTokenContextStoreOptions extends ITokenContextStoreOptions {
@@ -312,6 +312,10 @@ export interface SaveTokenOptions {
   ignore_user?: boolean;
 }
 
+export interface PushStorageObject {
+  token: string;
+}
+
 export interface PushDependencies {
   config: IConfig;
   auth: IAuth;
@@ -319,7 +323,7 @@ export interface PushDependencies {
   device: IDevice;
   client: IClient;
   emitter: IEventEmitter;
-  storage: IStorage;
+  storage: IStorage<PushStorageObject>;
   logger: ILogger;
 }
 
@@ -427,7 +431,7 @@ export interface IInsightsSession {
 }
 
 export interface InsightsDependencies {
-  storage: IStorage;
+  storage: IStorage<string>;
   config: IConfig;
   client: IClient;
   logger: ILogger;

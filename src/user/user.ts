@@ -5,7 +5,7 @@ import { DataType } from './data-types';
 declare var Ionic: any;
 
 export class UserContext implements IUserContext {
-  private storage: IStorage;
+  private storage: IStorage<StoredUser>;
   private config: IConfig;
 
   constructor(deps: UserContextDependencies) {

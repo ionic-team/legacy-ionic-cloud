@@ -32,21 +32,19 @@ export class SessionStorageStrategy implements IStorageStrategy {
 
 }
 
-interface StorageCache {
-  [key: string]: any;
-}
-
-export class Storage implements IStorage {
+export class Storage<T> implements IStorage<T> {
 
   private strategy: IStorageStrategy;
-  private storageCache: StorageCache;
+  private storageCache: {
+    [key: string]: T;
+  };
 
   constructor(deps: StorageDependencies, public options: StorageOptions = {'prefix': 'ionic', 'cache': true}) {
     this.strategy = deps.strategy;
     this.storageCache = {};
   }
 
-  set(key: string, value: any): void {
+  set(key: string, value: T): void {
     key = this.standardizeKey(key);
     let json = JSON.stringify(value);
 
@@ -64,7 +62,7 @@ export class Storage implements IStorage {
     }
   }
 
-  get(key: string): any {
+  get(key: string): T {
     key = this.standardizeKey(key);
     if (this.options.cache) {
       let cached = this.storageCache[key];

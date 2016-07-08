@@ -1,4 +1,4 @@
-import { IConfig, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
+import { IConfig, StoredUser, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, PushStorageObject, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
 import { CombinedAuthTokenContext, Auth, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
 import { Client } from './client';
 import { Config } from './config';
@@ -64,7 +64,10 @@ export class Container {
   @cache
   get authTokenContext(): ICombinedTokenContext {
     let label = 'auth_' + this.config.get('app_id');
-    return new CombinedAuthTokenContext({'storage': this.localStorage, 'tempStorage': this.sessionStorage}, label);
+    return new CombinedAuthTokenContext({
+      'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
+      'tempStorage': new Storage<string>({'strategy': this.sessionStorageStrategy})
+    }, label);
   }
 
   @cache
@@ -75,7 +78,7 @@ export class Container {
   @cache
   get insights(): IInsights {
     return new Insights({
-      'storage': this.localStorage,
+      'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
       'config': this.config,
       'client': this.client,
       'logger': this.logger
@@ -105,18 +108,8 @@ export class Container {
   }
 
   @cache
-  get localStorage(): IStorage {
-    return new Storage({'strategy': this.localStorageStrategy});
-  }
-
-  @cache
-  get sessionStorage(): IStorage {
-    return new Storage({'strategy': this.sessionStorageStrategy});
-  }
-
-  @cache
   get userContext(): IUserContext {
-    return new UserContext({'storage': this.localStorage, 'config': this.config});
+    return new UserContext({'storage': new Storage<StoredUser>({'strategy': this.localStorageStrategy}), 'config': this.config});
   }
 
   @cache
@@ -159,7 +152,7 @@ export class Container {
       'device': this.device,
       'client': this.client,
       'emitter': this.eventEmitter,
-      'storage': this.localStorage,
+      'storage': new Storage<PushStorageObject>({'strategy': this.localStorageStrategy}),
       'logger': this.logger
     }, config.settings.push);
   }

@@ -1,4 +1,4 @@
-import { IConfig, IAuth, ISingleUserService, IDevice, IClient, IEventEmitter, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
+import { IConfig, IAuth, ISingleUserService, IDevice, IClient, IEventEmitter, PushStorageObject, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
 import { DeferredPromise } from '../promise';
 
 import { PushToken } from './token';
@@ -23,7 +23,7 @@ export class Push implements IPush {
   private device: IDevice;
   private client: IClient;
   private emitter: IEventEmitter;
-  private storage: IStorage;
+  private storage: IStorage<PushStorageObject>;
   private logger: ILogger;
 
   private blockRegistration: boolean = false;
