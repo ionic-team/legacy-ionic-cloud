@@ -57,13 +57,13 @@ gulp.task('build-es5-ts', function() {
 });
 
 gulp.task('watch-es5', ['build-es5'], function() {
-  gulp.watch(['src/**/*.ts'], ['build-es5']);
+  gulp.watch(['src/**'], ['build-es5']);
 });
 
 gulp.task('build-es5-bundle', ['build-es5-bundle-min']);
 
 gulp.task('watch-es5-bundle', ['build-es5-bundle'], function() {
-  gulp.watch(['src/**/*.ts'], ['build-es5-bundle']);
+  gulp.watch(['src/**'], ['build-es5-bundle']);
 });
 
 gulp.task('build-es5-bundle-src', ['build-es5'], function() {
