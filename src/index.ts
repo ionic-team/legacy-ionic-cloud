@@ -7,6 +7,7 @@ export { Cordova } from './cordova';
 export { Core } from './core';
 export { Deploy } from './deploy/deploy';
 export { Device } from './device';
+export { Database, DBSettings } from './database/database';
 export { Container as DIContainer } from './di';
 export { EventEmitter } from './events';
 export { Insights } from './insights';
