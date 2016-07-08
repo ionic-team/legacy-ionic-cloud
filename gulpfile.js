@@ -73,7 +73,13 @@ gulp.task('build-es5-bundle-src', ['build-es5'], function() {
     "dist/es5/index.js"
   ];
 
-  fs.mkdirSync("dist/bundle");
+  try {
+    fs.mkdirSync("dist/bundle");
+  } catch (e) {
+    if (e.code !== 'EEXIST') {
+      throw e;
+    }
+  }
 
   return browserify(bundleFiles, { "debug": true })
     .bundle()
