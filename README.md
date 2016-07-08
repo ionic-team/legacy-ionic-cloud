@@ -3,15 +3,19 @@
 # Ionic Cloud Client
 
 The client for using the Ionic Cloud (powerful user & social authentication,
-native push notifications, live deploys, etc.) in your app. Check out [our docs](http://docs.ionic.io/docs/io-introduction).
+native push notifications, live deploys, etc.) in your app. Check out [our
+docs](http://docs.ionic.io/docs/io-introduction).
 
 ## Ionic 2
 
-For Ionic 2, we recommend using the [Angular 2 wrapper for the Cloud Client](https://github.com/driftyco/ionic-cloud-angular).
+For Ionic 2, we recommend using the [Angular 2 wrapper for the Cloud
+Client](https://github.com/driftyco/ionic-cloud-angular).
 
 ## Ionic 1
 
-Coming from `ionic-platform-web-client`? Things have changed! See our [migration guide](https://github.com/driftyco/ionic-cloud/wiki/Migration-Guide).
+Coming from `ionic-platform-web-client`? Things have changed! See our
+[migration
+guide](https://github.com/driftyco/ionic-cloud/wiki/Migration-Guide).
 
 ### Installation
 
@@ -32,7 +36,7 @@ Include it in your `index.html`.
 <script src="lib/ionic-cloud.min.js"></script>
 ```
 
-Enter your `app_id` (required) and `gcm_key` (if using Ionic Push).
+Enter your `app_id`.
 
 ```javascript
 angular.module('myapp', ['ionic', 'ionic.cloud'])
@@ -40,8 +44,7 @@ angular.module('myapp', ['ionic', 'ionic.cloud'])
 .config(function($ionicCloudProvider) {
   $ionicCloudProvider.init({
     "core": {
-      "app_id": "YOUR-APP-ID",
-      "gcm_key": "123456789" // GCM Project ID
+      "app_id": "YOUR-APP-ID"
     }
   });
 })
