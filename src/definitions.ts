@@ -352,7 +352,7 @@ export interface PushPluginConfig {
 }
 
 export interface PushOptions {
-  gcm_key?: string;
+  sender_id?: string;
   debug?: boolean;
   pluginConfig?: PushPluginConfig;
 }

@@ -47,7 +47,7 @@ export class Push implements IPush {
     this.logger = deps.logger;
 
     // Check for the required values to use this service
-    if (this.device.isAndroid() && !this.options.gcm_key) {
+    if (this.device.isAndroid() && !this.options.sender_id) {
       this.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
       return;
     }
@@ -57,7 +57,7 @@ export class Push implements IPush {
     if (this.device.isAndroid()) {
       // inject gcm key for PushPlugin
       if (!options.pluginConfig.android) { options.pluginConfig.android = {}; }
-      if (!options.pluginConfig.android.senderID) { options.pluginConfig.android.senderID = this.options.gcm_key; }
+      if (!options.pluginConfig.android.senderID) { options.pluginConfig.android.senderID = this.options.sender_id; }
     }
 
     this.options = options;
