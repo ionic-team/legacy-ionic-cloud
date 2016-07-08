@@ -114,6 +114,8 @@ export interface CoreDependencies {
 
 export interface ICore {
   version: string;
+
+  init(): void;
 }
 
 export interface UserContextDependencies {

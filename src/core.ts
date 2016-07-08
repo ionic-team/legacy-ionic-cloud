@@ -19,7 +19,7 @@ export class Core implements ICore {
     this.insights = deps.insights;
   }
 
-  public init() {
+  public init(): void {
     this.registerEventHandlers();
     this.onResume();
   }
