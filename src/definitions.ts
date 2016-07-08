@@ -91,6 +91,7 @@ export interface IDevice {
 }
 
 export interface CordovaDependencies {
+  appStatus: IAppStatus;
   device: IDevice;
   emitter: IEventEmitter;
   logger: ILogger;
@@ -99,6 +100,8 @@ export interface CordovaDependencies {
 export interface CordovaOptions {}
 
 export interface ICordova {
+  app: IAppStatus;
+
   bootstrap(): void;
 }
 
@@ -422,15 +425,8 @@ export interface IStatSerialized {
   created: string;
 }
 
-export interface IInsightsSession {
-  startTime: Date;
-  endTime: Date;
-
-  start();
-  end();
-}
-
 export interface InsightsDependencies {
+  appStatus: IAppStatus;
   storage: IStorage<string>;
   config: IConfig;
   client: IClient;
@@ -439,11 +435,10 @@ export interface InsightsDependencies {
 
 export interface InsightsOptions {
   intervalSubmit?: number;
+  intervalActiveCheck?: number;
   submitCount?: number;
 }
 
 export interface IInsights {
-  submitCount: number;
-
   track(stat: string, value?: number): void;
 }

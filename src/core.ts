@@ -17,17 +17,24 @@ export class Core implements ICore {
     this.logger = deps.logger;
     this.emitter = deps.emitter;
     this.insights = deps.insights;
+  }
+
+  public init() {
     this.registerEventHandlers();
-    this.insights.track('mobileapp.opened');
+    this.onResume();
   }
 
   public get version(): string {
     return this._version;
   }
 
+  private onResume(): void {
+    this.insights.track('mobileapp.opened');
+  }
+
   private registerEventHandlers(): void {
-    this.emitter.on('cordova:resume', (data) => {
-      this.insights.track('mobileapp.opened');
+    this.emitter.on('cordova:resume', () => {
+      this.onResume();
     });
 
     this.emitter.on('push:notification', (data: IPushNotificationEvent) => {
@@ -36,4 +43,5 @@ export class Core implements ICore {
       }
     });
   }
+
 }

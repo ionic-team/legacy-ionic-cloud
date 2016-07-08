@@ -1,4 +1,4 @@
-import { IConfig, StoredUser, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, PushStorageObject, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
+import { IAppStatus, IConfig, StoredUser, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, PushStorageObject, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
 import { CombinedAuthTokenContext, Auth, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
 import { Client } from './client';
 import { Config } from './config';
@@ -35,6 +35,11 @@ function cache<T>(target: any, propertyKey: string, descriptor: TypedPropertyDes
 }
 
 export class Container {
+
+  @cache
+  get appStatus(): IAppStatus {
+    return {'asleep': false, 'closed': false};
+  }
 
   @cache
   get config(): IConfig {
@@ -78,12 +83,11 @@ export class Container {
   @cache
   get insights(): IInsights {
     return new Insights({
+      'appStatus': this.appStatus,
       'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
       'config': this.config,
       'client': this.client,
       'logger': this.logger
-    }, {
-      'intervalSubmit': 60 * 1000
     });
   }
 
@@ -104,7 +108,12 @@ export class Container {
 
   @cache
   get cordova(): ICordova {
-    return new Cordova({'device': this.device, 'emitter': this.eventEmitter, 'logger': this.logger});
+    return new Cordova({
+      'appStatus': this.appStatus,
+      'device': this.device,
+      'emitter': this.eventEmitter,
+      'logger': this.logger
+    });
   }
 
   @cache

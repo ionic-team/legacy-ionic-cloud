@@ -3,6 +3,7 @@
 if (typeof angular === 'object' && angular.module) {
 
   angular.element(document).ready(function() {
+    Ionic.core.init();
     Ionic.cordova.bootstrap();
   });
 

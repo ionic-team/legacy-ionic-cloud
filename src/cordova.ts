@@ -1,17 +1,20 @@
-import { CordovaDependencies, CordovaOptions, ICordova, ILogger, IDevice, IEventEmitter } from './definitions';
+import { CordovaDependencies, CordovaOptions, IAppStatus, ICordova, ILogger, IDevice, IEventEmitter } from './definitions';
 
 declare var cordova: any;
 
 export class Cordova implements ICordova {
 
+  public app: IAppStatus;
   private device: IDevice;
   private emitter: IEventEmitter;
   private logger: ILogger;
 
   constructor(deps: CordovaDependencies, protected options: CordovaOptions = {}) {
+    this.app = deps.appStatus;
     this.device = deps.device;
     this.emitter = deps.emitter;
     this.logger = deps.logger;
+    this.registerEventHandlers();
   }
 
   public bootstrap(): void {
@@ -28,6 +31,16 @@ export class Cordova implements ICordova {
     }, false);
 
     this.load();
+  }
+
+  private registerEventHandlers(): void {
+    this.emitter.on('cordova:pause', () => {
+      this.app.closed = true;
+    });
+
+    this.emitter.on('cordova:resume', () => {
+      this.app.closed = false;
+    });
   }
 
   private load(): void {

@@ -1,4 +1,14 @@
-import { InsightsDependencies, InsightsOptions, IInsights, IConfig, IClient, ILogger, IStatSerialized } from './definitions';
+import {
+  IAppStatus,
+  IClient,
+  IConfig,
+  IInsights,
+  ILogger,
+  IStatSerialized,
+  IStorage,
+  InsightsDependencies,
+  InsightsOptions,
+} from './definitions';
 
 export class Stat {
   public created: Date;
@@ -22,34 +32,62 @@ export class Stat {
 
 export class Insights implements IInsights {
 
-  public static SUBMIT_COUNT = 100;
-  public submitCount = Insights.SUBMIT_COUNT;
-
+  private app: IAppStatus;
+  private storage: IStorage<string>;
   private config: IConfig;
   private client: IClient;
   private logger: ILogger;
 
   private batch: Stat[];
 
-  constructor(deps: InsightsDependencies, public options: InsightsOptions = {}) {
+  constructor(
+    deps: InsightsDependencies,
+    public options: InsightsOptions = {
+      'intervalSubmit': 60 * 1000,
+      'intervalActiveCheck': 1000,
+      'submitCount': 100
+    }
+  ) {
+    this.app = deps.appStatus;
+    this.storage = deps.storage;
     this.config = deps.config;
     this.client = deps.client;
     this.logger = deps.logger;
     this.batch = [];
 
-    if (options.intervalSubmit) {
-      setInterval(() => {
-        this.submit();
-      }, options.intervalSubmit);
-    }
+    setInterval(() => {
+      this.submit();
+    }, this.options.intervalSubmit);
 
-    if (options.submitCount) {
-      this.submitCount = options.submitCount;
-    }
+    setInterval(() => {
+      if (!this.app.closed) {
+        this.checkActivity();
+      }
+    }, this.options.intervalActiveCheck);
   }
 
   track(stat: string, value: number = 1): void {
     this.trackStat(new Stat(this.config.get('app_id'), stat, value));
+  }
+
+  protected checkActivity() {
+    let session = this.storage.get('insights_session');
+
+    if (!session) {
+      this.markActive();
+    } else {
+      let d = new Date(session);
+      let hour = 60 * 60 * 1000;
+
+      if (d.getTime() + hour < new Date().getTime()) {
+        this.markActive();
+      }
+    }
+  }
+
+  protected markActive() {
+    this.storage.set('insights_session', new Date().toISOString());
+    this.track('mobileapp.active');
   }
 
   protected trackStat(stat: Stat): void {
@@ -61,7 +99,7 @@ export class Insights implements IInsights {
   }
 
   protected shouldSubmit(): boolean {
-    return this.batch.length >= this.submitCount;
+    return this.batch.length >= this.options.submitCount;
   }
 
   protected submit() {
