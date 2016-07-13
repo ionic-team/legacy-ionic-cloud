@@ -54,14 +54,6 @@ export class CombinedAuthTokenContext implements ICombinedTokenContext {
   }
 }
 
-function getAuthErrorDetails(err) {
-  var details = [];
-  try {
-    details = err.response.body.error.details;
-  } catch (e) { e; }
-  return details;
-}
-
 export class Auth implements IAuth {
 
   private emitter: IEventEmitter;
@@ -130,6 +122,24 @@ export class Auth implements IAuth {
     this.authToken = token;
     this.tokenContext.store(this.authToken, {'permanent': options.remember});
     this.emitter.emit('auth:token-changed', {'old': originalToken, 'new': this.authToken});
+  }
+
+  static getDetailedErrorFromResponse(res): DetailedError<string[]> {
+    let errors = [];
+    let details = [];
+
+    try {
+      details = res.body.error.details;
+    } catch (e) {}
+
+    for (let i = 0; i < details.length; i++) {
+      let detail = details[i];
+      if (detail.error_type) {
+        errors.push(detail.error_type + '_' + detail.parameter);
+      }
+    }
+
+    return new DetailedError<string[]>('Error creating user', errors);
   }
 
 }
@@ -234,19 +244,7 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
       .send(userData)
       .end((err, res) => {
         if (err) {
-          var errors = [];
-          var details = getAuthErrorDetails(err);
-          if (details instanceof Array) {
-            for (var i = 0; i < details.length; i++) {
-              var detail = details[i];
-              if (typeof detail === 'object') {
-                if (detail.error_type) {
-                  errors.push(detail.error_type + '_' + detail.parameter);
-                }
-              }
-            }
-          }
-          deferred.reject(new DetailedError('Error creating user', errors));
+          deferred.reject(Auth.getDetailedErrorFromResponse(err.response));
         } else {
           deferred.resolve();
         }
