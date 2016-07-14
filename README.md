@@ -33,7 +33,7 @@ $ cp node_modules/@ionic/cloud/dist/bundle/ionic.cloud.min.js www/lib
 Include it in your `index.html`.
 
 ```html
-<script src="lib/ionic-cloud.min.js"></script>
+<script src="lib/ionic.cloud.min.js"></script>
 ```
 
 Enter your `app_id`.
