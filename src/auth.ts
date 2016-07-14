@@ -174,22 +174,41 @@ export abstract class AuthType implements IAuthType {
           if (err) {
             deferred.reject(err);
           } else {
-            var loc = res.body.data.url;
-            var tempBrowser = window.cordova.InAppBrowser.open(loc, '_blank', 'location=no,clearcache=yes,clearsessioncache=yes');
-            tempBrowser.addEventListener('loadstart', function(data) {
+            let w = window.cordova.InAppBrowser.open(
+              res.body.data.url,
+              '_blank',
+              'location=no,clearcache=yes,clearsessioncache=yes'
+            );
+
+            let onExit = () => {
+              deferred.reject(new Error('InAppBrowser exit'));
+            };
+
+            let onLoadError = () => {
+              deferred.reject(new Error('InAppBrowser loaderror'));
+            };
+
+            let onLoadStart = (data) => {
               if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-                var queryString = data.url.split('#')[0].split('?')[1];
-                var paramParts = queryString.split('&');
-                var params: any = {};
-                for (var i = 0; i < paramParts.length; i++) {
-                  var part = paramParts[i].split('=');
+                let queryString = data.url.split('#')[0].split('?')[1];
+                let paramParts = queryString.split('&');
+                let params = {};
+                for (let i = 0; i < paramParts.length; i++) {
+                  let part = paramParts[i].split('=');
                   params[part[0]] = part[1];
                 }
-                tempBrowser.close();
-                tempBrowser = null;
-                deferred.resolve(params.token);
+                w.removeEventListener('exit', onExit);
+                w.removeEventListener('loaderror', onLoadError);
+                w.close();
+                deferred.resolve(params['token']);
+              } else {
+                deferred.reject(new Error('Unexpected url in API response'));
               }
-            });
+            };
+
+            w.addEventListener('exit', onExit);
+            w.addEventListener('loaderror', onLoadError);
+            w.addEventListener('loadstart', onLoadStart);
           }
         });
     }
