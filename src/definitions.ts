@@ -228,7 +228,7 @@ export interface AuthTypeDependencies {
 }
 
 export interface IAuthType {
-  authenticate(data): Promise<any>;
+  authenticate(data, options?: LoginOptions): Promise<any>;
 }
 
 export interface BasicLoginCredentials {
@@ -253,6 +253,7 @@ export interface IAuthModules {
 
 export interface LoginOptions {
   remember?: boolean;
+  inAppBrowserOptions?: InAppBrowserPluginOptions;
 }
 
 export interface AuthDependencies {
@@ -351,6 +352,27 @@ export interface PushPluginConfig {
     clearBadge?: boolean | string;
     categories?: any;
   };
+}
+
+export interface InAppBrowserPluginOptions {
+  location?: boolean;
+  hidden?: boolean;
+  clearcache?: boolean;
+  clearsessioncache?: boolean;
+  zoom?: boolean;
+  hardwareback?: boolean;
+  mediaPlaybackRequiresUserAction?: boolean;
+  closebuttoncaption?: string;
+  disallowoverscroll?: boolean;
+  toolbar?: boolean;
+  enableViewportScale?: boolean;
+  allowInlineMediaPlayback?: boolean;
+  keyboardDisplayRequiresUserAction?: boolean;
+  suppressesIncrementalRendering?: boolean;
+  presentationstyle?: "pagesheet" | "formsheet" | "fullscreen";
+  transitionstyle?: "fliphorizontal" | "crossdissolve" | "coververtical";
+  toolbarposition?: "top" | "bottom";
+  fullscreen?: boolean;
 }
 
 export interface PushOptions {
