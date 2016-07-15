@@ -1,9 +1,10 @@
-import { IAppStatus, IConfig, StoredUser, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, PushStorageObject, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
+import { IAppStatus, IConfig, StoredUser, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, PushStorageObject, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights, IDatabase } from './definitions';
 import { CombinedAuthTokenContext, Auth, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
 import { Client } from './client';
 import { Config } from './config';
 import { Cordova } from './cordova';
 import { Core } from './core';
+import { Database } from './database/database';
 import { Deploy } from './deploy/deploy';
 import { Device } from './device';
 import { EventEmitter } from './events';
@@ -173,6 +174,16 @@ export class Container {
       'emitter': this.eventEmitter,
       'logger': this.logger
     });
+  }
+
+  @cache
+  get database(): IDatabase {
+    return new Database({
+      'config': this.config,
+      'client': this.client,
+      'storage': new Storage<any>({'strategy': this.localStorageStrategy}, {'prefix': ""}),
+      'emitter': this.eventEmitter
+    }, this.config.settings.database);
   }
 
 }

@@ -25,9 +25,8 @@ export interface ICoreSettings {
 }
 
 export interface DBSettings {
-  app_id: string;
   lazyWrites?: boolean;
-  authType?: string;
+  authType?: "anonymous" | "ionic" | "unauthenticated" | "token";
   host?: string;
   secure?: boolean;
   retries?: number;
@@ -234,6 +233,18 @@ export type AuthModuleId = 'basic' | 'custom' | 'facebook' | 'github' | 'google'
 export interface AuthTypeDependencies {
   config: IConfig;
   client: IClient;
+}
+
+export interface DBDependencies {
+  config: IConfig;
+  client: IClient;
+  storage: IStorage<any>;
+  emitter: IEventEmitter;
+}
+
+export interface IDatabase {
+  horizon:any;
+  connect():IDatabase;
 }
 
 export interface IAuthType {
