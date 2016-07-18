@@ -22,6 +22,7 @@ export class Database {
   private storage: IStorage<string>;
   private _curr_retry: number;
   private _hz_settings: HorizonSettings;
+  private _retrying: boolean;
   horizon: any;
 
   constructor(deps: DBDependencies, private settings: DBSettings ) {
@@ -61,12 +62,13 @@ export class Database {
         if(err){
            throw err; 
         }else{
-          console.log(res);
           this.storage.set('horizon-jwt', res.body.data);
+          this._retrying = false;
           this.horizon.connect();
         }
       });
     }else{
+      this._retrying = false;
       this.horizon.connect();
     }
     return;
@@ -74,17 +76,19 @@ export class Database {
 
   private _registerListeners(): void {
     this.horizon.onReady( () => {
-      console.log('connected to horizon');
       this._curr_retry = 0;
       this.emitter.emit('db:connected', this.horizon);
     });
 
     this.horizon.onDisconnected( () => {
-      this._reconnect();
+      if(!this._retrying){
+        this._reconnect();
+      }
     });
   }
 
   private _reconnect(): void {
+      this._retrying = true;
       this._curr_retry++;
       let shouldRetry = this._curr_retry <= this.settings.retries;
       let message = '';
@@ -92,16 +96,20 @@ export class Database {
       let delay = 0;
       if(!shouldRetry){
         message = 'Retry Limit Reached. Failed to connect to DB.';
-        this.emitter.emit('db:connection-failed', this.horizon);
+        this.emitter.emit('db:connection-failed',
+          {'message': message,
+           'retrying': false
+          }
+        );
       }else{
         remain = this.settings.retries - this._curr_retry;
         message = 'Retrying connection. Remaining attempts: ' + remain;
-        delay = 1000;// * Math.pow(2, this._curr_retry);
+        delay = 50 * Math.pow(2, this._curr_retry);
         this.emitter.emit('db:disconnected',
-          { retrying: shouldRetry,
-            message: message,
+          { 'retrying': shouldRetry,
+            'message': message,
             'attempts-remaining': remain,
-            delay: delay
+            'delay': delay
           }
         );
         setTimeout( () => {
