@@ -1,0 +1,3 @@
+tests:
+    override:
+        gulp test
