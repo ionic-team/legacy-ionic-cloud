@@ -1,4 +1,12 @@
-import { CordovaDependencies, CordovaOptions, IAppStatus, ICordova, ILogger, IDevice, IEventEmitter } from './definitions';
+import {
+  CordovaDependencies,
+  CordovaOptions,
+  IAppStatus,
+  ICordova,
+  IDevice,
+  IEventEmitter,
+  ILogger
+} from './definitions';
 
 declare var cordova: any;
 

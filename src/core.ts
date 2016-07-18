@@ -1,4 +1,13 @@
-import { CoreDependencies, ICore, IConfig, ISettings, ILogger, IEventEmitter, IInsights, IPushNotificationEvent } from './definitions';
+import {
+  CoreDependencies,
+  IConfig,
+  ICore,
+  IEventEmitter,
+  IInsights,
+  ILogger,
+  IPushNotificationEvent,
+  ISettings
+} from './definitions';
 
 export class Core implements ICore {
 

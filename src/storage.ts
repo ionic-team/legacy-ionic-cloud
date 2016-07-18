@@ -1,4 +1,9 @@
-import { StorageOptions, StorageDependencies, IStorage, IStorageStrategy } from './definitions';
+import {
+  IStorage,
+  IStorageStrategy,
+  StorageDependencies,
+  StorageOptions
+} from './definitions';
 
 export class LocalStorageStrategy implements IStorageStrategy {
 

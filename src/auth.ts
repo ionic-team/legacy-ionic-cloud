@@ -1,4 +1,29 @@
-import { IConfig, IClient, IEventEmitter, TokenContextDependencies, CombinedTokenContextDependencies, ITokenContext, ICombinedTokenContext, ICombinedTokenContextStoreOptions, IStorage, ISingleUserService, AuthModuleId, LoginOptions, AuthDependencies, AuthOptions, IAuth, IUser, AuthTypeDependencies, IAuthType, UserDetails, BasicLoginCredentials, IBasicAuthType, IAuthModules, InAppBrowserPluginOptions } from './definitions';
+import {
+  AuthDependencies,
+  AuthModuleId,
+  AuthOptions,
+  AuthTypeDependencies,
+  BasicLoginCredentials,
+  CombinedTokenContextDependencies,
+  IAuth,
+  IAuthModules,
+  IAuthType,
+  IBasicAuthType,
+  IClient,
+  ICombinedTokenContext,
+  ICombinedTokenContextStoreOptions,
+  IConfig,
+  IEventEmitter,
+  ISingleUserService,
+  IStorage,
+  ITokenContext,
+  IUser,
+  InAppBrowserPluginOptions,
+  LoginOptions,
+  TokenContextDependencies,
+  UserDetails
+} from './definitions';
+
 import { DetailedError } from './errors';
 import { DeferredPromise } from './promise';
 

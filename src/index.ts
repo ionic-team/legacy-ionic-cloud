@@ -1,6 +1,18 @@
 export * from './definitions';
 
-export { Auth, AuthType, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
+export {
+  Auth,
+  AuthType,
+  BasicAuth,
+  CustomAuth,
+  FacebookAuth,
+  GithubAuth,
+  GoogleAuth,
+  InstagramAuth,
+  LinkedInAuth,
+  TwitterAuth
+} from './auth';
+
 export { Client } from './client';
 export { Config } from './config';
 export { Cordova } from './cordova';

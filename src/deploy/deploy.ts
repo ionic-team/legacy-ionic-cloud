@@ -1,4 +1,17 @@
-import { IConfig, IEventEmitter, ILogger, DeployChannel, IDeploy, DeployWatchOptions, DeployDownloadOptions, DeployExtractOptions, DeployUpdateOptions, DeployDependencies, DeployOptions } from '../definitions';
+import {
+  DeployChannel,
+  DeployDependencies,
+  DeployDownloadOptions,
+  DeployExtractOptions,
+  DeployOptions,
+  DeployUpdateOptions,
+  DeployWatchOptions,
+  IConfig,
+  IDeploy,
+  IEventEmitter,
+  ILogger
+} from '../definitions';
+
 import { DeferredPromise } from '../promise';
 
 declare var window: any;

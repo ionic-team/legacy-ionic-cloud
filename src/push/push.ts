@@ -1,4 +1,22 @@
-import { IConfig, IAuth, ISingleUserService, IDevice, IClient, IEventEmitter, PushStorageObject, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
+import {
+  IAuth,
+  IClient,
+  IConfig,
+  IDevice,
+  IEventEmitter,
+  ILogger,
+  IPluginNotification,
+  IPluginRegistration,
+  IPush,
+  IPushToken,
+  ISingleUserService,
+  IStorage,
+  PushDependencies,
+  PushOptions,
+  PushStorageObject,
+  SaveTokenOptions
+} from '../definitions';
+
 import { DeferredPromise } from '../promise';
 
 import { PushToken } from './token';

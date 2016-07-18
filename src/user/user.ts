@@ -1,4 +1,19 @@
-import { IConfig, IClient, IStorage, UserContextDependencies, IUserContext, IUserData, UserDetails, StoredUser, UserDependencies, IUser, SingleUserServiceDependencies, SingleUserServiceOptions, ISingleUserService } from '../definitions';
+import {
+  IClient,
+  IConfig,
+  ISingleUserService,
+  IStorage,
+  IUser,
+  IUserContext,
+  IUserData,
+  SingleUserServiceDependencies,
+  SingleUserServiceOptions,
+  StoredUser,
+  UserContextDependencies,
+  UserDependencies,
+  UserDetails
+} from '../definitions';
+
 import { DeferredPromise } from '../promise';
 import { DataType } from './data-types';
 

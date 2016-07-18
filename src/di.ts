@@ -1,5 +1,38 @@
-import { IAppStatus, IConfig, StoredUser, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, PushStorageObject, IClient, ICore, IDevice, ICordova, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
-import { CombinedAuthTokenContext, Auth, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
+import {
+  IAppStatus,
+  IAuth,
+  IAuthModules,
+  IClient,
+  ICombinedTokenContext,
+  IConfig,
+  ICordova,
+  ICore,
+  IDeploy,
+  IDevice,
+  IEventEmitter,
+  IInsights,
+  ILogger,
+  IPush,
+  ISingleUserService,
+  IStorageStrategy,
+  IUserContext,
+  PushStorageObject,
+  StoredUser
+} from './definitions';
+
+import {
+  Auth,
+  BasicAuth,
+  CombinedAuthTokenContext,
+  CustomAuth,
+  FacebookAuth,
+  GithubAuth,
+  GoogleAuth,
+  InstagramAuth,
+  LinkedInAuth,
+  TwitterAuth
+} from './auth';
+
 import { Client } from './client';
 import { Config } from './config';
 import { Cordova } from './cordova';

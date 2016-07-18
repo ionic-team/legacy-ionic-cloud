@@ -7,7 +7,7 @@ import {
   IStatSerialized,
   IStorage,
   InsightsDependencies,
-  InsightsOptions,
+  InsightsOptions
 } from './definitions';
 
 export class Stat {
