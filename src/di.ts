@@ -1,4 +1,4 @@
-import { IAppStatus, IConfig, StoredUser, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, PushStorageObject, IClient, ICore, IDevice, ICordova, IStorage, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
+import { IAppStatus, IConfig, StoredUser, IUserContext, IEventEmitter, ILogger, ICombinedTokenContext, IStorageStrategy, PushStorageObject, IClient, ICore, IDevice, ICordova, ISingleUserService, IAuthModules, IAuth, IPush, IDeploy, IInsights } from './definitions';
 import { CombinedAuthTokenContext, Auth, BasicAuth, CustomAuth, TwitterAuth, FacebookAuth, GithubAuth, GoogleAuth, InstagramAuth, LinkedInAuth } from './auth';
 import { Client } from './client';
 import { Config } from './config';

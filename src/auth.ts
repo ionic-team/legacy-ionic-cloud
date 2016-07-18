@@ -126,6 +126,16 @@ export class Auth implements IAuth {
     return context.signup.apply(context, [data]);
   }
 
+  requestPasswordReset(email: string): Promise<void> {
+    let context = this.authModules.basic;
+    return context.requestPasswordReset(email);
+  }
+
+  confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void> {
+    let context = this.authModules.basic;
+    return context.confirmPasswordReset(email, code, newPassword);
+  }
+
   logout(): void {
     this.tokenContext.delete();
     let user = this.userService.current();
@@ -282,6 +292,52 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
         });
     }
 
+    return deferred.promise;
+  }
+
+  requestPasswordReset(email: string): Promise<void> {
+    var deferred = new DeferredPromise<void, Error>();
+
+    if (!email) {
+      deferred.reject(new Error('Email is required for password reset request.'));
+    } else {
+      this.client.post('/users/password/reset')
+          .send({
+            'app_id': this.config.get('app_id'),
+            'email': email,
+            'cloud_client': true
+          })
+          .end((err, res) => {
+            if (err) {
+              deferred.reject(err);
+            } else {
+              deferred.resolve();
+            }
+          });
+    }
+    return deferred.promise;
+  }
+
+  confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void> {
+    var deferred = new DeferredPromise<void, Error>();
+
+    if (!code || !email || !newPassword) {
+        deferred.reject(new Error('Code, new password, and email are required.'));
+    } else {
+      this.client.post('/users/password')
+          .send({
+            'reset_token': code,
+            'new_password': newPassword,
+            'email': email
+          })
+          .end((err, res) => {
+            if (err) {
+              deferred.reject(err);
+            } else {
+              deferred.resolve();
+            }
+          });
+    }
     return deferred.promise;
   }
 
