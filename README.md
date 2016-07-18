@@ -1,4 +1,5 @@
 [![npm](https://img.shields.io/npm/v/@ionic/cloud.svg?maxAge=2592000)](https://www.npmjs.com/package/@ionic/cloud)
+[![CircleCI](https://circleci.com/gh/driftyco/ionic-cloud.svg?style=svg)](https://circleci.com/gh/driftyco/ionic-cloud)
 
 # Ionic Cloud Client
 
