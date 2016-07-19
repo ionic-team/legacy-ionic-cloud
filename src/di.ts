@@ -67,6 +67,9 @@ function cache<T>(target: any, propertyKey: string, descriptor: TypedPropertyDes
   descriptor.set = (value: T) => {};
 }
 
+/**
+ * @private
+ */
 export class Container {
 
   @cache

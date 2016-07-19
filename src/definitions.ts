@@ -79,6 +79,10 @@ export interface IStorageStrategy {
   delete(key: string): void;
 }
 
+export interface DeviceIsConnectedToNetworkOptions {
+  strictMode?: boolean;
+}
+
 export interface DeviceDependencies {
   emitter: IEventEmitter;
 }
@@ -270,11 +274,13 @@ export interface AuthOptions {}
 export interface IAuth {
   options: AuthOptions;
   isAuthenticated(): boolean;
-  login(moduleId: AuthModuleId, options: LoginOptions, data): Promise<IUser>;
+  login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: LoginOptions): Promise<IUser>;
+  login(moduleId: 'custom', credentials: Object, options?: LoginOptions): Promise<IUser>;
+  login(moduleId: AuthModuleId, credentials?: Object, options?: LoginOptions): Promise<IUser>;
   logout(): void;
   signup(data: UserDetails): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;
-  confirmPasswordReset(email: string, code: number, new_password: string): Promise<void>;
+  confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void>;
 }
 
 export interface IAppStatus {

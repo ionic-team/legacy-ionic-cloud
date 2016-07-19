@@ -1,12 +1,16 @@
-import { DeviceDependencies, IDevice, IEventEmitter } from './definitions';
+import {
+  DeviceDependencies,
+  DeviceIsConnectedToNetworkOptions,
+  IDevice,
+  IEventEmitter
+} from './definitions';
 
 declare var Connection: any;
 declare var navigator: any;
 
-export interface DeviceIsConnectedToNetworkOptions {
-  strictMode?: boolean;
-}
-
+/**
+ * @private
+ */
 export class Device implements IDevice {
 
   public deviceType: string;
@@ -28,18 +32,10 @@ export class Device implements IDevice {
     }
   }
 
-  /**
-   * Check if the device is an Android device
-   * @return {boolean} True if Android, false otherwise
-   */
   public isAndroid(): boolean {
     return this.deviceType === 'android';
   }
 
-  /**
-   * Check if the device is an iOS device
-   * @return {boolean} True if iOS, false otherwise
-   */
   public isIOS(): boolean {
     return this.deviceType === 'iphone' || this.deviceType === 'ipad';
   }
@@ -68,10 +64,6 @@ export class Device implements IDevice {
     }
   }
 
-  /**
-   * Determine the device type via the user agent string
-   * @return {string} name of device platform or 'unknown' if unable to identify the device
-   */
   private determineDeviceType(): string {
     var agent = navigator.userAgent;
 

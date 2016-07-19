@@ -5,6 +5,9 @@ import {
   StorageOptions
 } from './definitions';
 
+/**
+ * @private
+ */
 export class LocalStorageStrategy implements IStorageStrategy {
 
   get(key: string): string {
@@ -21,6 +24,9 @@ export class LocalStorageStrategy implements IStorageStrategy {
 
 }
 
+/**
+ * @private
+ */
 export class SessionStorageStrategy implements IStorageStrategy {
 
   get(key: string): string {
@@ -37,6 +43,9 @@ export class SessionStorageStrategy implements IStorageStrategy {
 
 }
 
+/**
+ * A generic local/session storage abstraction.
+ */
 export class Storage<T> implements IStorage<T> {
 
   private strategy: IStorageStrategy;
@@ -49,6 +58,12 @@ export class Storage<T> implements IStorage<T> {
     this.storageCache = {};
   }
 
+  /**
+   * Set a value in the storage by the given key.
+   *
+   * @param key - The storage key to set.
+   * @param value - The value to set. (Must be JSON-serializable).
+   */
   set(key: string, value: T): void {
     key = this.standardizeKey(key);
     let json = JSON.stringify(value);
@@ -59,6 +74,11 @@ export class Storage<T> implements IStorage<T> {
     }
   }
 
+  /**
+   * Delete a value from the storage by the given key.
+   *
+   * @param key - The storage key to delete.
+   */
   delete(key: string): void {
     key = this.standardizeKey(key);
     this.strategy.delete(key);
@@ -67,6 +87,11 @@ export class Storage<T> implements IStorage<T> {
     }
   }
 
+  /**
+   * Get a value from the storage by the given key.
+   *
+   * @param key - The storage key to get.
+   */
   get(key: string): T {
     key = this.standardizeKey(key);
     if (this.options.cache) {

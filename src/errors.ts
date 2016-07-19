@@ -1,6 +1,10 @@
 import { IDetailedError } from './definitions';
 
+/**
+ * @private
+ */
 export class Exception extends Error {
+
   public name: string;
   public stack: string;
 
@@ -13,11 +17,21 @@ export class Exception extends Error {
   toString() {
     return `${this.name}: ${this.message}`;
   }
+
 }
 
+/**
+ * An error with generic details.
+ */
 export class DetailedError<D> extends Exception implements IDetailedError<D> {
+
+  /**
+   * @param message - The error message.
+   * @param details - The error details.
+   */
   constructor(public message?: string, public details?: D) {
     super(message);
     this.name = 'DetailedError';
   }
+
 }

@@ -1,3 +1,6 @@
+/**
+ * @private
+ */
 export class DeferredPromise<T, E extends Error> {
   public resolve: (value?: T) => void;
   public reject: (err?: E) => void;

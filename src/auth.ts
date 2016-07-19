@@ -29,6 +29,9 @@ import { DeferredPromise } from './promise';
 
 declare var window: any;
 
+/**
+ * @private
+ */
 export class AuthTokenContext implements ITokenContext {
   private storage: IStorage<string>;
 
@@ -49,6 +52,9 @@ export class AuthTokenContext implements ITokenContext {
   }
 }
 
+/**
+ * @private
+ */
 export class CombinedAuthTokenContext implements ICombinedTokenContext {
   private storage: IStorage<string>;
   private tempStorage: IStorage<string>;
@@ -79,6 +85,10 @@ export class CombinedAuthTokenContext implements ICombinedTokenContext {
   }
 }
 
+/**
+ * Auth handles authentication of a single user, such as signing up, logging in
+ * & out, social provider authentication, etc.
+ */
 export class Auth implements IAuth {
 
   private emitter: IEventEmitter;
@@ -98,6 +108,11 @@ export class Auth implements IAuth {
     this.userService = deps.userService;
   }
 
+  /**
+   * Check whether the user is logged in or not.
+   *
+   * If an auth token exists in local storage, the user is logged in.
+   */
   isAuthenticated(): boolean {
     let token = this.tokenContext.get();
     if (token) {
@@ -106,7 +121,19 @@ export class Auth implements IAuth {
     return false;
   }
 
-  login(moduleId: AuthModuleId, data?: Object, options: LoginOptions = {}): Promise<IUser> {
+  /**
+   * Attempt to log the user in with the given credentials. For custom & social
+   * logins, kick-off the authentication process.
+   *
+   * After login, the full user is loaded from the cloud and saved in local
+   * storage along with their auth token.
+   *
+   * @param credentials
+   *  For email/password, give an email and password. For custom, send whatever
+   *  you need.
+   * @param options
+   */
+  login(moduleId: AuthModuleId, credentials?: Object, options: LoginOptions = {}): Promise<IUser> {
     if (typeof options.remember === 'undefined') {
       options.remember = true;
     }
@@ -132,7 +159,7 @@ export class Auth implements IAuth {
       throw new Error('Authentication class is invalid or missing:' + context);
     }
 
-    return context.authenticate(data, options).then((token: string) => {
+    return context.authenticate(credentials, options).then((token: string) => {
       this.storeToken(options, token);
 
       return this.userService.load().then(() => {
@@ -143,24 +170,67 @@ export class Auth implements IAuth {
     });
   }
 
-  signup(data: UserDetails): Promise<void> {
+  /**
+   * Sign up a user with the given data. Only for email/password
+   * authentication.
+   *
+   * `signup` does not affect local data or the current user until `login` is
+   * called. This means you'll likely want to log in your users manually after
+   * signup.
+   *
+   * If a signup fails, the promise rejects with a `DetailedError` containing
+   * an array of error codes from the cloud.
+   *
+   * TODO: Link to DetailedError
+   *
+   * @param details - The details that describe a user.
+   */
+  signup(details: UserDetails): Promise<void> {
     let context = this.authModules.basic;
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
     }
-    return context.signup.apply(context, [data]);
+    return context.signup.apply(context, [details]);
   }
 
+  /**
+   * Kick-off the password reset process. Only for email/password
+   * authentication.
+   *
+   * An email will be sent to the user with a short password reset code, which
+   * they can copy back into your app and use `confirmPasswordReset`.
+   *
+   * TODO: Link to confirmPasswordReset
+   *
+   * @param email - The email address to which to send a code.
+   */
   requestPasswordReset(email: string): Promise<void> {
     let context = this.authModules.basic;
     return context.requestPasswordReset(email);
   }
 
+  /**
+   * Confirm a password reset.
+   *
+   * When the user gives you their password reset code into your app and their
+   * requested changed password, call this method.
+   *
+   * TODO: Handle email storage?
+   *
+   * @param code - The password reset code from the user.
+   * @param newPassword - The requested changed password from the user.
+   */
   confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void> {
     let context = this.authModules.basic;
     return context.confirmPasswordReset(email, code, newPassword);
   }
 
+  /**
+   * Log the user out of the app.
+   *
+   * This clears the auth token out of local storage and restores the user to
+   * an unauthenticated state.
+   */
   logout(): void {
     this.tokenContext.delete();
     let user = this.userService.current();
@@ -168,10 +238,16 @@ export class Auth implements IAuth {
     user.clear();
   }
 
+  /**
+   * Get the raw auth token from local storage.
+   */
   getToken(): string {
     return this.tokenContext.get();
   }
 
+  /**
+   * Overwrite the raw auth token in local storage.
+   */
   storeToken(options: LoginOptions = {'remember': true}, token: string) {
     let originalToken = this.authToken;
     this.authToken = token;
@@ -179,6 +255,9 @@ export class Auth implements IAuth {
     this.emitter.emit('auth:token-changed', {'old': originalToken, 'new': this.authToken});
   }
 
+  /**
+   * @private
+   */
   static getDetailedErrorFromResponse(res): DetailedError<string[]> {
     let errors = [];
     let details = [];
@@ -199,6 +278,9 @@ export class Auth implements IAuth {
 
 }
 
+/**
+ * @private
+ */
 export abstract class AuthType implements IAuthType {
   public config: IConfig;
   public client: IClient;
@@ -294,6 +376,9 @@ export abstract class AuthType implements IAuthType {
 
 }
 
+/**
+ * @private
+ */
 export class BasicAuth extends AuthType implements IBasicAuthType {
 
   authenticate(data: BasicLoginCredentials, options?: LoginOptions): Promise<string> {
@@ -395,42 +480,63 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
   }
 }
 
+/**
+ * @private
+ */
 export class CustomAuth extends AuthType {
   authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('custom', data, options);
   }
 }
 
+/**
+ * @private
+ */
 export class TwitterAuth extends AuthType {
   authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('twitter', data, options);
   }
 }
 
+/**
+ * @private
+ */
 export class FacebookAuth extends AuthType {
   authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('facebook', data, options);
   }
 }
 
+/**
+ * @private
+ */
 export class GithubAuth extends AuthType {
   authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('github', data, options);
   }
 }
 
+/**
+ * @private
+ */
 export class GoogleAuth extends AuthType {
   authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('google', data, options);
   }
 }
 
+/**
+ * @private
+ */
 export class InstagramAuth extends AuthType {
   authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('instagram', data, options);
   }
 }
 
+/**
+ * @private
+ */
 export class LinkedInAuth extends AuthType {
   authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('linkedin', data, options);

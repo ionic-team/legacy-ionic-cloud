@@ -21,6 +21,9 @@ const NO_PLUGIN = new Error('Missing deploy plugin: `ionic-plugin-deploy`');
 const INITIAL_DELAY = 1 * 5 * 1000;
 const WATCH_INTERVAL = 1 * 60 * 1000;
 
+/**
+ * Deploy handles live deploys of the app.
+ */
 export class Deploy implements IDeploy {
 
   private config: IConfig;
@@ -50,29 +53,7 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Fetch the Deploy Plugin
-   *
-   * If the plugin has not been set yet, attempt to fetch it, otherwise log
-   * a message.
-   *
-   * @return {IonicDeploy} Returns the plugin or false
-   */
-  private _getPlugin() {
-    if (typeof window.IonicDeploy === 'undefined') {
-      this.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
-      return;
-    }
-    if (!this.plugin) {
-      this.plugin = window.IonicDeploy;
-    }
-    return this.plugin;
-  }
-
-  /**
-   * Check for updates
-   *
-   * @return {Promise} Will resolve with true if an update is available, false otherwise. A string or
-   *   error will be passed to reject() in the event of a failure.
+   * Check for updates on the active channel.
    */
   check(): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
@@ -100,10 +81,13 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Download and available update
+   * Download the available update.
    *
-   * This should be used in conjunction with extract()
-   * @return {Promise} The promise which will resolve with true/false.
+   * This should be used in conjunction with `extract`.
+   *
+   * TODO: link to extract
+   *
+   * @param options
    */
   download(options: DeployDownloadOptions = {}): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
@@ -133,10 +117,13 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Extract the last downloaded update
+   * Extract the downloaded update.
    *
-   * This should be called after a download() successfully resolves.
-   * @return {Promise} The promise which will resolve with true/false.
+   * This should be called after `download` successfully resolves.
+   *
+   * TODO: link to download
+   *
+   * @param options
    */
   extract(options: DeployExtractOptions = {}): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
@@ -166,12 +153,11 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Load the latest deployed version
-   * This is only necessary to call if you have manually downloaded and extracted
-   * an update and wish to reload the app with the latest deploy. The latest deploy
-   * will automatically be loaded when the app is started.
+   * Load the latest deployed version.
    *
-   * @return {void}
+   * This is only necessary to call if you have manually downloaded and
+   * extracted an update and wish to reload the app with the latest deploy. The
+   * latest deploy will automatically be loaded when the app is started.
    */
   load() {
     this.emitter.once('deploy:ready', () => {
@@ -182,7 +168,11 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Watch constantly checks for updates, and triggers an event when one is ready.
+   * Watch for updates.
+   *
+   * When an update is available, the `deploy:update-ready` event is fired.
+   *
+   * @param options
    */
   watch(options: DeployWatchOptions = {}): void {
     var self = this;
@@ -216,7 +206,7 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Stop automatically looking for updates
+   * Stop watching for updates.
    */
   unwatch(): void {
     clearTimeout(this._checkTimeout);
@@ -224,10 +214,10 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Information about the current deploy
+   * Get information about the current version.
    *
-   * @return {Promise} The resolver will be passed an object that has key/value
-   *    pairs pertaining to the currently deployed update.
+   * The promise is resolved with an object that has key/value pairs pertaining
+   * to the currently deployed update.
    */
   info(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
@@ -248,9 +238,9 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * List the Deploy versions that have been installed on this device
+   * List the versions that have been installed on this device.
    *
-   * @return {Promise} The resolver will be passed an array of deploy uuids
+   * The promise is resolved with an array of version UUIDs.
    */
   getVersions(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
@@ -271,10 +261,9 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Remove an installed deploy on this device
+   * Remove a version from this device.
    *
-   * @param {string} uuid The deploy uuid you wish to remove from the device
-   * @return {Promise} Standard resolve/reject resolution
+   * @param uuid - The version UUID to remove from the device.
    */
   deleteVersion(uuid: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
@@ -295,13 +284,12 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Fetches the metadata for a given deploy uuid. If no uuid is given, it will attempt
-   * to grab the metadata for the most recently known update version.
+   * Fetches the metadata for a given version. If no UUID is given, it will
+   * attempt to grab the metadata for the most recently known version.
    *
-   * @param {string} uuid The deploy uuid you wish to grab metadata for, can be left blank to grab latest known update metadata
-   * @return {Promise} Standard resolve/reject resolution
+   * @param uuid - The version from which to grab metadata.
    */
-  getMetadata(uuid: string): Promise<any> {
+  getMetadata(uuid?: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -320,7 +308,9 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Update app with the latest deploy
+   * Update app with the latest version.
+   *
+   * @param options
    */
   update(options: DeployUpdateOptions = {}): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
@@ -374,4 +364,16 @@ export class Deploy implements IDeploy {
 
     return deferred.promise;
   }
+
+  private _getPlugin() {
+    if (typeof window.IonicDeploy === 'undefined') {
+      this.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
+      return;
+    }
+    if (!this.plugin) {
+      this.plugin = window.IonicDeploy;
+    }
+    return this.plugin;
+  }
+
 }

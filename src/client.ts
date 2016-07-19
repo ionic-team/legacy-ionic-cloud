@@ -1,6 +1,14 @@
 import * as request from 'superagent';
 import { IClient, ITokenContext } from './definitions';
 
+/**
+ * Client is for making HTTP requests to the API.
+ *
+ * Under the hood, it uses superagent. When a method is called, you can call
+ * any number of superagent functions on it and then call the `end` method.
+ *
+ * TODO: link to superagent
+ */
 export class Client implements IClient {
 
   public req: any;
@@ -17,26 +25,54 @@ export class Client implements IClient {
     this.req = req;
   }
 
+  /**
+   * GET request.
+   *
+   * @param endpoint - The path of the API endpoint.
+   */
   get(endpoint: string) {
     return this.supplement(this.req.get, endpoint);
   }
 
+  /**
+   * POST request.
+   *
+   * @param endpoint - The path of the API endpoint.
+   */
   post(endpoint: string) {
     return this.supplement(this.req.post, endpoint);
   }
 
+  /**
+   * PUT request.
+   *
+   * @param endpoint - The path of the API endpoint.
+   */
   put(endpoint: string) {
     return this.supplement(this.req.put, endpoint);
   }
 
+  /**
+   * PATCH request.
+   *
+   * @param endpoint - The path of the API endpoint.
+   */
   patch(endpoint: string) {
     return this.supplement(this.req.patch, endpoint);
   }
 
+  /**
+   * DELETE request.
+   *
+   * @param endpoint - The path of the API endpoint.
+   */
   delete(endpoint: string) {
     return this.supplement(this.req.delete, endpoint);
   }
 
+  /**
+   * @private
+   */
   request(method: string, endpoint: string) {
     return this.supplement(this.req.bind(this.req, method), endpoint);
   }
@@ -58,4 +94,5 @@ export class Client implements IClient {
 
     return req;
   }
+
 }

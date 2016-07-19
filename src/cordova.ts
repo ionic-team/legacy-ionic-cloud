@@ -10,6 +10,9 @@ import {
 
 declare var cordova: any;
 
+/**
+ * @private
+ */
 export class Cordova implements ICordova {
 
   public app: IAppStatus;

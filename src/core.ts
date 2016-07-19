@@ -9,6 +9,9 @@ import {
   ISettings
 } from './definitions';
 
+/**
+ * @private
+ */
 export class Core implements ICore {
 
   private config: IConfig;

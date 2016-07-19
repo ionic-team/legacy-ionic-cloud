@@ -10,6 +10,9 @@ import {
   InsightsOptions
 } from './definitions';
 
+/**
+ * @private
+ */
 export class Stat {
   public created: Date;
 
@@ -30,6 +33,10 @@ export class Stat {
   }
 }
 
+/**
+ * A client for Insights that handles batching, user activity insight, and
+ * sending insights at an interval.
+ */
 export class Insights implements IInsights {
 
   private app: IAppStatus;
@@ -66,6 +73,12 @@ export class Insights implements IInsights {
     }, this.options.intervalActiveCheck);
   }
 
+  /**
+   * Track an insight.
+   *
+   * @param stat - The insight name.
+   * @param value - The number by which to increment this insight.
+   */
   track(stat: string, value: number = 1): void {
     this.trackStat(new Stat(this.config.get('app_id'), stat, value));
   }

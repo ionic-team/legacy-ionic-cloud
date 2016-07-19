@@ -17,8 +17,9 @@ import {
 import { DeferredPromise } from '../promise';
 import { DataType } from './data-types';
 
-declare var Ionic: any;
-
+/**
+ * @private
+ */
 export class UserContext implements IUserContext {
   private storage: IStorage<StoredUser>;
   private config: IConfig;
@@ -55,6 +56,9 @@ export class UserContext implements IUserContext {
   }
 }
 
+/**
+ * A storage class for a user's custom data.
+ */
 export class UserData implements IUserData {
 
   data: Object;
@@ -107,6 +111,9 @@ export class UserData implements IUserData {
   }
 }
 
+/**
+ * Represents a user of this app.
+ */
 export class User implements IUser {
 
   private service: ISingleUserService;
@@ -125,6 +132,11 @@ export class User implements IUser {
     this.data = new UserData();
   }
 
+  /**
+   * Check whether this user is anonymous or not.
+   *
+   * If the `id` property is set, the user is no longer anonymous.
+   */
   isAnonymous(): boolean {
     if (!this.id) {
       return true;
@@ -133,20 +145,42 @@ export class User implements IUser {
     }
   }
 
+  /**
+   * Get a value from this user's custom data.
+   *
+   * Optionally, a default value can be provided.
+   *
+   * @param key - The data key to get.
+   * @param defaultValue - The value to return if the key is absent.
+   */
   get(key: string, defaultValue: any) {
     return this.data.get(key, defaultValue);
   }
 
+  /**
+   * Set a value in this user's custom data.
+   *
+   * @param key - The data key to set.
+   * @param value - The value to set.
+   */
   set(key: string, value: any) {
     delete this._unset[key];
     return this.data.set(key, value);
   }
 
+  /**
+   * Delete a value from this user's custom data.
+   *
+   * @param key - The data key to delete.
+   */
   unset(key: string) {
     this._unset[key] = true;
     return this.data.unset(key);
   }
 
+  /**
+   * Revert this user to a fresh, anonymous state.
+   */
   clear() {
     this.id = null;
     this.data = new UserData();
@@ -154,27 +188,47 @@ export class User implements IUser {
     this.fresh = true;
   }
 
+  /**
+   * Save this user to the API.
+   */
   save(): Promise<void> {
     this._unset = {};
     return this.service.save();
   }
 
+  /**
+   * Delete this user from the API.
+   */
   delete(): Promise<void> {
     return this.service.delete();
   }
 
+  /**
+   * Load the user from the API, overwriting the local user's data.
+   *
+   * @param id - The user ID to load into this user.
+   */
   load(id?: string): Promise<void> {
     return this.service.load(id);
   }
 
+  /**
+   * Store this user in local storage.
+   */
   store() {
     this.service.store();
   }
 
+  /**
+   * Remove this user from local storage.
+   */
   unstore() {
     this.service.unstore();
   }
 
+  /**
+   * @private
+   */
   serializeForAPI(): UserDetails {
     return {
       'email': this.details.email,
@@ -186,6 +240,9 @@ export class User implements IUser {
     };
   }
 
+  /**
+   * @private
+   */
   serializeForStorage(): StoredUser {
     return {
       'id': this.id,
@@ -195,11 +252,15 @@ export class User implements IUser {
     };
   }
 
-  toString() {
+  toString(): string {
     return `<User [${this.isAnonymous() ? 'anonymous' : this.id}]>`;
   }
+
 }
 
+/**
+ * @private
+ */
 export class SingleUserService implements ISingleUserService {
 
   private client: IClient;

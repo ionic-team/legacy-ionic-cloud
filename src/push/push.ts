@@ -31,6 +31,9 @@ interface ServiceTokenData {
   user_id?: string;
 }
 
+/**
+ * Push handles push notifications for this app.
+ */
 export class Push implements IPush {
 
   public plugin: any;
@@ -99,6 +102,15 @@ export class Push implements IPush {
     this._token = val;
   }
 
+  /**
+   * Register a token with the API.
+   *
+   * When a token is saved, you can send push notifications to it. If a user is
+   * logged in, the token is linked to them by their ID.
+   *
+   * @param token - The token.
+   * @param options
+   */
   saveToken(token: IPushToken, options: SaveTokenOptions = {}): Promise<IPushToken> {
     let deferred = new DeferredPromise<IPushToken, Error>();
 
@@ -140,7 +152,12 @@ export class Push implements IPush {
   }
 
   /**
-   * Registers the device with GCM/APNS to get a device token
+   * Registers the device with GCM/APNS to get a push token.
+   *
+   * After a device is registered, you will likely want to save the token to
+   * the API.
+   *
+   * TODO: link to saveToken
    */
   register(): Promise<IPushToken> {
     let deferred = new DeferredPromise<IPushToken, Error>();
@@ -172,7 +189,7 @@ export class Push implements IPush {
   }
 
   /**
-   * Invalidate the current GCM/APNS token
+   * Invalidate the current push token.
    */
   unregister(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
@@ -215,9 +232,6 @@ export class Push implements IPush {
     return deferred.promise;
   }
 
-  /**
-   * Registers callbacks with the PushPlugin
-   */
   private _callbackRegistration() {
     this.plugin.on('registration', (data: IPluginRegistration) => {
       this.token = new PushToken(data.registrationId);
@@ -262,4 +276,5 @@ export class Push implements IPush {
 
     return plugin;
   }
+
 }
