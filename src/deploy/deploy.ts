@@ -26,7 +26,14 @@ const WATCH_INTERVAL = 1 * 60 * 1000;
  */
 export class Deploy implements IDeploy {
 
+  /**
+   * The active deploy channel.
+   */
   public channel: DeployChannel = 'production';
+
+  /**
+   * The deploy plugin.
+   */
   public plugin: any;
 
   private config: IConfig;

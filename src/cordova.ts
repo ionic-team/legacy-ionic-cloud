@@ -15,7 +15,11 @@ declare var cordova: any;
  */
 export class Cordova implements ICordova {
 
+  /**
+   * Native information about the app.
+   */
   public app: IAppStatus;
+
   private device: IDevice;
   private emitter: IEventEmitter;
   private logger: ILogger;

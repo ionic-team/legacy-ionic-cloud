@@ -5,8 +5,19 @@ import { ILogger, LoggerOptions } from './definitions';
  */
 export class Logger implements ILogger {
 
+  /**
+   * The function to use to log info level messages.
+   */
   public infofn = console.log.bind(console);
+
+  /**
+   * The function to use to log warn level messages.
+   */
   public warnfn = console.warn.bind(console);
+
+  /**
+   * The function to use to log error level messages.
+   */
   public errorfn = console.error.bind(console);
 
   constructor(public options: LoggerOptions = {}) {}

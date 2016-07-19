@@ -119,9 +119,24 @@ export class UserData implements IUserData {
  */
 export class User implements IUser {
 
+  /**
+   * The UUID of this user.
+   */
   public id: string;
-  public fresh: boolean; // user has not yet been persisted
+
+  /**
+   * Is this user fresh, meaning they haven't been persisted?
+   */
+  public fresh: boolean;
+
+  /**
+   * The details (email, password, etc) of this user.
+   */
   public details: UserDetails = {};
+
+  /**
+   * The custom data of this user.
+   */
   public data: IUserData;
 
   private service: ISingleUserService;

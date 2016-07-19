@@ -36,6 +36,9 @@ interface ServiceTokenData {
  */
 export class Push implements IPush {
 
+  /**
+   * The push plugin.
+   */
   public plugin: any;
 
   private config: IConfig;

@@ -5,7 +5,14 @@ import { IPushToken } from '../definitions';
  */
 export class PushToken implements IPushToken {
 
+  /**
+   * Has the push token been registered in the API?
+   */
   public registered: boolean = false;
+
+  /**
+   * Has the push token been saved locally?
+   */
   public saved: boolean = false;
 
   /**

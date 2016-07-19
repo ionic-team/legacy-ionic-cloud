@@ -5,13 +5,44 @@ import { IPushMessage, IAppStatus, IPluginNotification } from '../definitions';
  */
 export class PushMessage implements IPushMessage {
 
+  /**
+   * Native information about the app when the push message was received.
+   */
   public app: IAppStatus;
+
+  /**
+   * The message of this push message.
+   */
   public text: string;
+
+  /**
+   * The title of this push message.
+   */
   public title: string;
+
+  /**
+   * The badge count to set.
+   */
   public count: number;
+
+  /**
+   * The sound to play.
+   */
   public sound: string;
+
+  /**
+   * The notification image.
+   */
   public image: string;
+
+  /**
+   * The raw notification object from the push plugin callback.
+   */
   public raw: IPluginNotification;
+
+  /**
+   * The custom payload of this push message.
+   */
   public payload: Object;
 
   /**

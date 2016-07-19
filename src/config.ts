@@ -5,6 +5,9 @@ import { ISettingsUrls, ISettings, IConfig } from './definitions';
  */
 export class Config implements IConfig {
 
+  /**
+   * The cloud config.
+   */
   public settings: ISettings;
 
   private urls: ISettingsUrls = {
