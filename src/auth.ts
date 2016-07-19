@@ -412,19 +412,20 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
       deferred.reject(new Error('Email is required for password reset request.'));
     } else {
       this.client.post('/users/password/reset')
-          .send({
-            'app_id': this.config.get('app_id'),
-            'email': email,
-            'cloud_client': true
-          })
-          .end((err, res) => {
-            if (err) {
-              deferred.reject(err);
-            } else {
-              deferred.resolve();
-            }
-          });
+        .send({
+          'app_id': this.config.get('app_id'),
+          'email': email,
+          'cloud_client': true
+        })
+        .end((err, res) => {
+          if (err) {
+            deferred.reject(err);
+          } else {
+            deferred.resolve();
+          }
+        });
     }
+
     return deferred.promise;
   }
 
@@ -432,22 +433,23 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     var deferred = new DeferredPromise<void, Error>();
 
     if (!code || !email || !newPassword) {
-        deferred.reject(new Error('Code, new password, and email are required.'));
+      deferred.reject(new Error('Code, new password, and email are required.'));
     } else {
       this.client.post('/users/password')
-          .send({
-            'reset_token': code,
-            'new_password': newPassword,
-            'email': email
-          })
-          .end((err, res) => {
-            if (err) {
-              deferred.reject(err);
-            } else {
-              deferred.resolve();
-            }
-          });
+        .send({
+          'reset_token': code,
+          'new_password': newPassword,
+          'email': email
+        })
+        .end((err, res) => {
+          if (err) {
+            deferred.reject(err);
+          } else {
+            deferred.resolve();
+          }
+        });
     }
+
     return deferred.promise;
   }
 
