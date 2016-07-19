@@ -9,8 +9,8 @@ machine:
 test:
     override:
         - gulp test
-deployment:
-    tasks:
-        branch: "master"
-        commands:
-            - ./scripts/docs/deploy.sh
+# deployment:
+#     tasks:
+#         branch: "master"
+#         commands:
+#             - ./scripts/docs/deploy.sh
