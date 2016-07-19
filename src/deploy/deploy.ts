@@ -26,12 +26,12 @@ const WATCH_INTERVAL = 1 * 60 * 1000;
  */
 export class Deploy implements IDeploy {
 
+  public channel: DeployChannel = 'production';
+  public plugin: any;
+
   private config: IConfig;
   private emitter: IEventEmitter;
   private logger: ILogger;
-
-  public channel: DeployChannel = 'production';
-  public plugin: any;
 
   private _checkTimeout: any;
 
@@ -55,7 +55,7 @@ export class Deploy implements IDeploy {
   /**
    * Check for updates on the active channel.
    */
-  check(): Promise<boolean> {
+  public check(): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
 
     this.emitter.once('deploy:ready', () => {
@@ -89,7 +89,7 @@ export class Deploy implements IDeploy {
    *
    * @param options
    */
-  download(options: DeployDownloadOptions = {}): Promise<boolean> {
+  public download(options: DeployDownloadOptions = {}): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
 
     this.emitter.once('deploy:ready', () => {
@@ -125,7 +125,7 @@ export class Deploy implements IDeploy {
    *
    * @param options
    */
-  extract(options: DeployExtractOptions = {}): Promise<boolean> {
+  public extract(options: DeployExtractOptions = {}): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
 
     this.emitter.once('deploy:ready', () => {
@@ -159,7 +159,7 @@ export class Deploy implements IDeploy {
    * extracted an update and wish to reload the app with the latest deploy. The
    * latest deploy will automatically be loaded when the app is started.
    */
-  load() {
+  public load() {
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
         this.plugin.redirect(this.config.get('app_id'));
@@ -174,7 +174,7 @@ export class Deploy implements IDeploy {
    *
    * @param options
    */
-  watch(options: DeployWatchOptions = {}): void {
+  public watch(options: DeployWatchOptions = {}): void {
     var self = this;
 
     if (!options.initialDelay) {
@@ -219,7 +219,7 @@ export class Deploy implements IDeploy {
    * The promise is resolved with an object that has key/value pairs pertaining
    * to the currently deployed update.
    */
-  info(): Promise<any> {
+  public info(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -242,7 +242,7 @@ export class Deploy implements IDeploy {
    *
    * The promise is resolved with an array of version UUIDs.
    */
-  getVersions(): Promise<any> {
+  public getVersions(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -265,7 +265,7 @@ export class Deploy implements IDeploy {
    *
    * @param uuid - The version UUID to remove from the device.
    */
-  deleteVersion(uuid: string): Promise<any> {
+  public deleteVersion(uuid: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -289,7 +289,7 @@ export class Deploy implements IDeploy {
    *
    * @param uuid - The version from which to grab metadata.
    */
-  getMetadata(uuid?: string): Promise<any> {
+  public getMetadata(uuid?: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -312,7 +312,7 @@ export class Deploy implements IDeploy {
    *
    * @param options
    */
-  update(options: DeployUpdateOptions = {}): Promise<boolean> {
+  public update(options: DeployUpdateOptions = {}): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
 
     this.emitter.once('deploy:ready', () => {

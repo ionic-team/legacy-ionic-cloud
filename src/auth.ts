@@ -39,15 +39,15 @@ export class AuthTokenContext implements ITokenContext {
     this.storage = deps.storage;
   }
 
-  get(): string {
+  public get(): string {
     return this.storage.get(this.label);
   }
 
-  store(token: string): void {
+  public store(token: string): void {
     this.storage.set(this.label, token);
   }
 
-  delete(): void {
+  public delete(): void {
     this.storage.delete(this.label);
   }
 }
@@ -64,14 +64,14 @@ export class CombinedAuthTokenContext implements ICombinedTokenContext {
     this.tempStorage = deps.tempStorage;
   }
 
-  get(): string {
+  public get(): string {
     let permToken = this.storage.get(this.label);
     let tempToken = this.tempStorage.get(this.label);
     let token = tempToken || permToken;
     return token;
   }
 
-  store(token: string, options: ICombinedTokenContextStoreOptions = {'permanent': true}): void {
+  public store(token: string, options: ICombinedTokenContextStoreOptions = {'permanent': true}): void {
     if (options.permanent) {
       this.storage.set(this.label, token);
     } else {
@@ -79,7 +79,7 @@ export class CombinedAuthTokenContext implements ICombinedTokenContext {
     }
   }
 
-  delete(): void {
+  public delete(): void {
     this.storage.delete(this.label);
     this.tempStorage.delete(this.label);
   }
@@ -113,7 +113,7 @@ export class Auth implements IAuth {
    *
    * If an auth token exists in local storage, the user is logged in.
    */
-  isAuthenticated(): boolean {
+  public isAuthenticated(): boolean {
     let token = this.tokenContext.get();
     if (token) {
       return true;
@@ -133,7 +133,7 @@ export class Auth implements IAuth {
    *  you need.
    * @param options
    */
-  login(moduleId: AuthModuleId, credentials?: Object, options: LoginOptions = {}): Promise<IUser> {
+  public login(moduleId: AuthModuleId, credentials?: Object, options: LoginOptions = {}): Promise<IUser> {
     if (typeof options.remember === 'undefined') {
       options.remember = true;
     }
@@ -185,7 +185,7 @@ export class Auth implements IAuth {
    *
    * @param details - The details that describe a user.
    */
-  signup(details: UserDetails): Promise<void> {
+  public signup(details: UserDetails): Promise<void> {
     let context = this.authModules.basic;
     if (!context) {
       throw new Error('Authentication class is invalid or missing:' + context);
@@ -204,7 +204,7 @@ export class Auth implements IAuth {
    *
    * @param email - The email address to which to send a code.
    */
-  requestPasswordReset(email: string): Promise<void> {
+  public requestPasswordReset(email: string): Promise<void> {
     let context = this.authModules.basic;
     return context.requestPasswordReset(email);
   }
@@ -220,7 +220,7 @@ export class Auth implements IAuth {
    * @param code - The password reset code from the user.
    * @param newPassword - The requested changed password from the user.
    */
-  confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void> {
+  public confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void> {
     let context = this.authModules.basic;
     return context.confirmPasswordReset(email, code, newPassword);
   }
@@ -231,7 +231,7 @@ export class Auth implements IAuth {
    * This clears the auth token out of local storage and restores the user to
    * an unauthenticated state.
    */
-  logout(): void {
+  public logout(): void {
     this.tokenContext.delete();
     let user = this.userService.current();
     user.unstore();
@@ -241,14 +241,14 @@ export class Auth implements IAuth {
   /**
    * Get the raw auth token from local storage.
    */
-  getToken(): string {
+  public getToken(): string {
     return this.tokenContext.get();
   }
 
   /**
    * Overwrite the raw auth token in local storage.
    */
-  storeToken(options: LoginOptions = {'remember': true}, token: string) {
+  public storeToken(options: LoginOptions = {'remember': true}, token: string) {
     let originalToken = this.authToken;
     this.authToken = token;
     this.tokenContext.store(this.authToken, {'permanent': options.remember});
@@ -258,7 +258,7 @@ export class Auth implements IAuth {
   /**
    * @private
    */
-  static getDetailedErrorFromResponse(res): DetailedError<string[]> {
+  public static getDetailedErrorFromResponse(res): DetailedError<string[]> {
     let errors = [];
     let details = [];
 
@@ -282,15 +282,15 @@ export class Auth implements IAuth {
  * @private
  */
 export abstract class AuthType implements IAuthType {
-  public config: IConfig;
-  public client: IClient;
+  protected config: IConfig;
+  protected client: IClient;
 
   constructor(deps: AuthTypeDependencies) {
     this.config = deps.config;
     this.client = deps.client;
   }
 
-  abstract authenticate(data?: Object, options?: LoginOptions): Promise<any>;
+  public abstract authenticate(data?: Object, options?: LoginOptions): Promise<any>;
 
   protected parseInAppBrowserOptions(opts?: InAppBrowserPluginOptions): string {
     if (!opts) {
@@ -381,7 +381,7 @@ export abstract class AuthType implements IAuthType {
  */
 export class BasicAuth extends AuthType implements IBasicAuthType {
 
-  authenticate(data: BasicLoginCredentials, options?: LoginOptions): Promise<string> {
+  public authenticate(data: BasicLoginCredentials, options?: LoginOptions): Promise<string> {
     var deferred = new DeferredPromise<string, Error>();
 
     if (!data.email || !data.password) {
@@ -405,8 +405,8 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     return deferred.promise;
   }
 
-  requestPasswordReset(email: string): Promise<void> {
-    var deferred = new DeferredPromise<void, Error>();
+  public requestPasswordReset(email: string): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
 
     if (!email) {
       deferred.reject(new Error('Email is required for password reset request.'));
@@ -429,8 +429,8 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     return deferred.promise;
   }
 
-  confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void> {
-    var deferred = new DeferredPromise<void, Error>();
+  public confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
 
     if (!code || !email || !newPassword) {
       deferred.reject(new Error('Code, new password, and email are required.'));
@@ -453,8 +453,8 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     return deferred.promise;
   }
 
-  signup(data: UserDetails): Promise<void> {
-    var deferred = new DeferredPromise<void, DetailedError<string[]>>();
+  public signup(data: UserDetails): Promise<void> {
+    let deferred = new DeferredPromise<void, DetailedError<string[]>>();
 
     var userData: any = {
       'app_id': this.config.get('app_id'),
@@ -486,7 +486,7 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
  * @private
  */
 export class CustomAuth extends AuthType {
-  authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('custom', data, options);
   }
 }
@@ -495,7 +495,7 @@ export class CustomAuth extends AuthType {
  * @private
  */
 export class TwitterAuth extends AuthType {
-  authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('twitter', data, options);
   }
 }
@@ -504,7 +504,7 @@ export class TwitterAuth extends AuthType {
  * @private
  */
 export class FacebookAuth extends AuthType {
-  authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('facebook', data, options);
   }
 }
@@ -513,7 +513,7 @@ export class FacebookAuth extends AuthType {
  * @private
  */
 export class GithubAuth extends AuthType {
-  authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('github', data, options);
   }
 }
@@ -522,7 +522,7 @@ export class GithubAuth extends AuthType {
  * @private
  */
 export class GoogleAuth extends AuthType {
-  authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('google', data, options);
   }
 }
@@ -531,7 +531,7 @@ export class GoogleAuth extends AuthType {
  * @private
  */
 export class InstagramAuth extends AuthType {
-  authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('instagram', data, options);
   }
 }
@@ -540,7 +540,7 @@ export class InstagramAuth extends AuthType {
  * @private
  */
 export class LinkedInAuth extends AuthType {
-  authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
     return this.inAppBrowserFlow('linkedin', data, options);
   }
 }

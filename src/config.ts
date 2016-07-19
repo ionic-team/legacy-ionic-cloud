@@ -6,6 +6,7 @@ import { ISettingsUrls, ISettings, IConfig } from './definitions';
 export class Config implements IConfig {
 
   public settings: ISettings;
+
   private urls: ISettingsUrls = {
     'api': 'https://api.ionic.io'
   };
@@ -13,7 +14,7 @@ export class Config implements IConfig {
   /**
    * Register a new config.
    */
-  register(settings: ISettings) {
+  public register(settings: ISettings) {
     this.settings = settings;
   }
 
@@ -25,7 +26,7 @@ export class Config implements IConfig {
    *
    * @param name - The settings key to get.
    */
-  get(name: string): any {
+  public get(name: string): any {
     if (!this.settings || !this.settings.core) {
       return undefined;
     }
@@ -38,7 +39,7 @@ export class Config implements IConfig {
    *
    * @param name - The settings key to get.
    */
-  getURL(name: string): string {
+  public getURL(name: string): string {
     let urls = (this.settings && this.settings.core && this.settings.core.urls) || {};
 
     if (urls[name]) {

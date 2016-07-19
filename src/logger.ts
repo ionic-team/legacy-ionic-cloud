@@ -16,7 +16,7 @@ export class Logger implements ILogger {
    *
    * @param message - The message to log.
    */
-  info(message?: any, ...optionalParams: any[]) {
+  public info(message?: any, ...optionalParams: any[]) {
     if (!this.options.silent) {
       this.infofn(message, ...optionalParams);
     }
@@ -27,7 +27,7 @@ export class Logger implements ILogger {
    *
    * @param message - The message to log.
    */
-  warn(message?: any, ...optionalParams: any[]) {
+  public warn(message?: any, ...optionalParams: any[]) {
     if (!this.options.silent) {
       this.warnfn(message, ...optionalParams);
     }
@@ -38,7 +38,7 @@ export class Logger implements ILogger {
    *
    * @param message - The message to log.
    */
-  error(message?: any, ...optionalParams: any[]) {
+  public error(message?: any, ...optionalParams: any[]) {
     this.errorfn(message, ...optionalParams);
   }
 

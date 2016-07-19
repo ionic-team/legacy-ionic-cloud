@@ -10,15 +10,15 @@ import {
  */
 export class LocalStorageStrategy implements IStorageStrategy {
 
-  get(key: string): string {
+  public get(key: string): string {
     return localStorage.getItem(key);
   }
 
-  set(key: string, value: string): void {
+  public set(key: string, value: string): void {
     return localStorage.setItem(key, value);
   }
 
-  delete(key: string): void {
+  public delete(key: string): void {
     return localStorage.removeItem(key);
   }
 
@@ -29,15 +29,15 @@ export class LocalStorageStrategy implements IStorageStrategy {
  */
 export class SessionStorageStrategy implements IStorageStrategy {
 
-  get(key: string): string {
+  public get(key: string): string {
     return sessionStorage.getItem(key);
   }
 
-  set(key: string, value: string): void {
+  public set(key: string, value: string): void {
     return sessionStorage.setItem(key, value);
   }
 
-  delete(key: string): void {
+  public delete(key: string): void {
     return sessionStorage.removeItem(key);
   }
 
@@ -64,7 +64,7 @@ export class Storage<T> implements IStorage<T> {
    * @param key - The storage key to set.
    * @param value - The value to set. (Must be JSON-serializable).
    */
-  set(key: string, value: T): void {
+  public set(key: string, value: T): void {
     key = this.standardizeKey(key);
     let json = JSON.stringify(value);
 
@@ -79,7 +79,7 @@ export class Storage<T> implements IStorage<T> {
    *
    * @param key - The storage key to delete.
    */
-  delete(key: string): void {
+  public delete(key: string): void {
     key = this.standardizeKey(key);
     this.strategy.delete(key);
     if (this.options.cache) {
@@ -92,7 +92,7 @@ export class Storage<T> implements IStorage<T> {
    *
    * @param key - The storage key to get.
    */
-  get(key: string): T {
+  public get(key: string): T {
     key = this.standardizeKey(key);
     if (this.options.cache) {
       let cached = this.storageCache[key];

@@ -11,7 +11,7 @@ import { IClient, ITokenContext } from './definitions';
  */
 export class Client implements IClient {
 
-  public req: any;
+  private req: any;
 
   constructor(
     public tokenContext: ITokenContext,
@@ -30,7 +30,7 @@ export class Client implements IClient {
    *
    * @param endpoint - The path of the API endpoint.
    */
-  get(endpoint: string) {
+  public get(endpoint: string) {
     return this.supplement(this.req.get, endpoint);
   }
 
@@ -39,7 +39,7 @@ export class Client implements IClient {
    *
    * @param endpoint - The path of the API endpoint.
    */
-  post(endpoint: string) {
+  public post(endpoint: string) {
     return this.supplement(this.req.post, endpoint);
   }
 
@@ -48,7 +48,7 @@ export class Client implements IClient {
    *
    * @param endpoint - The path of the API endpoint.
    */
-  put(endpoint: string) {
+  public put(endpoint: string) {
     return this.supplement(this.req.put, endpoint);
   }
 
@@ -57,7 +57,7 @@ export class Client implements IClient {
    *
    * @param endpoint - The path of the API endpoint.
    */
-  patch(endpoint: string) {
+  public patch(endpoint: string) {
     return this.supplement(this.req.patch, endpoint);
   }
 
@@ -66,14 +66,14 @@ export class Client implements IClient {
    *
    * @param endpoint - The path of the API endpoint.
    */
-  delete(endpoint: string) {
+  public delete(endpoint: string) {
     return this.supplement(this.req.delete, endpoint);
   }
 
   /**
    * @private
    */
-  request(method: string, endpoint: string) {
+  public request(method: string, endpoint: string) {
     return this.supplement(this.req.bind(this.req, method), endpoint);
   }
 

@@ -15,7 +15,7 @@ export class PushToken implements IPushToken {
     this.token = token;
   }
 
-  toString(): string {
+  public toString(): string {
     return `<PushToken [${this.token}]>`;
   }
 

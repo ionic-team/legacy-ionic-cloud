@@ -15,7 +15,7 @@ export class EventEmitter implements IEventEmitter {
    * @param event - The event name.
    * @param callback - A callback to attach to this event.
    */
-  on(event: string, callback: EventHandler) {
+  public on(event: string, callback: EventHandler) {
     if (typeof this.eventHandlers[event] === 'undefined') {
       this.eventHandlers[event] = [];
     }
@@ -31,7 +31,7 @@ export class EventEmitter implements IEventEmitter {
    * @param event - The event name.
    * @param callback - A callback to attach to this event.
    */
-  once(event: string, callback: () => void) {
+  public once(event: string, callback: () => void) {
     if (this.emitted(event)) {
       callback();
     } else {
@@ -49,7 +49,7 @@ export class EventEmitter implements IEventEmitter {
    * @param event - The event name.
    * @param data - An object to pass to every callback.
    */
-  emit(event: string, data: Object = null) {
+  public emit(event: string, data: Object = null) {
     if (typeof this.eventHandlers[event] === 'undefined') {
       this.eventHandlers[event] = [];
     }
@@ -70,7 +70,7 @@ export class EventEmitter implements IEventEmitter {
    *
    * @param event - The event name.
    */
-  emitted(event: string): number {
+  public emitted(event: string): number {
     if (typeof this.eventsEmitted[event] === 'undefined') {
       return 0;
     }

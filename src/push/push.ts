@@ -84,7 +84,7 @@ export class Push implements IPush {
     this.options = options;
   }
 
-  get token(): IPushToken {
+  public get token(): IPushToken {
     if (!this._token) {
       this._token = new PushToken(this.storage.get('push_token').token);
     }
@@ -92,7 +92,7 @@ export class Push implements IPush {
     return this._token;
   }
 
-  set token(val: IPushToken) {
+  public set token(val: IPushToken) {
     if (!val) {
       this.storage.delete('push_token');
     } else {
@@ -111,7 +111,7 @@ export class Push implements IPush {
    * @param token - The token.
    * @param options
    */
-  saveToken(token: IPushToken, options: SaveTokenOptions = {}): Promise<IPushToken> {
+  public saveToken(token: IPushToken, options: SaveTokenOptions = {}): Promise<IPushToken> {
     let deferred = new DeferredPromise<IPushToken, Error>();
 
     let tokenData: ServiceTokenData = {
@@ -159,7 +159,7 @@ export class Push implements IPush {
    *
    * TODO: link to saveToken
    */
-  register(): Promise<IPushToken> {
+  public register(): Promise<IPushToken> {
     let deferred = new DeferredPromise<IPushToken, Error>();
 
     if (this.blockRegistration) {
@@ -191,7 +191,7 @@ export class Push implements IPush {
   /**
    * Invalidate the current push token.
    */
-  unregister(): Promise<void> {
+  public unregister(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
 
     if (!this.blockUnregister) {

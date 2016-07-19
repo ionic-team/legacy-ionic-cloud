@@ -14,22 +14,13 @@ declare var navigator: any;
 export class Device implements IDevice {
 
   public deviceType: string;
+
   private emitter: IEventEmitter;
 
   constructor(public deps: DeviceDependencies) {
     this.emitter = this.deps.emitter;
     this.deviceType = this.determineDeviceType();
     this.registerEventHandlers();
-  }
-
-  private registerEventHandlers(): void {
-    if (this.deviceType === 'unknown') {
-      this.emitter.emit('device:ready');
-    } else {
-      this.emitter.once('cordova:deviceready', () => {
-        this.emitter.emit('device:ready');
-      });
-    }
   }
 
   public isAndroid(): boolean {
@@ -61,6 +52,16 @@ export class Device implements IDevice {
 
       default:
         return false;
+    }
+  }
+
+  private registerEventHandlers(): void {
+    if (this.deviceType === 'unknown') {
+      this.emitter.emit('device:ready');
+    } else {
+      this.emitter.once('cordova:deviceready', () => {
+        this.emitter.emit('device:ready');
+      });
     }
   }
 

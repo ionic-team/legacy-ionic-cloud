@@ -14,7 +14,7 @@ export class Exception extends Error {
     this.stack = (<any>new Error()).stack;
   }
 
-  toString() {
+  public toString() {
     return `${this.name}: ${this.message}`;
   }
 

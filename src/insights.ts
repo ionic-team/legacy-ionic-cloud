@@ -14,6 +14,7 @@ import {
  * @private
  */
 export class Stat {
+
   public created: Date;
 
   constructor(public appId: string, public stat: string, public value: number = 1) {
@@ -23,7 +24,7 @@ export class Stat {
     this.created = new Date();
   }
 
-  toJSON(): IStatSerialized {
+  public toJSON(): IStatSerialized {
     return {
       app_id: this.appId,
       stat: this.stat,
@@ -31,6 +32,7 @@ export class Stat {
       created: this.created.toISOString(),
     };
   }
+
 }
 
 /**
@@ -79,7 +81,7 @@ export class Insights implements IInsights {
    * @param stat - The insight name.
    * @param value - The number by which to increment this insight.
    */
-  track(stat: string, value: number = 1): void {
+  public track(stat: string, value: number = 1): void {
     this.trackStat(new Stat(this.config.get('app_id'), stat, value));
   }
 

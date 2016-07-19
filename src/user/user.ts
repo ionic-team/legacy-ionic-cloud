@@ -21,6 +21,7 @@ import { DataType } from './data-types';
  * @private
  */
 export class UserContext implements IUserContext {
+
   private storage: IStorage<StoredUser>;
   private config: IConfig;
 
@@ -29,19 +30,19 @@ export class UserContext implements IUserContext {
     this.storage = deps.storage;
   }
 
-  get label(): string {
+  public get label(): string {
     return 'user_' + this.config.get('app_id');
   }
 
-  unstore(): void {
+  public unstore(): void {
     this.storage.delete(this.label);
   }
 
-  store(user: IUser): void {
+  public store(user: IUser): void {
     this.storage.set(this.label, user.serializeForStorage());
   }
 
-  load(user: IUser): IUser {
+  public load(user: IUser): IUser {
     let data = this.storage.get(this.label);
 
     if (data) {
@@ -54,14 +55,15 @@ export class UserContext implements IUserContext {
 
     return;
   }
+
 }
 
 /**
- * A storage class for a user's custom data.
+ * @private
  */
 export class UserData implements IUserData {
 
-  data: Object;
+  public data: Object;
 
   constructor(data = {}) {
     this.data = {};
@@ -71,7 +73,26 @@ export class UserData implements IUserData {
     }
   }
 
-  deserializerDataTypes() {
+  public get(key: string, defaultValue: any) {
+    if (this.data.hasOwnProperty(key)) {
+      return this.data[key];
+    } else {
+      if (defaultValue === 0 || defaultValue === false) {
+        return defaultValue;
+      }
+      return defaultValue || null;
+    }
+  }
+
+  public set(key: string, value: any) {
+    this.data[key] = value;
+  }
+
+  public unset(key: string) {
+    delete this.data[key];
+  }
+
+  private deserializerDataTypes() {
     if (this.data) {
       for (var x in this.data) {
         // if we have an object, let's check for custom data types
@@ -91,24 +112,6 @@ export class UserData implements IUserData {
     }
   }
 
-  get(key: string, defaultValue: any) {
-    if (this.data.hasOwnProperty(key)) {
-      return this.data[key];
-    } else {
-      if (defaultValue === 0 || defaultValue === false) {
-        return defaultValue;
-      }
-      return defaultValue || null;
-    }
-  }
-
-  set(key: string, value: any) {
-    this.data[key] = value;
-  }
-
-  unset(key: string) {
-    delete this.data[key];
-  }
 }
 
 /**
@@ -116,12 +119,12 @@ export class UserData implements IUserData {
  */
 export class User implements IUser {
 
-  private service: ISingleUserService;
-
   public id: string;
   public fresh: boolean; // user has not yet been persisted
   public details: UserDetails = {};
   public data: IUserData;
+
+  private service: ISingleUserService;
 
   private _unset: any;
 
@@ -137,7 +140,7 @@ export class User implements IUser {
    *
    * If the `id` property is set, the user is no longer anonymous.
    */
-  isAnonymous(): boolean {
+  public isAnonymous(): boolean {
     if (!this.id) {
       return true;
     } else {
@@ -153,7 +156,7 @@ export class User implements IUser {
    * @param key - The data key to get.
    * @param defaultValue - The value to return if the key is absent.
    */
-  get(key: string, defaultValue: any) {
+  public get(key: string, defaultValue: any) {
     return this.data.get(key, defaultValue);
   }
 
@@ -163,7 +166,7 @@ export class User implements IUser {
    * @param key - The data key to set.
    * @param value - The value to set.
    */
-  set(key: string, value: any) {
+  public set(key: string, value: any) {
     delete this._unset[key];
     return this.data.set(key, value);
   }
@@ -173,7 +176,7 @@ export class User implements IUser {
    *
    * @param key - The data key to delete.
    */
-  unset(key: string) {
+  public unset(key: string) {
     this._unset[key] = true;
     return this.data.unset(key);
   }
@@ -181,7 +184,7 @@ export class User implements IUser {
   /**
    * Revert this user to a fresh, anonymous state.
    */
-  clear() {
+  public clear() {
     this.id = null;
     this.data = new UserData();
     this.details = {};
@@ -191,7 +194,7 @@ export class User implements IUser {
   /**
    * Save this user to the API.
    */
-  save(): Promise<void> {
+  public save(): Promise<void> {
     this._unset = {};
     return this.service.save();
   }
@@ -199,7 +202,7 @@ export class User implements IUser {
   /**
    * Delete this user from the API.
    */
-  delete(): Promise<void> {
+  public delete(): Promise<void> {
     return this.service.delete();
   }
 
@@ -208,28 +211,28 @@ export class User implements IUser {
    *
    * @param id - The user ID to load into this user.
    */
-  load(id?: string): Promise<void> {
+  public load(id?: string): Promise<void> {
     return this.service.load(id);
   }
 
   /**
    * Store this user in local storage.
    */
-  store() {
+  public store() {
     this.service.store();
   }
 
   /**
    * Remove this user from local storage.
    */
-  unstore() {
+  public unstore() {
     this.service.unstore();
   }
 
   /**
    * @private
    */
-  serializeForAPI(): UserDetails {
+  public serializeForAPI(): UserDetails {
     return {
       'email': this.details.email,
       'password': this.details.password,
@@ -243,7 +246,7 @@ export class User implements IUser {
   /**
    * @private
    */
-  serializeForStorage(): StoredUser {
+  public serializeForStorage(): StoredUser {
     return {
       'id': this.id,
       'data': this.data.data,
@@ -252,7 +255,7 @@ export class User implements IUser {
     };
   }
 
-  toString(): string {
+  public toString(): string {
     return `<User [${this.isAnonymous() ? 'anonymous' : this.id}]>`;
   }
 
@@ -272,7 +275,7 @@ export class SingleUserService implements ISingleUserService {
     this.context = deps.context;
   }
 
-  current(): IUser {
+  public current(): IUser {
     if (!this.user) {
       this.user = this.context.load(new User({'service': this}));
     }
@@ -284,15 +287,15 @@ export class SingleUserService implements ISingleUserService {
     return this.user;
   }
 
-  store() {
+  public store() {
     this.context.store(this.current());
   }
 
-  unstore() {
+  public unstore() {
     this.context.unstore();
   }
 
-  load(id: string = 'self'): Promise<void> {
+  public load(id: string = 'self'): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
     let user = this.current();
 
@@ -313,7 +316,7 @@ export class SingleUserService implements ISingleUserService {
     return deferred.promise;
   }
 
-  delete(): Promise<void> {
+  public delete(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
 
     if (this.user.isAnonymous()) {
@@ -333,7 +336,7 @@ export class SingleUserService implements ISingleUserService {
     return deferred.promise;
   }
 
-  save(): Promise<void> {
+  public save(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
 
     this.store();

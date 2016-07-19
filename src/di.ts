@@ -73,37 +73,37 @@ function cache<T>(target: any, propertyKey: string, descriptor: TypedPropertyDes
 export class Container {
 
   @cache
-  get appStatus(): IAppStatus {
+  public get appStatus(): IAppStatus {
     return {'asleep': false, 'closed': false};
   }
 
   @cache
-  get config(): IConfig {
+  public get config(): IConfig {
     return new Config();
   }
 
   @cache
-  get eventEmitter(): IEventEmitter {
+  public get eventEmitter(): IEventEmitter {
     return new EventEmitter();
   }
 
   @cache
-  get logger(): ILogger {
+  public get logger(): ILogger {
     return new Logger(this.config.settings.logger);
   }
 
   @cache
-  get localStorageStrategy(): IStorageStrategy {
+  public get localStorageStrategy(): IStorageStrategy {
     return new LocalStorageStrategy();
   }
 
   @cache
-  get sessionStorageStrategy(): IStorageStrategy {
+  public get sessionStorageStrategy(): IStorageStrategy {
     return new SessionStorageStrategy();
   }
 
   @cache
-  get authTokenContext(): ICombinedTokenContext {
+  public get authTokenContext(): ICombinedTokenContext {
     let label = 'auth_' + this.config.get('app_id');
     return new CombinedAuthTokenContext({
       'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
@@ -112,12 +112,12 @@ export class Container {
   }
 
   @cache
-  get client(): IClient {
+  public get client(): IClient {
     return new Client(this.authTokenContext, this.config.getURL('api'));
   }
 
   @cache
-  get insights(): IInsights {
+  public get insights(): IInsights {
     return new Insights({
       'appStatus': this.appStatus,
       'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
@@ -128,7 +128,7 @@ export class Container {
   }
 
   @cache
-  get core(): ICore {
+  public get core(): ICore {
     return new Core({
       'config': this.config,
       'logger': this.logger,
@@ -138,12 +138,12 @@ export class Container {
   }
 
   @cache
-  get device(): IDevice {
+  public get device(): IDevice {
     return new Device({'emitter': this.eventEmitter});
   }
 
   @cache
-  get cordova(): ICordova {
+  public get cordova(): ICordova {
     return new Cordova({
       'appStatus': this.appStatus,
       'device': this.device,
@@ -153,17 +153,17 @@ export class Container {
   }
 
   @cache
-  get userContext(): IUserContext {
+  public get userContext(): IUserContext {
     return new UserContext({'storage': new Storage<StoredUser>({'strategy': this.localStorageStrategy}), 'config': this.config});
   }
 
   @cache
-  get singleUserService(): ISingleUserService {
+  public get singleUserService(): ISingleUserService {
     return new SingleUserService({'client': this.client, 'context': this.userContext});
   }
 
   @cache
-  get authModules(): IAuthModules {
+  public get authModules(): IAuthModules {
     return {
       'basic': new BasicAuth({'config': this.config, 'client': this.client}),
       'custom': new CustomAuth({'config': this.config, 'client': this.client}),
@@ -177,7 +177,7 @@ export class Container {
   }
 
   @cache
-  get auth(): IAuth {
+  public get auth(): IAuth {
     return new Auth({
       'emitter': this.eventEmitter,
       'authModules': this.authModules,
@@ -187,7 +187,7 @@ export class Container {
   }
 
   @cache
-  get push(): IPush {
+  public get push(): IPush {
     let config = this.config;
 
     return new Push({
@@ -203,7 +203,7 @@ export class Container {
   }
 
   @cache
-  get deploy(): IDeploy {
+  public get deploy(): IDeploy {
     return new Deploy({
       'config': this.config,
       'emitter': this.eventEmitter,

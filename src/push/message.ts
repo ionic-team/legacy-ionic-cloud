@@ -19,7 +19,7 @@ export class PushMessage implements IPushMessage {
    *
    * @param data - The plugin's notification object.
    */
-  static fromPluginData(data: IPluginNotification): PushMessage {
+  public static fromPluginData(data: IPluginNotification): PushMessage {
     let message = new PushMessage();
 
     message.raw = data;
@@ -37,7 +37,7 @@ export class PushMessage implements IPushMessage {
     return message;
   }
 
-  toString(): string {
+  public toString(): string {
     return `<PushMessage ["${this.title}"]>`;
   }
 }
