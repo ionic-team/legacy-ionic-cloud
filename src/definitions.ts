@@ -28,6 +28,7 @@ export interface DBSettings {
   lazyWrites?: boolean;
   authType?: "anonymous" | "ionic" | "unauthenticated" | "token";
   host?: string;
+  path?: string;
   secure?: boolean;
   retries?: number;
 }
