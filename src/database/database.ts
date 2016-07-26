@@ -30,13 +30,17 @@ export class Database {
     this.client = deps.client;
     this.storage = deps.storage;
     this.emitter = deps.emitter;
-    let authType:HorizonAuthType = 'token';
+    let authType:HorizonAuthType = 'anonymous';
     switch(settings.authType){
-      case 'anonymous':
-        authType = 'anonymous';
-        break;
       case 'unauthenticated':
         authType = 'unauthenticated';
+        break;
+      case 'ionic':
+        authType = 'token';
+        break;
+      case 'token':
+        authType = 'token';
+        break;
     }
     this._hz_settings = {
       lazyWrites: settings.lazyWrites || false,

@@ -71,6 +71,10 @@ if (typeof angular === 'object' && angular.module) {
     return Ionic.deploy;
   }])
 
+  .factory('$ionicDatabase', [function() {
+    return Ionic.database;
+  }])
+
   .run([function() {
     // TODO
   }]);
