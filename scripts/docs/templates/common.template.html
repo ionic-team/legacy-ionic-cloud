@@ -143,7 +143,7 @@ docType: "<$ doc.docType $>"
 <@ block header @>
 
 <h1 class="api-title">
-<a class="anchor" name="<$ doc.name | dashCase $>" href="#<$ doc.name | dashCase $>"></a>
+<a class="anchor" name="<$ doc.name | dashCase $>" href="#<$ doc.name | dashCase $>">
 <@ if doc.docType == "directive" @>
 <$ doc.name | dashCase $>
 <@ else @>
@@ -152,6 +152,7 @@ docType: "<$ doc.docType $>"
 <h3><code><$ doc.directiveInfo.properties[0].values $></code></h3>
 <@ endif -@>
 <@ endif @>
+</a>
 
 <@ if doc.parent @>
 <br />
@@ -251,10 +252,10 @@ Improve this doc
 
 <!-- instance methods on the class -->
 <@- if doc.members and doc.members.length @>
-<h2><a class="anchor" name="instance-members" href="#instance-members"></a>Instance Members</h2>
+<h2><a class="anchor" name="instance-members" href="#instance-members">Instance Members</a></h2>
 <@- for method in doc.members @>
 <div id="<$ method.name $>"></div>
-<h3><a class="anchor" name="<$ method.name $>" href="#<$ method.name $>"></a><$ functionSyntax(method) $></h3>
+<h3><a class="anchor" name="<$ method.name $>" href="#<$ method.name $>"><$ functionSyntax(method) $></a></h3>
 <$ method.description $>
 <@ if method.params @><$ paramTable(method.params) $><@ endif @>
 <@ if method.this @>
@@ -274,26 +275,26 @@ Improve this doc
 
 <@- if doc.inputs and doc.inputs.length @>
 <!-- input methods on the class -->
-<h2><a class="anchor" name="input-properties" href="#input-properties"></a>Input Properties</h2>
+<h2><a class="anchor" name="input-properties" href="#input-properties">Input Properties</a></h2>
 <$ inputTable(doc.inputs) $>
 <@- endif -@>
 
 <@- if doc.outputs and doc.outputs.length @>
 <!-- output events on the class -->
-<h2><a class="anchor" name="output-events" href="#output-events"></a>Output Events</h2>
+<h2><a class="anchor" name="output-events" href="#output-events">Output Events</a></h2>
 <$ outputTable(doc.outputs) $>
 <@- endif -@>
 
 <@ block advanced @>
 <@- if doc.advanced -@>
-<h2><a class="anchor" name="advanced" href="#advanced"></a>Advanced</h2>
+<h2><a class="anchor" name="advanced" href="#advanced">Advanced</a></h2>
 <$ doc.advanced | marked $>
 <@- endif -@>
 <@ endblock @>
 
 <!-- related link -->
 <@- if doc.see @>
-<h2><a class="anchor" name="related" href="#related"></a>Related</h2>
+<h2><a class="anchor" name="related" href="#related">Related</a></h2>
 <@ for s in doc.see @>
 <$ s | safe $> <@- if not loop.last @>,<@- endif -@>
 <@- endfor -@>
