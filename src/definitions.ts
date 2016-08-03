@@ -267,6 +267,7 @@ export interface AuthDependencies {
   authModules: IAuthModules;
   tokenContext: ICombinedTokenContext;
   userService: ISingleUserService;
+  storage: IStorage<string>;
 }
 
 export interface AuthOptions {}
@@ -280,7 +281,7 @@ export interface IAuth {
   logout(): void;
   signup(data: UserDetails): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;
-  confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void>;
+  confirmPasswordReset(code: number, newPassword: string): Promise<void>;
 }
 
 export interface IAppStatus {

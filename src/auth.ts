@@ -95,6 +95,7 @@ export class Auth implements IAuth {
   private authModules: IAuthModules;
   private tokenContext: ICombinedTokenContext;
   private userService: ISingleUserService;
+  private storage: IStorage<string>;
 
   private authToken: string;
 
@@ -106,6 +107,7 @@ export class Auth implements IAuth {
     this.authModules = deps.authModules;
     this.tokenContext = deps.tokenContext;
     this.userService = deps.userService;
+    this.storage = deps.storage;
   }
 
   /**
@@ -186,11 +188,7 @@ export class Auth implements IAuth {
    * @param details - The details that describe a user.
    */
   public signup(details: UserDetails): Promise<void> {
-    let context = this.authModules.basic;
-    if (!context) {
-      throw new Error('Authentication class is invalid or missing:' + context);
-    }
-    return context.signup.apply(context, [details]);
+    return this.authModules.basic.signup(details);
   }
 
   /**
@@ -205,8 +203,8 @@ export class Auth implements IAuth {
    * @param email - The email address to which to send a code.
    */
   public requestPasswordReset(email: string): Promise<void> {
-    let context = this.authModules.basic;
-    return context.requestPasswordReset(email);
+    this.storage.set('auth_password_reset_email', email);
+    return this.authModules.basic.requestPasswordReset(email);
   }
 
   /**
@@ -215,14 +213,12 @@ export class Auth implements IAuth {
    * When the user gives you their password reset code into your app and their
    * requested changed password, call this method.
    *
-   * TODO: Handle email storage?
-   *
    * @param code - The password reset code from the user.
    * @param newPassword - The requested changed password from the user.
    */
-  public confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void> {
-    let context = this.authModules.basic;
-    return context.confirmPasswordReset(email, code, newPassword);
+  public confirmPasswordReset(code: number, newPassword: string): Promise<void> {
+    let email = this.storage.get('auth_password_reset_email');
+    return this.authModules.basic.confirmPasswordReset(email, code, newPassword);
   }
 
   /**
@@ -415,7 +411,7 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
         .send({
           'app_id': this.config.get('app_id'),
           'email': email,
-          'cloud_client': true
+          'flow': 'app'
         })
         .end((err, res) => {
           if (err) {
