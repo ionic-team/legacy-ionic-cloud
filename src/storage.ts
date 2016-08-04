@@ -6,7 +6,7 @@ import {
 } from './definitions';
 
 /**
- * @private
+ * @hidden
  */
 export class LocalStorageStrategy implements IStorageStrategy {
 
@@ -25,7 +25,7 @@ export class LocalStorageStrategy implements IStorageStrategy {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class SessionStorageStrategy implements IStorageStrategy {
 

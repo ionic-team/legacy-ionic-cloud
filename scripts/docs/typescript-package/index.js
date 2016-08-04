@@ -1,9 +1,8 @@
-var basePackage = require('dgeni-packages/base');
 var Package = require('dgeni').Package;
 var path = require('canonical-path');
 
 // Define the dgeni package for generating the docs
-module.exports = new Package('typescript-parsing', [basePackage])
+module.exports = new Package('typescript', [require('../base')])
 
 // Register the services and file readers
 .factory(require('./services/modules'))
@@ -12,7 +11,6 @@ module.exports = new Package('typescript-parsing', [basePackage])
 .factory(require('./services/tsParser/getFileInfo'))
 .factory(require('./services/tsParser/getExportDocType'))
 .factory(require('./services/tsParser/getContent'))
-.factory(require('./services/tsParser/getDirectiveInfo'))
 
 .factory(require('./services/convertPrivateClassesToInterfaces'))
 
@@ -29,16 +27,12 @@ module.exports = new Package('typescript-parsing', [basePackage])
   ];
 })
 
+// use `ignoreTypeScriptNamespaces.push()` to inject your own regexes here.
+// these namespaces will not be stripped if used for type parameters.
+.factory('ignoreTypeScriptNamespaces', function() { return []; })
 
 // Register the processors
 .processor(require('./processors/readTypeScriptModules'))
-
-
-// Configure the log service
-.config(function(log) {
-  log.level = 'warn';
-})
-
 
 // Configure ids and paths
 .config(function(computeIdsProcessor, computePathsProcessor, EXPORT_DOC_TYPES) {

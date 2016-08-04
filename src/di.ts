@@ -68,7 +68,7 @@ function cache<T>(target: any, propertyKey: string, descriptor: TypedPropertyDes
 }
 
 /**
- * @private
+ * @hidden
  */
 export class Container {
 

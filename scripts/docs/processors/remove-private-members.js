@@ -10,6 +10,7 @@ module.exports = function removePrivateMembers() {
         if (doc.members) {
           doc.members = doc.members.filter(function(member) {
             return !member.tags.tagsByName.get('private') &&
+                   !member.tags.tagsByName.get('hidden') &&
                    !isFileIfPrivate(member.fileInfo.filePath,
                                    member.location.end.line);
           });
@@ -18,6 +19,7 @@ module.exports = function removePrivateMembers() {
         if (doc.statics) {
           doc.statics = doc.statics.filter(function(staticMethod) {
             return !staticMethod.tags.tagsByName.get('private') &&
+                   !staticMethod.tags.tagsByName.get('hidden') &&
                    !isFileIfPrivate(staticMethod.fileInfo.filePath,
                                    staticMethod.location.start.line);
           });

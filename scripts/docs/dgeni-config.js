@@ -1,7 +1,8 @@
 var Package = require('dgeni').Package;
+var Dgeni = require('dgeni');
 var jsdocPackage = require('dgeni-packages/jsdoc');
 var nunjucksPackage = require('dgeni-packages/nunjucks');
-var typescriptPackage = require('./typescript-package');
+var typescriptPackage = require('dgeni-packages/typescript');
 var linksPackage = require('./links-package');
 var gitPackage = require('dgeni-packages/git');
 var path = require('path');
@@ -25,25 +26,24 @@ module.exports = function(currentVersion) {
   .processor(require('./processors/collect-inputs-outputs'))
   .processor(require('./processors/parse-returns-object'))
 
-// for debugging docs
-// .processor(function test(){
-//   return {
-//
-//     $runBefore: ['rendering-docs'],
-//     $process: function(docs){
-//       docs.forEach(function(doc){
-//         if (doc.name == "Searchbar"){
-//           console.log(doc.input);
-//           doc.members.forEach(function(method){
-//             if (method.name === "load") {
-//               console.log(method);
-//             }
-//           })
-//         }
-//       })
-//     }
-//   }
-// })
+  // for debugging docs
+  // .processor(function test() {
+  //   return {
+  //
+  //     $runBefore: ['rendering-docs'],
+  //     $process: function(docs) {
+  //       docs.forEach(function(doc) {
+  //         if (doc.name === 'Auth') {
+  //           doc.members.forEach(function(method) {
+  //             if (method.name === 'login') {
+  //               console.log(method);
+  //             }
+  //           });
+  //         }
+  //       });
+  //     }
+  //   };
+  // })
 
   .config(function(log) {
     log.level = 'error'; //'silly', 'debug', 'info', 'warn', 'error'

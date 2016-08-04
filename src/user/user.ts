@@ -18,7 +18,7 @@ import { DeferredPromise } from '../promise';
 import { DataType } from './data-types';
 
 /**
- * @private
+ * @hidden
  */
 export class UserContext implements IUserContext {
 
@@ -59,7 +59,7 @@ export class UserContext implements IUserContext {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class UserData implements IUserData {
 
@@ -245,7 +245,7 @@ export class User implements IUser {
   }
 
   /**
-   * @private
+   * @hidden
    */
   public serializeForAPI(): UserDetails {
     return {
@@ -259,7 +259,7 @@ export class User implements IUser {
   }
 
   /**
-   * @private
+   * @hidden
    */
   public serializeForStorage(): StoredUser {
     return {
@@ -277,7 +277,7 @@ export class User implements IUser {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class SingleUserService implements ISingleUserService {
 

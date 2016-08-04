@@ -11,7 +11,7 @@ import {
 } from './definitions';
 
 /**
- * @private
+ * @hidden
  */
 export class Stat {
 

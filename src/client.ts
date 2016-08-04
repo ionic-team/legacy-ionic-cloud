@@ -71,7 +71,7 @@ export class Client implements IClient {
   }
 
   /**
-   * @private
+   * @hidden
    */
   public request(method: string, endpoint: string) {
     return this.supplement(this.req.bind(this.req, method), endpoint);

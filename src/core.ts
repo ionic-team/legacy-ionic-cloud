@@ -10,7 +10,7 @@ import {
 } from './definitions';
 
 /**
- * @private
+ * @hidden
  */
 export class Core implements ICore {
 

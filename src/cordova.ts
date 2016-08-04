@@ -11,7 +11,7 @@ import {
 declare var cordova: any;
 
 /**
- * @private
+ * @hidden
  */
 export class Cordova implements ICordova {
 

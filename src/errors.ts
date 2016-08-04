@@ -1,7 +1,7 @@
 import { IDetailedError } from './definitions';
 
 /**
- * @private
+ * @hidden
  */
 export class Exception extends Error {
 

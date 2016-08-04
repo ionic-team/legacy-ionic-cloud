@@ -9,7 +9,7 @@ declare var Connection: any;
 declare var navigator: any;
 
 /**
- * @private
+ * @hidden
  */
 export class Device implements IDevice {
 

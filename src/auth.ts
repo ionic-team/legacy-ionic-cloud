@@ -30,7 +30,7 @@ import { DeferredPromise } from './promise';
 declare var window: any;
 
 /**
- * @private
+ * @hidden
  */
 export class AuthTokenContext implements ITokenContext {
   private storage: IStorage<string>;
@@ -53,7 +53,7 @@ export class AuthTokenContext implements ITokenContext {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class CombinedAuthTokenContext implements ICombinedTokenContext {
   private storage: IStorage<string>;
@@ -252,7 +252,7 @@ export class Auth implements IAuth {
   }
 
   /**
-   * @private
+   * @hidden
    */
   public static getDetailedErrorFromResponse(res): DetailedError<string[]> {
     let errors = [];
@@ -275,7 +275,7 @@ export class Auth implements IAuth {
 }
 
 /**
- * @private
+ * @hidden
  */
 export abstract class AuthType implements IAuthType {
   protected config: IConfig;
@@ -373,7 +373,7 @@ export abstract class AuthType implements IAuthType {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class BasicAuth extends AuthType implements IBasicAuthType {
 
@@ -479,7 +479,7 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class CustomAuth extends AuthType {
   public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
@@ -488,7 +488,7 @@ export class CustomAuth extends AuthType {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class TwitterAuth extends AuthType {
   public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
@@ -497,7 +497,7 @@ export class TwitterAuth extends AuthType {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class FacebookAuth extends AuthType {
   public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
@@ -506,7 +506,7 @@ export class FacebookAuth extends AuthType {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class GithubAuth extends AuthType {
   public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
@@ -515,7 +515,7 @@ export class GithubAuth extends AuthType {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class GoogleAuth extends AuthType {
   public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
@@ -524,7 +524,7 @@ export class GoogleAuth extends AuthType {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class InstagramAuth extends AuthType {
   public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
@@ -533,7 +533,7 @@ export class InstagramAuth extends AuthType {
 }
 
 /**
- * @private
+ * @hidden
  */
 export class LinkedInAuth extends AuthType {
   public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
