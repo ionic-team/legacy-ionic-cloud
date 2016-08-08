@@ -18,7 +18,10 @@ module.exports = function parseReturnsObject() {
       docs.forEach(function(doc, i) {
         if (doc.members) {
           docs[i].members.forEach(function(member, ii) {
-            if (member.returns && member.returns.typeExpression == 'object') {
+            if (member.returns &&
+                member.returns.typeExpression &&
+                (member.returns.typeExpression == 'object' ||
+                 member.returns.typeExpression.toLowerCase().substring(0,7) == 'promise')) {
               var params = docs[i].members[ii].returns.description.split('\n{');
               docs[i].members[ii].returns.description = params.shift();
               if (params.length) {

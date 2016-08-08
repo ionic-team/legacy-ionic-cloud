@@ -64,10 +64,10 @@ docType: "<$ doc.docType $>"
       <td>
         <$ param.name $>
         <@ if param.alias @>| <$ param.alias $><@ endif @>
-        <@ if param.type.optional @><div><em>(optional)</em></div><@ endif @>
+        <@ if param.optional @><div><em>(optional)</em></div><@ endif @>
       </td>
       <td>
-        <$ typeList(param.typeList) $>
+        <$ param.type $>
       </td>
       <td>
         <$ param.description | marked $>
@@ -121,11 +121,16 @@ docType: "<$ doc.docType $>"
 
 <@- macro functionSyntax(fn) @>
   <@- set sep = joiner(',&nbsp;') -@>
-  <code><$ fn.name $><@- if not fn.isProperty @>(<@ endif -@><@- for param in fn.params @><$ sep() $>
-  <@- if param.type.optional @>[<@ endif -@>
-  <$ param.name $>
-  <@- if param.type.optional @>]<@ endif -@>
-  <@ endfor @><@- if not fn.isProperty @>)<@ endif -@></code>
+  <code><span class="member-name"><$ fn.name $></span><@- if not fn.isProperty @>(<@ endif -@><@- for param in fn.cleanParams @><$ sep() $>
+  <span class="param-name"><$ param.name $></span>
+  <@- if param.optional @><span class="param-optional">?</span><@ endif -@>
+  <@- if param.type @>: <span class="param-type"><$ param.type $></span><@ endif -@>
+  <@ endfor @>
+  <@- if not fn.isProperty @>)<@ endif -@>
+  <@- if fn.returns.type @>:
+    <span class="returns-type"><$ fn.returns.type|replace('<','&lt;') $></span>
+  <@ endif -@>
+  </code>
   <@ if fn.alias @><small>(alias: <$ fn.alias $>)</small><@ endif @>
 <@ endmacro -@>
 
@@ -135,15 +140,16 @@ docType: "<$ doc.docType $>"
 <@- endmacro -@>
 
 <@- macro typeInfo(fn) -@>
-  <$ typeList(fn.typeList) $> <$ fn.description | marked  $>
+  <@- if fn.type @><code><$ fn.type|replace('<','&lt;') $></code><@ endif -@> <$ fn.description | marked  $>
 <@- endmacro -@>
 
 <@ block body @>
 <@ block content @>
 <@ block header @>
 
+<a class="anchor" name="<$ doc.name | dashCase $>"></a>
 <h1 class="api-title">
-<a class="anchor" name="<$ doc.name | dashCase $>" href="#<$ doc.name | dashCase $>">
+<a href="#<$ doc.name | dashCase $>">
 <@ if doc.docType == "directive" @>
 <$ doc.name | dashCase $>
 <@ else @>
@@ -179,16 +185,18 @@ Improve this doc
 <@ endblock @>
 
 <!-- @usage tag -->
+<a class="anchor" name="usage"></a>
 <@ if doc.usage @>
-<h2><a class="anchor" name="usage" href="#usage"></a>Usage</h2>
+<h2><a href="#usage">Usage</a></h2>
 <@ block usage @>
 <$ doc.usage | marked $>
 <@ endblock @>
 <@ endif @>
 
 <!-- @property tags -->
+<a class="anchor" name="attributes"></a>
 <@ if doc.properties @>
-<h2><a class="anchor" name="attributes" href="#attributes"></a>Attributes:</h2>
+<h2><a href="#attributes">Attributes:</a></h2>
 <table class="table" style="margin:0;">
 <thead>
 <tr>
@@ -230,14 +238,15 @@ Improve this doc
 <@ endif @>
 
 <@- if doc.statics.length -@>
-<h2><a class="anchor" name="static-members" href="#static-members"></a>Static Members</h2>
+<a class="anchor" name="static-members"></a>
+<h2><a href="#static-members">Static Members</a></h2>
 <@- for method in doc.statics @><@ if not method.internal @>
-<div id="<$ method.name $>"></div>
-<h3><a class="anchor" name="<$ method.name $>" href="#<$ method.name $>"></a><$ functionSyntax(method) $></h3>
+<a class="anchor" name="<$ method.name $>"></a>
+<h3 class="member"><a href="#<$ method.name $>"><$ functionSyntax(method) $></a></h3>
 <$ method.description $>
-<@ if method.params @><$ paramTable(method.params) $><@ endif @>
+<@ if method.params @><$ paramTable(method.clearParams) $><@ endif @>
 <@ if method.this @><h4> Method's `this` <$ method.this $></h4><@ endif @>
-<@ if method.returns @>
+<@ if method.returns.description @>
 <div class="anchor" class="return-value">
 <i class="ion-md-return-right"></i>
 <b>Returns:</b> <$ typeInfo(method.returns) $>
@@ -252,16 +261,17 @@ Improve this doc
 
 <!-- instance methods on the class -->
 <@- if doc.members and doc.members.length @>
-<h2><a class="anchor" name="instance-members" href="#instance-members">Instance Members</a></h2>
+<a class="anchor" name="instance-members"></a>
+<h2><a href="#instance-members">Instance Members</a></h2>
 <@- for method in doc.members @>
-<div id="<$ method.name $>"></div>
-<h3><a class="anchor" name="<$ method.name $>" href="#<$ method.name $>"><$ functionSyntax(method) $></a></h3>
+<a class="anchor" name="<$ method.name $>"></a>
+<h3 class="member"><a href="#<$ method.name $>"><$ functionSyntax(method) $></a></h3>
 <$ method.description $>
-<@ if method.params @><$ paramTable(method.params) $><@ endif @>
+<@ if method.cleanParams.length @><$ paramTable(method.cleanParams) $><@ endif @>
 <@ if method.this @>
 <h4> Method's `this` <$ method.this $></h4>
 <@ endif @>
-<@ if method.returns @>
+<@ if method.returns.description @>
 <div class="return-value">
 <i class="ion-md-return-right"></i>
 <b>Returns:</b> <$ typeInfo(method.returns) $>
@@ -275,26 +285,30 @@ Improve this doc
 
 <@- if doc.inputs and doc.inputs.length @>
 <!-- input methods on the class -->
-<h2><a class="anchor" name="input-properties" href="#input-properties">Input Properties</a></h2>
+<a class="anchor" name="input-properties"></a>
+<h2><a href="#input-properties">Input Properties</a></h2>
 <$ inputTable(doc.inputs) $>
 <@- endif -@>
 
 <@- if doc.outputs and doc.outputs.length @>
 <!-- output events on the class -->
-<h2><a class="anchor" name="output-events" href="#output-events">Output Events</a></h2>
+<a class="anchor" name="output-events"></a>
+<h2><a href="#output-events">Output Events</a></h2>
 <$ outputTable(doc.outputs) $>
 <@- endif -@>
 
 <@ block advanced @>
 <@- if doc.advanced -@>
-<h2><a class="anchor" name="advanced" href="#advanced">Advanced</a></h2>
+<a class="anchor" name="advanced"></a>
+<h2><a href="#advanced">Advanced</a></h2>
 <$ doc.advanced | marked $>
 <@- endif -@>
 <@ endblock @>
 
 <!-- related link -->
 <@- if doc.see @>
-<h2><a class="anchor" name="related" href="#related">Related</a></h2>
+<a class="anchor" name="related"></a>
+<h2><a href="#related">Related</a></h2>
 <@ for s in doc.see @>
 <$ s | safe $> <@- if not loop.last @>,<@- endif -@>
 <@- endfor -@>

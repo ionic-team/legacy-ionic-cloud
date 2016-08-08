@@ -20,9 +20,9 @@ module.exports = function(currentVersion) {
 
   .processor(require('./processors/latest-version'))
   // .processor(require('./processors/index-page'))
-  .processor(require('./processors/jekyll'))
-  .processor(require('./processors/remove-private-members'))
   .processor(require('./processors/hide-private-api'))
+  .processor(require('./processors/parse-members'))
+  .processor(require('./processors/jekyll'))
   .processor(require('./processors/collect-inputs-outputs'))
   .processor(require('./processors/parse-returns-object'))
 
