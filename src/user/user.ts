@@ -49,7 +49,7 @@ export class UserContext implements IUserContext {
     if (data) {
       user.id = data.id;
       user.data = new UserData(data.data);
-      user.details = data.details || {};    
+      user.details = data.details || {};
       user.fresh = data.fresh;
       return user;
     }

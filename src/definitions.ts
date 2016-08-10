@@ -164,24 +164,31 @@ export interface UserDependencies {
   service: ISingleUserService;
 }
 
+export interface UserSocialProvider {
+  facebook?: UserSocial;
+  github?: UserSocial;
+  twitter?: UserSocial;
+  instagram?: UserSocial;
+  google?: UserSocial;
+  linkedin?: UserSocial;
+}
+
 export interface UserSocial {
-  [provider: string]: {
-    uid: string;
-    data: {
-      email: string;
-      username: string;
-      full_name: string;
-      profile_picture: string;
-      raw_data: Object;
-    }
-  };
+  uid: string;
+  data: {
+    email: string;
+    username: string;
+    full_name: string;
+    profile_picture: string;
+    raw_data: Object;
+  }
 }
 
 export interface IUser {
   id: string;
   fresh: boolean;
   details: UserDetails;
-  social: UserSocial;
+  social: UserSocialProvider;
   data: IUserData;
 
   isAnonymous(): boolean;
