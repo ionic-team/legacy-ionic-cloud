@@ -13,4 +13,5 @@ guide](https://github.com/driftyco/ionic-cloud/wiki/Migration-Guide).
 
 ## Issues & Local Development
 
-See [`CONTRIBUTING.md`](https://github.com/driftyco/ionic-cloud/blob/master/CONTRIBUTING.md).
+See the [`CONTRIBUTING.md`
+file](https://github.com/driftyco/ionic-cloud/blob/master/CONTRIBUTING.md).
