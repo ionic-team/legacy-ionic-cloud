@@ -139,6 +139,7 @@ export interface StoredUser {
   id: string;
   data: Object;
   details: Object;
+  social: Object;
   fresh: boolean;
 }
 
@@ -163,10 +164,31 @@ export interface UserDependencies {
   service: ISingleUserService;
 }
 
+export interface UserSocial {
+  facebook?: UserSocialProvider;
+  github?: UserSocialProvider;
+  twitter?: UserSocialProvider;
+  instagram?: UserSocialProvider;
+  google?: UserSocialProvider;
+  linkedin?: UserSocialProvider;
+}
+
+export interface UserSocialProvider {
+  uid: string;
+  data: {
+    email: string;
+    username: string;
+    full_name: string;
+    profile_picture: string;
+    raw_data: Object;
+  }
+}
+
 export interface IUser {
   id: string;
   fresh: boolean;
   details: UserDetails;
+  social: UserSocial;
   data: IUserData;
 
   isAnonymous(): boolean;

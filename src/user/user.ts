@@ -11,7 +11,8 @@ import {
   StoredUser,
   UserContextDependencies,
   UserDependencies,
-  UserDetails
+  UserDetails,
+  UserSocial
 } from '../definitions';
 
 import { DeferredPromise } from '../promise';
@@ -133,6 +134,11 @@ export class User implements IUser {
    * The details (email, password, etc) of this user.
    */
   public details: UserDetails = {};
+
+  /**
+   * The user social provider data.
+   */
+  public social: UserSocial = {};
 
   /**
    * The custom data of this user.
@@ -266,7 +272,8 @@ export class User implements IUser {
       'id': this.id,
       'data': this.data.data,
       'details': this.details,
-      'fresh': this.fresh
+      'fresh': this.fresh,
+      'social': this.social
     };
   }
 
@@ -323,7 +330,7 @@ export class SingleUserService implements ISingleUserService {
           user.data = new UserData(res.body.data.custom);
           user.details = res.body.data.details;
           user.fresh = false;
-
+          user.social = res.body.data.social;
           deferred.resolve();
         }
       });
