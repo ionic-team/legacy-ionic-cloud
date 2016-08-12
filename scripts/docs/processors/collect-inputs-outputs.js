@@ -9,6 +9,8 @@ module.exports = function collectInputsOutputs() {
           var members = [];
           var inputs = [];
           var outputs = [];
+          var properties = [];
+          var methods = [];
 
           memberLoop:
           for (var i in doc.members) {
@@ -16,33 +18,27 @@ module.exports = function collectInputsOutputs() {
             // identify properties to differentiate from methods
             if (typeof doc.members[i].parameters == 'undefined') {
               doc.members[i].isProperty = true;
+              properties.push(doc.members[i]);
+            } else {
+              methods.push(doc.members[i]);
             }
 
             if (doc.members[i].decorators && doc.members[i].decorators.length) {
-
               decoratorLoop:
               for (var ii in doc.members[i].decorators) {
-
-                if (doc.members[i].decorators[ii].name == 'Input') {
-                  inputs.push(parseMember(doc.members[i]));
-                  continue memberLoop;
-                }
-                if (doc.members[i].decorators[ii].name == 'Output') {
-                  outputs.push(parseMember(doc.members[i]));
-                  continue memberLoop;
-                }
+                // decorators
               }
-              // not an input or output, must be a plain member
-              members.push(doc.members[i]);
-            } else {
-              members.push(doc.members[i]);
-            };
+            }
+
+            members.push(doc.members[i]);
           }
 
           // update doc with pruned members list and add inputs and outputs
           doc.members = members;
           doc.inputs = inputs;
           doc.outputs = outputs;
+          doc.properties = properties;
+          doc.methods = methods;
         }
 
         function parseMember(member) {

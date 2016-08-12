@@ -1,3 +1,5 @@
+var config = require('../../config.json');
+
 module.exports = function jekyll(renderDocsProcessor) {
   return {
     name: 'jekyll',
@@ -7,10 +9,17 @@ module.exports = function jekyll(renderDocsProcessor) {
     $process: function(docs) {
       var currentVersion = renderDocsProcessor.extraData.version.current.name;
 
+      docs.forEach(function(doc, i) {
+        if (docs[i].docType === 'interface') {
+          docs[i].outputPath = config.docsDest + '/' + docs[i].name + '.html';
+        }
+      });
+
       // pretty up and sort the docs object for menu generation
       docs = docs.filter(function(doc) {
         return (!!doc.name && !!doc.outputPath) || doc.docType === 'index-page';
       });
+
       docs.sort(function(a, b) {
         textA = a.name ? a.name.toUpperCase() : '';
         textB = b.name ? b.name.toUpperCase() : '';
@@ -21,12 +30,21 @@ module.exports = function jekyll(renderDocsProcessor) {
         docs[i].URL = doc.outputPath.replace('/index.md', '')
                                     .replace('/' + process.cwd() + '/src', '')
                                     .replace('//', '/')
+                                    .replace('/ionic-platform-docs/', '/')
                                     .replace('content/', '');
 
         if (docs[i].relativePath) {
           docs[i].relativePath = doc.relativePath
                                     .replace(process.cwd(), '');
         }
+      });
+
+      renderDocsProcessor.extraData.interfaces = docs.filter(function(doc) {
+        return doc.docType === 'interface';
+      });
+
+      renderDocsProcessor.extraData.classes = docs.filter(function(doc) {
+        return doc.docType === 'class';
       });
 
       docs.push({

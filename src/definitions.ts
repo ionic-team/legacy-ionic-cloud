@@ -20,7 +20,14 @@ export interface ISettingsUrls {
 }
 
 export interface ICoreSettings {
+  /**
+   * Your app ID.
+   */
   app_id: string;
+
+  /**
+   * @hidden
+   */
   urls?: any;
 }
 
@@ -58,10 +65,16 @@ export interface IEventEmitter {
   emitted(event: string): number;
 }
 
+/**
+ * @hidden
+ */
 export interface StorageDependencies {
   strategy: IStorageStrategy;
 }
 
+/**
+ * @hidden
+ */
 export interface StorageOptions {
   prefix?: string;
   cache?: boolean;
@@ -73,20 +86,32 @@ export interface IStorage<T> {
   delete(key: string): void;
 }
 
+/**
+ * @hidden
+ */
 export interface IStorageStrategy {
   get(key: string): string;
   set(key: string, value: string): void;
   delete(key: string): void;
 }
 
+/**
+ * @hidden
+ */
 export interface DeviceIsConnectedToNetworkOptions {
   strictMode?: boolean;
 }
 
+/**
+ * @hidden
+ */
 export interface DeviceDependencies {
   emitter: IEventEmitter;
 }
 
+/**
+ * @hidden
+ */
 export interface IDevice {
   deviceType: string;
 
@@ -94,6 +119,9 @@ export interface IDevice {
   isIOS(): boolean;
 }
 
+/**
+ * @hidden
+ */
 export interface CordovaDependencies {
   appStatus: IAppStatus;
   device: IDevice;
@@ -101,14 +129,23 @@ export interface CordovaDependencies {
   logger: ILogger;
 }
 
+/**
+ * @hidden
+ */
 export interface CordovaOptions {}
 
+/**
+ * @hidden
+ */
 export interface ICordova {
   app: IAppStatus;
 
   bootstrap(): void;
 }
 
+/**
+ * @hidden
+ */
 export interface CoreDependencies {
   config: IConfig;
   logger: ILogger;
@@ -116,12 +153,18 @@ export interface CoreDependencies {
   insights: IInsights;
 }
 
+/**
+ * @hidden
+ */
 export interface ICore {
   version: string;
 
   init(): void;
 }
 
+/**
+ * @hidden
+ */
 export interface UserContextDependencies {
   config: IConfig;
   storage: IStorage<StoredUser>;
@@ -143,6 +186,9 @@ export interface StoredUser {
   fresh: boolean;
 }
 
+/**
+ * @hidden
+ */
 export interface IUserData {
   data: Object;
 
@@ -160,6 +206,9 @@ export interface UserDetails {
   custom?: Object;
 }
 
+/**
+ * @hidden
+ */
 export interface UserDependencies {
   service: ISingleUserService;
 }
@@ -204,11 +253,17 @@ export interface IUser {
   serializeForStorage(): StoredUser;
 }
 
+/**
+ * @hidden
+ */
 export interface SingleUserServiceDependencies {
   client: IClient;
   context: IUserContext;
 }
 
+/**
+ * @hidden
+ */
 export interface SingleUserServiceOptions {}
 
 export interface ISingleUserService {
@@ -220,10 +275,16 @@ export interface ISingleUserService {
   save(): Promise<void>;
 }
 
+/**
+ * @hidden
+ */
 export interface TokenContextDependencies {
   storage: IStorage<string>;
 }
 
+/**
+ * @hidden
+ */
 export interface ITokenContextStoreOptions {}
 
 export interface ITokenContext {
@@ -234,25 +295,40 @@ export interface ITokenContext {
   delete(): void;
 }
 
+/**
+ * @hidden
+ */
 export interface CombinedTokenContextDependencies extends TokenContextDependencies {
   tempStorage: IStorage<string>;
 }
 
+/**
+ * @hidden
+ */
 export interface ICombinedTokenContextStoreOptions extends ITokenContextStoreOptions {
   permanent?: boolean;
 }
 
+/**
+ * @hidden
+ */
 export interface ICombinedTokenContext extends ITokenContext {
   store(token: string, options: ICombinedTokenContextStoreOptions): void;
 }
 
 export type AuthModuleId = 'basic' | 'custom' | 'facebook' | 'github' | 'google' | 'instagram' | 'linkedin' | 'twitter';
 
+/**
+ * @hidden
+ */
 export interface AuthTypeDependencies {
   config: IConfig;
   client: IClient;
 }
 
+/**
+ * @hidden
+ */
 export interface IAuthType {
   authenticate(data, options?: LoginOptions): Promise<any>;
 }
@@ -262,12 +338,18 @@ export interface BasicLoginCredentials {
   password: string;
 }
 
+/**
+ * @hidden
+ */
 export interface IBasicAuthType extends IAuthType {
   signup(data: UserDetails): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;
   confirmPasswordReset(email: string, code: number, newPassword: string): Promise<void>;
 }
 
+/**
+ * @hidden
+ */
 export interface IAuthModules {
   basic: IBasicAuthType;
   custom: IAuthType;
@@ -284,6 +366,9 @@ export interface LoginOptions {
   inAppBrowserOptions?: InAppBrowserPluginOptions;
 }
 
+/**
+ * @hidden
+ */
 export interface AuthDependencies {
   emitter: IEventEmitter;
   authModules: IAuthModules;
@@ -292,9 +377,18 @@ export interface AuthDependencies {
   storage: IStorage<string>;
 }
 
+/**
+ * @hidden
+ */
 export interface AuthOptions {}
 
+/**
+ * This is the auth interface.
+ */
 export interface IAuth {
+  /**
+   * hi perry
+   */
   options: AuthOptions;
   isAuthenticated(): boolean;
   login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: LoginOptions): Promise<IUser>;
@@ -351,10 +445,16 @@ export interface SaveTokenOptions {
   ignore_user?: boolean;
 }
 
+/**
+ * @hidden
+ */
 export interface PushStorageObject {
   token: string;
 }
 
+/**
+ * @hidden
+ */
 export interface PushDependencies {
   config: IConfig;
   auth: IAuth;
@@ -450,8 +550,14 @@ export interface DeployUpdateOptions {
 
 export type DeployChannel = 'dev' | 'staging' | 'production' | string;
 
+/**
+ * @hidden
+ */
 export interface DeployOptions {}
 
+/**
+ * @hidden
+ */
 export interface DeployDependencies {
   config: IConfig;
   emitter: IEventEmitter;
@@ -475,6 +581,9 @@ export interface IDeploy {
   getMetadata(uuid: string): Promise<any>;
 }
 
+/**
+ * @hidden
+ */
 export interface IStatSerialized {
   app_id: string;
   stat: string;
@@ -482,6 +591,9 @@ export interface IStatSerialized {
   created: string;
 }
 
+/**
+ * @hidden
+ */
 export interface InsightsDependencies {
   appStatus: IAppStatus;
   storage: IStorage<string>;
@@ -490,12 +602,18 @@ export interface InsightsDependencies {
   logger: ILogger;
 }
 
+/**
+ * @hidden
+ */
 export interface InsightsOptions {
   intervalSubmit?: number;
   intervalActiveCheck?: number;
   submitCount?: number;
 }
 
+/**
+ * @hidden
+ */
 export interface IInsights {
   track(stat: string, value?: number): void;
 }

@@ -1,4 +1,5 @@
 var fs = require('fs');
+
 module.exports = function parseMembers() {
   return {
     name: 'parse-members',
@@ -50,33 +51,31 @@ function parseParams(members) {
 
   members.forEach(function(member) {
     member.cleanParams = [];
-    if(!member.parameters) {
+    if (!member.parameters) {
       return;
     }
 
     member.parameters.forEach(function(param) {
       var paramName = /([A-z]*)\??:\s[A-z]*/g.exec(param)[1];
       var paramType = /[A-z]*\??:\s([A-z]*)/g.exec(param)[1];
-      var paramOptional = !!/[A-z]*(\??):\s[A-z]*/g.exec(param)[1].length
+      var paramOptional = !!/[A-z]*(\??):\s[A-z]*/g.exec(param)[1].length;
 
-      if(member.params) {
-        var i = getTagIndexByName(member, paramName);
-        if (i > -1) {
+      var i = getTagIndexByName(member, paramName);
 
-          member.cleanParams.push({
-            name: member.params[i].name ? member.params[i].name : paramName,
-            type: member.params[i].type ? member.params[i].type.typeExpression : paramType,
-            optional: member.params[i].optional ? member.params[i].optional : paramOptional,
-            description: member.params[i].description
-          })
-        } else {
-          member.cleanParams.push({
-            name: paramName ? paramName : null,
-            type: paramType ? paramType : null,
-            optional: paramOptional ? paramOptional : null,
-            description: null
-          })
-        }
+      if (member.params && i > -1) {
+        member.cleanParams.push({
+          name: member.params[i].name ? member.params[i].name : paramName,
+          type: member.params[i].type ? member.params[i].type.typeExpression : paramType,
+          optional: member.params[i].optional ? member.params[i].optional : paramOptional,
+          description: member.params[i].description
+        });
+      } else {
+        member.cleanParams.push({
+          name: paramName ? paramName : null,
+          type: paramType ? paramType : null,
+          optional: paramOptional ? paramOptional : null,
+          description: null
+        });
       }
     })
   });
@@ -85,6 +84,10 @@ function parseParams(members) {
 
   function getTagIndexByName(member, name) {
     //console.log(member.name, name)
+    if (typeof members.params === 'undefined') {
+      return -1;
+    }
+
     for (var i = 0; i < member.params.length; i++) {
       if(member.params[i].name === name) {
         return i;
