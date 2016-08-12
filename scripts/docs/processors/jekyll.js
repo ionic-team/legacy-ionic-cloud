@@ -33,8 +33,9 @@ module.exports = function jekyll(renderDocsProcessor) {
                                     .replace('/ionic-platform-docs/', '/')
                                     .replace('content/', '');
 
-        if (docs[i].relativePath) {
-          docs[i].relativePath = doc.relativePath
+
+        if (docs[i].fileInfo.relativePath) {
+          docs[i].fileInfo.relativePath = doc.fileInfo.relativePath
                                     .replace(process.cwd(), '');
         }
       });
@@ -52,6 +53,13 @@ module.exports = function jekyll(renderDocsProcessor) {
         id: 'menu',
         template: 'menu.template.html',
         outputPath: 'content/_includes/side_nav_js_api.html'
+      });
+
+      docs.push({
+        docType: 'index',
+        id: 'index',
+        template: 'index.template.html',
+        outputPath: 'content/_includes/client_api_index.html'
       });
 
       // returning docs will replace docs object in the next process
