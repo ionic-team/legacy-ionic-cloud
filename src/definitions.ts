@@ -529,21 +529,11 @@ export interface IPush {
   unregister(): Promise<void>;
 }
 
-export interface DeployWatchOptions {
-  interval?: number;
-  initialDelay?: number;
-}
-
 export interface DeployDownloadOptions {
   onProgress?: (p: number) => void;
 }
 
 export interface DeployExtractOptions {
-  onProgress?: (p: number) => void;
-}
-
-export interface DeployUpdateOptions {
-  deferLoad?: boolean;
   onProgress?: (p: number) => void;
 }
 
@@ -570,13 +560,10 @@ export interface IDeploy {
   check(): Promise<boolean>;
   download(options?: DeployDownloadOptions): Promise<boolean>;
   extract(options?: DeployExtractOptions): Promise<boolean>;
-  update(options?: DeployUpdateOptions): Promise<boolean>;
-  watch(options?: DeployWatchOptions): void;
-  unwatch(): void;
   load();
   info(): Promise<any>;
-  getVersions(): Promise<any>;
-  deleteVersion(uuid: string): Promise<any>;
+  getSnapshots(): Promise<any>;
+  deleteSnapshot(uuid: string): Promise<any>;
   getMetadata(uuid: string): Promise<any>;
 }
 

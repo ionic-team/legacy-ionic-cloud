@@ -4,8 +4,6 @@ import {
   DeployDownloadOptions,
   DeployExtractOptions,
   DeployOptions,
-  DeployUpdateOptions,
-  DeployWatchOptions,
   IConfig,
   IDeploy,
   IEventEmitter,
@@ -18,8 +16,6 @@ declare var window: any;
 declare var IonicDeploy: any;
 
 const NO_PLUGIN = new Error('Missing deploy plugin: `ionic-plugin-deploy`');
-const INITIAL_DELAY = 1 * 5 * 1000;
-const WATCH_INTERVAL = 1 * 60 * 1000;
 
 /**
  * Deploy handles live deploys of the app.
@@ -50,11 +46,6 @@ export class Deploy implements IDeploy {
    * @private
    */
   private logger: ILogger;
-
-  /**
-   * @private
-   */
-  private _checkTimeout: any;
 
   constructor(
     deps: DeployDependencies,
@@ -174,10 +165,10 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Load the latest deployed version.
+   * Load the latest deployed snapshot.
    *
-   * This is only necessary to call if you have manually downloaded and
-   * extracted an update and wish to reload the app with the latest deploy. The
+   * This is only necessary to call if you have downloaded and extracted an
+   * update and wish to instantly reload the app with the latest deploy. The
    * latest deploy will automatically be loaded when the app is started.
    */
   public load() {
@@ -189,53 +180,7 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Watch for updates.
-   *
-   * When an update is available, the `deploy:update-ready` event is fired.
-   *
-   * @param options
-   */
-  public watch(options: DeployWatchOptions = {}): void {
-    var self = this;
-
-    if (!options.initialDelay) {
-      options.initialDelay = INITIAL_DELAY;
-    }
-
-    if (!options.interval) {
-      options.interval = WATCH_INTERVAL;
-    }
-
-    function checkForUpdates() {
-      self.check().then((hasUpdate) => {
-        if (hasUpdate) {
-          self.emitter.emit('deploy:update-ready');
-        }
-      }, (err) => {
-        self.logger.info('Ionic Deploy: unable to check for updates: ' + err);
-      });
-
-      // Check our timeout to make sure it wasn't cleared while we were waiting
-      // for a server response
-      if (this._checkTimeout) {
-        this._checkTimeout = setTimeout(checkForUpdates.bind(self), options.interval);
-      }
-    }
-
-    // Check after an initial short deplay
-    this._checkTimeout = setTimeout(checkForUpdates.bind(self), options.initialDelay);
-  }
-
-  /**
-   * Stop watching for updates.
-   */
-  unwatch(): void {
-    clearTimeout(this._checkTimeout);
-    this._checkTimeout = null;
-  }
-
-  /**
-   * Get information about the current version.
+   * Get information about the current snapshot.
    *
    * The promise is resolved with an object that has key/value pairs pertaining
    * to the currently deployed update.
@@ -259,11 +204,11 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * List the versions that have been installed on this device.
+   * List the snapshots that have been installed on this device.
    *
-   * The promise is resolved with an array of version UUIDs.
+   * The promise is resolved with an array of snapshot UUIDs.
    */
-  public getVersions(): Promise<any> {
+  public getSnapshots(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -282,11 +227,11 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Remove a version from this device.
+   * Remove a snapshot from this device.
    *
-   * @param uuid - The version UUID to remove from the device.
+   * @param uuid - The snapshot UUID to remove from the device.
    */
-  public deleteVersion(uuid: string): Promise<any> {
+  public deleteSnapshot(uuid: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -305,10 +250,10 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Fetches the metadata for a given version. If no UUID is given, it will
-   * attempt to grab the metadata for the most recently known version.
+   * Fetches the metadata for a given snapshot. If no UUID is given, it will
+   * attempt to grab the metadata for the most recently known snapshot.
    *
-   * @param uuid - The version from which to grab metadata.
+   * @param uuid - The snapshot from which to grab metadata.
    */
   public getMetadata(uuid?: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
@@ -319,64 +264,6 @@ export class Deploy implements IDeploy {
           deferred.resolve(result.metadata);
         }, (err) => {
           deferred.reject(err);
-        });
-      } else {
-        deferred.reject(NO_PLUGIN);
-      }
-    });
-
-    return deferred.promise;
-  }
-
-  /**
-   * Update app with the latest version.
-   *
-   * @param options
-   */
-  public update(options: DeployUpdateOptions = {}): Promise<boolean> {
-    let deferred = new DeferredPromise<boolean, Error>();
-
-    this.emitter.once('deploy:ready', () => {
-      if (this._getPlugin()) {
-        // Check for updates
-        this.check().then((result) => {
-          if (result === true) {
-            // There are updates, download them
-            let downloadProgress = 0;
-            this.download({
-              'onProgress': (p: number) => {
-                downloadProgress = p / 2;
-                if (options.onProgress) {
-                  options.onProgress(downloadProgress);
-                }
-              }
-            }).then((result) => {
-              if (!result) { deferred.reject(new Error('Error while downloading')); }
-              this.extract({
-                'onProgress': (p: number) => {
-                  if (options.onProgress) {
-                    options.onProgress(downloadProgress + p / 2);
-                  }
-                }
-              }).then((result) => {
-                if (!result) { deferred.reject(new Error('Error while extracting')); }
-                if (!options.deferLoad) {
-                  deferred.resolve(true);
-                  this.plugin.redirect(this.config.get('app_id'));
-                } else {
-                  deferred.resolve(true);
-                }
-              }, (error) => {
-                deferred.reject(error);
-              });
-            }, (error) => {
-              deferred.reject(error);
-            });
-          } else {
-            deferred.resolve(false);
-          }
-        }, (error) => {
-          deferred.reject(error);
         });
       } else {
         deferred.reject(NO_PLUGIN);
