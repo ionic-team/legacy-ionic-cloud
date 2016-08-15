@@ -19,9 +19,8 @@ docType: "<$ doc.docType $>"
     <@ for param in params @>
     <tr>
       <td>
-        <$ param.name $>
-        <@ if param.alias @>| <$ param.alias $><@ endif @>
-        <@ if param.optional @><div><em>(optional)</em></div><@ endif @>
+        <code class="param-name"><$ param.name $></code>
+        <@ if param.optional @><span class="param-optional">(optional)</span><@ endif @>
       </td>
       <td>
         <$ param.description | marked $>
@@ -33,7 +32,7 @@ docType: "<$ doc.docType $>"
 </table>
 <@ endmacro @>
 
-<@ macro memberSyntax(fn, link=false) -@>
+<@ macro memberSyntax(fn, link=true) -@>
 <@- set sep = joiner(',&nbsp;') -@>
 <span class="member-name">
   <@- if link @><a href="#<$ fn.name $>"><@ endif -@>
@@ -72,7 +71,7 @@ Improve this doc
   <code><span class="line"><$ doc.docType | lower $> <$ doc.name $> <@ if doc.typeParams @><span class="type-param"><$ doc.typeParams | escape $></span> <@ endif @>{</span>
     <@ if doc.members.length @>
     <@ for member in doc.members @>
-    <span class="line member-line"><$ memberSyntax(member, link=true) $></span>
+    <span class="line member-line"><$ memberSyntax(member) $></span>
     <@ endfor @>
     <@ endif @>
     <span class="line">}</span>
@@ -89,7 +88,7 @@ Improve this doc
 <h2><a href="#static-members">Static Members</a></h2>
 <@ for method in doc.statics @><@ if not method.internal @>
 <a class="anchor" name="<$ method.name $>"></a>
-<h3 class="member"><a href="#<$ method.name $>"><code><$ memberSyntax(method) $></code></a></h3>
+<h3 class="member"><code><$ memberSyntax(method) $></code></h3>
 <$ method.description $>
 <@ if method.params @><$ paramTable(method.clearParams) $><@ endif @>
 <@ endif @>
@@ -101,7 +100,7 @@ Improve this doc
 <h2><a href="#properties">Properties</a></h2>
 <@ for property in doc.properties @>
 <a class="anchor" name="<$ property.name $>"></a>
-<h3 class="member"><a href="#<$ property.name $>"><code><$ memberSyntax(property) $></code></a></h3>
+<h3 class="member"><code><$ memberSyntax(property) $></code></h3>
 <$ property.description $>
 <@ if property.cleanParams.length @><$ paramTable(property.cleanParams) $><@ endif @>
 <@ endfor @>
@@ -113,7 +112,7 @@ Improve this doc
 <h2><a href="#methods">Methods</a></h2>
 <@ for method in doc.methods @>
 <a class="anchor" name="<$ method.name $>"></a>
-<h3 class="member"><a href="#<$ method.name $>"><code><$ memberSyntax(method) $></code></a></h3>
+<h3 class="member"><code><$ memberSyntax(method) $></code></h3>
 <$ method.description $>
 <@ if method.cleanParams.length @><$ paramTable(method.cleanParams) $><@ endif @>
 <@ endfor @>

@@ -107,7 +107,7 @@ function parseParams(doc, members) {
 
   function getTagIndexByName(member, name) {
     //console.log(member.name, name)
-    if (typeof members.params === 'undefined') {
+    if (typeof member.params === 'undefined') {
       return -1;
     }
 
