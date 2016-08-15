@@ -1,7 +1,7 @@
 import { ISettingsUrls, ISettings, IConfig } from './definitions';
 
 /**
- * Config is just a helper around the cloud config.
+ * @hidden
  */
 export class Config implements IConfig {
 
@@ -41,9 +41,7 @@ export class Config implements IConfig {
   }
 
   /**
-   * Get a URL from the core settings.
-   *
-   * @param name - The settings key to get.
+   * @hidden
    */
   public getURL(name: string): string {
     let urls = (this.settings && this.settings.core && this.settings.core.urls) || {};

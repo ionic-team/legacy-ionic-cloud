@@ -1,13 +1,45 @@
+/** Represents an error with generic details.
+ *
+ * Error details can be extracted depending on the type of `D`. For instance,
+ * if the type of `D` is `string[]`, you can do this:
+ *
+ * ```typescript
+ * function handleError(err: IDetailedError<string[]>) {
+ *   for (let i in err.details) {
+ *     console.error('got error code: ' + i);
+ *   }
+ * }
+ * ```
+ */
 export interface IDetailedError<D> extends Error {
+
+  /**
+   * The error details.
+   */
   details?: D;
 }
 
+/**
+ * A function which `Logger` uses to log messages. It takes an optional message
+ * and any number of additional params.
+ */
 export type LogFn = (message?: any, ...optionalParams: any[]) => void;
 
+/**
+ * The options for `Logger`.
+ */
 export interface LoggerOptions {
+
+  /**
+   * If silent is `true`, the `Logger`'s `infofn` and `warnfn` will not be
+   * called.
+   */
   silent?: boolean;
 }
 
+/**
+ * Represents a `Logger`.
+ */
 export interface ILogger {
   infofn: LogFn;
   warnfn: LogFn;
@@ -17,10 +49,16 @@ export interface ILogger {
   error(message?: any, ...optionalParams: any[]);
 }
 
+/**
+ * @hidden
+ */
 export interface ISettingsUrls {
   api?: string;
 }
 
+/**
+ * General settings for the Cloud Client.
+ */
 export interface ICoreSettings {
   /**
    * Your app ID.
@@ -33,12 +71,33 @@ export interface ICoreSettings {
   urls?: any;
 }
 
+/**
+ * The settings object for the Cloud Client.
+ *
+ * `ISettings` contains various specific configuration sections, acting more
+ * like a parent object for them.
+ */
 export interface ISettings {
+
+  /**
+   * General settings for the Cloud Client.
+   */
   core: ICoreSettings;
+
+  /**
+   * Settings for Push Notifications.
+   */
   push?: PushOptions;
+
+  /**
+   * Log settings.
+   */
   logger?: LoggerOptions;
 }
 
+/**
+ * Represents a `Config`.
+ */
 export interface IConfig {
   settings: ISettings;
 
@@ -47,6 +106,9 @@ export interface IConfig {
   getURL(name: string): string;
 }
 
+/**
+ * Represents a `Client`.
+ */
 export interface IClient {
   baseUrl: string;
 
@@ -58,8 +120,17 @@ export interface IClient {
   request(method: string, endpoint: string);
 }
 
+/**
+ * A function which `EventEmitter` uses to handle events.
+ *
+ * All event handlers have a single parameter: `data`, which is always an
+ * object and which will differ depending on the event.
+ */
 export type EventHandler = (data: Object) => any;
 
+/**
+ * Represents an `EventEmitter`.
+ */
 export interface IEventEmitter {
   on(event: string, callback: EventHandler);
   once(event: string, callback: () => void);
@@ -82,6 +153,9 @@ export interface StorageOptions {
   cache?: boolean;
 }
 
+/**
+ * Represents a `Storage`.
+ */
 export interface IStorage<T> {
   get(key: string): T;
   set(key: string, value: T): void;
@@ -172,6 +246,9 @@ export interface UserContextDependencies {
   storage: IStorage<StoredUser>;
 }
 
+/**
+ * @hidden
+ */
 export interface IUserContext {
   label: string;
 
@@ -180,6 +257,9 @@ export interface IUserContext {
   unstore(): void;
 }
 
+/**
+ * Represents a locally stored user (usually in local storage).
+ */
 export interface StoredUser {
   id: string;
   data: Object;
@@ -199,12 +279,55 @@ export interface IUserData {
   unset(key: string);
 }
 
+/**
+ * The user details common to us and you, used in email/password
+ * authentication.
+ *
+ * We store common fields such as `email` and `password` separate from your
+ * custom data to avoid name clashes.
+ */
 export interface UserDetails {
+
+  /**
+   * The user's email address.
+   *
+   * We enforce email address correctness server-side.
+   */
   email?: string;
+
+  /**
+   * The user's password.
+   *
+   * We enforce no password requirements and expect you to implement
+   * client-side password requirements that best suit your app.
+   */
   password?: string;
+
+  /**
+   * A username unique to the user.
+   *
+   * You can use it in addition to `email` to identify your users. Uniqueness
+   * is enforced on this field.
+   */
   username?: string;
+
+  /**
+   * A URL to an image for the user.
+   *
+   * `image` defaults to a generic user avatar hosted by us.
+   */
   image?: string;
+
+  /**
+   * The user's full (first + last) name, generally used for display.
+   */
   name?: string;
+
+  /**
+   * TODO: Better way to handle this?
+   *
+   * @hidden
+   */
   custom?: Object;
 }
 
@@ -215,31 +338,112 @@ export interface UserDependencies {
   service: ISingleUserService;
 }
 
-export interface UserSocial {
-  facebook?: UserSocialProvider;
-  github?: UserSocialProvider;
-  twitter?: UserSocialProvider;
-  instagram?: UserSocialProvider;
-  google?: UserSocialProvider;
-  linkedin?: UserSocialProvider;
+/**
+ * The user social details we collect from the social networks for social
+ * authentication.
+ *
+ * `UserSocialDetails` is a container. Depending on which social providers you
+ * use, the details are accessible as their respective fields.
+ */
+export interface UserSocialDetails {
+
+  /**
+   * The provider details for Facebook Authentication.
+   */
+  facebook?: UserSocialProviderDetails;
+
+  /**
+   * The provider details for Github Authentication.
+   */
+  github?: UserSocialProviderDetails;
+
+  /**
+   * The provider details for Twitter Authentication.
+   */
+  twitter?: UserSocialProviderDetails;
+
+  /**
+   * The provider details for Instagram Authentication.
+   */
+  instagram?: UserSocialProviderDetails;
+
+  /**
+   * The provider details for Google Authentication.
+   */
+  google?: UserSocialProviderDetails;
+
+  /**
+   * The provider details for LinkedIn Authentication.
+   */
+  linkedin?: UserSocialProviderDetails;
 }
 
-export interface UserSocialProvider {
+/**
+ * More general information from the social network.
+ *
+ * Although these details have the same keys and types regardless of the social
+ * providers you use, we don't guarantee every field has a value. Some networks
+ * don't give us `email`, others don't give us `username`.
+ */
+export interface UserSocialProviderDetailsData {
+
+  /**
+   * The email address of the user on the social network.
+   */
+  email: string;
+
+  /**
+   * The username of the user on the social network.
+   */
+  username: string;
+
+  /**
+   * The full (first + last) name of the user on the social network.
+   */
+  full_name: string;
+
+  /**
+   * A URL to the profile picture of the user on the social network.
+   */
+  profile_picture: string;
+
+  /**
+   * Raw data about this user from the network.
+   *
+   * It is generally unsafe to rely on raw data, as we can't promise social
+   * networks won't change the format. For developers that like to live on the
+   * wild side, enjoy.
+   */
+  raw_data: Object;
+}
+
+/**
+ * The provider-specific user social details.
+ *
+ * These details have the same keys and types no matter what social providers
+ * you use.
+ */
+export interface UserSocialProviderDetails {
+
+  /**
+   * The ID of the user in the social network.
+   */
   uid: string;
-  data: {
-    email: string;
-    username: string;
-    full_name: string;
-    profile_picture: string;
-    raw_data: Object;
-  };
+
+  /**
+   * More general information from the social network.
+   */
+  data: UserSocialProviderDetailsData;
 }
 
+/**
+ * Represents a `User`.
+ */
 export interface IUser {
   id: string;
   fresh: boolean;
   details: UserDetails;
-  social: UserSocial;
+  social: UserSocialDetails;
   data: IUserData;
 
   isAnonymous(): boolean;
@@ -268,6 +472,9 @@ export interface SingleUserServiceDependencies {
  */
 export interface SingleUserServiceOptions {}
 
+/**
+ * @hidden
+ */
 export interface ISingleUserService {
   current(): IUser;
   store();
@@ -289,6 +496,9 @@ export interface TokenContextDependencies {
  */
 export interface ITokenContextStoreOptions {}
 
+/**
+ * @hidden
+ */
 export interface ITokenContext {
   label: string;
 
@@ -318,6 +528,9 @@ export interface ICombinedTokenContext extends ITokenContext {
   store(token: string, options: ICombinedTokenContextStoreOptions): void;
 }
 
+/**
+ * These are the valid [authentication providers](/services/users/#providers).
+ */
 export type AuthModuleId = 'basic' | 'custom' | 'facebook' | 'github' | 'google' | 'instagram' | 'linkedin' | 'twitter';
 
 /**
@@ -332,7 +545,7 @@ export interface AuthTypeDependencies {
  * @hidden
  */
 export interface IAuthType {
-  authenticate(data, options?: LoginOptions): Promise<any>;
+  authenticate(data, options?: AuthLoginOptions): Promise<any>;
 }
 
 /**
@@ -366,8 +579,23 @@ export interface IAuthModules {
   twitter: IAuthType;
 }
 
-export interface LoginOptions {
+/**
+ * Options for `login()` in `Auth`.
+ *
+ * `Auth` uses the InAppBrowser plugin to redirect the user through
+ * authentication. We expose settings for when we open a plugin window.
+ */
+export interface AuthLoginOptions {
+
+  /**
+   * If `true`, the user's session is persisted in local storage, but not
+   * guaranteed to be remembered.
+   */
   remember?: boolean;
+
+  /**
+   * The options for the InAppBrowser window that is opened.
+   */
   inAppBrowserOptions?: InAppBrowserPluginOptions;
 }
 
@@ -388,45 +616,114 @@ export interface AuthDependencies {
 export interface AuthOptions {}
 
 /**
- * This is the auth interface.
+ * Represents `Auth`.
  */
 export interface IAuth {
   options: AuthOptions;
   isAuthenticated(): boolean;
-  login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: LoginOptions): Promise<IUser>;
-  login(moduleId: 'custom', credentials: Object, options?: LoginOptions): Promise<IUser>;
-  login(moduleId: AuthModuleId, credentials?: Object, options?: LoginOptions): Promise<IUser>;
+  login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: AuthLoginOptions): Promise<IUser>;
+  login(moduleId: 'custom', credentials: Object, options?: AuthLoginOptions): Promise<IUser>;
+  login(moduleId: AuthModuleId, credentials?: Object, options?: AuthLoginOptions): Promise<IUser>;
   logout(): void;
   signup(data: UserDetails): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;
   confirmPasswordReset(code: number, newPassword: string): Promise<void>;
 }
 
+/**
+ * Simple status flags of an app.
+ */
 export interface IAppStatus {
+
+  /**
+   * When `true`, the app was asleep when this was constructed.
+   */
   asleep?: boolean;
+
+  /**
+   * When `true`, the app was closed when this was constructed.
+   */
   closed?: boolean;
 }
 
+/**
+ * @hidden
+ */
 export interface IPluginRegistration {
   registrationId: string;
 }
 
+/**
+ * Additional data from the Push Plugin.
+ */
 export interface IPluginNotificationAdditionalData {
+
+  /**
+   * Whether the notification was received while the app was in the foreground.
+   */
   foreground: boolean;
+
+  /**
+   * Will be `true` if the application is started by clicking on the push
+   * notification, `false` if the app is already started.
+   */
   coldstart: boolean;
+
   [key: string]: any;
 }
 
+/**
+ * The notification object received from the Push Plugin.
+ *
+ * Full documentation and examples can be found on the Push Plugin's
+ * [README](https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/API.md#pushonnotification-callback).
+ */
 export interface IPluginNotification {
+
+  /**
+   * The text of the push message sent from the 3rd party service.
+   */
   message: string;
+
+  /**
+   * The optional title of the push message sent from the 3rd party service.
+   */
   title: string;
+
+  /**
+   * The number of messages to be displayed in the badge in iOS/Android or
+   * message count in the notification shade in Android. For windows, it
+   * represents the value in the badge notification which could be a number or
+   * a status glyph.
+   */
   count: number;
+
+  /**
+   * The name of the sound file to be played upon receipt of the notification.
+   */
   sound: string;
+
+  /**
+   * The path of the image file to be displayed in the notification.
+   */
   image: string;
+
+  /**
+   * The args to be passed to the application on launch from push notification.
+   * This works when notification is received in background. (Windows Only)
+   */
   launchArgs: string;
+
+  /**
+   * An optional collection of data sent by the 3rd party push service that
+   * does not fit in the above properties.
+   */
   additionalData: IPluginNotificationAdditionalData;
 }
 
+/**
+ * Represents a `PushMessage`.
+ */
 export interface IPushMessage {
   app: IAppStatus;
   text: string;
@@ -438,12 +735,30 @@ export interface IPushMessage {
   payload: Object;
 }
 
+/**
+ * The interface to which the `push:notification` event adheres.
+ */
 export interface IPushNotificationEvent {
+
+  /**
+   * The push message.
+   */
   message: IPushMessage;
+
+  /**
+   * The raw push notification from the Push Plugin.
+   */
   data: IPluginNotification;
 }
 
-export interface SaveTokenOptions {
+/**
+ * Options for `saveToken()` in `Push`.
+ */
+export interface PushSaveTokenOptions {
+
+  /**
+   * When `true`, do not attempt to save the token to the active user.
+   */
   ignore_user?: boolean;
 }
 
@@ -468,6 +783,12 @@ export interface PushDependencies {
   logger: ILogger;
 }
 
+/**
+ * The configuration options for the Push Plugin.
+ *
+ * Full documentation and examples can be found on the Push Plugin's
+ * [README](https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/API.md#pushnotificationinitoptions).
+ */
 export interface PushPluginConfig {
   android?: {
     senderID?: string;
@@ -489,6 +810,12 @@ export interface PushPluginConfig {
   };
 }
 
+/**
+ * The configuration options for an InAppBrowser window.
+ *
+ * Full documentation and examples can be found on the InAppBrowser Plugin's
+ * [README](https://github.com/apache/cordova-plugin-inappbrowser#cordovainappbrowseropen).
+ */
 export interface InAppBrowserPluginOptions {
   location?: boolean;
   hidden?: boolean;
@@ -510,36 +837,79 @@ export interface InAppBrowserPluginOptions {
   fullscreen?: boolean;
 }
 
+/**
+ * Settings for Push Notifications.
+ */
 export interface PushOptions {
+
+  /**
+   * The GCM project ID.
+   */
   sender_id?: string;
+
+  /**
+   * When `true`, debug logs for push notifications are enabled.
+   */
   debug?: boolean;
+
+  /**
+   * Configuration options to pass onto the Push Plugin.
+   */
   pluginConfig?: PushPluginConfig;
 }
 
+/**
+ * Represents `PushToken`.
+ */
 export interface IPushToken {
   registered: boolean;
   saved: boolean;
   token: string;
 }
 
+/**
+ * Represents `Push`.
+ */
 export interface IPush {
   options: PushOptions;
   plugin: any;
   token: IPushToken;
 
-  saveToken(token: IPushToken, options: SaveTokenOptions): Promise<IPushToken>;
+  saveToken(token: IPushToken, options: PushSaveTokenOptions): Promise<IPushToken>;
   register(): Promise<IPushToken>;
   unregister(): Promise<void>;
 }
 
+/**
+ * Options for `download()` in `Deploy`.
+ */
 export interface DeployDownloadOptions {
+
+  /**
+   * Attach a progress handler for the download.
+   *
+   * `p` is a number from 0 to 100, representing the download progress.
+   */
   onProgress?: (p: number) => void;
 }
 
+/**
+ * Options for `extract()` in `Deploy`.
+ */
 export interface DeployExtractOptions {
+
+  /**
+   * Attach a progress handler for the extraction process.
+   *
+   * `p` is a number from 0 to 100, representing the extraction progress.
+   */
   onProgress?: (p: number) => void;
 }
 
+/**
+ * These are the valid deploy channels. `DeployChannel` can also be any string,
+ * allowing for custom channel tags.
+ */
 export type DeployChannel = 'dev' | 'staging' | 'production' | string;
 
 /**
@@ -556,6 +926,9 @@ export interface DeployDependencies {
   logger: ILogger;
 }
 
+/**
+ * Represents a `Deploy`.
+ */
 export interface IDeploy {
   channel: DeployChannel;
   options: DeployOptions;

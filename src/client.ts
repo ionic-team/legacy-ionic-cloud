@@ -4,10 +4,10 @@ import { IClient, ITokenContext } from './definitions';
 /**
  * Client is for making HTTP requests to the API.
  *
- * Under the hood, it uses superagent. When a method is called, you can call
- * any number of superagent functions on it and then call the `end` method.
- *
- * TODO: link to superagent
+ * Under the hood, it uses
+ * [superagent](http://visionmedia.github.io/superagent/). When a method is
+ * called, you can call any number of superagent functions on it and then call
+ * `end()` to complete and send the request.
  */
 export class Client implements IClient {
 
@@ -17,8 +17,16 @@ export class Client implements IClient {
   private req: any;
 
   constructor(
+    /**
+     * @hidden
+     */
     public tokenContext: ITokenContext,
+
+    /**
+     * @hidden
+     */
     public baseUrl: string,
+
     req?: any  // TODO: use superagent types
   ) {
     if (typeof req === 'undefined') {
@@ -29,7 +37,7 @@ export class Client implements IClient {
   }
 
   /**
-   * GET request.
+   * GET request for retrieving a resource from the API.
    *
    * @param endpoint - The path of the API endpoint.
    */
@@ -38,7 +46,7 @@ export class Client implements IClient {
   }
 
   /**
-   * POST request.
+   * POST request for sending a new resource to the API.
    *
    * @param endpoint - The path of the API endpoint.
    */
@@ -47,7 +55,7 @@ export class Client implements IClient {
   }
 
   /**
-   * PUT request.
+   * PUT request for replacing a resource in the API.
    *
    * @param endpoint - The path of the API endpoint.
    */
@@ -56,7 +64,7 @@ export class Client implements IClient {
   }
 
   /**
-   * PATCH request.
+   * PATCH request for performing partial updates to a resource in the API.
    *
    * @param endpoint - The path of the API endpoint.
    */
@@ -65,7 +73,7 @@ export class Client implements IClient {
   }
 
   /**
-   * DELETE request.
+   * DELETE request for deleting a resource from the API.
    *
    * @param endpoint - The path of the API endpoint.
    */

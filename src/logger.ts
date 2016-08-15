@@ -25,6 +25,8 @@ export class Logger implements ILogger {
   /**
    * Send a log at info level.
    *
+   * @note TODO: Fix optionalParams in docs.
+   *
    * @param message - The message to log.
    */
   public info(message?: any, ...optionalParams: any[]) {
@@ -36,6 +38,8 @@ export class Logger implements ILogger {
   /**
    * Send a log at warn level.
    *
+   * @note TODO: Fix optionalParams in docs.
+   *
    * @param message - The message to log.
    */
   public warn(message?: any, ...optionalParams: any[]) {
@@ -46,6 +50,8 @@ export class Logger implements ILogger {
 
   /**
    * Send a log at error level.
+   *
+   * @note TODO: Fix optionalParams in docs.
    *
    * @param message - The message to log.
    */

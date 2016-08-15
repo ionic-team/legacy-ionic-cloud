@@ -19,7 +19,7 @@ import {
   ITokenContext,
   IUser,
   InAppBrowserPluginOptions,
-  LoginOptions,
+  AuthLoginOptions,
   TokenContextDependencies,
   UserDetails
 } from './definitions';
@@ -98,8 +98,9 @@ export class CombinedAuthTokenContext implements ICombinedTokenContext {
 }
 
 /**
- * Auth handles authentication of a single user, such as signing up, logging in
- * & out, social provider authentication, etc.
+ * `Auth` handles authentication of a single user, such as signing up, logging
+ * in & out, social provider authentication, etc.
+ *
  * @summary TODO A Quick Summary
  */
 export class Auth implements IAuth {
@@ -136,6 +137,10 @@ export class Auth implements IAuth {
 
   constructor(
     deps: AuthDependencies,
+
+    /**
+     * @hidden
+     */
     public options: AuthOptions = {}
   ) {
     this.emitter = deps.emitter;
@@ -163,14 +168,24 @@ export class Auth implements IAuth {
    * logins, kick-off the authentication process.
    *
    * After login, the full user is loaded from the cloud and saved in local
-   * storage along with their auth token.
+   * storage along with their auth token. The promise resolves with the user,
+   * but only for convenience. If possible, use the `User` instance reference
+   * instead. Upon failure, the promise rejects with the Error.
    *
+   * @note TODO: Better error handling docs.
+   *
+   * @param moduleId
+   *  The authentication provider module ID to use with this login.
    * @param credentials
-   *  For email/password, give an email and password. For custom, send whatever
-   *  you need.
+   *  For email/password authentication, give an email and password. For social
+   *  authentication, exclude this parameter. For custom authentication, send
+   *  whatever you need.
    * @param options
+   *  Options for this login, such as whether to remember the login and
+   *  InAppBrowser window options for authentication providers that make use of
+   *  it.
    */
-  public login(moduleId: AuthModuleId, credentials?: Object, options: LoginOptions = {}): Promise<IUser> {
+  public login(moduleId: AuthModuleId, credentials?: Object, options: AuthLoginOptions = {}): Promise<IUser> {
     if (typeof options.remember === 'undefined') {
       options.remember = true;
     }
@@ -231,7 +246,7 @@ export class Auth implements IAuth {
    * authentication.
    *
    * An email will be sent to the user with a short password reset code, which
-   * they can copy back into your app and use `confirmPasswordReset`.
+   * they can copy back into your app and use `confirmPasswordReset()`.
    *
    * TODO: Link to confirmPasswordReset
    *
@@ -270,16 +285,16 @@ export class Auth implements IAuth {
   }
 
   /**
-   * Get the raw auth token from local storage.
+   * Get the raw auth token of the active user from local storage.
    */
   public getToken(): string {
     return this.tokenContext.get();
   }
 
   /**
-   * Overwrite the raw auth token in local storage.
+   * @hidden
    */
-  public storeToken(options: LoginOptions = {'remember': true}, token: string) {
+  public storeToken(options: AuthLoginOptions = {'remember': true}, token: string) {
     let originalToken = this.authToken;
     this.authToken = token;
     this.tokenContext.store(this.authToken, {'permanent': options.remember});
@@ -321,7 +336,7 @@ export abstract class AuthType implements IAuthType {
     this.client = deps.client;
   }
 
-  public abstract authenticate(data?: Object, options?: LoginOptions): Promise<any>;
+  public abstract authenticate(data?: Object, options?: AuthLoginOptions): Promise<any>;
 
   protected parseInAppBrowserOptions(opts?: InAppBrowserPluginOptions): string {
     if (!opts) {
@@ -348,7 +363,7 @@ export abstract class AuthType implements IAuthType {
   protected inAppBrowserFlow(
     moduleId: AuthModuleId,
     data: Object = {},
-    options?: LoginOptions
+    options?: AuthLoginOptions
   ): Promise<string> {
     let deferred = new DeferredPromise<string, Error>();
 
@@ -412,7 +427,7 @@ export abstract class AuthType implements IAuthType {
  */
 export class BasicAuth extends AuthType implements IBasicAuthType {
 
-  public authenticate(data: BasicLoginCredentials, options?: LoginOptions): Promise<string> {
+  public authenticate(data: BasicLoginCredentials, options?: AuthLoginOptions): Promise<string> {
     var deferred = new DeferredPromise<string, Error>();
 
     if (!data.email || !data.password) {
@@ -517,7 +532,7 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
  * @hidden
  */
 export class CustomAuth extends AuthType {
-  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<any> {
     return this.inAppBrowserFlow('custom', data, options);
   }
 }
@@ -526,7 +541,7 @@ export class CustomAuth extends AuthType {
  * @hidden
  */
 export class TwitterAuth extends AuthType {
-  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<any> {
     return this.inAppBrowserFlow('twitter', data, options);
   }
 }
@@ -535,7 +550,7 @@ export class TwitterAuth extends AuthType {
  * @hidden
  */
 export class FacebookAuth extends AuthType {
-  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<any> {
     return this.inAppBrowserFlow('facebook', data, options);
   }
 }
@@ -544,7 +559,7 @@ export class FacebookAuth extends AuthType {
  * @hidden
  */
 export class GithubAuth extends AuthType {
-  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<any> {
     return this.inAppBrowserFlow('github', data, options);
   }
 }
@@ -553,7 +568,7 @@ export class GithubAuth extends AuthType {
  * @hidden
  */
 export class GoogleAuth extends AuthType {
-  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<any> {
     return this.inAppBrowserFlow('google', data, options);
   }
 }
@@ -562,7 +577,7 @@ export class GoogleAuth extends AuthType {
  * @hidden
  */
 export class InstagramAuth extends AuthType {
-  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<any> {
     return this.inAppBrowserFlow('instagram', data, options);
   }
 }
@@ -571,7 +586,7 @@ export class InstagramAuth extends AuthType {
  * @hidden
  */
 export class LinkedInAuth extends AuthType {
-  public authenticate(data: Object = {}, options?: LoginOptions): Promise<any> {
+  public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<any> {
     return this.inAppBrowserFlow('linkedin', data, options);
   }
 }

@@ -14,7 +14,7 @@ import {
   PushDependencies,
   PushOptions,
   PushStorageObject,
-  SaveTokenOptions
+  PushSaveTokenOptions
 } from '../definitions';
 
 import { DeferredPromise } from '../promise';
@@ -163,7 +163,7 @@ export class Push implements IPush {
    * @param token - The token.
    * @param options
    */
-  public saveToken(token: IPushToken, options: SaveTokenOptions = {}): Promise<IPushToken> {
+  public saveToken(token: IPushToken, options: PushSaveTokenOptions = {}): Promise<IPushToken> {
     let deferred = new DeferredPromise<IPushToken, Error>();
 
     let tokenData: ServiceTokenData = {

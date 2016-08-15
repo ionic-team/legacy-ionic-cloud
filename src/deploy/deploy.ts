@@ -18,17 +18,22 @@ declare var IonicDeploy: any;
 const NO_PLUGIN = new Error('Missing deploy plugin: `ionic-plugin-deploy`');
 
 /**
- * Deploy handles live deploys of the app.
+ * `Deploy` handles live deploys of the app. Downloading, extracting, and
+ * rolling back snapshots.
  */
 export class Deploy implements IDeploy {
 
   /**
-   * The active deploy channel.
+   * The active deploy channel. Set this to change the channel on which
+   * `Deploy` operates.
    */
   public channel: DeployChannel = 'production';
 
   /**
-   * The deploy plugin.
+   * The deploy plugin. Full documentation and examples can be found on the
+   * plugin's
+   * [README](https://github.com/driftyco/ionic-plugin-deploy#cordova-plugin-api),
+   * but we recommend using the Cloud Client.
    */
   public plugin: any;
 
@@ -49,6 +54,10 @@ export class Deploy implements IDeploy {
 
   constructor(
     deps: DeployDependencies,
+
+    /**
+     * @hidden
+     */
     public options: DeployOptions = {}
   ) {
     this.config = deps.config;
@@ -66,6 +75,9 @@ export class Deploy implements IDeploy {
 
   /**
    * Check for updates on the active channel.
+   *
+   * The promise resolves with a boolean. When `true`, a new snapshot exists on
+   * the channel.
    */
   public check(): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
@@ -93,13 +105,14 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Download the available update.
+   * Download the available snapshot.
    *
-   * This should be used in conjunction with `extract`.
+   * This should be used in conjunction with `extract()`.
    *
    * TODO: link to extract
    *
    * @param options
+   *  Options for this download, such as a progress callback.
    */
   public download(options: DeployDownloadOptions = {}): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
@@ -129,7 +142,7 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Extract the downloaded update.
+   * Extract the downloaded snapshot.
    *
    * This should be called after `download` successfully resolves.
    *
@@ -165,10 +178,10 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Load the latest deployed snapshot.
+   * Immediately reload the app with the latest deployed snapshot.
    *
-   * This is only necessary to call if you have downloaded and extracted an
-   * update and wish to instantly reload the app with the latest deploy. The
+   * This is only necessary to call if you have downloaded and extracted a
+   * snapshot and wish to instantly reload the app with the latest deploy. The
    * latest deploy will automatically be loaded when the app is started.
    */
   public load() {
@@ -183,7 +196,7 @@ export class Deploy implements IDeploy {
    * Get information about the current snapshot.
    *
    * The promise is resolved with an object that has key/value pairs pertaining
-   * to the currently deployed update.
+   * to the currently deployed snapshot.
    */
   public info(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
@@ -229,7 +242,8 @@ export class Deploy implements IDeploy {
   /**
    * Remove a snapshot from this device.
    *
-   * @param uuid - The snapshot UUID to remove from the device.
+   * @param uuid
+   *  The snapshot UUID to remove from the device.
    */
   public deleteSnapshot(uuid: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
@@ -253,7 +267,8 @@ export class Deploy implements IDeploy {
    * Fetches the metadata for a given snapshot. If no UUID is given, it will
    * attempt to grab the metadata for the most recently known snapshot.
    *
-   * @param uuid - The snapshot from which to grab metadata.
+   * @param uuid
+   *  The snapshot from which to grab metadata.
    */
   public getMetadata(uuid?: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO

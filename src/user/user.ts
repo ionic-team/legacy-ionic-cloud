@@ -12,7 +12,7 @@ import {
   UserContextDependencies,
   UserDependencies,
   UserDetails,
-  UserSocial
+  UserSocialDetails
 } from '../definitions';
 
 import { DeferredPromise } from '../promise';
@@ -146,9 +146,9 @@ export class User implements IUser {
   public details: UserDetails = {};
 
   /**
-   * The user social provider data.
+   * The social details of this user.
    */
-  public social: UserSocial = {};
+  public social: UserSocialDetails = {};
 
   /**
    * The custom data of this user.
