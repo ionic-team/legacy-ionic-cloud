@@ -1,63 +1,20 @@
 ---
 version: "<$ version.current.name $>"
 category: js-api
-id: "<$ doc.name|lower|replace(' ','-') $>"
+id: "api-client-<$ doc.name | dashCase $>"
 title: "<@ if doc.docType == "directive" @><$ doc.name | dashCase $><@ else @><$ doc.name $><@ endif @>"
 header_sub_title: "Ionic Cloud JS API Documentation"
+body_classes: "section-api-client"
 doc: "<$ doc.name $>"
 docType: "<$ doc.docType $>"
 ---
 
-<@ macro paramList(paramData) -@>
-  <@- if paramData -@><span class="params">(
-    <@- for param in paramData -@>
-      <span class="param"><$ param | escape $><@ if not loop.last @>, <@ endif @></span>
-    <@- endfor @>)</span>
-  <@- endif @>
-<@- endmacro -@>
-
-<@ macro returnObject(params) -@>
-  <@- if params -@>
-    <table class="table returns-object-table param-table">
-      <thead>
-        <tr>
-          <th>Property</th>
-          <th>Type</th>
-          <th>Details</th>
-        </tr>
-      </thead>
-      <tbody>
-        <@ for param in params @>
-        <tr>
-          <td class="fixed-width">
-            <$ param.key $>
-          </td>
-          <td>
-            <$ param.type | code $>
-          </td>
-          <td>
-            <$ param.description | marked $>
-          </td>
-        </tr>
-        <@ endfor @>
-      </tbody>
-    </table>
-  <@- endif @>
-<@- endmacro -@>
-
-<@ macro githubViewLink(doc) -@>
+<@- macro githubViewLink(doc) @>
   <a href="https://github.com/<$ versionInfo.gitRepoInfo.owner $>/<$ versionInfo.gitRepoInfo.repo $>/tree/master<$ doc.fileInfo.relativePath $>#L<$ doc.location.start.line+1 $>-L<$ doc.location.end.line+1 $>"><$ doc.fileInfo.relativePath $> (line <$ doc.location.start.line+1 $>)</a>
-<@- endmacro -@>
+<@ endmacro -@>
 
-<@ macro paramTable(params, isDirective) -@>
-<table class="table param-table" style="margin:0;">
-  <thead>
-    <tr>
-      <th><@ if isDirective @>Attr<@ else @>Param<@ endif @></th>
-      <th>Type</th>
-      <th>Details</th>
-    </tr>
-  </thead>
+<@ macro paramTable(params, isDirective) @>
+<table class="table param-table">
   <tbody>
     <@ for param in params @>
     <tr>
@@ -67,9 +24,6 @@ docType: "<$ doc.docType $>"
         <@ if param.optional @><div><em>(optional)</em></div><@ endif @>
       </td>
       <td>
-        <$ param.type $>
-      </td>
-      <td>
         <$ param.description | marked $>
         <@ if param.default @><p><em>(default: <$ param.default $>)</em></p><@ endif @>
       </td>
@@ -77,71 +31,25 @@ docType: "<$ doc.docType $>"
     <@ endfor @>
   </tbody>
 </table>
-<@- endmacro -@>
+<@ endmacro @>
 
-<@ macro inputTable(params, isDirective) -@>
-<table class="table param-table" style="margin:0;">
-  <thead>
-    <tr>
-      <th>Attr</th>
-      <th>Type</th>
-      <th>Details</th>
-    </tr>
-  </thead>
-  <tbody>
-    <@ for param in params @>
-    <tr>
-      <td><$ param.name $></td>
-      <td><code><$ param.type $></code></td>
-      <td><$ param.description | marked $></td>
-    </tr>
-    <@ endfor @>
-  </tbody>
-</table>
-<@- endmacro -@>
-
-<@ macro outputTable(params, isDirective) -@>
-<table class="table param-table" style="margin:0;">
-  <thead>
-    <tr>
-      <th>Attr</th>
-      <th>Details</th>
-    </tr>
-  </thead>
-  <tbody>
-    <@ for param in params @>
-    <tr>
-      <td><$ param.name $></td>
-      <td><$ param.description | marked $></td>
-    </tr>
-    <@ endfor @>
-  </tbody>
-</table>
-<@- endmacro -@>
-
-<@- macro functionSyntax(fn) @>
-  <@- set sep = joiner(',&nbsp;') -@>
-  <code><span class="member-name"><$ fn.name $></span><@- if not fn.isProperty @>(<@ endif -@><@- for param in fn.cleanParams @><$ sep() $>
-  <span class="param-name"><$ param.name $></span>
-  <@- if param.optional @><span class="param-optional">?</span><@ endif -@>
-  <@- if param.type @>: <span class="param-type"><$ param.type $></span><@ endif -@>
-  <@ endfor @>
-  <@- if not fn.isProperty @>)<@ endif -@>
-  <@- if fn.returns.type @>:
-    <span class="returns-type"><$ fn.returns.type|replace('<','&lt;') $></span>
-  <@ endif -@>
-  </code>
-  <@ if fn.alias @><small>(alias: <$ fn.alias $>)</small><@ endif @>
+<@ macro memberSyntax(fn, link=false) -@>
+<@- set sep = joiner(',&nbsp;') -@>
+<span class="member-name">
+  <@- if link @><a href="#<$ fn.name $>"><@ endif -@>
+  <$ fn.name $>
+  <@- if link @></a><@ endif -@>
+</span>
+<@- if not fn.isProperty @>(<@ endif -@>
+<@- for param in fn.cleanParams @><$ sep() $><span class="param-name"><$ param.name $></span>
+<@- if param.optional @><span class="param-optional">?</span><@ endif -@>
+<@- if param.type @>: <span class="param-type"><$ param.type $></span><@ endif -@>
+<@ endfor -@>
+<@ if not fn.isProperty @>)<@ endif @>
+<@- if fn.returns.type @>:
+<span class="returns-type"><$ fn.returns.type|replace('<','&lt;') $></span>
+<@ endif -@>
 <@ endmacro -@>
-
-<@ macro typeList(types) -@>
-  <@ set separator = joiner("|") @>
-  <@ for type in types @><$ separator() $><$ type | code $><@ endfor @>
-<@- endmacro -@>
-
-<@- macro typeInfo(fn) -@>
-  <@- if fn.type @><code><$ fn.type|replace('<','&lt;') $></code><@ endif -@> <$ fn.description | marked  $>
-<@- endmacro -@>
 
 <@ block body @>
 <@ block content @>
@@ -157,104 +65,53 @@ Improve this doc
 </a>
 <@ endblock @>
 
+<nav class="toc toc-api-client">
+  <code><span class="line"><$ doc.docType | lower $> <$ doc.name $> {</span>
+    <@ for member in doc.members @>
+    <span class="line member-line"><$ memberSyntax(member, link=true) $></span>
+    <@ endfor @>
+    <span class="line">}</span>
+  </code>
+</nav>
+
 <@ block description @>
 <$ doc.description | marked $>
 <@ endblock @>
 
-<!-- @usage tag -->
-<a class="anchor" name="usage"></a>
-<@ if doc.usage @>
-<h2><a href="#usage">Usage</a></h2>
-<@ block usage @>
-<$ doc.usage | marked $>
-<@ endblock @>
-<@ endif @>
-
-<@- if doc.statics.length -@>
+<@ if doc.statics.length @>
 <a class="anchor" name="static-members"></a>
 <h2><a href="#static-members">Static Members</a></h2>
-<@- for method in doc.statics @><@ if not method.internal @>
+<@ for method in doc.statics @><@ if not method.internal @>
 <a class="anchor" name="<$ method.name $>"></a>
-<h3 class="member"><a href="#<$ method.name $>"><$ functionSyntax(method) $></a></h3>
+<h3 class="member"><a href="#<$ method.name $>"><code><$ memberSyntax(method) $></code></a></h3>
 <$ method.description $>
 <@ if method.params @><$ paramTable(method.clearParams) $><@ endif @>
-<@ if method.this @><h4> Method's `this` <$ method.this $></h4><@ endif @>
-<@ if method.returns.description @>
-<div class="anchor" class="return-value">
-<i class="ion-md-return-right"></i>
-<b>Returns:</b> <$ typeInfo(method.returns) $>
-<@ if method.returnsObjectParams @>
-<$ returnObject(method.returnsObjectParams) $>
 <@ endif @>
-</div>
-<@ endif @>
-<@ endif @>
-<@ endfor -@>
+<@ endfor @>
 <@ endif @>
 
-<@- if doc.properties and doc.properties.length @>
+<@ if doc.properties and doc.properties.length @>
 <a class="anchor" name="properties"></a>
 <h2><a href="#properties">Properties</a></h2>
-<@- for property in doc.properties @>
+<@ for property in doc.properties @>
 <a class="anchor" name="<$ property.name $>"></a>
-<h3 class="member"><a href="#<$ property.name $>"><$ functionSyntax(property) $></a></h3>
+<h3 class="member"><a href="#<$ property.name $>"><code><$ memberSyntax(property) $></code></a></h3>
 <$ property.description $>
 <@ if property.cleanParams.length @><$ paramTable(property.cleanParams) $><@ endif @>
-<@ if property.this @>
-<h4> Method's `this` <$ property.this $></h3>
-<@ endif @>
-<@ if property.returns.description @>
-<div class="return-value">
-<i class="ion-md-return-right"></i>
-<b>Returns:</b> <$ typeInfo(property.returns) $>
-<@ if property.returnsObjectParams @>
-<$ returnObject(property.returnsObjectParams) $>
-<@ endif @>
-</div>
-<@ endif @>
-<@ endfor -@>
+<@ endfor @>
 <@ endif @>
 
 <!-- instance methods on the class -->
-<@- if doc.methods and doc.methods.length @>
+<@ if doc.methods and doc.methods.length @>
 <a class="anchor" name="methods"></a>
 <h2><a href="#methods">Methods</a></h2>
-<@- for method in doc.methods @>
+<@ for method in doc.methods @>
 <a class="anchor" name="<$ method.name $>"></a>
-<h3 class="member"><a href="#<$ method.name $>"><$ functionSyntax(method) $></a></h3>
+<h3 class="member"><a href="#<$ method.name $>"><code><$ memberSyntax(method) $></code></a></h3>
 <$ method.description $>
 <@ if method.cleanParams.length @><$ paramTable(method.cleanParams) $><@ endif @>
-<@ if method.this @>
-<h4> Method's `this` <$ method.this $></h4>
+<@ endfor @>
 <@ endif @>
-<@ if method.returns.description @>
-<div class="return-value">
-<i class="ion-md-return-right"></i>
-<b>Returns:</b> <$ typeInfo(method.returns) $>
-<@ if method.returnsObjectParams @>
-<$ returnObject(method.returnsObjectParams) $>
-<@ endif @>
-</div>
-<@ endif @>
-<@ endfor -@>
-<@- endif -@>
-
-<@ block advanced @>
-<@- if doc.advanced -@>
-<a class="anchor" name="advanced"></a>
-<h2><a href="#advanced">Advanced</a></h2>
-<$ doc.advanced | marked $>
-<@- endif -@>
-<@ endblock @>
-
-<!-- related link -->
-<@- if doc.see @>
-<a class="anchor" name="related"></a>
-<h2><a href="#related">Related</a></h2>
-<@ for s in doc.see @>
-<$ s | safe $> <@- if not loop.last @>,<@- endif -@>
-<@- endfor -@>
-<@- endif -@>
 
 <!-- end content block -->
 <@ endblock @>

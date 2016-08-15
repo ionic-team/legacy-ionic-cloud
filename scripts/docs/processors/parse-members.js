@@ -12,18 +12,18 @@ module.exports = function parseMembers() {
         if (doc.members) {
           doc.members = doc.members.filter(function(member) {
             return !member.tags.tagsByName.get('private') &&
-                   !member.tags.tagsByName.get('hidden') &&
-                   !isFileIfPrivate(member.fileInfo.filePath,
-                                    member.location.end.line);
+                   !member.tags.tagsByName.get('hidden') // &&
+                   // !isFileIfPrivate(doc, member, member.fileInfo.filePath,
+                   //                  member.location.start.line);
           });
         }
 
         if (doc.statics) {
           doc.statics = doc.statics.filter(function(staticMethod) {
             return !staticMethod.tags.tagsByName.get('private') &&
-                   !staticMethod.tags.tagsByName.get('hidden') &&
-                   !isFileIfPrivate(staticMethod.fileInfo.filePath,
-                                    staticMethod.location.end.line);
+                   !staticMethod.tags.tagsByName.get('hidden') // &&
+                   // !isFileIfPrivate(staticMethod.fileInfo.filePath,
+                   //                  staticMethod.location.start.line);
           });
         }
 
@@ -97,13 +97,14 @@ function parseParams(members) {
   }
 }
 
-function isFileIfPrivate(filename, lineNo, log) {
-  var data = fs.readFileSync(filename, 'utf8');
-  var lines = data.split('\n');
+// dgeni is giving us the wrong line numbers?
+// function isFileIfPrivate(doc, member, filename, lineNo, log) {
+//   var data = fs.readFileSync(filename, 'utf8');
+//   var lines = data.split('\n');
 
-  if (+lineNo > lines.length) {
-    throw new Error('File end reached without finding line');
-  }
+//   if (+lineNo > lines.length) {
+//     throw new Error('File end reached without finding line');
+//   }
 
-  return lines[+lineNo].indexOf('private ') != -1;
-}
+//   return lines[+lineNo].indexOf('private ') != -1;
+// }

@@ -49,7 +49,7 @@ module.exports = function(currentVersion) {
     log.level = 'error'; //'silly', 'debug', 'info', 'warn', 'error'
   })
 
-  .config(function(renderDocsProcessor, computePathsProcessor, versionInfo) {
+  .config(function(renderDocsProcessor, computePathsProcessor, extractAccessTransform, versionInfo) {
     try {
       versions = fs.readdirSync(
         path.resolve(__dirname, '../../' + config.docsDest + '/')
@@ -104,6 +104,8 @@ module.exports = function(currentVersion) {
         return path;
       }
     }];
+
+    extractAccessTransform.allowedDocTypes.add("member");
   })
 
   //configure file reading
