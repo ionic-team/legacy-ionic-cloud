@@ -335,6 +335,9 @@ export interface IAuthType {
   authenticate(data, options?: LoginOptions): Promise<any>;
 }
 
+/**
+ * @hidden
+ */
 export interface BasicLoginCredentials {
   email: string;
   password: string;
