@@ -30,6 +30,7 @@ module.exports = function jekyll(renderDocsProcessor) {
         docs[i].URL = doc.outputPath.replace('/index.md', '')
                                     .replace('/' + process.cwd() + '/src', '')
                                     .replace('//', '/')
+                                    .replace('.md', '.html')
                                     .replace('/ionic-platform-docs/', '/')
                                     .replace('content/', '');
 
