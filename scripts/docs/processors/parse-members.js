@@ -27,8 +27,23 @@ module.exports = function parseMembers() {
           });
         }
 
-        doc.members = parseParams(doc.members);
-        doc.statics = parseParams(doc.statics);
+        if (doc.typeParams && doc.typeParams.length) {
+          var typeParams = [];
+
+          doc.typeParams.slice(1, -1).split(',').forEach(function(p) {
+            p = p.trim();
+            var m = /([A-z]+) extends [A-z]+/.exec(p);
+            if (m) {
+              p = m[1];
+            }
+            typeParams.push(p);
+          });
+
+          doc.typeParamsList = typeParams;
+        }
+
+        doc.members = parseParams(doc, doc.members);
+        doc.statics = parseParams(doc, doc.statics);
         doc.returns = parseReturns(doc);
       });
 
@@ -44,7 +59,7 @@ function parseReturns(doc) {
 
 }
 
-function parseParams(members) {
+function parseParams(doc, members) {
   if (!members) {
     return null;
   }
@@ -78,6 +93,14 @@ function parseParams(members) {
         });
       }
     })
+  });
+
+  members = members.filter(function(m) {
+    if (!doc.typeParamsList) {
+      return true;
+    }
+
+    return doc.typeParamsList.indexOf(m.name) === -1;
   });
 
   return members;
