@@ -13,6 +13,21 @@ module.exports = function jekyll(renderDocsProcessor) {
         if (doc.docType === 'interface' || doc.docType === 'type-alias') {
           docs[i].outputPath = config.docsDest + '/' + doc.name + '.md';
         }
+
+        if(! docs[i].outputPath) {
+          return;
+        }
+        docs[i].outputPath = docs[i].outputPath.toLowerCase().replace('//','/');
+
+        // shorten the path for components in their own dir IE deploy/Deploy
+        var parts = [];
+        docs[i].outputPath.split('/').forEach(function(segment) {
+          if (parts.indexOf(segment) != -1) {
+            docs[i].outputPath = docs[i].outputPath.replace(segment + '/', '');
+          } else {
+            parts.push(segment);
+          }
+        })
       });
 
       // pretty up and sort the docs object for menu generation
