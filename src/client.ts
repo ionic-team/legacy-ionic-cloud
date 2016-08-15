@@ -11,6 +11,9 @@ import { IClient, ITokenContext } from './definitions';
  */
 export class Client implements IClient {
 
+  /**
+   * @private
+   */
   private req: any;
 
   constructor(
@@ -77,6 +80,9 @@ export class Client implements IClient {
     return this.supplement(this.req.bind(this.req, method), endpoint);
   }
 
+  /**
+   * @private
+   */
   private supplement(
     fn: (url: string) => any,
     endpoint: string

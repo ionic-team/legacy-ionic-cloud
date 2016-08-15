@@ -33,6 +33,10 @@ declare var window: any;
  * @hidden
  */
 export class AuthTokenContext implements ITokenContext {
+
+  /**
+   * @private
+   */
   private storage: IStorage<string>;
 
   constructor(deps: TokenContextDependencies, public label: string) {
@@ -56,7 +60,15 @@ export class AuthTokenContext implements ITokenContext {
  * @hidden
  */
 export class CombinedAuthTokenContext implements ICombinedTokenContext {
+
+  /**
+   * @private
+   */
   private storage: IStorage<string>;
+
+  /**
+   * @private
+   */
   private tempStorage: IStorage<string>;
 
   constructor(deps: CombinedTokenContextDependencies, public label: string) {
@@ -92,12 +104,34 @@ export class CombinedAuthTokenContext implements ICombinedTokenContext {
  */
 export class Auth implements IAuth {
 
+  /**
+   * @private
+   */
   private emitter: IEventEmitter;
+
+  /**
+   * @private
+   */
   private authModules: IAuthModules;
+
+  /**
+   * @private
+   */
   private tokenContext: ICombinedTokenContext;
+
+  /**
+   * @private
+   */
   private userService: ISingleUserService;
+
+  /**
+   * @private
+   */
   private storage: IStorage<string>;
 
+  /**
+   * @private
+   */
   private authToken: string;
 
   constructor(

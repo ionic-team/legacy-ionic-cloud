@@ -36,10 +36,24 @@ export class Deploy implements IDeploy {
    */
   public plugin: any;
 
+  /**
+   * @private
+   */
   private config: IConfig;
+
+  /**
+   * @private
+   */
   private emitter: IEventEmitter;
+
+  /**
+   * @private
+   */
   private logger: ILogger;
 
+  /**
+   * @private
+   */
   private _checkTimeout: any;
 
   constructor(
@@ -372,6 +386,9 @@ export class Deploy implements IDeploy {
     return deferred.promise;
   }
 
+  /**
+   * @private
+   */
   private _getPlugin() {
     if (typeof window.IonicDeploy === 'undefined') {
       this.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');

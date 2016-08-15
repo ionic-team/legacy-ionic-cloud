@@ -14,11 +14,29 @@ import {
  */
 export class Core implements ICore {
 
+  /**
+   * @private
+   */
   private config: IConfig;
+
+  /**
+   * @private
+   */
   private logger: ILogger;
+
+  /**
+   * @private
+   */
   private emitter: IEventEmitter;
+
+  /**
+   * @private
+   */
   private insights: IInsights;
 
+  /**
+   * @private
+   */
   private _version = 'VERSION_STRING';
 
   constructor(
@@ -40,10 +58,16 @@ export class Core implements ICore {
     return this._version;
   }
 
+  /**
+   * @private
+   */
   private onResume(): void {
     this.insights.track('mobileapp.opened');
   }
 
+  /**
+   * @private
+   */
   private registerEventHandlers(): void {
     this.emitter.on('cordova:resume', () => {
       this.onResume();

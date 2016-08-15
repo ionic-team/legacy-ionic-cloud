@@ -20,8 +20,19 @@ export class Cordova implements ICordova {
    */
   public app: IAppStatus;
 
+  /**
+   * @private
+   */
   private device: IDevice;
+
+  /**
+   * @private
+   */
   private emitter: IEventEmitter;
+
+  /**
+   * @private
+   */
   private logger: ILogger;
 
   constructor(deps: CordovaDependencies, protected options: CordovaOptions = {}) {
@@ -48,6 +59,9 @@ export class Cordova implements ICordova {
     this.load();
   }
 
+  /**
+   * @private
+   */
   private registerEventHandlers(): void {
     this.emitter.on('cordova:pause', () => {
       this.app.closed = true;
@@ -58,6 +72,9 @@ export class Cordova implements ICordova {
     });
   }
 
+  /**
+   * @private
+   */
   private load(): void {
     if (!this.isAvailable()) {
       var cordovaScript = document.createElement('script');
@@ -95,6 +112,9 @@ export class Cordova implements ICordova {
     }
   }
 
+  /**
+   * @private
+   */
   private isAvailable(): boolean {
     if (this.logger) {
       this.logger.info('Ionic Cordova: searching for cordova.js');

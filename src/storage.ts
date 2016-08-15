@@ -48,7 +48,14 @@ export class SessionStorageStrategy implements IStorageStrategy {
  */
 export class Storage<T> implements IStorage<T> {
 
+  /**
+   * @private
+   */
   private strategy: IStorageStrategy;
+
+  /**
+   * @private
+   */
   private storageCache: {
     [key: string]: T;
   };
@@ -117,6 +124,9 @@ export class Storage<T> implements IStorage<T> {
     }
   }
 
+  /**
+   * @private
+   */
   private standardizeKey(key: string): string {
     return `${this.options.prefix}_${key}`;
   }

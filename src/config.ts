@@ -10,6 +10,9 @@ export class Config implements IConfig {
    */
   public settings: ISettings;
 
+  /**
+   * @private
+   */
   private urls: ISettingsUrls = {
     'api': 'https://api.ionic.io'
   };

@@ -2,14 +2,16 @@ export interface IDetailedError<D> extends Error {
   details?: D;
 }
 
+export type LogFn = (message?: any, ...optionalParams: any[]) => void;
+
 export interface LoggerOptions {
   silent?: boolean;
 }
 
 export interface ILogger {
-  infofn: (message?: any, ...optionalParams: any[]) => void;
-  warnfn: (message?: any, ...optionalParams: any[]) => void;
-  errorfn: (message?: any, ...optionalParams: any[]) => void;
+  infofn: LogFn;
+  warnfn: LogFn;
+  errorfn: LogFn;
   info(message?: any, ...optionalParams: any[]);
   warn(message?: any, ...optionalParams: any[]);
   error(message?: any, ...optionalParams: any[]);
@@ -230,7 +232,7 @@ export interface UserSocialProvider {
     full_name: string;
     profile_picture: string;
     raw_data: Object;
-  }
+  };
 }
 
 export interface IUser {
@@ -386,9 +388,6 @@ export interface AuthOptions {}
  * This is the auth interface.
  */
 export interface IAuth {
-  /**
-   * hi perry
-   */
   options: AuthOptions;
   isAuthenticated(): boolean;
   login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: LoginOptions): Promise<IUser>;

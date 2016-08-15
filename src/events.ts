@@ -5,7 +5,14 @@ import { EventHandler, IEventEmitter } from './definitions';
  */
 export class EventEmitter implements IEventEmitter {
 
+  /**
+   * @private
+   */
   private eventHandlers: { [key: string]: EventHandler[]; } = {};
+
+  /**
+   * @private
+   */
   private eventsEmitted: { [key: string]: number; }  = {};
 
   /**

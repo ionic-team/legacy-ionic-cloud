@@ -15,6 +15,9 @@ export class Device implements IDevice {
 
   public deviceType: string;
 
+  /**
+   * @private
+   */
   private emitter: IEventEmitter;
 
   constructor(public deps: DeviceDependencies) {
@@ -55,6 +58,9 @@ export class Device implements IDevice {
     }
   }
 
+  /**
+   * @private
+   */
   private registerEventHandlers(): void {
     if (this.deviceType === 'unknown') {
       this.emitter.emit('device:ready');
@@ -65,6 +71,9 @@ export class Device implements IDevice {
     }
   }
 
+  /**
+   * @private
+   */
   private determineDeviceType(): string {
     var agent = navigator.userAgent;
 

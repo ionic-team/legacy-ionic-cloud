@@ -23,7 +23,14 @@ import { DataType } from './data-types';
  */
 export class UserContext implements IUserContext {
 
+  /**
+   * @private
+   */
   private storage: IStorage<StoredUser>;
+
+  /**
+   * @private
+   */
   private config: IConfig;
 
   constructor(deps: UserContextDependencies) {
@@ -93,6 +100,9 @@ export class UserData implements IUserData {
     delete this.data[key];
   }
 
+  /**
+   * @private
+   */
   private deserializeDataTypes() {
     if (this.data) {
       for (var x in this.data) {
@@ -116,7 +126,7 @@ export class UserData implements IUserData {
 }
 
 /**
- * Represents a user of this app.
+ * Represents a user of the app.
  */
 export class User implements IUser {
 
@@ -145,8 +155,14 @@ export class User implements IUser {
    */
   public data: IUserData;
 
+  /**
+   * @private
+   */
   private service: ISingleUserService;
 
+  /**
+   * @private
+   */
   private _unset: any;
 
   constructor(deps: UserDependencies) {
@@ -288,8 +304,19 @@ export class User implements IUser {
  */
 export class SingleUserService implements ISingleUserService {
 
+  /**
+   * @private
+   */
   private client: IClient;
+
+  /**
+   * @private
+   */
   private context: IUserContext;
+
+  /**
+   * @private
+   */
   private user: IUser;
 
   constructor(deps: SingleUserServiceDependencies, public config: SingleUserServiceOptions = {}) {

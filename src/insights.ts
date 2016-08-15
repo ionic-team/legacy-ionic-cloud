@@ -38,15 +38,39 @@ export class Stat {
 /**
  * A client for Insights that handles batching, user activity insight, and
  * sending insights at an interval.
+ *
+ * @hidden
  */
 export class Insights implements IInsights {
 
+  /**
+   * @private
+   */
   private app: IAppStatus;
+
+  /**
+   * @private
+   */
   private storage: IStorage<string>;
+
+  /**
+   * @private
+   */
   private config: IConfig;
+
+  /**
+   * @private
+   */
   private client: IClient;
+
+  /**
+   * @private
+   */
   private logger: ILogger;
 
+  /**
+   * @private
+   */
   private batch: Stat[];
 
   constructor(

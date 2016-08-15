@@ -41,20 +41,69 @@ export class Push implements IPush {
    */
   public plugin: any;
 
+  /**
+   * @private
+   */
   private config: IConfig;
+
+  /**
+   * @private
+   */
   private auth: IAuth;
+
+  /**
+   * @private
+   */
   private userService: ISingleUserService;
+
+  /**
+   * @private
+   */
   private device: IDevice;
+
+  /**
+   * @private
+   */
   private client: IClient;
+
+  /**
+   * @private
+   */
   private emitter: IEventEmitter;
+
+  /**
+   * @private
+   */
   private storage: IStorage<PushStorageObject>;
+
+  /**
+   * @private
+   */
   private logger: ILogger;
 
+  /**
+   * @private
+   */
   private blockRegistration: boolean = false;
+
+  /**
+   * @private
+   */
   private blockUnregister: boolean = false;
+
+  /**
+   * @private
+   */
   private blockSaveToken: boolean = false;
+
+  /**
+   * @private
+   */
   private registered: boolean = false;
 
+  /**
+   * @private
+   */
   private _token: IPushToken;
 
   constructor(
@@ -235,6 +284,9 @@ export class Push implements IPush {
     return deferred.promise;
   }
 
+  /**
+   * @private
+   */
   private _callbackRegistration() {
     this.plugin.on('registration', (data: IPluginRegistration) => {
       this.token = new PushToken(data.registrationId);
@@ -266,6 +318,9 @@ export class Push implements IPush {
     });
   }
 
+  /**
+   * @private
+   */
   private _getPushPlugin() {
     let plugin = window.PushNotification;
 

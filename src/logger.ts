@@ -1,4 +1,4 @@
-import { ILogger, LoggerOptions } from './definitions';
+import { ILogger, LogFn, LoggerOptions } from './definitions';
 
 /**
  * Simple console logger.
@@ -8,17 +8,17 @@ export class Logger implements ILogger {
   /**
    * The function to use to log info level messages.
    */
-  public infofn = console.log.bind(console);
+  public infofn: LogFn = console.log.bind(console);
 
   /**
    * The function to use to log warn level messages.
    */
-  public warnfn = console.warn.bind(console);
+  public warnfn: LogFn = console.warn.bind(console);
 
   /**
    * The function to use to log error level messages.
    */
-  public errorfn = console.error.bind(console);
+  public errorfn: LogFn = console.error.bind(console);
 
   constructor(public options: LoggerOptions = {}) {}
 
