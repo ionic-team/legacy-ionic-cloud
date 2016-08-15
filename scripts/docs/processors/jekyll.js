@@ -10,8 +10,8 @@ module.exports = function jekyll(renderDocsProcessor) {
       var currentVersion = renderDocsProcessor.extraData.version.current.name;
 
       docs.forEach(function(doc, i) {
-        if (docs[i].docType === 'interface') {
-          docs[i].outputPath = config.docsDest + '/' + docs[i].name + '.md';
+        if (doc.docType === 'interface' || doc.docType === 'type-alias') {
+          docs[i].outputPath = config.docsDest + '/' + doc.name + '.md';
         }
       });
 
@@ -41,12 +41,16 @@ module.exports = function jekyll(renderDocsProcessor) {
         }
       });
 
+      renderDocsProcessor.extraData.classes = docs.filter(function(doc) {
+        return doc.docType === 'class';
+      });
+
       renderDocsProcessor.extraData.interfaces = docs.filter(function(doc) {
         return doc.docType === 'interface';
       });
 
-      renderDocsProcessor.extraData.classes = docs.filter(function(doc) {
-        return doc.docType === 'class';
+      renderDocsProcessor.extraData.typeAliases = docs.filter(function(doc) {
+        return doc.docType === 'type-alias';
       });
 
       docs.push({

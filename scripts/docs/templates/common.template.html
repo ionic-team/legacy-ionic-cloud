@@ -66,12 +66,18 @@ Improve this doc
 <@ endblock @>
 
 <nav class="toc toc-api-client">
+<@ if doc.docType == 'type-alias' @>
+  <code><span class="line">type <$ doc.name $> = <$ doc.typeDefinition $></span></code>
+<@ else @>
   <code><span class="line"><$ doc.docType | lower $> <$ doc.name $> {</span>
+    <@ if doc.members.length @>
     <@ for member in doc.members @>
     <span class="line member-line"><$ memberSyntax(member, link=true) $></span>
     <@ endfor @>
+    <@ endif @>
     <span class="line">}</span>
   </code>
+<@ endif @>
 </nav>
 
 <@ block description @>
