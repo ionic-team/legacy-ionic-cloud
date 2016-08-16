@@ -12,7 +12,8 @@ module.exports = function jekyll(renderDocsProcessor) {
 
       docs.forEach(function(doc, i) {
         if (doc.docType === 'interface' || doc.docType === 'type-alias') {
-          docs[i].outputPath = config.docsDest + '/' + doc.name + '.md';
+          docs[i].outputPath = config.docsDest + '/' + doc.name.toLowerCase();
+          docs[i].outputPath += '/index.md';
         }
 
         if(! docs[i].outputPath) {
