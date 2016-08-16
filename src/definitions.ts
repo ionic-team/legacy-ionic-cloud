@@ -621,9 +621,9 @@ export interface AuthOptions {}
 export interface IAuth {
   options: AuthOptions;
   isAuthenticated(): boolean;
-  login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: AuthLoginOptions): Promise<IUser>;
-  login(moduleId: 'custom', credentials: Object, options?: AuthLoginOptions): Promise<IUser>;
-  login(moduleId: AuthModuleId, credentials?: Object, options?: AuthLoginOptions): Promise<IUser>;
+  login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: AuthLoginOptions): Promise<void>;
+  login(moduleId: 'custom', credentials: Object, options?: AuthLoginOptions): Promise<void>;
+  login(moduleId: AuthModuleId, credentials?: Object, options?: AuthLoginOptions): Promise<void>;
   logout(): void;
   signup(data: UserDetails): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;

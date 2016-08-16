@@ -17,7 +17,6 @@ import {
   ISingleUserService,
   IStorage,
   ITokenContext,
-  IUser,
   InAppBrowserPluginOptions,
   AuthLoginOptions,
   TokenContextDependencies,
@@ -168,9 +167,7 @@ export class Auth implements IAuth {
    * logins, kick-off the authentication process.
    *
    * After login, the full user is loaded from the cloud and saved in local
-   * storage along with their auth token. The promise resolves with the user,
-   * but only for convenience. If possible, use the `User` instance reference
-   * instead. Upon failure, the promise rejects with the Error.
+   * storage along with their auth token.
    *
    * @note TODO: Better error handling docs.
    *
@@ -185,7 +182,7 @@ export class Auth implements IAuth {
    *  InAppBrowser window options for authentication providers that make use of
    *  it.
    */
-  public login(moduleId: AuthModuleId, credentials?: Object, options: AuthLoginOptions = {}): Promise<IUser> {
+  public login(moduleId: AuthModuleId, credentials?: Object, options: AuthLoginOptions = {}): Promise<void> {
     if (typeof options.remember === 'undefined') {
       options.remember = true;
     }
@@ -217,7 +214,6 @@ export class Auth implements IAuth {
       return this.userService.load().then(() => {
         let user = this.userService.current();
         user.store();
-        return user;
       });
     });
   }
