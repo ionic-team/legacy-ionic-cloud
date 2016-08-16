@@ -226,10 +226,9 @@ export class Auth implements IAuth {
    * called. This means you'll likely want to log in your users manually after
    * signup.
    *
-   * If a signup fails, the promise rejects with a `DetailedError` containing
-   * an array of error codes from the cloud.
-   *
-   * TODO: Link to DetailedError
+   * If a signup fails, the promise rejects with a [`IDetailedError`
+   * object](/api/client/idetailederror) that contains an array of error codes
+   * from the cloud.
    *
    * @param details - The details that describe a user.
    */
@@ -242,9 +241,8 @@ export class Auth implements IAuth {
    * authentication.
    *
    * An email will be sent to the user with a short password reset code, which
-   * they can copy back into your app and use `confirmPasswordReset()`.
-   *
-   * TODO: Link to confirmPasswordReset
+   * they can copy back into your app and use the [`confirmPasswordReset()`
+   * method](#confirmPasswordReset).
    *
    * @param email - The email address to which to send a code.
    */
