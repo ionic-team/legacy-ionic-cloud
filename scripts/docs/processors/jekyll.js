@@ -8,6 +8,7 @@ module.exports = function jekyll(renderDocsProcessor) {
     $runBefore: ['rendering-docs'],
     $process: function(docs) {
       var currentVersion = renderDocsProcessor.extraData.version.current.name;
+      var docsByName = [];
 
       docs.forEach(function(doc, i) {
         if (doc.docType === 'interface' || doc.docType === 'type-alias') {
@@ -27,7 +28,9 @@ module.exports = function jekyll(renderDocsProcessor) {
           } else {
             parts.push(segment);
           }
-        })
+        });
+
+        docsByName.push(docs[i].name);
       });
 
       // pretty up and sort the docs object for menu generation
@@ -67,6 +70,8 @@ module.exports = function jekyll(renderDocsProcessor) {
       renderDocsProcessor.extraData.typeAliases = docs.filter(function(doc) {
         return doc.docType === 'type-alias';
       });
+
+      renderDocsProcessor.extraData.docsByName = docsByName;
 
       docs.push({
         docType: 'menu',

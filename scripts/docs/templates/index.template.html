@@ -21,3 +21,15 @@
     <@ endif @>
   <@ endfor @>
 </ul>
+
+
+<h3>Types</h3>
+<ul>
+  <@ for doc in typeAliases @>
+    <@ if doc.URL and doc.private != true and doc.name @>
+      <li>
+        <a href="/<$ doc.URL $>"><$ doc.name $></a>
+      </li>
+    <@ endif @>
+  <@ endfor @>
+</ul>
