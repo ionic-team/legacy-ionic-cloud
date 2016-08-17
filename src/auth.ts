@@ -163,6 +163,24 @@ export class Auth implements IAuth {
   }
 
   /**
+   * Sign up a user with the given data. Only for email/password
+   * authentication.
+   *
+   * `signup` does not affect local data or the current user until `login` is
+   * called. This means you'll likely want to log in your users manually after
+   * signup.
+   *
+   * If a signup fails, the promise rejects with a [`IDetailedError`
+   * object](/api/client/idetailederror) that contains an array of error codes
+   * from the cloud.
+   *
+   * @param details - The details that describe a user.
+   */
+  public signup(details: UserDetails): Promise<void> {
+    return this.authModules.basic.signup(details);
+  }
+
+  /**
    * Attempt to log the user in with the given credentials. For custom & social
    * logins, kick-off the authentication process.
    *
@@ -219,21 +237,16 @@ export class Auth implements IAuth {
   }
 
   /**
-   * Sign up a user with the given data. Only for email/password
-   * authentication.
+   * Log the user out of the app.
    *
-   * `signup` does not affect local data or the current user until `login` is
-   * called. This means you'll likely want to log in your users manually after
-   * signup.
-   *
-   * If a signup fails, the promise rejects with a [`IDetailedError`
-   * object](/api/client/idetailederror) that contains an array of error codes
-   * from the cloud.
-   *
-   * @param details - The details that describe a user.
+   * This clears the auth token out of local storage and restores the user to
+   * an unauthenticated state.
    */
-  public signup(details: UserDetails): Promise<void> {
-    return this.authModules.basic.signup(details);
+  public logout(): void {
+    this.tokenContext.delete();
+    let user = this.userService.current();
+    user.unstore();
+    user.clear();
   }
 
   /**
@@ -263,19 +276,6 @@ export class Auth implements IAuth {
   public confirmPasswordReset(code: number, newPassword: string): Promise<void> {
     let email = this.storage.get('auth_password_reset_email');
     return this.authModules.basic.confirmPasswordReset(email, code, newPassword);
-  }
-
-  /**
-   * Log the user out of the app.
-   *
-   * This clears the auth token out of local storage and restores the user to
-   * an unauthenticated state.
-   */
-  public logout(): void {
-    this.tokenContext.delete();
-    let user = this.userService.current();
-    user.unstore();
-    user.clear();
   }
 
   /**
