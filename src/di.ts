@@ -179,6 +179,7 @@ export class Container {
   @cache
   public get auth(): IAuth {
     return new Auth({
+      'config': this.config,
       'emitter': this.eventEmitter,
       'authModules': this.authModules,
       'tokenContext': this.authTokenContext,

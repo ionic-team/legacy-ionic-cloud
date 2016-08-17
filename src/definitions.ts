@@ -54,6 +54,7 @@ export interface ILogger {
  */
 export interface ISettingsUrls {
   api?: string;
+  web?: string;
 }
 
 /**
@@ -68,7 +69,7 @@ export interface ICoreSettings {
   /**
    * @hidden
    */
-  urls?: any;
+  urls?: ISettingsUrls;
 }
 
 /**
@@ -603,6 +604,7 @@ export interface AuthLoginOptions {
  * @hidden
  */
 export interface AuthDependencies {
+  config: IConfig;
   emitter: IEventEmitter;
   authModules: IAuthModules;
   tokenContext: ICombinedTokenContext;
@@ -620,6 +622,7 @@ export interface AuthOptions {}
  */
 export interface IAuth {
   options: AuthOptions;
+  passwordResetUrl: string;
   isAuthenticated(): boolean;
   login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: AuthLoginOptions): Promise<void>;
   login(moduleId: 'custom', credentials: Object, options?: AuthLoginOptions): Promise<void>;

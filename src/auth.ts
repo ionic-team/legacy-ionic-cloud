@@ -107,6 +107,11 @@ export class Auth implements IAuth {
   /**
    * @private
    */
+  private config: IConfig;
+
+  /**
+   * @private
+   */
   private emitter: IEventEmitter;
 
   /**
@@ -142,11 +147,23 @@ export class Auth implements IAuth {
      */
     public options: AuthOptions = {}
   ) {
+    this.config = deps.config;
     this.emitter = deps.emitter;
     this.authModules = deps.authModules;
     this.tokenContext = deps.tokenContext;
     this.userService = deps.userService;
     this.storage = deps.storage;
+  }
+
+  /**
+   * Link the user to this URL for password resets. Only for email/password
+   * authentication.
+   *
+   * Use this if you want to use our password reset forms instead of creating
+   * your own in your app.
+   */
+  public get passwordResetUrl(): string {
+    return `${this.config.getURL('web')}/password/reset/${this.config.get('app_id')}`;
   }
 
   /**
