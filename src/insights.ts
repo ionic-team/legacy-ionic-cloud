@@ -157,8 +157,6 @@ export class Insights implements IInsights {
       .end((err, res) => {
         if (err) {
           this.logger.error('Ionic Insights: Could not send insights.', err);
-        } else {
-          this.logger.info('Ionic Insights: Sent insights.');
         }
       });
 
