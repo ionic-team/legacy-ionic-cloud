@@ -543,10 +543,28 @@ export interface AuthTypeDependencies {
 }
 
 /**
+ * A container object that [`login()`](/api/client/auth#login) resolves with.
+ */
+export interface AuthLoginResult {
+
+  /**
+   * The raw auth token string.
+   */
+  token: string;
+
+  /**
+   * For social authentication, we create a user account the first time a user
+   * logs in. When `true`, this flag indicates the user has just signed up for
+   * the first time.
+   */
+  signup?: boolean;
+}
+
+/**
  * @hidden
  */
 export interface IAuthType {
-  authenticate(data, options?: AuthLoginOptions): Promise<any>;
+  authenticate(data, options?: AuthLoginOptions): Promise<AuthLoginResult>;
 }
 
 /**
@@ -624,9 +642,9 @@ export interface IAuth {
   options: AuthOptions;
   passwordResetUrl: string;
   isAuthenticated(): boolean;
-  login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: AuthLoginOptions): Promise<void>;
-  login(moduleId: 'custom', credentials: Object, options?: AuthLoginOptions): Promise<void>;
-  login(moduleId: AuthModuleId, credentials?: Object, options?: AuthLoginOptions): Promise<void>;
+  login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: AuthLoginOptions): Promise<AuthLoginResult>;
+  login(moduleId: 'custom', credentials: Object, options?: AuthLoginOptions): Promise<AuthLoginResult>;
+  login(moduleId: AuthModuleId, credentials?: Object, options?: AuthLoginOptions): Promise<AuthLoginResult>;
   logout(): void;
   signup(data: UserDetails): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;
