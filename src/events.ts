@@ -1,12 +1,23 @@
-import { EventHandler, IEventEmitter } from './definitions';
+import { EventHandler, IEventReceiver, IEventEmitter } from './definitions';
 
 /**
- * @hidden
+ * A registered event receiver.
  */
-export class EventReceiver {
+export class EventReceiver implements IEventReceiver {
   constructor(
+    /**
+     * An registered identifier for this event receiver.
+     */
     public key: string | number,
+
+    /**
+     * The registered name of the event.
+     */
     public event: string,
+
+    /**
+     * The actual callback.
+     */
     public handler: EventHandler
   ) {}
 }
@@ -26,7 +37,7 @@ export class EventEmitter implements IEventEmitter {
    */
   private eventReceivers: {
     [key: string]: {
-      [key: number]: EventReceiver;
+      [key: number]: IEventReceiver;
     };
   } = {};
 
@@ -46,7 +57,7 @@ export class EventEmitter implements IEventEmitter {
    * @param callback
    *  A callback to attach to this event.
    */
-  public on(event: string, callback: EventHandler): EventReceiver {
+  public on(event: string, callback: EventHandler): IEventReceiver {
     if (typeof this.eventReceivers[event] === 'undefined') {
       this.eventReceivers[event] = {};
     }
@@ -64,7 +75,7 @@ export class EventEmitter implements IEventEmitter {
    * @param receiver
    *  The event receiver.
    */
-  public off(receiver: EventReceiver): void {
+  public off(receiver: IEventReceiver): void {
     if (
       typeof this.eventReceivers[receiver.event] === 'undefined' ||
       typeof this.eventReceivers[receiver.event][receiver.key] === 'undefined'

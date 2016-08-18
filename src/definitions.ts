@@ -130,10 +130,20 @@ export interface IClient {
 export type EventHandler = (data: Object) => any;
 
 /**
+ * Represents an `EventReceiver`.
+ */
+export interface IEventReceiver {
+  key: string | number;
+  event: string;
+  handler: EventHandler;
+}
+
+/**
  * Represents an `EventEmitter`.
  */
 export interface IEventEmitter {
   on(event: string, callback: EventHandler);
+  off(receiver: IEventReceiver);
   once(event: string, callback: () => void);
   emit(event: string, data?: Object);
   emitted(event: string): number;
