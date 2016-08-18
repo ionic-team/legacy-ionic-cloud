@@ -71,8 +71,10 @@ if (typeof angular === 'object' && angular.module) {
     return Ionic.deploy;
   }])
 
-  .run([function() {
-    // TODO
+  .run(['$window', function($window) {
+    if (typeof $window.Promise === 'undefined') {
+      console.error("'Promise' is undefined. Please install a polyfill (see the Cloud Client docs for more info).");
+    }
   }]);
 
 }
