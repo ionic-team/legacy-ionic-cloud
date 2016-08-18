@@ -1,6 +1,17 @@
 import { EventHandler, IEventEmitter } from './definitions';
 
 /**
+ * @hidden
+ */
+export class EventReceiver {
+  constructor(
+    public key: string | number,
+    public event: string,
+    public handler: EventHandler
+  ) {}
+}
+
+/**
  * Stores callbacks for registered events.
  */
 export class EventEmitter implements IEventEmitter {
@@ -8,12 +19,23 @@ export class EventEmitter implements IEventEmitter {
   /**
    * @private
    */
-  private eventHandlers: { [key: string]: EventHandler[]; } = {};
+  private n: number = 0;
 
   /**
    * @private
    */
-  private eventsEmitted: { [key: string]: number; }  = {};
+  private eventReceivers: {
+    [key: string]: {
+      [key: number]: EventReceiver;
+    };
+  } = {};
+
+  /**
+   * @private
+   */
+  private eventsEmitted: {
+    [key: string]: number;
+  }  = {};
 
   /**
    * Register an event callback which gets triggered every time the event is
@@ -24,12 +46,33 @@ export class EventEmitter implements IEventEmitter {
    * @param callback
    *  A callback to attach to this event.
    */
-  public on(event: string, callback: EventHandler) {
-    if (typeof this.eventHandlers[event] === 'undefined') {
-      this.eventHandlers[event] = [];
+  public on(event: string, callback: EventHandler): EventReceiver {
+    if (typeof this.eventReceivers[event] === 'undefined') {
+      this.eventReceivers[event] = {};
     }
 
-    this.eventHandlers[event].push(callback);
+    let receiver = new EventReceiver(this.n, event, callback);
+    this.n++;
+    this.eventReceivers[event][receiver.key] = receiver;
+    return receiver;
+  }
+
+  /**
+   * Unregister an event receiver returned from
+   * [`on()`](/api/client/eventemitter#on).
+   *
+   * @param receiver
+   *  The event receiver.
+   */
+  public off(receiver: EventReceiver): void {
+    if (
+      typeof this.eventReceivers[receiver.event] === 'undefined' ||
+      typeof this.eventReceivers[receiver.event][receiver.key] === 'undefined'
+    ) {
+      throw new Error('unknown event receiver');
+    }
+
+    delete this.eventReceivers[receiver.event][receiver.key];
   }
 
   /**
@@ -44,7 +87,7 @@ export class EventEmitter implements IEventEmitter {
    * @param callback
    *  A callback to attach to this event. It takes no arguments.
    */
-  public once(event: string, callback: () => void) {
+  public once(event: string, callback: () => void): void {
     if (this.emitted(event)) {
       callback();
     } else {
@@ -65,16 +108,16 @@ export class EventEmitter implements IEventEmitter {
    *  An object to pass to every callback.
    */
   public emit(event: string, data: Object = null) {
-    if (typeof this.eventHandlers[event] === 'undefined') {
-      this.eventHandlers[event] = [];
+    if (typeof this.eventReceivers[event] === 'undefined') {
+      this.eventReceivers[event] = {};
     }
 
     if (typeof this.eventsEmitted[event] === 'undefined') {
       this.eventsEmitted[event] = 0;
     }
 
-    for (let callback of this.eventHandlers[event]) {
-      callback(data);
+    for (let k in this.eventReceivers[event]) {
+      this.eventReceivers[event][k].handler(data);
     }
 
     this.eventsEmitted[event] += 1;
