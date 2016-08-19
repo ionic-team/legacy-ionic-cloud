@@ -52,7 +52,7 @@ export interface ILogger {
 /**
  * @hidden
  */
-export interface ISettingsUrls {
+export interface CloudSettingsUrls {
   api?: string;
   web?: string;
 }
@@ -60,7 +60,7 @@ export interface ISettingsUrls {
 /**
  * General settings for the Cloud Client.
  */
-export interface ICoreSettings {
+export interface CoreSettings {
   /**
    * Your app ID.
    */
@@ -69,21 +69,21 @@ export interface ICoreSettings {
   /**
    * @hidden
    */
-  urls?: ISettingsUrls;
+  urls?: CloudSettingsUrls;
 }
 
 /**
  * The settings object for the Cloud Client.
  *
- * `ISettings` contains various specific configuration sections, acting more
+ * `CloudSettings` contains various specific configuration sections, acting more
  * like a parent object for them.
  */
-export interface ISettings {
+export interface CloudSettings {
 
   /**
    * General settings for the Cloud Client.
    */
-  core: ICoreSettings;
+  core: CoreSettings;
 
   /**
    * Settings for Push Notifications.
@@ -100,9 +100,9 @@ export interface ISettings {
  * Represents a `Config`.
  */
 export interface IConfig {
-  settings: ISettings;
+  settings: CloudSettings;
 
-  register(settings: ISettings);
+  register(settings: CloudSettings);
   get(name: string): any;
   getURL(name: string): string;
 }

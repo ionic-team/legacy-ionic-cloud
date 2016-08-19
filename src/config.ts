@@ -1,4 +1,4 @@
-import { ISettingsUrls, ISettings, IConfig } from './definitions';
+import { CloudSettingsUrls, CloudSettings, IConfig } from './definitions';
 
 /**
  * @hidden
@@ -8,12 +8,12 @@ export class Config implements IConfig {
   /**
    * The cloud config.
    */
-  public settings: ISettings;
+  public settings: CloudSettings;
 
   /**
    * @private
    */
-  private urls: ISettingsUrls = {
+  private urls: CloudSettingsUrls = {
     'api': 'https://api.ionic.io',
     'web': 'https://web.ionic.io'
   };
@@ -21,7 +21,7 @@ export class Config implements IConfig {
   /**
    * Register a new config.
    */
-  public register(settings: ISettings) {
+  public register(settings: CloudSettings) {
     this.settings = settings;
   }
 

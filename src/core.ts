@@ -6,7 +6,6 @@ import {
   IInsights,
   ILogger,
   IPushNotificationEvent,
-  ISettings
 } from './definitions';
 
 /**
@@ -40,8 +39,7 @@ export class Core implements ICore {
   private _version = 'VERSION_STRING';
 
   constructor(
-    deps: CoreDependencies,
-    public cfg?: ISettings
+    deps: CoreDependencies
   ) {
     this.config = deps.config;
     this.logger = deps.logger;
