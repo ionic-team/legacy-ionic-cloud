@@ -49,7 +49,6 @@ Ionic.Cloud.Client = client.Client;
 Ionic.Cloud.Device = device.Device;
 Ionic.Cloud.EventEmitter = EventEmitter;
 Ionic.Cloud.Logger = Logger;
-Ionic.Cloud.Promise = promise.Promise;
 Ionic.Cloud.DeferredPromise = promise.DeferredPromise;
 Ionic.Cloud.Storage = storage.Storage;
 Ionic.Cloud.UserContext = user.UserContext;

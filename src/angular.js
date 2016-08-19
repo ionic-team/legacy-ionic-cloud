@@ -71,9 +71,16 @@ if (typeof angular === 'object' && angular.module) {
     return Ionic.deploy;
   }])
 
-  .run(['$window', function($window) {
+  .run(['$window', '$q', function($window, $q) {
     if (typeof $window.Promise === 'undefined') {
-      console.error("'Promise' is undefined. Please install a polyfill (see the Cloud Client docs for more info).");
+      $window.Promise = $q;
+    } else {
+      var init = Ionic.Cloud.DeferredPromise.prototype.init;
+
+      Ionic.Cloud.DeferredPromise.prototype.init = function() {
+        init.apply(this, arguments);
+        this.promise = $q.when(this.promise);
+      };
     }
   }]);
 

@@ -8,6 +8,10 @@ export class DeferredPromise<T, E extends Error> {
   public promise: Promise<T>;
 
   constructor() {
+    this.init();
+  }
+
+  init() {
     this.promise = new Promise<T>((resolve, reject) => {
       this.resolve = resolve;
       this.reject = reject;
