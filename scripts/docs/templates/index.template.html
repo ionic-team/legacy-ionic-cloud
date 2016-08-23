@@ -1,34 +1,37 @@
-<h3>Classes</h3>
-<ul class="index">
-  <@ for doc in classes @>
-    <@ if doc.URL and doc.private != true and doc.name @>
-      <li>
-        <a href="/<$ doc.URL $>"><$ doc.name $></a>
-        <@ if doc.summary @> - <span><$ doc.summary $></span><@ endif @>
-      </li>
-    <@ endif @>
-  <@ endfor @>
-</ul>
+<table>
+  <tr><th colspan="2"><h3>Classes</h3></th></tr>
+  <@- for doc in classes @>
+    <@ if doc.URL and doc.private != true and doc.name -@>
+      <tr>
+        <td><a href="/<$ doc.URL $>"><$ doc.name $></a></td>
+        <td>
+          <@ if doc.description @><$ doc.description.split("\n")[0] | marked $><@ endif @>
+        </td>
+      </tr>
+    <@- endif @>
+  <@ endfor -@>
 
-<h3>Interfaces</h3>
-<ul class="index">
-  <@ for doc in interfaces @>
-    <@ if doc.URL and doc.private != true and doc.name @>
-      <li>
-        <a href="/<$ doc.URL $>"><$ doc.name $></a>
-        <@ if doc.summary @> - <span><$ doc.summary $></span><@ endif @>
-      </li>
-    <@ endif @>
-  <@ endfor @>
-</ul>
+  <tr><th colspan="2"><h3>Interfaces</h3></th></tr>
+  <@- for doc in interfaces @>
+    <@ if doc.URL and doc.private != true and doc.name -@>
+      <tr>
+        <td><a href="/<$ doc.URL $>"><$ doc.name $></a></td>
+        <td>
+          <@ if doc.description @><$ doc.description.split("\n")[0] | marked $><@ endif @>
+        </td>
+      </tr>
+    <@- endif @>
+  <@ endfor -@>
 
-<h3>Types</h3>
-<ul class="index">
-  <@ for doc in typeAliases @>
-    <@ if doc.URL and doc.private != true and doc.name @>
-      <li>
-        <a href="/<$ doc.URL $>"><$ doc.name $></a>
-      </li>
-    <@ endif @>
-  <@ endfor @>
-</ul>
+  <tr><th colspan="2"><h3>Types</h3></th></tr>
+  <@- for doc in typeAliases @>
+    <@ if doc.URL and doc.private != true and doc.name -@>
+      <tr>
+        <td><a href="/<$ doc.URL $>"><$ doc.name $></a></td>
+        <td>
+          <@ if doc.description @><$ doc.description.split("\n")[0] | marked $><@ endif @>
+        </td>
+      </tr>
+    <@- endif @>
+  <@ endfor -@>
+</table>
