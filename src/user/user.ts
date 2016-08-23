@@ -57,6 +57,7 @@ export class UserContext implements IUserContext {
       user.id = data.id;
       user.data = new UserData(data.data);
       user.details = data.details || {};
+      user.social = data.social || {};
       user.fresh = data.fresh;
       return user;
     }
