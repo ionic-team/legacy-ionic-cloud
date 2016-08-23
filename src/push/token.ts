@@ -1,17 +1,28 @@
 import { IPushToken } from '../definitions';
 
 /**
- * Represents a push device token from APNS/GCM.
+ * Represents a push token, which is constructed from a device token from
+ * APNS/GCM.
  */
 export class PushToken implements IPushToken {
 
   /**
-   * Has the push token been registered in the API?
+   * The token ID on the API.
+   */
+  public id: string;
+
+  /**
+   * The token type (or platform), e.g. 'android' or 'ios'
+   */
+  public type: 'android' | 'ios';
+
+  /**
+   * Has the push token been registered with APNS/GCM?
    */
   public registered: boolean = false;
 
   /**
-   * Has the push token been saved locally?
+   * Has the push token been saved to the API?
    */
   public saved: boolean = false;
 

@@ -893,6 +893,8 @@ export interface PushOptions {
  * Represents `PushToken`.
  */
 export interface IPushToken {
+  id: string;
+  type: 'android' | 'ios';
   registered: boolean;
   saved: boolean;
   token: string;

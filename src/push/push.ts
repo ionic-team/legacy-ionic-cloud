@@ -192,6 +192,8 @@ export class Push implements IPush {
             if (tokenData.user_id) {
               this.logger.info('Ionic Push: added push token to user: ' + tokenData.user_id);
             }
+            token.id = res.body.data.id;
+            token.type = res.body.data.type;
             token.saved = true;
             deferred.resolve(token);
           }
