@@ -1,7 +1,7 @@
 <table>
   <tr><th colspan="2"><h3>Classes</h3></th></tr>
   <@- for doc in classes @>
-    <@ if doc.URL and doc.private != true and doc.name -@>
+    <@ if doc.URL and doc.private != true and doc.featured == true and doc.name -@>
       <tr>
         <td><a href="/<$ doc.URL $>"><$ doc.name $></a></td>
         <td>
@@ -13,7 +13,7 @@
 
   <tr><th colspan="2"><h3>Interfaces</h3></th></tr>
   <@- for doc in interfaces @>
-    <@ if doc.URL and doc.private != true and doc.name -@>
+    <@ if doc.URL and doc.private != true and doc.featured == true and doc.name -@>
       <tr>
         <td><a href="/<$ doc.URL $>"><$ doc.name $></a></td>
         <td>
@@ -25,7 +25,7 @@
 
   <tr><th colspan="2"><h3>Types</h3></th></tr>
   <@- for doc in typeAliases @>
-    <@ if doc.URL and doc.private != true and doc.name -@>
+    <@ if doc.URL and doc.private != true and doc.featured == true and doc.name -@>
       <tr>
         <td><a href="/<$ doc.URL $>"><$ doc.name $></a></td>
         <td>
