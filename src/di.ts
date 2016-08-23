@@ -1,5 +1,5 @@
 import {
-  IAppStatus,
+  AppStatus,
   IAuth,
   IAuthModules,
   IClient,
@@ -73,7 +73,7 @@ function cache<T>(target: any, propertyKey: string, descriptor: TypedPropertyDes
 export class Container {
 
   @cache
-  public get appStatus(): IAppStatus {
+  public get appStatus(): AppStatus {
     return {'asleep': false, 'closed': false};
   }
 

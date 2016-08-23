@@ -1,5 +1,5 @@
 import {
-  IAppStatus,
+  AppStatus,
   IClient,
   IConfig,
   IInsights,
@@ -46,7 +46,7 @@ export class Insights implements IInsights {
   /**
    * @private
    */
-  private app: IAppStatus;
+  private app: AppStatus;
 
   /**
    * @private

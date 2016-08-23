@@ -210,7 +210,7 @@ export interface IDevice {
  * @hidden
  */
 export interface CordovaDependencies {
-  appStatus: IAppStatus;
+  appStatus: AppStatus;
   device: IDevice;
   emitter: IEventEmitter;
   logger: ILogger;
@@ -225,7 +225,7 @@ export interface CordovaOptions {}
  * @hidden
  */
 export interface ICordova {
-  app: IAppStatus;
+  app: AppStatus;
 
   bootstrap(): void;
 }
@@ -664,7 +664,7 @@ export interface IAuth {
 /**
  * Simple status flags of an app.
  */
-export interface IAppStatus {
+export interface AppStatus {
 
   /**
    * When `true`, the app was asleep when this was constructed.
@@ -680,14 +680,14 @@ export interface IAppStatus {
 /**
  * @hidden
  */
-export interface IPluginRegistration {
+export interface PushPluginRegistration {
   registrationId: string;
 }
 
 /**
  * Additional data from the Push Plugin.
  */
-export interface IPluginNotificationAdditionalData {
+export interface PushPluginNotificationAdditionalData {
 
   /**
    * Whether the notification was received while the app was in the foreground.
@@ -709,7 +709,7 @@ export interface IPluginNotificationAdditionalData {
  * Full documentation and examples can be found on the Push Plugin's
  * [README](https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/API.md#pushonnotification-callback).
  */
-export interface IPluginNotification {
+export interface PushPluginNotification {
 
   /**
    * The text of the push message sent from the 3rd party service.
@@ -749,27 +749,27 @@ export interface IPluginNotification {
    * An optional collection of data sent by the 3rd party push service that
    * does not fit in the above properties.
    */
-  additionalData: IPluginNotificationAdditionalData;
+  additionalData: PushPluginNotificationAdditionalData;
 }
 
 /**
  * Represents a `PushMessage`.
  */
 export interface IPushMessage {
-  app: IAppStatus;
+  app: AppStatus;
   text: string;
   title: string;
   count: number;
   sound: string;
   image: string;
-  raw: IPluginNotification;
+  raw: PushPluginNotification;
   payload: Object;
 }
 
 /**
  * The interface to which the `push:notification` event adheres.
  */
-export interface IPushNotificationEvent {
+export interface PushNotificationEvent {
 
   /**
    * The push message.
@@ -779,7 +779,7 @@ export interface IPushNotificationEvent {
   /**
    * The raw push notification from the Push Plugin.
    */
-  data: IPluginNotification;
+  data: PushPluginNotification;
 }
 
 /**
@@ -1003,7 +1003,7 @@ export interface IStatSerialized {
  * @hidden
  */
 export interface InsightsDependencies {
-  appStatus: IAppStatus;
+  appStatus: AppStatus;
   storage: IStorage<string>;
   config: IConfig;
   client: IClient;

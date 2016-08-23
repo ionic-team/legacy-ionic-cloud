@@ -5,15 +5,15 @@ import {
   IDevice,
   IEventEmitter,
   ILogger,
-  IPluginNotification,
-  IPluginRegistration,
   IPush,
   ISingleUserService,
   IStorage,
   PushDependencies,
   PushOptions,
+  PushPluginNotification,
+  PushPluginRegistration,
   PushSaveTokenOptions,
-  PushToken,
+  PushToken
 } from '../definitions';
 
 import { DeferredPromise } from '../promise';
@@ -288,7 +288,7 @@ export class Push implements IPush {
    * @private
    */
   private _callbackRegistration() {
-    this.plugin.on('registration', (data: IPluginRegistration) => {
+    this.plugin.on('registration', (data: PushPluginRegistration) => {
       this.token = { 'token': data.registrationId };
 
       if (this.options.debug) {
@@ -298,7 +298,7 @@ export class Push implements IPush {
       this.emitter.emit('push:register', this.token);
     });
 
-    this.plugin.on('notification', (data: IPluginNotification) => {
+    this.plugin.on('notification', (data: PushPluginNotification) => {
       let message = PushMessage.fromPluginData(data);
 
       if (this.options.debug) {

@@ -1,4 +1,8 @@
-import { IPushMessage, IAppStatus, IPluginNotification } from '../definitions';
+import {
+  AppStatus,
+  IPushMessage,
+  PushPluginNotification
+} from '../definitions';
 
 /**
  * Represents a push notification sent to the device.
@@ -8,7 +12,7 @@ export class PushMessage implements IPushMessage {
   /**
    * Native information about the app when the push message was received.
    */
-  public app: IAppStatus;
+  public app: AppStatus;
 
   /**
    * The message of this push message.
@@ -38,7 +42,7 @@ export class PushMessage implements IPushMessage {
   /**
    * The raw notification object from the push plugin callback.
    */
-  public raw: IPluginNotification;
+  public raw: PushPluginNotification;
 
   /**
    * The custom payload of this push message.
@@ -50,7 +54,7 @@ export class PushMessage implements IPushMessage {
    *
    * @param data - The plugin's notification object.
    */
-  public static fromPluginData(data: IPluginNotification): PushMessage {
+  public static fromPluginData(data: PushPluginNotification): PushMessage {
     let message = new PushMessage();
 
     message.raw = data;

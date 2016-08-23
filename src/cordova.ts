@@ -1,7 +1,7 @@
 import {
+  AppStatus,
   CordovaDependencies,
   CordovaOptions,
-  IAppStatus,
   ICordova,
   IDevice,
   IEventEmitter,
@@ -18,7 +18,7 @@ export class Cordova implements ICordova {
   /**
    * Native information about the app.
    */
-  public app: IAppStatus;
+  public app: AppStatus;
 
   /**
    * @private

@@ -5,7 +5,7 @@ import {
   IEventEmitter,
   IInsights,
   ILogger,
-  IPushNotificationEvent,
+  PushNotificationEvent,
 } from './definitions';
 
 /**
@@ -71,7 +71,7 @@ export class Core implements ICore {
       this.onResume();
     });
 
-    this.emitter.on('push:notification', (data: IPushNotificationEvent) => {
+    this.emitter.on('push:notification', (data: PushNotificationEvent) => {
       if (data.message.app.asleep || data.message.app.closed) {
         this.insights.track('mobileapp.opened.push');
       }
