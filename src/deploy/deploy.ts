@@ -20,6 +20,8 @@ const NO_PLUGIN = new Error('Missing deploy plugin: `ionic-plugin-deploy`');
 /**
  * `Deploy` handles live deploys of the app. Downloading, extracting, and
  * rolling back snapshots.
+ *
+ * @featured
  */
 export class Deploy implements IDeploy {
 

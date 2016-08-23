@@ -10,6 +10,8 @@
  *   }
  * }
  * ```
+ *
+ * @featured
  */
 export interface IDetailedError<D> extends Error {
 
@@ -77,6 +79,8 @@ export interface CoreSettings {
  *
  * `CloudSettings` contains various specific configuration sections, acting more
  * like a parent object for them.
+ *
+ * @featured
  */
 export interface CloudSettings {
 
@@ -768,6 +772,8 @@ export interface IPushMessage {
 
 /**
  * The interface to which the `push:notification` event adheres.
+ *
+ * @featured
  */
 export interface PushNotificationEvent {
 
@@ -883,7 +889,9 @@ export interface PushOptions {
 }
 
 /**
- * A push token, which is constructed from a device token from APNS/GCM.
+ * A push token which is constructed from a device token from APNS/GCM.
+ *
+ * @featured
  */
 export interface PushToken {
 

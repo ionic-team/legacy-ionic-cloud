@@ -8,6 +8,8 @@ import { IClient, ITokenContext } from './definitions';
  * [superagent](http://visionmedia.github.io/superagent/). When a method is
  * called, you can call any number of superagent functions on it and then call
  * `end()` to complete and send the request.
+ *
+ * @featured
  */
 export class Client implements IClient {
 

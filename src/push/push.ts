@@ -31,6 +31,8 @@ interface ServiceTokenData {
 
 /**
  * Push handles push notifications for this app.
+ *
+ * @featured
  */
 export class Push implements IPush {
 

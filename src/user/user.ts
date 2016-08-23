@@ -128,6 +128,8 @@ export class UserData implements IUserData {
 
 /**
  * Represents a user of the app.
+ *
+ * @featured
  */
 export class User implements IUser {
 
