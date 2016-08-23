@@ -100,8 +100,6 @@ export class CombinedAuthTokenContext implements ICombinedTokenContext {
 /**
  * `Auth` handles authentication of a single user, such as signing up, logging
  * in & out, social provider authentication, etc.
- *
- * @summary TODO A Quick Summary
  */
 export class Auth implements IAuth {
 
