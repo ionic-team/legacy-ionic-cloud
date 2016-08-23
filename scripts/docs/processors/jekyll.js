@@ -11,6 +11,8 @@ module.exports = function jekyll(renderDocsProcessor) {
       var docsByName = [];
 
       docs.forEach(function(doc, i) {
+        doc.featured = typeof doc.featured === 'string';
+
         if (doc.docType === 'interface' || doc.docType === 'type-alias') {
           docs[i].outputPath = config.docsDest + '/' + doc.name.toLowerCase();
           docs[i].outputPath += '/index.md';
@@ -79,6 +81,13 @@ module.exports = function jekyll(renderDocsProcessor) {
         id: 'menu',
         template: 'menu.template.html',
         outputPath: 'content/_includes/side_nav_js_api.html'
+      });
+
+      docs.push({
+        docType: 'breadcrumbs',
+        id: 'breadcrumbs',
+        template: 'breadcrumbs.template.html',
+        outputPath: 'content/_includes/breadcrumbs_js_api.html'
       });
 
       docs.push({
