@@ -785,7 +785,7 @@ export interface PushNotificationEvent {
   /**
    * The raw push notification from the Push Plugin.
    */
-  data: PushPluginNotification;
+  raw: PushPluginNotification;
 }
 
 /**

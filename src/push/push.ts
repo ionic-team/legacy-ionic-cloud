@@ -307,7 +307,7 @@ export class Push implements IPush {
         this.logger.info('Ionic Push (debug): notification received: ' + message);
       }
 
-      this.emitter.emit('push:notification', {'message': message, 'data': data});
+      this.emitter.emit('push:notification', {'message': message, 'raw': data});
     });
 
     this.plugin.on('error', (e: Error) => {
