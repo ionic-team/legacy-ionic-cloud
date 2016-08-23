@@ -5,7 +5,6 @@ var EventEmitter = require("./../dist/es5/events").EventEmitter;
 var Logger = require("./../dist/es5/logger").Logger;
 var Push = require("./../dist/es5/push/push").Push;
 var PushMessage = require("./../dist/es5/push/message").PushMessage;
-var PushToken = require("./../dist/es5/push/token").PushToken;
 var auth = require("./../dist/es5/auth");
 var client = require("./../dist/es5/client");
 var config = require("./../dist/es5/config");
@@ -25,7 +24,6 @@ Ionic.User = user.User;
 Ionic.Auth = auth.Auth;
 Ionic.Deploy = Deploy;
 Ionic.Push = Push;
-Ionic.PushToken = PushToken;
 Ionic.PushMessage = PushMessage;
 
 // DataType Namespace

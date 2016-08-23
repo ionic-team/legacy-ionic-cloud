@@ -796,13 +796,6 @@ export interface PushSaveTokenOptions {
 /**
  * @hidden
  */
-export interface PushStorageObject {
-  token: string;
-}
-
-/**
- * @hidden
- */
 export interface PushDependencies {
   config: IConfig;
   auth: IAuth;
@@ -810,7 +803,7 @@ export interface PushDependencies {
   device: IDevice;
   client: IClient;
   emitter: IEventEmitter;
-  storage: IStorage<PushStorageObject>;
+  storage: IStorage<PushToken>;
   logger: ILogger;
 }
 
@@ -890,13 +883,33 @@ export interface PushOptions {
 }
 
 /**
- * Represents `PushToken`.
+ * A push token, which is constructed from a device token from APNS/GCM.
  */
-export interface IPushToken {
-  id: string;
-  type: 'android' | 'ios';
-  registered: boolean;
-  saved: boolean;
+export interface PushToken {
+
+  /**
+   * The token ID on the API.
+   */
+  id?: string;
+
+  /**
+   * The token type (or platform), e.g. 'android' or 'ios'
+   */
+  type?: 'android' | 'ios';
+
+  /**
+   * Has the push token been registered with APNS/GCM?
+   */
+  registered?: boolean;
+
+  /**
+   * Has the push token been saved to the API?
+   */
+  saved?: boolean;
+
+  /**
+   * The raw push device token.
+   */
   token: string;
 }
 
@@ -906,10 +919,10 @@ export interface IPushToken {
 export interface IPush {
   options: PushOptions;
   plugin: any;
-  token: IPushToken;
+  token: PushToken;
 
-  saveToken(token: IPushToken, options: PushSaveTokenOptions): Promise<IPushToken>;
-  register(): Promise<IPushToken>;
+  saveToken(token: PushToken, options: PushSaveTokenOptions): Promise<PushToken>;
+  register(): Promise<PushToken>;
   unregister(): Promise<void>;
 }
 

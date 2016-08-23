@@ -8,18 +8,16 @@ import {
   IPluginNotification,
   IPluginRegistration,
   IPush,
-  IPushToken,
   ISingleUserService,
   IStorage,
   PushDependencies,
   PushOptions,
-  PushStorageObject,
-  PushSaveTokenOptions
+  PushSaveTokenOptions,
+  PushToken,
 } from '../definitions';
 
 import { DeferredPromise } from '../promise';
 
-import { PushToken } from './token';
 import { PushMessage } from './message';
 
 declare var window: any;
@@ -74,7 +72,7 @@ export class Push implements IPush {
   /**
    * @private
    */
-  private storage: IStorage<PushStorageObject>;
+  private storage: IStorage<PushToken>;
 
   /**
    * @private
@@ -104,7 +102,7 @@ export class Push implements IPush {
   /**
    * @private
    */
-  private _token: IPushToken;
+  private _token: PushToken;
 
   constructor(
     deps: PushDependencies,
@@ -136,19 +134,19 @@ export class Push implements IPush {
     this.options = options;
   }
 
-  public get token(): IPushToken {
+  public get token(): PushToken {
     if (!this._token) {
-      this._token = new PushToken(this.storage.get('push_token').token);
+      this._token = this.storage.get('push_token');
     }
 
     return this._token;
   }
 
-  public set token(val: IPushToken) {
+  public set token(val: PushToken) {
     if (!val) {
       this.storage.delete('push_token');
     } else {
-      this.storage.set('push_token', { 'token': val.token });
+      this.storage.set('push_token', val);
     }
 
     this._token = val;
@@ -163,8 +161,8 @@ export class Push implements IPush {
    * @param token - The token.
    * @param options
    */
-  public saveToken(token: IPushToken, options: PushSaveTokenOptions = {}): Promise<IPushToken> {
-    let deferred = new DeferredPromise<IPushToken, Error>();
+  public saveToken(token: PushToken, options: PushSaveTokenOptions = {}): Promise<PushToken> {
+    let deferred = new DeferredPromise<PushToken, Error>();
 
     let tokenData: ServiceTokenData = {
       'token': token.token,
@@ -213,8 +211,8 @@ export class Push implements IPush {
    *
    * TODO: link to saveToken
    */
-  public register(): Promise<IPushToken> {
-    let deferred = new DeferredPromise<IPushToken, Error>();
+  public register(): Promise<PushToken> {
+    let deferred = new DeferredPromise<PushToken, Error>();
 
     if (this.blockRegistration) {
       deferred.reject(new Error('Another registration is already in progress.'));
@@ -227,7 +225,7 @@ export class Push implements IPush {
           this.plugin = pushPlugin.init(this.options.pluginConfig);
           this.plugin.on('registration', (data) => {
             this.blockRegistration = false;
-            this.token = new PushToken(data.registrationId);
+            this.token = { 'token': data.registrationId };
             this.token.registered = true;
             deferred.resolve(this.token);
           });
@@ -291,13 +289,13 @@ export class Push implements IPush {
    */
   private _callbackRegistration() {
     this.plugin.on('registration', (data: IPluginRegistration) => {
-      this.token = new PushToken(data.registrationId);
+      this.token = { 'token': data.registrationId };
 
       if (this.options.debug) {
         this.logger.info('Ionic Push (debug): device token registered: ' + this.token);
       }
 
-      this.emitter.emit('push:register', {'token': data.registrationId});
+      this.emitter.emit('push:register', this.token);
     });
 
     this.plugin.on('notification', (data: IPluginNotification) => {

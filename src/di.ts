@@ -16,7 +16,7 @@ import {
   ISingleUserService,
   IStorageStrategy,
   IUserContext,
-  PushStorageObject,
+  PushToken,
   StoredUser
 } from './definitions';
 
@@ -199,7 +199,7 @@ export class Container {
       'device': this.device,
       'client': this.client,
       'emitter': this.eventEmitter,
-      'storage': new Storage<PushStorageObject>({'strategy': this.localStorageStrategy}),
+      'storage': new Storage<PushToken>({'strategy': this.localStorageStrategy}),
       'logger': this.logger
     }, config.settings.push);
   }
