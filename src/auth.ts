@@ -422,7 +422,7 @@ export abstract class AuthType implements IAuthType {
 
                 deferred.resolve({
                   'token': params['token'],
-                  'signup': Boolean(parseInt(params['signup']))
+                  'signup': Boolean(parseInt(params['signup'], 10))
                 });
               }
             };
