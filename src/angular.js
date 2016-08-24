@@ -31,32 +31,16 @@ if (typeof angular === 'object' && angular.module) {
     }];
   }])
 
-  .factory('$ionicCloudLogger', [function() {
-    return Ionic.logger;
-  }])
-
   .factory('$ionicEventEmitter', [function() {
     return Ionic.eventEmitter;
-  }])
-
-  .factory('$ionicCloudDevice', [function() {
-    return Ionic.device;
-  }])
-
-  .factory('$ionicCloudCordova', [function() {
-    return Ionic.cordova;
   }])
 
   .factory('$ionicCloudClient', [function() {
     return Ionic.client;
   }])
 
-  .factory('$ionicSingleUserService', [function() {
-    return Ionic.singleUserService;
-  }])
-
-  .factory('$ionicUser', ['$ionicSingleUserService', function($ionicSingleUserService) {
-    return $ionicSingleUserService.current();
+  .factory('$ionicUser', [function() {
+    return Ionic.singleUserService.current();
   }])
 
   .factory('$ionicAuth', [function() {
