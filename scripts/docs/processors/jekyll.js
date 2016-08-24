@@ -26,7 +26,7 @@ module.exports = function jekyll(renderDocsProcessor) {
         // shorten the path for components in their own dir IE deploy/Deploy
         var parts = [];
         docs[i].outputPath.split('/').forEach(function(segment) {
-          if (parts.indexOf(segment) != -1) {
+          if (parts.indexOf(segment) != -1 && segment != 'client') {
             docs[i].outputPath = docs[i].outputPath.replace(segment + '/', '');
           } else {
             parts.push(segment);
