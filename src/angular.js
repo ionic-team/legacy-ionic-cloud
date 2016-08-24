@@ -31,7 +31,14 @@ if (typeof angular === 'object' && angular.module) {
     }];
   }])
 
-  .factory('$ionicEventEmitter', [function() {
+  .factory('$ionicEventEmitter', ['$rootScope', function($rootScope) {
+    var emit = Ionic.Cloud.EventEmitter.prototype.emit;
+
+    Ionic.Cloud.EventEmitter.prototype.emit = function(name, data) {
+      $rootScope.$broadcast('cloud:' + name, data);
+      return emit.apply(this, arguments);
+    };
+
     return Ionic.eventEmitter;
   }])
 
