@@ -804,6 +804,26 @@ export interface PushDependencies {
   logger: ILogger;
 }
 
+export interface PushPluginConfigAndroid {
+  senderID?: string;
+  icon?: string;
+  iconColor?: string;
+  sound?: boolean;
+  vibrate?: boolean;
+  clearBadge?: boolean;
+  clearNotifications?: boolean;
+  forceShow?: boolean;
+  topics?: string[];
+}
+
+export interface PushPluginConfigiOS {
+  alert?: boolean | string;
+  badge?: boolean | string;
+  sound?: boolean | string;
+  clearBadge?: boolean | string;
+  categories?: any;
+}
+
 /**
  * The configuration options for the Push Plugin.
  *
@@ -811,24 +831,8 @@ export interface PushDependencies {
  * [README](https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/API.md#pushnotificationinitoptions).
  */
 export interface PushPluginConfig {
-  android?: {
-    senderID?: string;
-    icon?: string;
-    iconColor?: string;
-    sound?: boolean;
-    vibrate?: boolean;
-    clearBadge?: boolean;
-    clearNotifications?: boolean;
-    forceShow?: boolean;
-    topics?: string[];
-  };
-  ios?: {
-    alert?: boolean | string;
-    badge?: boolean | string;
-    sound?: boolean | string;
-    clearBadge?: boolean | string;
-    categories?: any;
-  };
+  android?: PushPluginConfigAndroid;
+  ios?: PushPluginConfigiOS;
 }
 
 /**
