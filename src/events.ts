@@ -24,8 +24,6 @@ export class EventReceiver implements IEventReceiver {
 
 /**
  * Stores callbacks for registered events.
- *
- * @featured
  */
 export class EventEmitter implements IEventEmitter {
 
