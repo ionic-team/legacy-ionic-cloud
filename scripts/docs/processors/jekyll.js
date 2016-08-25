@@ -25,13 +25,23 @@ module.exports = function jekyll(renderDocsProcessor) {
 
         // shorten the path for components in their own dir IE deploy/Deploy
         var parts = [];
+        var skip = ['..','ionic-platform-docs','content','api','client','index.md'];
         docs[i].outputPath.split('/').forEach(function(segment) {
-          if (parts.indexOf(segment) != -1 && segment != 'client') {
+          if(skip.indexOf(segment) !== -1) {
+            return;
+          }
+
+          if ( parts.indexOf(segment) !== -1 && segment !== 'client') {
             docs[i].outputPath = docs[i].outputPath.replace(segment + '/', '');
           } else {
             parts.push(segment);
           }
         });
+
+        // PushMessage is a unicorn
+        if(docs[i].name === 'PushMessage') {
+          docs[i].outputPath = docs[i].outputPath.replace('/push/', '/');
+        }
 
         docsByName.push(docs[i].name);
       });
