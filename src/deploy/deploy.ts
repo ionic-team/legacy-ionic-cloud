@@ -109,9 +109,8 @@ export class Deploy implements IDeploy {
   /**
    * Download the available snapshot.
    *
-   * This should be used in conjunction with `extract()`.
-   *
-   * TODO: link to extract
+   * This should be used in conjunction with
+   * [`extract()`](/api/client/deploy/#extract).
    *
    * @param options
    *  Options for this download, such as a progress callback.
@@ -146,9 +145,8 @@ export class Deploy implements IDeploy {
   /**
    * Extract the downloaded snapshot.
    *
-   * This should be called after `download` successfully resolves.
-   *
-   * TODO: link to download
+   * This should be called after [`download()`](/api/client/deploy/#download)
+   * successfully resolves.
    *
    * @param options
    */
