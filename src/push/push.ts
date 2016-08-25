@@ -208,10 +208,8 @@ export class Push implements IPush {
   /**
    * Registers the device with GCM/APNS to get a push token.
    *
-   * After a device is registered, you will likely want to save the token to
-   * the API.
-   *
-   * TODO: link to saveToken
+   * After a device is registered, you will likely want to save the token with
+   * [`saveToken()`](/api/client/push/#saveToken) to the API.
    */
   public register(): Promise<PushToken> {
     let deferred = new DeferredPromise<PushToken, Error>();
