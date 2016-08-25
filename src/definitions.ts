@@ -22,13 +22,13 @@ export interface IDetailedError<D> extends Error {
 }
 
 /**
- * A function which `Logger` uses to log messages. It takes an optional message
- * and any number of additional params.
+ * A function which [`Logger`](/api/client/logger/) uses to log messages. It
+ * takes an optional message and any number of additional params.
  */
 export type LogFn = (message?: any, ...optionalParams: any[]) => void;
 
 /**
- * The options for `Logger`.
+ * The options for [`Logger`](/api/client/logger/).
  */
 export interface LoggerOptions {
 
@@ -40,7 +40,7 @@ export interface LoggerOptions {
 }
 
 /**
- * Represents a `Logger`.
+ * Represents a [`Logger`](/api/client/logger/).
  */
 export interface ILogger {
   infofn: LogFn;
@@ -101,7 +101,7 @@ export interface CloudSettings {
 }
 
 /**
- * Represents a `Config`.
+ * @hidden
  */
 export interface IConfig {
   settings: CloudSettings;
@@ -112,7 +112,7 @@ export interface IConfig {
 }
 
 /**
- * Represents a `Client`.
+ * Represents a [`Client`](/api/client/client/).
  */
 export interface IClient {
   baseUrl: string;
@@ -126,7 +126,8 @@ export interface IClient {
 }
 
 /**
- * A function which `EventEmitter` uses to handle events.
+ * A function which [`EventEmitter`](/api/client/eventemitter/) uses to handle
+ * events.
  *
  * All event handlers have a single parameter: `data`, which is always an
  * object and which will differ depending on the event.
@@ -134,7 +135,7 @@ export interface IClient {
 export type EventHandler = (data: Object) => any;
 
 /**
- * Represents an `EventReceiver`.
+ * Represents an [`EventReceiver`](/api/client/eventreceiver/).
  */
 export interface IEventReceiver {
   key: string | number;
@@ -143,7 +144,7 @@ export interface IEventReceiver {
 }
 
 /**
- * Represents an `EventEmitter`.
+ * Represents an [`EventEmitter`](/api/client/eventemitter/).
  */
 export interface IEventEmitter {
   on(event: string, callback: EventHandler);
@@ -169,7 +170,7 @@ export interface StorageOptions {
 }
 
 /**
- * Represents a `Storage`.
+ * Represents a [`Storage`](/api/client/storage/).
  */
 export interface IStorage<T> {
   get(key: string): T;
@@ -452,7 +453,7 @@ export interface UserSocialProviderDetails {
 }
 
 /**
- * Represents a `User`.
+ * Represents a [`User`](/api/client/user/).
  */
 export interface IUser {
   id: string;
@@ -613,10 +614,11 @@ export interface IAuthModules {
 }
 
 /**
- * Options for `login()` in `Auth`.
+ * Options for [`login()`](/api/client/auth/#login).
  *
- * `Auth` uses the InAppBrowser plugin to redirect the user through
- * authentication. We expose settings for when we open a plugin window.
+ * [`Auth`](/api/client/auth/) uses the InAppBrowser plugin to redirect the
+ * user through authentication. We expose settings for when we open a plugin
+ * window.
  */
 export interface AuthLoginOptions {
 
@@ -650,7 +652,7 @@ export interface AuthDependencies {
 export interface AuthOptions {}
 
 /**
- * Represents `Auth`.
+ * Represents [`Auth`](/api/client/auth/).
  */
 export interface IAuth {
   options: AuthOptions;
@@ -757,7 +759,7 @@ export interface PushPluginNotification {
 }
 
 /**
- * Represents a `PushMessage`.
+ * Represents a [`PushMessage`](/api/client/pushmessage/).
  */
 export interface IPushMessage {
   app: AppStatus;
@@ -771,7 +773,12 @@ export interface IPushMessage {
 }
 
 /**
- * The interface to which the `push:notification` event adheres.
+ * The object received when your app is sent a push notification. To learn how
+ * to handle push notifications, [go to the Push
+ * docs](/services/push/#handling-notifications).
+ *
+ * Internally, this is the object for the `push:notification` event from the
+ * [`EventEmitter`](/api/client/eventemitter/).
  *
  * @featured
  */
@@ -789,7 +796,7 @@ export interface PushNotificationEvent {
 }
 
 /**
- * Options for `saveToken()` in `Push`.
+ * Options for [`saveToken()`](/api/client/push/#saveToken).
  */
 export interface PushSaveTokenOptions {
 
@@ -922,7 +929,7 @@ export interface PushToken {
 }
 
 /**
- * Represents `Push`.
+ * Represents [`Push`](/api/client/push/).
  */
 export interface IPush {
   options: PushOptions;
@@ -935,7 +942,7 @@ export interface IPush {
 }
 
 /**
- * Options for `download()` in `Deploy`.
+ * Options for [`download()`](/api/client/deploy/#download).
  */
 export interface DeployDownloadOptions {
 
@@ -948,7 +955,7 @@ export interface DeployDownloadOptions {
 }
 
 /**
- * Options for `extract()` in `Deploy`.
+ * Options for [`extract()`](/api/client/deploy/#extract).
  */
 export interface DeployExtractOptions {
 
@@ -981,7 +988,7 @@ export interface DeployDependencies {
 }
 
 /**
- * Represents a `Deploy`.
+ * Represents a [`Deploy`](/api/client/deploy/).
  */
 export interface IDeploy {
   channel: DeployChannel;
