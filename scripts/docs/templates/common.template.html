@@ -44,15 +44,10 @@ docType: "<$ doc.docType $>"
 <@- if param.optional @><span class="param-optional">?</span><@ endif -@>
 <@- if param.type @>:
   <@- if docsByName.indexOf(param.type) != -1 @>
-    <a class="param-type" href="/api/client/<$ param.type.toLowerCase() $>/">
-      <$ param.type $>
-    </a>
+    <a class="param-type" href="/api/client/<$ param.type.toLowerCase() $>/"><$ param.type $></a>
   <@- else @>
-    <span class="param-type"><$ param.type $></span>
+    <span class="param-type"><$ param.type $></span><@ endif -@><@ endif -@><@ endfor -@><@- if not fn.isProperty @>)
   <@ endif -@>
-<@ endif -@>
-<@ endfor -@>
-<@ if not fn.isProperty @>)<@ endif @>
 <@- if fn.returns.type @>:
   <@- if docsByName.indexOf(fn.returns.type) != -1 @>
     <a class="returns-type" href="/api/client/<$ fn.returns.type.toLowerCase()|replace('<','&lt;') $>/">
