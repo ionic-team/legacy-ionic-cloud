@@ -55,8 +55,8 @@ docType: "<$ doc.docType $>"
 <@- endfor -@>
 <@- if not fn.isProperty @>)<@ endif -@>
 <@- if fn.returns.type @>:&nbsp;
-<@- if docsByName.indexOf(fn.returns.type) != -1 @>
-<a class="returns-type" href="/api/client/<$ fn.returns.type.toLowerCase()|replace('<','&lt;') $>/">
+<@- if docsByName.indexOf(fn.returns.type.replace('Promise<','').replace('>','')) != -1 @>
+<a class="returns-type" href="/api/client/<$ fn.returns.type.toLowerCase().replace('promise<','').replace('>','') $>/">
 <$ fn.returns.type|replace('<','&lt;') $>
 </a>
 <@- else -@>
