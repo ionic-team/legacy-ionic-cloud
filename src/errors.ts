@@ -21,15 +21,32 @@ export class Exception extends Error {
 }
 
 /**
- * An error with generic details.
+ * An error with generic error details.
+ *
+ * Error details can be extracted depending on the type of `D`. For instance,
+ * if the type of `D` is `string[]`, you can do this:
+ *
+ * ```typescript
+ * function handleError(err: IDetailedError<string[]>) {
+ *   for (let i in err.details) {
+ *     console.error('got error code: ' + i);
+ *   }
+ * }
+ * ```
  */
 export class DetailedError<D> extends Exception implements IDetailedError<D> {
 
-  /**
-   * @param message - The error message.
-   * @param details - The error details.
-   */
-  constructor(public message?: string, public details?: D) {
+  constructor(
+    /**
+     * The error message.
+     */
+    public message?: string,
+
+    /**
+     * The error details.
+     */
+    public details?: D
+  ) {
     super(message);
     this.name = 'DetailedError';
   }

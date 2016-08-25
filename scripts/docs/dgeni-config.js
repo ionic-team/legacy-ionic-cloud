@@ -119,7 +119,8 @@ module.exports = function(currentVersion) {
       path.resolve(__dirname, '../..')
     );
     readTypeScriptModules.sourceFiles = [
-      'src/index.ts'
+      'src/index.ts',
+      'src/errors.ts'
     ];
   })
 

@@ -1,23 +1,7 @@
-/** Represents an error with generic details.
- *
- * Error details can be extracted depending on the type of `D`. For instance,
- * if the type of `D` is `string[]`, you can do this:
- *
- * ```typescript
- * function handleError(err: IDetailedError<string[]>) {
- *   for (let i in err.details) {
- *     console.error('got error code: ' + i);
- *   }
- * }
- * ```
- *
- * @featured
+/**
+ * Represents [`DetailedError`](/api/client/detailederror/).
  */
 export interface IDetailedError<D> extends Error {
-
-  /**
-   * The error details.
-   */
   details?: D;
 }
 
