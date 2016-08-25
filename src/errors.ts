@@ -33,6 +33,8 @@ export class Exception extends Error {
  *   }
  * }
  * ```
+ *
+ * @featured
  */
 export class DetailedError<D> extends Exception implements IDetailedError<D> {
 

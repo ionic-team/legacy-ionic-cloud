@@ -186,7 +186,7 @@ export class Deploy implements IDeploy {
    * snapshot and wish to instantly reload the app with the latest deploy. The
    * latest deploy will automatically be loaded when the app is started.
    */
-  public load() {
+  public load(): void {
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
         this.plugin.redirect(this.config.get('app_id'));

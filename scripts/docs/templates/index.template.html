@@ -5,7 +5,7 @@
       <tr>
         <td><a href="/<$ doc.URL $>"><$ doc.name $></a></td>
         <td>
-          <@ if doc.description @><$ doc.description.split("\n")[0] | marked $><@ endif @>
+          <@ if doc.description @><$ doc.description.split("\n\n")[0] | marked $><@ endif @>
         </td>
       </tr>
     <@- endif @>
@@ -17,21 +17,21 @@
       <tr>
         <td><a href="/<$ doc.URL $>"><$ doc.name $></a></td>
         <td>
-          <@ if doc.description @><$ doc.description.split("\n")[0] | marked $><@ endif @>
+          <@ if doc.description @><$ doc.description.split("\n\n")[0] | marked $><@ endif @>
         </td>
       </tr>
     <@- endif @>
   <@ endfor -@>
-<!-- 
+
   <tr><th colspan="2"><h3>Types</h3></th></tr>
   <@- for doc in typeAliases @>
     <@ if doc.URL and doc.private != true and doc.featured and doc.name -@>
       <tr>
         <td><a href="/<$ doc.URL $>"><$ doc.name $></a></td>
         <td>
-          <@ if doc.description @><$ doc.description.split("\n")[0] | marked $><@ endif @>
+          <@ if doc.description @><$ doc.description.split("\n\n")[0] | marked $><@ endif @>
         </td>
       </tr>
     <@- endif @>
-  <@ endfor -@> -->
+  <@ endfor -@>
 </table>

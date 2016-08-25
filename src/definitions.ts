@@ -530,6 +530,8 @@ export interface ICombinedTokenContext extends ITokenContext {
 
 /**
  * These are the valid [authentication providers](/services/users/#providers).
+ *
+ * @featured
  */
 export type AuthModuleId = 'basic' | 'custom' | 'facebook' | 'github' | 'google' | 'instagram' | 'linkedin' | 'twitter';
 
@@ -958,6 +960,8 @@ export interface DeployExtractOptions {
 /**
  * These are the valid deploy channels. `DeployChannel` can also be any string,
  * allowing for custom channel tags.
+ *
+ * @featured
  */
 export type DeployChannel = 'dev' | 'staging' | 'production' | string;
 

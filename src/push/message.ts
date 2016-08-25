@@ -6,6 +6,8 @@ import {
 
 /**
  * Represents a push notification sent to the device.
+ *
+ * @featured
  */
 export class PushMessage implements IPushMessage {
 
@@ -40,17 +42,21 @@ export class PushMessage implements IPushMessage {
   public image: string;
 
   /**
-   * The raw notification object from the push plugin callback.
-   */
-  public raw: PushPluginNotification;
-
-  /**
    * The custom payload of this push message.
    */
   public payload: Object;
 
   /**
+   * The raw notification object from the push plugin callback.
+   *
+   * @hidden
+   */
+  public raw: PushPluginNotification;
+
+  /**
    * Create a PushMessage from the push plugin's format.
+   *
+   * @hidden
    *
    * @param data - The plugin's notification object.
    */

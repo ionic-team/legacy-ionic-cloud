@@ -2,7 +2,7 @@ import * as request from 'superagent';
 import { IClient, ITokenContext } from './definitions';
 
 /**
- * Client is for making HTTP requests to the API.
+ * `Client` is for making HTTP requests to the API.
  *
  * Under the hood, it uses
  * [superagent](http://visionmedia.github.io/superagent/). When a method is

@@ -30,7 +30,7 @@ interface ServiceTokenData {
 }
 
 /**
- * Push handles push notifications for this app.
+ * `Push` handles push notifications for this app.
  *
  * @featured
  */
