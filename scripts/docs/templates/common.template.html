@@ -54,7 +54,7 @@ docType: "<$ doc.docType $>"
 <@ endfor -@>
 <@ if not fn.isProperty @>)<@ endif @>
 <@- if fn.returns.type @>:
-  <@- if docsByName.indexOf(param.type) != -1 @>
+  <@- if docsByName.indexOf(fn.returns.type) != -1 @>
     <a class="returns-type" href="/api/client/<$ fn.returns.type.toLowerCase()|replace('<','&lt;') $>/">
       <$ fn.returns.type|replace('<','&lt;') $>
     </a>
