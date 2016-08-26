@@ -9,10 +9,6 @@ doc: "<$ doc.name $>"
 docType: "<$ doc.docType $>"
 ---
 
-<@- macro githubViewLink(doc) @>
-  <a href="https://github.com/<$ versionInfo.gitRepoInfo.owner $>/<$ versionInfo.gitRepoInfo.repo $>/tree/master<$ doc.fileInfo.relativePath $>#L<$ doc.location.start.line+1 $>-L<$ doc.location.end.line+1 $>"><$ doc.fileInfo.relativePath $> (line <$ doc.location.start.line+1 $>)</a>
-<@ endmacro -@>
-
 <@ macro paramTable(params, isDirective) @>
 <table class="table param-table">
   <tbody>
@@ -72,8 +68,8 @@ docType: "<$ doc.docType $>"
 <a href="#<$ doc.name | dashCase $>"><$ doc.name $></a>
 </h1>
 
-<a class="improve-docs" href="http://github.com/driftyco/ionic-cloud/edit/master/<$ doc.fileInfo.relativePath|replace('/home/ubuntu/ionic', '')|replace('//','/') $>#L<$ doc.location.start.line $>">
-Improve this doc
+<a class="improve-docs" href="http://github.com/driftyco/ionic-cloud/blob/master<$ doc.fileInfo.relativePath | replace('//','/') $>">
+  View on Github
 </a>
 <@ endblock @>
 
