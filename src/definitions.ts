@@ -529,7 +529,8 @@ export interface ICombinedTokenContext extends ITokenContext {
 }
 
 /**
- * These are the valid [authentication providers](/services/users/#providers).
+ * These are the IDs of the valid [authentication
+ * providers](/services/users/#providers).
  *
  * @featured
  */
@@ -886,7 +887,7 @@ export interface PushOptions {
 }
 
 /**
- * A push token which is constructed from a device token from APNS/GCM.
+ * A push token which is constructed from a APNS/GCM device token.
  *
  * @featured
  */
