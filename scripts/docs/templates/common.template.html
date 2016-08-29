@@ -63,10 +63,7 @@ docType: "<$ doc.docType $>"
 <@ block content @>
 <@ block header @>
 
-<a class="anchor" name="<$ doc.name | dashCase $>"></a>
-<h1 class="api-title">
-<a href="#<$ doc.name | dashCase $>"><$ doc.name $></a>
-</h1>
+<h1 class="api-title"><$ doc.name $></h1>
 
 <a class="improve-docs" href="http://github.com/driftyco/ionic-cloud/blob/master<$ doc.fileInfo.relativePath | replace('//','/') $>">
   View on Github
