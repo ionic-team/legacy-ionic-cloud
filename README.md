@@ -8,8 +8,7 @@ social authentication, native push notifications, live deploys, etc.) in your
 app. Check out [our documentation](http://docs.ionic.io).
 
 Coming from `ionic-platform-web-client`? Things have changed! See our
-[migration
-guide](https://github.com/driftyco/ionic-cloud/wiki/Migration-Guide).
+[migration guide](http://docs.ionic.io/migration.html).
 
 ## Issues & Local Development
 
