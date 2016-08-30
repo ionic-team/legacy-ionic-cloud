@@ -27,17 +27,17 @@ export class PushMessage implements IPushMessage {
   public title: string;
 
   /**
-   * The badge count to set.
+   * The badge count that was set by this push message.
    */
   public count: number;
 
   /**
-   * The sound to play.
+   * The sound that was played by this push message.
    */
   public sound: string;
 
   /**
-   * The notification image.
+   * The image of this push message.
    */
   public image: string;
 

@@ -2,6 +2,10 @@
  * Represents [`DetailedError`](/api/client/detailederror/).
  */
 export interface IDetailedError<D> extends Error {
+
+  /**
+   * The error details.
+   */
   details?: D;
 }
 
@@ -27,11 +31,41 @@ export interface LoggerOptions {
  * Represents a [`Logger`](/api/client/logger/).
  */
 export interface ILogger {
+
+  /**
+   * The function to use to log info level messages.
+   */
   infofn: LogFn;
+
+  /**
+   * The function to use to log warn level messages.
+   */
   warnfn: LogFn;
+
+  /**
+   * The function to use to log error level messages.
+   */
   errorfn: LogFn;
+
+  /**
+   * Send a log at info level.
+   *
+   * @param message - The message to log.
+   */
   info(message?: any, ...optionalParams: any[]);
+
+  /**
+   * Send a log at warn level.
+   *
+   * @param message - The message to log.
+   */
   warn(message?: any, ...optionalParams: any[]);
+
+  /**
+   * Send a log at error level.
+   *
+   * @param message - The message to log.
+   */
   error(message?: any, ...optionalParams: any[]);
 }
 
@@ -47,6 +81,7 @@ export interface CloudSettingsUrls {
  * General settings for the Cloud Client.
  */
 export interface CoreSettings {
+
   /**
    * Your app ID.
    */
@@ -157,8 +192,27 @@ export interface StorageOptions {
  * Represents a [`Storage`](/api/client/storage/).
  */
 export interface IStorage<T> {
+
+  /**
+   * Get a value from the storage by the given key.
+   *
+   * @param key - The storage key to get.
+   */
   get(key: string): T;
+
+  /**
+   * Set a value in the storage by the given key.
+   *
+   * @param key - The storage key to set.
+   * @param value - The value to set. (Must be JSON-serializable).
+   */
   set(key: string, value: T): void;
+
+  /**
+   * Delete a value from the storage by the given key.
+   *
+   * @param key - The storage key to delete.
+   */
   delete(key: string): void;
 }
 
@@ -440,21 +494,95 @@ export interface UserSocialProviderDetails {
  * Represents a [`User`](/api/client/user/).
  */
 export interface IUser {
+
+  /**
+   * The UUID of this user.
+   */
   id: string;
+
+  /**
+   * Is this user fresh, meaning they haven't been persisted?
+   */
   fresh: boolean;
+
+  /**
+   * The details (email, password, etc) of this user.
+   */
   details: UserDetails;
+
+  /**
+   * The social details of this user.
+   */
   social: UserSocialDetails;
+
+  /**
+   * The custom data of this user.
+   */
   data: IUserData;
 
+
+  /**
+   * Check whether this user is anonymous or not.
+   */
   isAnonymous(): boolean;
+
+  /**
+   * Get a value from this user's custom data.
+   *
+   * Optionally, a default value can be provided.
+   *
+   * @param key - The data key to get.
+   * @param defaultValue - The value to return if the key is absent.
+   */
   get(key: string, defaultValue: any);
+
+  /**
+   * Set a value in this user's custom data.
+   *
+   * @param key - The data key to set.
+   * @param value - The value to set.
+   */
   set(key: string, value: any);
+
+  /**
+   * Delete a value from this user's custom data.
+   *
+   * @param key - The data key to delete.
+   */
   unset(key: string);
+
+  /**
+   * Revert this user to a fresh, anonymous state.
+   */
   clear();
+
+  /**
+   * Store this user in local storage.
+   */
   store();
+
+  /**
+   * Remove this user from local storage.
+   */
   unstore();
+
+  /**
+   * Save this user to the API.
+   */
   save(): Promise<void>;
+
+  /**
+   * Delete this user from the API.
+   */
   delete(): Promise<void>;
+
+  /**
+   * Load the user from the API, overwriting the local user's data.
+   *
+   * @param id - The user ID to load into this user.
+   */
+  load(id?: string): Promise<void>;
+
   serializeForAPI(): UserDetails;
   serializeForStorage(): StoredUser;
 }
@@ -642,15 +770,93 @@ export interface AuthOptions {}
  * Represents [`Auth`](/api/client/auth/).
  */
 export interface IAuth {
-  options: AuthOptions;
+
+  /**
+   * Link the user to this URL for password resets. Only for email/password
+   * authentication.
+   */
   passwordResetUrl: string;
+
+  /**
+   * Check whether the user is logged in or not.
+   */
   isAuthenticated(): boolean;
+
+  /**
+   * Attempt to log the user in with the given credentials.
+   *
+   * @param moduleId
+   *  The authentication provider module ID to use with this login.
+   * @param credentials
+   *  Email and password object.
+   * @param options
+   *  Options for this login such as whether to remember the login.
+   */
   login(moduleId: 'basic', credentials: BasicLoginCredentials, options?: AuthLoginOptions): Promise<AuthLoginResult>;
+
+  /**
+   * Kick-off the custom authentication process.
+   *
+   * @param moduleId
+   *  The authentication provider module ID to use with this login.
+   * @param credentials
+   *  Send whatever details you need to authenticate your custom users.
+   * @param options
+   *  Options for this login, such as whether to remember the login and
+   *  InAppBrowser window options.
+   */
   login(moduleId: 'custom', credentials: Object, options?: AuthLoginOptions): Promise<AuthLoginResult>;
+
+  /**
+   * Attempt to log the user in with the given credentials. For custom & social
+   * logins, kick-off the authentication process.
+   *
+   * After login, the full user is loaded from the cloud and saved in local
+   * storage along with their auth token.
+   *
+   * @param moduleId
+   *  The authentication provider module ID to use with this login.
+   * @param credentials
+   *  For email/password authentication, give an email and password. For social
+   *  authentication, exclude this parameter. For custom authentication, send
+   *  whatever you need.
+   * @param options
+   *  Options for this login, such as whether to remember the login and
+   *  InAppBrowser window options for authentication providers that make use of
+   *  it.
+   */
   login(moduleId: AuthModuleId, credentials?: Object, options?: AuthLoginOptions): Promise<AuthLoginResult>;
+
+  /**
+   * Log the user out of the app.
+   *
+   * This clears the auth token out of local storage and restores the user to
+   * an unauthenticated state.
+   */
   logout(): void;
+
+  /**
+   * Sign up a user with the given data. Only for email/password
+   * authentication.
+   *
+   * @param details - The details that describe a user.
+   */
   signup(data: UserDetails): Promise<void>;
+
+  /**
+   * Kick-off the password reset process. Only for email/password
+   * authentication.
+   *
+   * @param email - The email address to which to send a code.
+   */
   requestPasswordReset(email: string): Promise<void>;
+
+  /**
+   * Confirm a password reset.
+   *
+   * @param code - The password reset code from the user.
+   * @param newPassword - The requested changed password from the user.
+   */
   confirmPasswordReset(code: number, newPassword: string): Promise<void>;
 }
 
@@ -749,14 +955,43 @@ export interface PushPluginNotification {
  * Represents a [`PushMessage`](/api/client/pushmessage/).
  */
 export interface IPushMessage {
+
+  /**
+   * Native information about the app when the push message was received.
+   */
   app: AppStatus;
+
+  /**
+   * The message of this push message.
+   */
   text: string;
+
+  /**
+   * The title of this push message.
+   */
   title: string;
+
+  /**
+   * The badge count that was set by this push message.
+   */
   count: number;
+
+  /**
+   * The sound that was played by this push message.
+   */
   sound: string;
+
+  /**
+   * The image of this push message.
+   */
   image: string;
-  raw: PushPluginNotification;
+
+  /**
+   * The custom payload of this push message.
+   */
   payload: Object;
+
+  raw: PushPluginNotification;
 }
 
 /**
@@ -924,11 +1159,36 @@ export interface PushToken {
  */
 export interface IPush {
   options: PushOptions;
+
+  /**
+   * The push plugin (window.PushNotification).
+   */
   plugin: any;
+
+  /**
+   * The push token of the device.
+   */
   token: PushToken;
 
+  /**
+   * Register a token with the API.
+   *
+   * When a token is saved, you can send push notifications to it. If a user is
+   * logged in, the token is linked to them by their ID.
+   *
+   * @param token - The token.
+   * @param options
+   */
   saveToken(token: PushToken, options: PushSaveTokenOptions): Promise<PushToken>;
+
+  /**
+   * Registers the device with GCM/APNS to get a push token.
+   */
   register(): Promise<PushToken>;
+
+  /**
+   * Invalidate the current push token.
+   */
   unregister(): Promise<void>;
 }
 
@@ -984,16 +1244,69 @@ export interface DeployDependencies {
  * Represents a [`Deploy`](/api/client/deploy/).
  */
 export interface IDeploy {
-  channel: DeployChannel;
   options: DeployOptions;
 
+  /**
+   * The active deploy channel. Set this to change the channel on which
+   * `Deploy` operates.
+   */
+  channel: DeployChannel;
+
+  /**
+   * Check for updates on the active channel.
+   *
+   * The promise resolves with a boolean. When `true`, a new snapshot exists on
+   * the channel.
+   */
   check(): Promise<boolean>;
+
+  /**
+   * Download the available snapshot.
+   *
+   * @param options
+   *  Options for this download, such as a progress callback.
+   */
   download(options?: DeployDownloadOptions): Promise<boolean>;
+
+  /**
+   * Extract the downloaded snapshot.
+   *
+   * @param options
+   */
   extract(options?: DeployExtractOptions): Promise<boolean>;
+
+  /**
+   * Immediately reload the app with the latest deployed snapshot.
+   */
   load();
+
+  /**
+   * Get information about the current snapshot.
+   */
   info(): Promise<any>;
+
+  /**
+   * List the snapshots that have been installed on this device.
+   *
+   * The promise is resolved with an array of snapshot UUIDs.
+   */
   getSnapshots(): Promise<any>;
+
+  /**
+   * Remove a snapshot from this device.
+   *
+   * @param uuid
+   *  The snapshot UUID to remove from the device.
+   */
   deleteSnapshot(uuid: string): Promise<any>;
+
+  /**
+   * Fetches the metadata for a given snapshot. If no UUID is given, it will
+   * attempt to grab the metadata for the most recently known snapshot.
+   *
+   * @param uuid
+   *  The snapshot from which to grab metadata.
+   */
   getMetadata(uuid: string): Promise<any>;
 }
 

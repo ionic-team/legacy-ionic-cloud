@@ -37,7 +37,7 @@ interface ServiceTokenData {
 export class Push implements IPush {
 
   /**
-   * The push plugin.
+   * The push plugin (window.PushNotification).
    */
   public plugin: any;
 
