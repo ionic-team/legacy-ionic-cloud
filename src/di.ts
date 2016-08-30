@@ -89,7 +89,13 @@ export class Container {
 
   @cache
   public get logger(): ILogger {
-    return new Logger(this.config.settings.logger);
+    let c = {};
+
+    if (typeof this.config.settings !== 'undefined') {
+      c = this.config.settings.logger;
+    }
+
+    return new Logger(c);
   }
 
   @cache

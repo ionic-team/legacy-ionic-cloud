@@ -7,9 +7,23 @@ describe('di', function() {
     container = new Container();
   });
 
-  it("should get cached config", function() {
+  it("should get a cached value", function() {
     var c1 = container.config;
     var c2 = container.config;
     expect(c1).toBe(c2);
+  });
+
+  it("should get appStatus", function() {
+    expect(container.appStatus).toEqual({ 'asleep': false, 'closed': false });
+  });
+
+  it("should get config", function() {
+    var config = container.config;
+    expect(config.settings).toBeUndefined();
+  });
+
+  it("should get logger", function() {
+    var logger = container.logger;
+    expect(logger.options).toEqual({});
   });
 });
