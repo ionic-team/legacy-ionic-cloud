@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1
+
+* Fix [#40](https://github.com/driftyco/ionic-cloud/issues/40)
+
 ## 0.8.0
 
 * **(breaking)** Require `ionic-plugin-deploy` 0.6.0 for deploy
