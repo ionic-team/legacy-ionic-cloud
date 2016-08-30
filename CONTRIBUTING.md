@@ -2,9 +2,8 @@
 
 ## Issues
 
-If you need support or find a bug with the client, please submit an issue to
-this repo. For general Ionic Cloud issues (not related to the client), please
-use our [issues repo](https://github.com/driftyco/ionic-cloud-issues/issues).
+If you need support or find a bug with the Ionic Cloud, please submit an issue
+to this repo.
 
 **Before submitting your issue, be sure to update the client and any associated
 Cordova plugins to their latest versions.**
@@ -14,7 +13,7 @@ Cordova plugins to their latest versions.**
 Pull requests are welcome!
 
 The bleeding edge is `master`, so you'll want to make your changes off of that.
-The source code is Typescript and lives in `src/`. Tests live in `spec/`.
+The source code is TypeScript and lives in `src/`. Tests live in `spec/`.
 
 ### Local Setup
 
@@ -23,4 +22,5 @@ tasks to help you during development.
 
 * `gulp test` - Run the tests. (jasmine/karma/phantomjs).
 * `gulp lint` - Lint your code.
-* `gulp build-es5` - Transpile the Typescript source files.
+* `gulp build` - Run lint, transpile the TypeScript source files, and bundle them up.
+* `gulp watch-es5` - Watch changes in `src/`, transpile the source files when changes occur.
