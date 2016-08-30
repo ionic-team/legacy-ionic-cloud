@@ -26,4 +26,9 @@ describe('di', function() {
     var logger = container.logger;
     expect(logger.options).toEqual({});
   });
+
+  it("should get push", function() {
+    var push = container.push;
+    expect(push.options).toEqual({ 'pluginConfig': {} });
+  });
 });

@@ -89,10 +89,11 @@ export class Container {
 
   @cache
   public get logger(): ILogger {
+    let config = this.config;
     let c = {};
 
-    if (typeof this.config.settings !== 'undefined') {
-      c = this.config.settings.logger;
+    if (typeof config.settings !== 'undefined') {
+      c = config.settings.logger;
     }
 
     return new Logger(c);
@@ -197,6 +198,11 @@ export class Container {
   @cache
   public get push(): IPush {
     let config = this.config;
+    let c = {};
+
+    if (typeof config.settings !== 'undefined') {
+      c = config.settings.push;
+    }
 
     return new Push({
       'config': config,
@@ -207,7 +213,7 @@ export class Container {
       'emitter': this.eventEmitter,
       'storage': new Storage<PushToken>({'strategy': this.localStorageStrategy}),
       'logger': this.logger
-    }, config.settings.push);
+    }, c);
   }
 
   @cache
