@@ -188,7 +188,7 @@ export class Push implements IPush {
             deferred.reject(err);
           } else {
             this.blockSaveToken = false;
-            this.logger.info('Ionic Push: saved push token: ' + token);
+            this.logger.info('Ionic Push: saved push token: ' + token.token);
             if (tokenData.user_id) {
               this.logger.info('Ionic Push: added push token to user: ' + tokenData.user_id);
             }
