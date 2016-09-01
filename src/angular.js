@@ -31,17 +31,6 @@ if (typeof angular === 'object' && angular.module) {
     }];
   }])
 
-  .factory('$ionicEventEmitter', ['$rootScope', function($rootScope) {
-    var emit = Ionic.Cloud.EventEmitter.prototype.emit;
-
-    Ionic.Cloud.EventEmitter.prototype.emit = function(name, data) {
-      $rootScope.$broadcast('cloud:' + name, data);
-      return emit.apply(this, arguments);
-    };
-
-    return Ionic.eventEmitter;
-  }])
-
   .factory('$ionicCloudClient', [function() {
     return Ionic.client;
   }])
@@ -62,7 +51,7 @@ if (typeof angular === 'object' && angular.module) {
     return Ionic.deploy;
   }])
 
-  .run(['$window', '$q', function($window, $q) {
+  .run(['$window', '$q', '$rootScope', function($window, $q, $rootScope) {
     if (typeof $window.Promise === 'undefined') {
       $window.Promise = $q;
     } else {
@@ -73,6 +62,13 @@ if (typeof angular === 'object' && angular.module) {
         this.promise = $q.when(this.promise);
       };
     }
+
+    var emit = Ionic.Cloud.EventEmitter.prototype.emit;
+
+    Ionic.Cloud.EventEmitter.prototype.emit = function(name, data) {
+      $rootScope.$broadcast('cloud:' + name, data);
+      return emit.apply(this, arguments);
+    };
   }]);
 
 }
