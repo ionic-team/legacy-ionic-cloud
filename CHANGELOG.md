@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.2
+
+* Fix goof with event emitter
+
 ## 0.8.1
 
 * Fix [#40](https://github.com/driftyco/ionic-cloud/issues/40)
