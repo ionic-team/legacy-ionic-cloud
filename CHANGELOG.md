@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0
+
+* Fix deploy extract boolean--promise resolves/rejects properly.
+* **(breaking)** The promises returned by download and extract no longer
+  resolve with boolean values.
+
 ## 0.8.2
 
 * Fix goof with event emitter
