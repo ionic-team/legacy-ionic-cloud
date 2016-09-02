@@ -1272,6 +1272,7 @@ export interface IDeploy {
    * Extract the downloaded snapshot.
    *
    * @param options
+   *  Options for this extract, such as a progress callback.
    */
   extract(options?: DeployExtractOptions): Promise<void>;
 
