@@ -115,21 +115,21 @@ export class Deploy implements IDeploy {
    * @param options
    *  Options for this download, such as a progress callback.
    */
-  public download(options: DeployDownloadOptions = {}): Promise<boolean> {
-    let deferred = new DeferredPromise<boolean, Error>();
+  public download(options: DeployDownloadOptions = {}): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
         this.plugin.download(this.config.get('app_id'), (result) => {
-          if (result !== 'true' && result !== 'false') {
+          if (result === 'true') {
+            this.logger.info('Ionic Deploy: download complete');
+            deferred.resolve();
+          } else if (result === 'false') {
+            deferred.reject(new Error('Ionic Deploy: Download has failed: see native logs.'));
+          } else {
             if (options.onProgress) {
               options.onProgress(result);
             }
-          } else {
-            if (result === 'true') {
-              this.logger.info('Ionic Deploy: download complete');
-            }
-            deferred.resolve(result === 'true');
           }
         }, (error) => {
           deferred.reject(error);
@@ -150,21 +150,19 @@ export class Deploy implements IDeploy {
    *
    * @param options
    */
-  public extract(options: DeployExtractOptions = {}): Promise<boolean> {
-    let deferred = new DeferredPromise<boolean, Error>();
+  public extract(options: DeployExtractOptions = {}): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
         this.plugin.extract(this.config.get('app_id'), (result) => {
-          if (result !== 'done') {
+          if (result === 'done') {
+            this.logger.info('Ionic Deploy: extraction complete');
+            deferred.resolve();
+          } else {
             if (options.onProgress) {
               options.onProgress(result);
             }
-          } else {
-            if (result === 'true') {
-              this.logger.info('Ionic Deploy: extraction complete');
-            }
-            deferred.resolve(result === 'true');
           }
         }, (error) => {
           deferred.reject(error);

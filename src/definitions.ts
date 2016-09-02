@@ -1266,14 +1266,14 @@ export interface IDeploy {
    * @param options
    *  Options for this download, such as a progress callback.
    */
-  download(options?: DeployDownloadOptions): Promise<boolean>;
+  download(options?: DeployDownloadOptions): Promise<void>;
 
   /**
    * Extract the downloaded snapshot.
    *
    * @param options
    */
-  extract(options?: DeployExtractOptions): Promise<boolean>;
+  extract(options?: DeployExtractOptions): Promise<void>;
 
   /**
    * Immediately reload the app with the latest deployed snapshot.
