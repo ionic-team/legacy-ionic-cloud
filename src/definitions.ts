@@ -866,12 +866,12 @@ export interface IAuth {
 export interface AppStatus {
 
   /**
-   * When `true`, the app was asleep when this was constructed.
+   * When `true`, the app was asleep.
    */
   asleep?: boolean;
 
   /**
-   * When `true`, the app was closed when this was constructed.
+   * When `true`, the app was closed.
    */
   closed?: boolean;
 }
