@@ -46,7 +46,10 @@ gulp.task('build-es5', function(done) {
 });
 
 gulp.task('build-es5-ts', function() {
-  var tsProject = ts.createProject('tsconfig.json');
+  var tsProject = ts.createProject('tsconfig.json', {
+    'typescript': require('typescript')
+  });
+
   var tsResult = gulp.src(["typings/index.d.ts", "src/**/*.ts"])
     .pipe(ts(tsProject));
 

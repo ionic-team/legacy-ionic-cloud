@@ -61,7 +61,7 @@
     "semver": "^5.0.1",
     "tslint": "^3.10.2",
     "tslint-ionic-rules": "*",
-    "typescript": "^1.8.10",
+    "typescript": "^2.0.2",
     "typings": "^1.0.4",
     "watchify": "^3.7.0"
   }

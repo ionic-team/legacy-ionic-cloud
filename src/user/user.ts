@@ -62,7 +62,7 @@ export class UserContext implements IUserContext {
       return user;
     }
 
-    return;
+    return null;
   }
 
 }
