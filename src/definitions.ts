@@ -1094,9 +1094,9 @@ export interface InAppBrowserPluginOptions {
   allowInlineMediaPlayback?: boolean;
   keyboardDisplayRequiresUserAction?: boolean;
   suppressesIncrementalRendering?: boolean;
-  presentationstyle?: "pagesheet" | "formsheet" | "fullscreen";
-  transitionstyle?: "fliphorizontal" | "crossdissolve" | "coververtical";
-  toolbarposition?: "top" | "bottom";
+  presentationstyle?: 'pagesheet' | 'formsheet' | 'fullscreen';
+  transitionstyle?: 'fliphorizontal' | 'crossdissolve' | 'coververtical';
+  toolbarposition?: 'top' | 'bottom';
   fullscreen?: boolean;
 }
 
