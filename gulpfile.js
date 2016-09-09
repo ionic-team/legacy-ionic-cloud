@@ -11,9 +11,7 @@ var pkg = require('./package.json');
 var rename = require('gulp-rename');
 var replace = require('gulp-replace');
 var runSequence = require('run-sequence');
-var shell = require('gulp-shell');
 var ts = require('gulp-typescript');
-var tslint = require('gulp-tslint');
 var uglify = require('gulp-uglify');
 
 /* Docs tasks */
@@ -29,17 +27,6 @@ gulp.task('test', ['build-es5-ts'], function(done) {
 gulp.task('clean', function() {
   return del(['dist/**/*']);
 });
-
-// https://github.com/adametry/gulp-eslint/issues/152
-gulp.task('eslint', shell.task('eslint .'));
-
-gulp.task('tslint', function() {
-  return gulp.src('src/**/*.ts')
-    .pipe(tslint())
-    .pipe(tslint.report("verbose"));
-});
-
-gulp.task('lint', ['eslint', 'tslint']);
 
 gulp.task('build-es5', function(done) {
   runSequence('build-es5-ts', 'version', done);
@@ -106,7 +93,7 @@ gulp.task('version', function() {
 });
 
 gulp.task('build', function(done) {
-  runSequence('lint', 'clean', 'build-es5-bundle', done);
+  runSequence('clean', 'build-es5-bundle', done);
 });
 
 gulp.task('default', ['build']);
