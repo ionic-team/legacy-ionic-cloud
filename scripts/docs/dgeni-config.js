@@ -9,7 +9,7 @@ var path = require('path');
 var semver = require('semver');
 var fs = require('fs');
 var _ = require('lodash');
-var config = require('../config.json');
+var config = require('./config.json');
 
 // Define the dgeni package for generating the docs
 module.exports = function(currentVersion) {

@@ -1,4 +1,4 @@
-var config = require('../../config.json');
+var config = require('../config.json');
 module.exports = function indexPage(renderDocsProcessor) {
   return {
     name: 'index-page',
