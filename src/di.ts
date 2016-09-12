@@ -1,6 +1,8 @@
 import {
   AppStatus,
   IAuth,
+  IFacebookNativeAuth,
+  IGoogleNativeAuth,
   IAuthModules,
   IClient,
   ICombinedTokenContext,
@@ -26,6 +28,8 @@ import {
   CombinedAuthTokenContext,
   CustomAuth,
   FacebookAuth,
+  FacebookNativeAuth,
+  GoogleNativeAuth,
   GithubAuth,
   GoogleAuth,
   InstagramAuth,
@@ -192,6 +196,22 @@ export class Container {
       'tokenContext': this.authTokenContext,
       'userService': this.singleUserService,
       'storage': new Storage<string>({'strategy': this.localStorageStrategy})
+    });
+  }
+
+  @cache
+  public get facebookNativeAuth(): IFacebookNativeAuth {
+    return new FacebookNativeAuth({
+      'config': this.config,
+      'client': this.client
+    });
+  }
+
+  @cache
+  public get googleNativeAuth(): IGoogleNativeAuth {
+    return new GoogleNativeAuth({
+      'config': this.config,
+      'client': this.client
     });
   }
 

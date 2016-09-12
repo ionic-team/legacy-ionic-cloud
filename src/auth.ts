@@ -10,7 +10,7 @@ import {
   IAuth,
   IAuthModules,
   IAuthType,
-  IBasicAuthType,
+  IBasicAuthType,  
   IClient,
   ICombinedTokenContext,
   ICombinedTokenContextStoreOptions,
@@ -26,6 +26,7 @@ import {
 
 import { DetailedError } from './errors';
 import { DeferredPromise } from './promise';
+import { Facebook, FacebookLoginResponse, GooglePlus } from 'ionic-native';
 
 declare var window: any;
 
@@ -467,7 +468,6 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
           }
         });
     }
-
     return deferred.promise;
   }
 
@@ -544,6 +544,83 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
         }
       });
 
+    return deferred.promise;
+  }
+}
+
+export abstract class NativeAuthType {
+  protected config: IConfig;
+  protected client: IClient;
+
+  constructor(deps: AuthTypeDependencies) {
+    this.config = deps.config;
+    this.client = deps.client;
+  }
+}
+
+export class GoogleNativeAuth extends NativeAuthType {
+  public authenticate(data?: any, options?: any): Promise<any> {
+    let deferred = new DeferredPromise<any, Error>();
+    const clientID = this.config.settings.nativeAuth['webClientId'];
+
+    if (!clientID) {
+      deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
+    }
+
+    GooglePlus.login({'webClientId': clientID, 'offline': true}).then((success) => {
+      const request_object = {
+        'app_id': this.config.get('app_id'),
+        'access_token': success.oauthToken
+      }
+      this.client.post('/auth/google/native')
+        .send(request_object)
+        .end((err, res) => {
+          if (err) {
+            deferred.reject(err);
+          } else {
+            deferred.resolve(res.body.data);
+          }
+        });        
+    }, (err) => {
+      deferred.reject(err);
+    });
+    return deferred.promise;
+  }
+}
+
+
+export class FacebookNativeAuth extends NativeAuthType {
+  public authenticate(fields: string[] = []): Promise<FacebookLoginResponse> {
+    let deferred = new DeferredPromise<FacebookLoginResponse, Error>();
+    
+    // Require email scope.
+    if (fields.indexOf('email') === -1 ) {
+      fields.push('email');
+    }
+
+    // Require public_profile scope.
+    if (fields.indexOf('public_profile') === -1) {
+      fields.push('public_profile');
+    }
+
+    Facebook.login(fields).then((r: FacebookLoginResponse) => {
+      const request_object = {
+        'app_id': this.config.get('app_id'),
+        'access_token': r.authResponse.accessToken,
+        'fields': fields
+      }
+      this.client.post('/auth/facebook/native')
+        .send(request_object)
+        .end((err, res) => {
+          if (err) {
+            deferred.reject(err);
+          } else {
+            deferred.resolve(r);
+          }
+        });
+    }, (err: Error) => {
+      deferred.reject(err);
+    });
     return deferred.promise;
   }
 }

@@ -93,6 +93,13 @@ export interface CoreSettings {
   urls?: CloudSettingsUrls;
 }
 
+export interface NativeAuthOptions {
+  /**
+   * Your webClientId (aka, reverseId)
+   */
+  webClientId: string
+}
+
 /**
  * The settings object for the Cloud Client.
  *
@@ -112,6 +119,11 @@ export interface CloudSettings {
    * Settings for Push Notifications.
    */
   push?: PushOptions;
+
+  /**
+   * Settings for native auth.
+   */
+  nativeAuth?: NativeAuthOptions;
 
   /**
    * Log settings.
@@ -759,6 +771,19 @@ export interface AuthDependencies {
   tokenContext: ICombinedTokenContext;
   userService: ISingleUserService;
   storage: IStorage<string>;
+}
+
+
+export interface IGoogleData {
+  webClientId: string;
+}
+
+export interface IFacebookNativeAuth {
+  authenticate(fields: string[]): Promise<any>;
+}
+
+export interface IGoogleNativeAuth {
+  authenticate(data?: any, options?: any): Promise<any>;
 }
 
 /**
