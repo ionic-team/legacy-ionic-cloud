@@ -46,7 +46,7 @@ export class Database {
       lazyWrites: settings.lazyWrites || false,
       authType: authType,
       host: settings.host || 'db.ionic.io', //TODO: This will eventually be api.ionic.io!
-      path: 'horizon/' + this.config.get('app_id') + '/horizon',
+      path: settings.path || 'horizon/' + this.config.get('app_id') + '/horizon',
       secure: true
     }; 
 
