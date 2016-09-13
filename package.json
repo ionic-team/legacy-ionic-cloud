@@ -49,7 +49,7 @@
     "tslint": "^3.10.2",
     "tslint-ionic-rules": "*",
     "typescript": "^2.0.2",
-    "typings": "^1.0.4",
+    "typings": "^1.3.3",
     "uglify-js": "^2.7.3",
     "watchify": "^3.7.0"
   },
