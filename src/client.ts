@@ -1,4 +1,4 @@
-import * as request from 'superagent';
+import request from 'superagent';
 import { IClient, ITokenContext } from './definitions';
 
 /**
