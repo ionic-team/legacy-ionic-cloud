@@ -570,9 +570,10 @@ export class GoogleNativeAuth extends NativeAuthType {
     GooglePlus.login({'webClientId': clientID, 'offline': true}).then((success) => {
       const request_object = {
         'app_id': this.config.get('app_id'),
-        'access_token': success.oauthToken
+        'access_token': success.oauthToken,
+        'flow': 'googleplus'
       }
-      this.client.post('/auth/google/native')
+      this.client.post('/auth/login/google')
         .send(request_object)
         .end((err, res) => {
           if (err) {
@@ -607,9 +608,10 @@ export class FacebookNativeAuth extends NativeAuthType {
       const request_object = {
         'app_id': this.config.get('app_id'),
         'access_token': r.authResponse.accessToken,
-        'fields': fields
+        'fields': fields,
+        'flow': 'facebook4'
       }
-      this.client.post('/auth/facebook/native')
+      this.client.post('/auth/login/facebook')
         .send(request_object)
         .end((err, res) => {
           if (err) {
