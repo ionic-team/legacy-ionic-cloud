@@ -97,7 +97,7 @@ export interface NativeAuthOptions {
   /**
    * Your webClientId (aka, reverseId)
    */
-  webClientId: string
+  webClientId: string;
 }
 
 /**

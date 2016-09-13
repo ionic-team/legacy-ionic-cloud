@@ -10,7 +10,7 @@ import {
   IAuth,
   IAuthModules,
   IAuthType,
-  IBasicAuthType,  
+  IBasicAuthType,
   IClient,
   ICombinedTokenContext,
   ICombinedTokenContextStoreOptions,
@@ -572,7 +572,7 @@ export class GoogleNativeAuth extends NativeAuthType {
         'app_id': this.config.get('app_id'),
         'access_token': success.oauthToken,
         'flow': 'googleplus'
-      }
+      };
       this.client.post('/auth/login/google')
         .send(request_object)
         .end((err, res) => {
@@ -581,7 +581,7 @@ export class GoogleNativeAuth extends NativeAuthType {
           } else {
             deferred.resolve(res.body.data);
           }
-        });        
+        });
     }, (err) => {
       deferred.reject(err);
     });
@@ -593,7 +593,7 @@ export class GoogleNativeAuth extends NativeAuthType {
 export class FacebookNativeAuth extends NativeAuthType {
   public authenticate(fields: string[] = []): Promise<FacebookLoginResponse> {
     let deferred = new DeferredPromise<FacebookLoginResponse, Error>();
-    
+
     // Require email scope.
     if (fields.indexOf('email') === -1 ) {
       fields.push('email');
@@ -610,7 +610,7 @@ export class FacebookNativeAuth extends NativeAuthType {
         'access_token': r.authResponse.accessToken,
         'fields': fields,
         'flow': 'facebook4'
-      }
+      };
       this.client.post('/auth/login/facebook')
         .send(request_object)
         .end((err, res) => {
