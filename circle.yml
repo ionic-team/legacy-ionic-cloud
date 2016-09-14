@@ -3,12 +3,9 @@
 #         - ./scripts/docs/prepare.sh
 #     cache_directories:
 #         - "~/ionic-platform-docs" # cache ionic-site
-machine:
-    node:
-        version: 4.1.0
 test:
     override:
-        - gulp test
+        - npm run test
 # deployment:
 #     tasks:
 #         branch: "master"
