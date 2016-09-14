@@ -5,7 +5,9 @@
 #         - "~/ionic-platform-docs" # cache ionic-site
 test:
     override:
-        - npm run tsc:es5 && npm run test
+        - npm run lint
+        - npm run tsc:es5
+        - npm run test
 # deployment:
 #     tasks:
 #         branch: "master"
