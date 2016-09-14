@@ -1,3 +1,5 @@
+import { Device as NativeDevice } from 'ionic-native';
+
 import {
   DeviceDependencies,
   DeviceIsConnectedToNetworkOptions,
@@ -13,7 +15,9 @@ declare var navigator: any;
  */
 export class Device implements IDevice {
 
-  public deviceType: string;
+  public native: typeof NativeDevice;
+
+  public type: string;
 
   /**
    * @private
@@ -21,17 +25,18 @@ export class Device implements IDevice {
   private emitter: IEventEmitter;
 
   constructor(public deps: DeviceDependencies) {
+    this.native = this.deps.nativeDevice;
     this.emitter = this.deps.emitter;
-    this.deviceType = this.determineDeviceType();
+    this.type = this.determineDeviceType();
     this.registerEventHandlers();
   }
 
   public isAndroid(): boolean {
-    return this.deviceType === 'android';
+    return this.type === 'android';
   }
 
   public isIOS(): boolean {
-    return this.deviceType === 'iphone' || this.deviceType === 'ipad';
+    return this.type === 'iphone' || this.type === 'ipad';
   }
 
   public isConnectedToNetwork(options: DeviceIsConnectedToNetworkOptions = {}): boolean {
@@ -62,7 +67,7 @@ export class Device implements IDevice {
    * @private
    */
   private registerEventHandlers(): void {
-    if (this.deviceType === 'unknown') {
+    if (this.type === 'unknown') {
       this.emitter.emit('device:ready');
     } else {
       this.emitter.once('cordova:deviceready', () => {
