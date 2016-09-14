@@ -1,5 +1,5 @@
-const pkg = require('../package.json');
-const replace = require('replace-in-file');
+var pkg = require('../package.json');
+var replace = require('replace-in-file');
 
 replace({
   'files': 'dist/**/*.js',
