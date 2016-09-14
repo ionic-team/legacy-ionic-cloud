@@ -78,5 +78,5 @@ declare module "superagent" {
 
   }
 
-  export default request;
+  export = request;
 }

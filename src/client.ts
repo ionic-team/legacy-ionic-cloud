@@ -1,4 +1,4 @@
-import request from 'superagent';
+import * as request from 'superagent';
 import { IClient, ITokenContext } from './definitions';
 
 /**
@@ -32,7 +32,7 @@ export class Client implements IClient {
     req?: any  // TODO: use superagent types
   ) {
     if (typeof req === 'undefined') {
-      req = request;
+      req = request['default'] || request;
     }
 
     this.req = req;
