@@ -55,7 +55,7 @@
   },
   "scripts": {
     "lint:js": "eslint .",
-    "lint:ts": "tslint src/**/*.ts",
+    "lint:ts": "tslint 'src/**/*.ts'",
     "lint": "concurrently 'npm run lint:js' 'npm run lint:ts'",
     "tsc:es5": "tsc -p tsconfig-es5.json",
     "tsc:esm": "tsc -p tsconfig-esm.json",
