@@ -7,6 +7,7 @@ test:
     override:
         - npm run lint
         - npm run tsc:es5
+        - npm run version
         - npm run test
 # deployment:
 #     tasks:
