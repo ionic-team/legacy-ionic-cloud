@@ -27,7 +27,7 @@
   "typings": "dist/es5/index.d.ts",
   "module": "dist/esm/index.js",
   "dependencies": {
-    "superagent": "^1.7.2"
+    "superagent": "1.7.2"
   },
   "devDependencies": {
     "browserify": "^13.1.0",
