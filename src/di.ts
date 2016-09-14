@@ -1,3 +1,5 @@
+import { Device as NativeDevice } from 'ionic-native';
+
 import {
   AppStatus,
   IAuth,
@@ -150,7 +152,7 @@ export class Container {
 
   @cache
   public get device(): IDevice {
-    return new Device({'emitter': this.eventEmitter});
+    return new Device({'nativeDevice': NativeDevice, 'emitter': this.eventEmitter});
   }
 
   @cache

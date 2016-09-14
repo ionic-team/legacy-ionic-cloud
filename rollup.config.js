@@ -18,8 +18,6 @@ export default {
       'main': true
     }),
     commonjs(),
-    babel({
-      'exclude': 'node_modules/**'
-    })
+    babel()  // can't exclude node_modules yet -- see https://github.com/ReactiveX/rxjs/issues/1925
   ]
 };

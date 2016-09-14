@@ -1,3 +1,5 @@
+import { Device as NativeDevice } from 'ionic-native';
+
 /**
  * Represents [`DetailedError`](/api/client/detailederror/).
  */
@@ -265,6 +267,7 @@ export interface DeviceIsConnectedToNetworkOptions {
  * @hidden
  */
 export interface DeviceDependencies {
+  nativeDevice: typeof NativeDevice;
   emitter: IEventEmitter;
 }
 
@@ -272,7 +275,8 @@ export interface DeviceDependencies {
  * @hidden
  */
 export interface IDevice {
-  deviceType: string;
+  native: typeof NativeDevice;
+  type: string;
 
   isAndroid(): boolean;
   isIOS(): boolean;
