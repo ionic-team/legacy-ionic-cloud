@@ -104,7 +104,7 @@ export class Push implements IPush {
   /**
    * @private
    */
-  private _token: PushToken;
+  private _token: PushToken | null;
 
   constructor(
     deps: PushDependencies,
@@ -136,7 +136,7 @@ export class Push implements IPush {
     this.options = options;
   }
 
-  public get token(): PushToken {
+  public get token(): PushToken | null {
     if (!this._token) {
       this._token = this.storage.get('push_token');
     }
@@ -144,7 +144,7 @@ export class Push implements IPush {
     return this._token;
   }
 
-  public set token(val: PushToken) {
+  public set token(val: PushToken | null) {
     if (!val) {
       this.storage.delete('push_token');
     } else {
@@ -273,7 +273,7 @@ export class Push implements IPush {
               this.logger.error('Ionic Push:', err);
               deferred.reject(err);
             } else {
-              this.logger.info('Ionic Push: unregistered push token: ' + pushToken.token);
+              this.logger.info('Ionic Push: unregistered push token');
               this.token = null;
               deferred.resolve();
             }

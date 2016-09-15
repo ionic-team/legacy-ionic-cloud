@@ -151,7 +151,7 @@ export interface IClient {
  * All event handlers have a single parameter: `data`, which is always an
  * object and which will differ depending on the event.
  */
-export type EventHandler = (data: Object) => any;
+export type EventHandler = (data?: Object) => any;
 
 /**
  * Represents an [`EventReceiver`](/api/client/eventreceiver/).
@@ -198,7 +198,7 @@ export interface IStorage<T> {
    *
    * @param key - The storage key to get.
    */
-  get(key: string): T;
+  get(key: string): T | null;
 
   /**
    * Set a value in the storage by the given key.
@@ -220,7 +220,7 @@ export interface IStorage<T> {
  * @hidden
  */
 export interface IStorageStrategy {
-  get(key: string): string;
+  get(key: string): string | null;
   set(key: string, value: string): void;
   delete(key: string): void;
 }
@@ -306,7 +306,7 @@ export interface UserContextDependencies {
 export interface IUserContext {
   label: string;
 
-  load(user: IUser): IUser;
+  load(user: IUser): IUser | null;
   store(user: IUser): void;
   unstore(): void;
 }
@@ -315,7 +315,7 @@ export interface IUserContext {
  * Represents a locally stored user (usually in local storage).
  */
 export interface StoredUser {
-  id: string;
+  id?: string;
   data: Object;
   details: Object;
   social: Object;
@@ -498,7 +498,7 @@ export interface IUser {
   /**
    * The UUID of this user.
    */
-  id: string;
+  id?: string;
 
   /**
    * Is this user fresh, meaning they haven't been persisted?
@@ -630,7 +630,7 @@ export interface ITokenContextStoreOptions {}
 export interface ITokenContext {
   label: string;
 
-  get(): string;
+  get(): string | null;
   store(token: string, options: ITokenContextStoreOptions): void;
   delete(): void;
 }
@@ -1168,7 +1168,7 @@ export interface IPush {
   /**
    * The push token of the device.
    */
-  token: PushToken;
+  token: PushToken | null;
 
   /**
    * Register a token with the API.
@@ -1346,4 +1346,65 @@ export interface InsightsOptions {
  */
 export interface IInsights {
   track(stat: string, value?: number): void;
+}
+
+/**
+ * @hidden
+ */
+export interface SuperAgentResponse {
+  body: APIResponse;
+}
+
+/**
+ * @hidden
+ */
+export type APIResponse = APIResponseSuccess | APIResponseError;
+
+/**
+ * @hidden
+ */
+export interface APIResponseMeta {
+  status: number;
+  version: string;
+  request_id: string;
+}
+
+/**
+ * @hidden
+ */
+export type APIResponseData = Object | Object[];
+
+/**
+ * @hidden
+ */
+export interface APIResponseErrorDetails {
+  error_type: string;
+  parameter: string;
+  errors: string[];
+}
+
+/**
+ * @hidden
+ */
+export interface APIResponseError {
+  error: APIResponseErrorError;
+  meta: APIResponseMeta;
+}
+
+/**
+ * @hidden
+ */
+export interface APIResponseErrorError {
+  message: string;
+  link: string;
+  type: string;
+  details?: APIResponseErrorDetails[];
+}
+
+/**
+ * @hidden
+ */
+export interface APIResponseSuccess {
+  data: APIResponseData;
+  meta: APIResponseMeta;
 }

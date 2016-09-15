@@ -8,8 +8,9 @@
         "moduleResolution": "node",
         "noImplicitAny": false,
         "noImplicitReturns": true,
-        "removeComments": false,
         "outDir": "dist/esm",
+        "removeComments": false,
+        "strictNullChecks": true,
         "target": "es5"
     },
     "files": [

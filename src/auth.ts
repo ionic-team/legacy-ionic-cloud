@@ -1,4 +1,5 @@
 import {
+  APIResponseErrorDetails,
   AuthDependencies,
   AuthLoginOptions,
   AuthLoginResult,
@@ -21,9 +22,11 @@ import {
   ITokenContext,
   InAppBrowserPluginOptions,
   TokenContextDependencies,
+  SuperAgentResponse,
   UserDetails
 } from './definitions';
 
+import { isAPIResponseError } from './guards';
 import { DetailedError } from './errors';
 import { DeferredPromise } from './promise';
 
@@ -43,7 +46,7 @@ export class AuthTokenContext implements ITokenContext {
     this.storage = deps.storage;
   }
 
-  public get(): string {
+  public get(): string | null {
     return this.storage.get(this.label);
   }
 
@@ -76,7 +79,7 @@ export class CombinedAuthTokenContext implements ICombinedTokenContext {
     this.tempStorage = deps.tempStorage;
   }
 
-  public get(): string {
+  public get(): string | null {
     let permToken = this.storage.get(this.label);
     let tempToken = this.tempStorage.get(this.label);
     let token = tempToken || permToken;
@@ -294,13 +297,18 @@ export class Auth implements IAuth {
    */
   public confirmPasswordReset(code: number, newPassword: string): Promise<void> {
     let email = this.storage.get('auth_password_reset_email');
-    return this.authModules.basic.confirmPasswordReset(email, code, newPassword);
+
+    if (!email) {
+      return DeferredPromise.immediatelyReject<void, Error>(new Error('email address not found in local storage'));
+    } else {
+      return this.authModules.basic.confirmPasswordReset(email, code, newPassword);
+    }
   }
 
   /**
    * Get the raw auth token of the active user from local storage.
    */
-  public getToken(): string {
+  public getToken(): string | null {
     return this.tokenContext.get();
   }
 
@@ -317,13 +325,13 @@ export class Auth implements IAuth {
   /**
    * @hidden
    */
-  public static getDetailedErrorFromResponse(res): DetailedError<string[]> {
-    let errors = [];
-    let details = [];
+  public static getDetailedErrorFromResponse(res: SuperAgentResponse): DetailedError<string[]> {
+    let errors: string[] = [];
+    let details: APIResponseErrorDetails[] = [];
 
-    try {
+    if (isAPIResponseError(res.body) && typeof res.body.error.details !== 'undefined') {
       details = res.body.error.details;
-    } catch (e) {}
+    }
 
     for (let i = 0; i < details.length; i++) {
       let detail = details[i];
@@ -376,7 +384,7 @@ export abstract class AuthType implements IAuthType {
   protected inAppBrowserFlow(
     moduleId: AuthModuleId,
     data: Object = {},
-    options?: AuthLoginOptions
+    options: AuthLoginOptions = {}
   ): Promise<AuthLoginResult> {
     let deferred = new DeferredPromise<AuthLoginResult, Error>();
 

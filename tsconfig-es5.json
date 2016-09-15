@@ -9,9 +9,10 @@
         "moduleResolution": "node",
         "noImplicitAny": false,
         "noImplicitReturns": true,
+        "outDir": "dist/es5",
         "removeComments": false,
         "sourceMap": true,
-        "outDir": "dist/es5",
+        "strictNullChecks": true,
         "target": "es5"
     },
     "files": [

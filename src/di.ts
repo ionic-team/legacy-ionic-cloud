@@ -16,6 +16,8 @@ import {
   ISingleUserService,
   IStorageStrategy,
   IUserContext,
+  LoggerOptions,
+  PushOptions,
   PushToken,
   StoredUser
 } from './definitions';
@@ -56,7 +58,7 @@ function cache<T>(target: any, propertyKey: string, descriptor: TypedPropertyDes
   let method = descriptor.get;
 
   descriptor.get = function(): T {
-    if (typeof modules[propertyKey] === 'undefined') {
+    if (typeof method !== 'undefined' && typeof modules[propertyKey] === 'undefined') {
       let value = method.apply(this, arguments);
       modules[propertyKey] = value;
     }
@@ -64,7 +66,7 @@ function cache<T>(target: any, propertyKey: string, descriptor: TypedPropertyDes
     return modules[propertyKey];
   };
 
-  descriptor.set = (value: T) => {};
+  descriptor.set = (value: T): void => {};
 }
 
 /**
@@ -90,9 +92,9 @@ export class Container {
   @cache
   public get logger(): ILogger {
     let config = this.config;
-    let c = {};
+    let c: LoggerOptions = {};
 
-    if (typeof config.settings !== 'undefined') {
+    if (typeof config.settings !== 'undefined' && typeof config.settings.logger !== 'undefined') {
       c = config.settings.logger;
     }
 
@@ -198,9 +200,9 @@ export class Container {
   @cache
   public get push(): IPush {
     let config = this.config;
-    let c = {};
+    let c: PushOptions = {};
 
-    if (typeof config.settings !== 'undefined') {
+    if (typeof config.settings !== 'undefined' && typeof config.settings.push !== 'undefined') {
       c = config.settings.push;
     }
 
