@@ -56,4 +56,18 @@ describe("promise", function() {
     expect(spy).not.toHaveBeenCalled();
   });
 
+  it("should immediately reject", function() {
+    var spy = jasmine.createSpy('spy');
+
+    function doIt() {
+      return DeferredPromise.rejectImmediately('msg');
+    }
+
+    doIt().then(spy, function(err) {
+      expect(err).toBe('msg');
+    });
+
+    expect(spy).not.toHaveBeenCalled();
+  });
+
 });
