@@ -57,7 +57,7 @@ export class Database {
     this._curr_retry = 0;
   }
 
-  connect(): IDatabase {
+  connect(): void {
     this.horizon = Horizon(this._hz_settings);
     this._registerListeners();
     if(this.settings.authType === 'ionic'){
@@ -75,7 +75,6 @@ export class Database {
       this._retrying = false;
       this.horizon.connect();
     }
-    return;
   }
 
   private _registerListeners(): void {

@@ -1,16 +1,19 @@
 {
     "compilerOptions": {
         "allowJs": false,
-        "declaration": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
-        "module": "commonjs",
+        "module": "es2015",
         "moduleResolution": "node",
         "noImplicitAny": false,
         "noImplicitReturns": true,
         "removeComments": false,
-        "sourceMap": true,
+        "outDir": "dist/esm",
         "target": "es5"
-    }
+    },
+    "files": [
+        "typings/index.d.ts",
+        "src/index.ts"
+    ]
 }

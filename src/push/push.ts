@@ -1,7 +1,23 @@
-import { IConfig, IAuth, ISingleUserService, IDevice, IClient, IEventEmitter, PushStorageObject, IStorage, ILogger, IPluginRegistration, IPluginNotification, IPushToken, PushDependencies, PushOptions, IPush, SaveTokenOptions } from '../definitions';
+import {
+  IAuth,
+  IClient,
+  IConfig,
+  IDevice,
+  IEventEmitter,
+  ILogger,
+  IPush,
+  ISingleUserService,
+  IStorage,
+  PushDependencies,
+  PushOptions,
+  PushPluginNotification,
+  PushPluginRegistration,
+  PushSaveTokenOptions,
+  PushToken
+} from '../definitions';
+
 import { DeferredPromise } from '../promise';
 
-import { PushToken } from './token';
 import { PushMessage } from './message';
 
 declare var window: any;
@@ -13,25 +29,82 @@ interface ServiceTokenData {
   user_id?: string;
 }
 
+/**
+ * `Push` handles push notifications for this app.
+ *
+ * @featured
+ */
 export class Push implements IPush {
 
+  /**
+   * The push plugin (window.PushNotification).
+   */
   public plugin: any;
 
+  /**
+   * @private
+   */
   private config: IConfig;
+
+  /**
+   * @private
+   */
   private auth: IAuth;
+
+  /**
+   * @private
+   */
   private userService: ISingleUserService;
+
+  /**
+   * @private
+   */
   private device: IDevice;
+
+  /**
+   * @private
+   */
   private client: IClient;
+
+  /**
+   * @private
+   */
   private emitter: IEventEmitter;
-  private storage: IStorage<PushStorageObject>;
+
+  /**
+   * @private
+   */
+  private storage: IStorage<PushToken>;
+
+  /**
+   * @private
+   */
   private logger: ILogger;
 
+  /**
+   * @private
+   */
   private blockRegistration: boolean = false;
+
+  /**
+   * @private
+   */
   private blockUnregister: boolean = false;
+
+  /**
+   * @private
+   */
   private blockSaveToken: boolean = false;
+
+  /**
+   * @private
+   */
   private registered: boolean = false;
 
-  private _token: IPushToken;
+  /**
+   * @private
+   */
+  private _token: PushToken;
 
   constructor(
     deps: PushDependencies,
@@ -47,7 +120,7 @@ export class Push implements IPush {
     this.logger = deps.logger;
 
     // Check for the required values to use this service
-    if (this.device.isAndroid() && !this.options.gcm_key) {
+    if (this.device.isAndroid() && !this.options.sender_id) {
       this.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
       return;
     }
@@ -57,32 +130,41 @@ export class Push implements IPush {
     if (this.device.isAndroid()) {
       // inject gcm key for PushPlugin
       if (!options.pluginConfig.android) { options.pluginConfig.android = {}; }
-      if (!options.pluginConfig.android.senderID) { options.pluginConfig.android.senderID = this.options.gcm_key; }
+      if (!options.pluginConfig.android.senderID) { options.pluginConfig.android.senderID = this.options.sender_id; }
     }
 
     this.options = options;
   }
 
-  get token(): IPushToken {
+  public get token(): PushToken {
     if (!this._token) {
-      this._token = new PushToken(this.storage.get('push_token').token);
+      this._token = this.storage.get('push_token');
     }
 
     return this._token;
   }
 
-  set token(val: IPushToken) {
+  public set token(val: PushToken) {
     if (!val) {
       this.storage.delete('push_token');
     } else {
-      this.storage.set('push_token', { 'token': val.token });
+      this.storage.set('push_token', val);
     }
 
     this._token = val;
   }
 
-  saveToken(token: IPushToken, options: SaveTokenOptions = {}): Promise<IPushToken> {
-    let deferred = new DeferredPromise<IPushToken, Error>();
+  /**
+   * Register a token with the API.
+   *
+   * When a token is saved, you can send push notifications to it. If a user is
+   * logged in, the token is linked to them by their ID.
+   *
+   * @param token - The token.
+   * @param options
+   */
+  public saveToken(token: PushToken, options: PushSaveTokenOptions = {}): Promise<PushToken> {
+    let deferred = new DeferredPromise<PushToken, Error>();
 
     let tokenData: ServiceTokenData = {
       'token': token.token,
@@ -106,10 +188,12 @@ export class Push implements IPush {
             deferred.reject(err);
           } else {
             this.blockSaveToken = false;
-            this.logger.info('Ionic Push: saved push token: ' + token);
+            this.logger.info('Ionic Push: saved push token: ' + token.token);
             if (tokenData.user_id) {
               this.logger.info('Ionic Push: added push token to user: ' + tokenData.user_id);
             }
+            token.id = res.body.data.id;
+            token.type = res.body.data.type;
             token.saved = true;
             deferred.resolve(token);
           }
@@ -122,10 +206,13 @@ export class Push implements IPush {
   }
 
   /**
-   * Registers the device with GCM/APNS to get a device token
+   * Registers the device with GCM/APNS to get a push token.
+   *
+   * After a device is registered, you will likely want to save the token with
+   * [`saveToken()`](/api/client/push/#saveToken) to the API.
    */
-  register(): Promise<IPushToken> {
-    let deferred = new DeferredPromise<IPushToken, Error>();
+  public register(): Promise<PushToken> {
+    let deferred = new DeferredPromise<PushToken, Error>();
 
     if (this.blockRegistration) {
       deferred.reject(new Error('Another registration is already in progress.'));
@@ -138,7 +225,7 @@ export class Push implements IPush {
           this.plugin = pushPlugin.init(this.options.pluginConfig);
           this.plugin.on('registration', (data) => {
             this.blockRegistration = false;
-            this.token = new PushToken(data.registrationId);
+            this.token = { 'token': data.registrationId };
             this.token.registered = true;
             deferred.resolve(this.token);
           });
@@ -154,9 +241,9 @@ export class Push implements IPush {
   }
 
   /**
-   * Invalidate the current GCM/APNS token
+   * Invalidate the current push token.
    */
-  unregister(): Promise<void> {
+  public unregister(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
 
     if (!this.blockUnregister) {
@@ -198,20 +285,20 @@ export class Push implements IPush {
   }
 
   /**
-   * Registers callbacks with the PushPlugin
+   * @private
    */
   private _callbackRegistration() {
-    this.plugin.on('registration', (data: IPluginRegistration) => {
-      this.token = new PushToken(data.registrationId);
+    this.plugin.on('registration', (data: PushPluginRegistration) => {
+      this.token = { 'token': data.registrationId };
 
       if (this.options.debug) {
         this.logger.info('Ionic Push (debug): device token registered: ' + this.token);
       }
 
-      this.emitter.emit('push:register', {'token': data.registrationId});
+      this.emitter.emit('push:register', this.token);
     });
 
-    this.plugin.on('notification', (data: IPluginNotification) => {
+    this.plugin.on('notification', (data: PushPluginNotification) => {
       let message = PushMessage.fromPluginData(data);
 
       if (this.options.debug) {
@@ -231,6 +318,9 @@ export class Push implements IPush {
     });
   }
 
+  /**
+   * @private
+   */
   private _getPushPlugin() {
     let plugin = window.PushNotification;
 
@@ -244,4 +334,5 @@ export class Push implements IPush {
 
     return plugin;
   }
+
 }

@@ -1,0 +1,14 @@
+<@ for doc in classes @>
+  <@ if doc.URL and doc.private != true and doc.featured and doc.name @>
+    <li class="{% if page.id == 'api-client-<$ doc.name|lower|replace(' ','-')$>' %}active{% endif %}">
+      <a href="/<$ doc.URL $>"><$ doc.name $></a>
+    </li>
+  <@ endif @>
+<@ endfor @>
+<@ for doc in interfaces @>
+  <@ if doc.URL and doc.private != true and doc.featured and doc.name @>
+    <li class="{% if page.id == 'api-client-<$ doc.name|lower|replace(' ','-')$>' %}active{% endif %}">
+      <a href="/<$ doc.URL $>"><$ doc.name $></a>
+    </li>
+  <@ endif @>
+<@ endfor @>

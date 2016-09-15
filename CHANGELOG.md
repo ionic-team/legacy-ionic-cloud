@@ -1,7 +1,22 @@
 # Changelog
 
+## 0.9.0
+
+* Fix deploy extract boolean--promise resolves/rejects properly.
+* **(breaking)** The promises returned by download and extract no longer
+  resolve with boolean values.
+
+## 0.8.2
+
+* Fix goof with event emitter
+
+## 0.8.1
+
+* Fix [#40](https://github.com/driftyco/ionic-cloud/issues/40)
+
 ## 0.8.0
 
+* **(breaking)** Require `ionic-plugin-deploy` 0.6.0 for deploy
 * Move to Typescript
 * **(breaking)** Configuration Update (see the [docs](http://docs.ionic.io) for usage)
 * **(breaking)** Remove bower support
@@ -9,7 +24,7 @@
 * Start tests (`gulp test`)
 * Standardize ES and TS linting
 * Switch everything to use dependency injection
-* **(breaking)** Remove Analytics (in favor of Ionic Insights)
+* **(breaking)** Remove Analytics (will be added back soon in a later version)
 * [See more in the Migration Guide](https://github.com/driftyco/ionic-cloud/wiki/Migration-Guide).
 
 ## 0.7.1

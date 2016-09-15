@@ -1,26 +1,65 @@
-import { IConfig, IEventEmitter, ILogger, DeployChannel, IDeploy, DeployWatchOptions, DeployDownloadOptions, DeployExtractOptions, DeployUpdateOptions, DeployDependencies, DeployOptions } from '../definitions';
+import {
+  DeployChannel,
+  DeployDependencies,
+  DeployDownloadOptions,
+  DeployExtractOptions,
+  DeployOptions,
+  IConfig,
+  IDeploy,
+  IEventEmitter,
+  ILogger
+} from '../definitions';
+
 import { DeferredPromise } from '../promise';
 
 declare var window: any;
 declare var IonicDeploy: any;
 
 const NO_PLUGIN = new Error('Missing deploy plugin: `ionic-plugin-deploy`');
-const INITIAL_DELAY = 1 * 5 * 1000;
-const WATCH_INTERVAL = 1 * 60 * 1000;
 
+/**
+ * `Deploy` handles live deploys of the app. Downloading, extracting, and
+ * rolling back snapshots.
+ *
+ * @featured
+ */
 export class Deploy implements IDeploy {
 
-  private config: IConfig;
-  private emitter: IEventEmitter;
-  private logger: ILogger;
-
+  /**
+   * The active deploy channel. Set this to change the channel on which
+   * `Deploy` operates.
+   */
   public channel: DeployChannel = 'production';
+
+  /**
+   * The deploy plugin. Full documentation and examples can be found on the
+   * plugin's
+   * [README](https://github.com/driftyco/ionic-plugin-deploy#cordova-plugin-api),
+   * but we recommend using the Cloud Client.
+   */
   public plugin: any;
 
-  private _checkTimeout: any;
+  /**
+   * @private
+   */
+  private config: IConfig;
+
+  /**
+   * @private
+   */
+  private emitter: IEventEmitter;
+
+  /**
+   * @private
+   */
+  private logger: ILogger;
 
   constructor(
     deps: DeployDependencies,
+
+    /**
+     * @hidden
+     */
     public options: DeployOptions = {}
   ) {
     this.config = deps.config;
@@ -37,31 +76,12 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Fetch the Deploy Plugin
+   * Check for updates on the active channel.
    *
-   * If the plugin has not been set yet, attempt to fetch it, otherwise log
-   * a message.
-   *
-   * @return {IonicDeploy} Returns the plugin or false
+   * The promise resolves with a boolean. When `true`, a new snapshot exists on
+   * the channel.
    */
-  private _getPlugin() {
-    if (typeof window.IonicDeploy === 'undefined') {
-      this.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
-      return;
-    }
-    if (!this.plugin) {
-      this.plugin = window.IonicDeploy;
-    }
-    return this.plugin;
-  }
-
-  /**
-   * Check for updates
-   *
-   * @return {Promise} Will resolve with true if an update is available, false otherwise. A string or
-   *   error will be passed to reject() in the event of a failure.
-   */
-  check(): Promise<boolean> {
+  public check(): Promise<boolean> {
     let deferred = new DeferredPromise<boolean, Error>();
 
     this.emitter.once('deploy:ready', () => {
@@ -87,26 +107,29 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Download and available update
+   * Download the available snapshot.
    *
-   * This should be used in conjunction with extract()
-   * @return {Promise} The promise which will resolve with true/false.
+   * This should be used in conjunction with
+   * [`extract()`](/api/client/deploy/#extract).
+   *
+   * @param options
+   *  Options for this download, such as a progress callback.
    */
-  download(options: DeployDownloadOptions = {}): Promise<boolean> {
-    let deferred = new DeferredPromise<boolean, Error>();
+  public download(options: DeployDownloadOptions = {}): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
         this.plugin.download(this.config.get('app_id'), (result) => {
-          if (result !== 'true' && result !== 'false') {
+          if (result === 'true') {
+            this.logger.info('Ionic Deploy: download complete');
+            deferred.resolve();
+          } else if (result === 'false') {
+            deferred.reject(new Error('Ionic Deploy: Download has failed: see native logs.'));
+          } else {
             if (options.onProgress) {
               options.onProgress(result);
             }
-          } else {
-            if (result === 'true') {
-              this.logger.info('Ionic Deploy: download complete');
-            }
-            deferred.resolve(result === 'true');
           }
         }, (error) => {
           deferred.reject(error);
@@ -120,26 +143,26 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Extract the last downloaded update
+   * Extract the downloaded snapshot.
    *
-   * This should be called after a download() successfully resolves.
-   * @return {Promise} The promise which will resolve with true/false.
+   * This should be called after [`download()`](/api/client/deploy/#download)
+   * successfully resolves.
+   *
+   * @param options
    */
-  extract(options: DeployExtractOptions = {}): Promise<boolean> {
-    let deferred = new DeferredPromise<boolean, Error>();
+  public extract(options: DeployExtractOptions = {}): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
 
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
         this.plugin.extract(this.config.get('app_id'), (result) => {
-          if (result !== 'done') {
+          if (result === 'done') {
+            this.logger.info('Ionic Deploy: extraction complete');
+            deferred.resolve();
+          } else {
             if (options.onProgress) {
               options.onProgress(result);
             }
-          } else {
-            if (result === 'true') {
-              this.logger.info('Ionic Deploy: extraction complete');
-            }
-            deferred.resolve(result === 'true');
           }
         }, (error) => {
           deferred.reject(error);
@@ -153,14 +176,13 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Load the latest deployed version
-   * This is only necessary to call if you have manually downloaded and extracted
-   * an update and wish to reload the app with the latest deploy. The latest deploy
-   * will automatically be loaded when the app is started.
+   * Immediately reload the app with the latest deployed snapshot.
    *
-   * @return {void}
+   * This is only necessary to call if you have downloaded and extracted a
+   * snapshot and wish to instantly reload the app with the latest deploy. The
+   * latest deploy will automatically be loaded when the app is started.
    */
-  load() {
+  public load(): void {
     this.emitter.once('deploy:ready', () => {
       if (this._getPlugin()) {
         this.plugin.redirect(this.config.get('app_id'));
@@ -169,54 +191,12 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Watch constantly checks for updates, and triggers an event when one is ready.
-   */
-  watch(options: DeployWatchOptions = {}): void {
-    var self = this;
-
-    if (!options.initialDelay) {
-      options.initialDelay = INITIAL_DELAY;
-    }
-
-    if (!options.interval) {
-      options.interval = WATCH_INTERVAL;
-    }
-
-    function checkForUpdates() {
-      self.check().then((hasUpdate) => {
-        if (hasUpdate) {
-          self.emitter.emit('deploy:update-ready');
-        }
-      }, (err) => {
-        self.logger.info('Ionic Deploy: unable to check for updates: ' + err);
-      });
-
-      // Check our timeout to make sure it wasn't cleared while we were waiting
-      // for a server response
-      if (this._checkTimeout) {
-        this._checkTimeout = setTimeout(checkForUpdates.bind(self), options.interval);
-      }
-    }
-
-    // Check after an initial short deplay
-    this._checkTimeout = setTimeout(checkForUpdates.bind(self), options.initialDelay);
-  }
-
-  /**
-   * Stop automatically looking for updates
-   */
-  unwatch(): void {
-    clearTimeout(this._checkTimeout);
-    this._checkTimeout = null;
-  }
-
-  /**
-   * Information about the current deploy
+   * Get information about the current snapshot.
    *
-   * @return {Promise} The resolver will be passed an object that has key/value
-   *    pairs pertaining to the currently deployed update.
+   * The promise is resolved with an object that has key/value pairs pertaining
+   * to the currently deployed snapshot.
    */
-  info(): Promise<any> {
+  public info(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -235,11 +215,11 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * List the Deploy versions that have been installed on this device
+   * List the snapshots that have been installed on this device.
    *
-   * @return {Promise} The resolver will be passed an array of deploy uuids
+   * The promise is resolved with an array of snapshot UUIDs.
    */
-  getVersions(): Promise<any> {
+  public getSnapshots(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -258,12 +238,12 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Remove an installed deploy on this device
+   * Remove a snapshot from this device.
    *
-   * @param {string} uuid The deploy uuid you wish to remove from the device
-   * @return {Promise} Standard resolve/reject resolution
+   * @param uuid
+   *  The snapshot UUID to remove from the device.
    */
-  deleteVersion(uuid: string): Promise<any> {
+  public deleteSnapshot(uuid: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -282,13 +262,13 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Fetches the metadata for a given deploy uuid. If no uuid is given, it will attempt
-   * to grab the metadata for the most recently known update version.
+   * Fetches the metadata for a given snapshot. If no UUID is given, it will
+   * attempt to grab the metadata for the most recently known snapshot.
    *
-   * @param {string} uuid The deploy uuid you wish to grab metadata for, can be left blank to grab latest known update metadata
-   * @return {Promise} Standard resolve/reject resolution
+   * @param uuid
+   *  The snapshot from which to grab metadata.
    */
-  getMetadata(uuid: string): Promise<any> {
+  public getMetadata(uuid?: string): Promise<any> {
     let deferred = new DeferredPromise<any, Error>(); // TODO
 
     this.emitter.once('deploy:ready', () => {
@@ -307,58 +287,17 @@ export class Deploy implements IDeploy {
   }
 
   /**
-   * Update app with the latest deploy
+   * @private
    */
-  update(options: DeployUpdateOptions = {}): Promise<boolean> {
-    let deferred = new DeferredPromise<boolean, Error>();
-
-    this.emitter.once('deploy:ready', () => {
-      if (this._getPlugin()) {
-        // Check for updates
-        this.check().then((result) => {
-          if (result === true) {
-            // There are updates, download them
-            let downloadProgress = 0;
-            this.download({
-              'onProgress': (p: number) => {
-                downloadProgress = p / 2;
-                if (options.onProgress) {
-                  options.onProgress(downloadProgress);
-                }
-              }
-            }).then((result) => {
-              if (!result) { deferred.reject(new Error('Error while downloading')); }
-              this.extract({
-                'onProgress': (p: number) => {
-                  if (options.onProgress) {
-                    options.onProgress(downloadProgress + p / 2);
-                  }
-                }
-              }).then((result) => {
-                if (!result) { deferred.reject(new Error('Error while extracting')); }
-                if (!options.deferLoad) {
-                  deferred.resolve(true);
-                  this.plugin.redirect(this.config.get('app_id'));
-                } else {
-                  deferred.resolve(true);
-                }
-              }, (error) => {
-                deferred.reject(error);
-              });
-            }, (error) => {
-              deferred.reject(error);
-            });
-          } else {
-            deferred.resolve(false);
-          }
-        }, (error) => {
-          deferred.reject(error);
-        });
-      } else {
-        deferred.reject(NO_PLUGIN);
-      }
-    });
-
-    return deferred.promise;
+  private _getPlugin() {
+    if (typeof window.IonicDeploy === 'undefined') {
+      this.logger.warn('Ionic Deploy: Disabled! Deploy plugin is not installed or has not loaded. Have you run `ionic plugin add ionic-plugin-deploy` yet?');
+      return;
+    }
+    if (!this.plugin) {
+      this.plugin = window.IonicDeploy;
+    }
+    return this.plugin;
   }
+
 }

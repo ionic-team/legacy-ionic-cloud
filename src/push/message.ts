@@ -1,17 +1,66 @@
-import { IPushMessage, IAppStatus, IPluginNotification } from '../definitions';
+import {
+  AppStatus,
+  IPushMessage,
+  PushPluginNotification
+} from '../definitions';
 
+/**
+ * Represents a push notification sent to the device.
+ *
+ * @featured
+ */
 export class PushMessage implements IPushMessage {
 
-  app: IAppStatus;
-  text: string;
-  title: string;
-  count: number;
-  sound: string;
-  image: string;
-  raw: IPluginNotification;
-  payload: Object;
+  /**
+   * Native information about the app when the push message was received.
+   */
+  public app: AppStatus;
 
-  static fromPluginData(data: IPluginNotification) {
+  /**
+   * The message of this push message.
+   */
+  public text: string;
+
+  /**
+   * The title of this push message.
+   */
+  public title: string;
+
+  /**
+   * The badge count that was set by this push message.
+   */
+  public count: number;
+
+  /**
+   * The sound that was played by this push message.
+   */
+  public sound: string;
+
+  /**
+   * The image of this push message.
+   */
+  public image: string;
+
+  /**
+   * The custom payload of this push message.
+   */
+  public payload: Object;
+
+  /**
+   * The raw notification object from the push plugin callback.
+   *
+   * @hidden
+   */
+  public raw: PushPluginNotification;
+
+  /**
+   * Create a PushMessage from the push plugin's format.
+   *
+   * @hidden
+   *
+   * @param data - The plugin's notification object.
+   */
+  public static fromPluginData(data: PushPluginNotification): PushMessage {
     let message = new PushMessage();
 
     message.raw = data;
@@ -29,7 +78,7 @@ export class PushMessage implements IPushMessage {
     return message;
   }
 
-  toString() {
+  public toString(): string {
     return `<PushMessage ["${this.title}"]>`;
   }
 }

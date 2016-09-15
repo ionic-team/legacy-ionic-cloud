@@ -1,14 +1,15 @@
 var Package = require('dgeni').Package;
+var Dgeni = require('dgeni');
 var jsdocPackage = require('dgeni-packages/jsdoc');
 var nunjucksPackage = require('dgeni-packages/nunjucks');
-var typescriptPackage = require('./typescript-package');
+var typescriptPackage = require('dgeni-packages/typescript');
 var linksPackage = require('./links-package');
 var gitPackage = require('dgeni-packages/git');
 var path = require('path');
 var semver = require('semver');
 var fs = require('fs');
 var _ = require('lodash');
-var config = require('../config.json');
+var config = require('./config.json');
 
 // Define the dgeni package for generating the docs
 module.exports = function(currentVersion) {
@@ -19,37 +20,36 @@ module.exports = function(currentVersion) {
 
   .processor(require('./processors/latest-version'))
   // .processor(require('./processors/index-page'))
-  .processor(require('./processors/jekyll'))
-  .processor(require('./processors/remove-private-members'))
   .processor(require('./processors/hide-private-api'))
+  .processor(require('./processors/parse-members'))
+  .processor(require('./processors/jekyll'))
   .processor(require('./processors/collect-inputs-outputs'))
   .processor(require('./processors/parse-returns-object'))
 
-// for debugging docs
-// .processor(function test(){
-//   return {
-//
-//     $runBefore: ['rendering-docs'],
-//     $process: function(docs){
-//       docs.forEach(function(doc){
-//         if (doc.name == "Searchbar"){
-//           console.log(doc.input);
-//           doc.members.forEach(function(method){
-//             if (method.name === "load") {
-//               console.log(method);
-//             }
-//           })
-//         }
-//       })
-//     }
-//   }
-// })
+  // for debugging docs
+  // .processor(function test() {
+  //   return {
+  //
+  //     $runBefore: ['rendering-docs'],
+  //     $process: function(docs) {
+  //       docs.forEach(function(doc) {
+  //         if (doc.name === 'Auth') {
+  //           doc.members.forEach(function(method) {
+  //             if (method.name === 'login') {
+  //               console.log(method);
+  //             }
+  //           });
+  //         }
+  //       });
+  //     }
+  //   };
+  // })
 
   .config(function(log) {
     log.level = 'error'; //'silly', 'debug', 'info', 'warn', 'error'
   })
 
-  .config(function(renderDocsProcessor, computePathsProcessor, versionInfo) {
+  .config(function(renderDocsProcessor, computePathsProcessor, extractAccessTransform, versionInfo) {
     try {
       versions = fs.readdirSync(
         path.resolve(__dirname, '../../' + config.docsDest + '/')
@@ -104,6 +104,8 @@ module.exports = function(currentVersion) {
         return path;
       }
     }];
+
+    extractAccessTransform.allowedDocTypes.add("member");
   })
 
   //configure file reading

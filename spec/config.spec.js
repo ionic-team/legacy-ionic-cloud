@@ -37,12 +37,12 @@ describe("config", function() {
         'app_id': '1234abc'
       },
       'push': {
-        'gcm_key': 'gcm_key_123'
+        'sender_id': 'sender_id_123'
       }
     });
     expect(c.get('app_id')).toBe('1234abc');
     expect(c.settings.core.app_id).toBe('1234abc');
-    expect(c.settings.push.gcm_key).toBe('gcm_key_123');
+    expect(c.settings.push.sender_id).toBe('sender_id_123');
   });
 
   it("should return undefined for configs that aren't there", function() {

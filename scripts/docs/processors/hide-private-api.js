@@ -6,9 +6,9 @@ module.exports = function removePrivateApi() {
     $process: function(docs) {
       var publicDocs = [];
       docs.forEach(function(doc) {
-        if (!doc.private) {
+        // doc.hidden, if set, will be '' which in JS is false
+        if (!doc.private && typeof doc.hidden === 'undefined') {
           publicDocs.push(doc);
-          return doc;
         }
       });
       docs = publicDocs;
