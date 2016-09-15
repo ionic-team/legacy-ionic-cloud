@@ -1141,12 +1141,12 @@ export interface PushToken {
   /**
    * Has the push token been registered with APNS/GCM?
    */
-  registered?: boolean;
+  registered: boolean;
 
   /**
    * Has the push token been saved to the API?
    */
-  saved?: boolean;
+  saved: boolean;
 
   /**
    * The raw push device token.
@@ -1168,7 +1168,7 @@ export interface IPush {
   /**
    * The push token of the device.
    */
-  token: PushToken | null;
+  token?: PushToken;
 
   /**
    * Register a token with the API.
