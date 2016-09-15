@@ -29,6 +29,7 @@ import {
 import { isAPIResponseError } from './guards';
 import { DetailedError } from './errors';
 import { DeferredPromise } from './promise';
+import { isValidEmail } from './util';
 
 declare var window: any;
 
@@ -529,6 +530,18 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
 
   public signup(data: UserDetails): Promise<void> {
     let deferred = new DeferredPromise<void, DetailedError<string[]>>();
+
+    if (data.email) {
+      if (!isValidEmail(data.email)) {
+        return deferred.reject(new DetailedError("Invalid email supplied.", ['invalid_email']));
+      }
+    } else {
+      return deferred.reject(new DetailedError("Email is required for email/password auth signup.", ['required_email']));
+    }
+
+    if (!data.password) {
+      return deferred.reject(new DetailedError("Password is required for email/password auth signup.", ['required_password']));
+    }
 
     var userData: any = {
       'app_id': this.config.get('app_id'),
