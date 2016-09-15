@@ -372,22 +372,22 @@ export class SingleUserService implements ISingleUserService {
     let deferred = new DeferredPromise<void, Error>();
 
     if (!this.user) {
-      deferred.reject(new Error('No user loaded to delete.'));
-    } else {
-      if (this.user.isAnonymous()) {
-        deferred.reject(new Error('User is anonymous and cannot be deleted from the API.'));
-      } else {
-        this.unstore();
-        this.client.delete(`/users/${this.user.id}`)
-          .end((err, res) => {
-            if (err) {
-              deferred.reject(err);
-            } else {
-              deferred.resolve();
-            }
-          });
-      }
+      return deferred.reject(new Error('No user loaded to delete.'));
     }
+
+    if (this.user.isAnonymous()) {
+      return deferred.reject(new Error('User is anonymous and cannot be deleted from the API.'));
+    }
+
+    this.unstore();
+    this.client.delete(`/users/${this.user.id}`)
+      .end((err, res) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve();
+        }
+      });
 
     return deferred.promise;
   }
@@ -398,26 +398,26 @@ export class SingleUserService implements ISingleUserService {
     this.store();
 
     if (!this.user) {
-      deferred.reject(new Error('No user loaded to save.'));
-    } else {
-      if (this.user.isAnonymous()) {
-        deferred.reject(new Error('User is anonymous and cannot be updated in the API. Use load(<id>) or signup a user using auth.'));
-      } else {
-        this.client.patch(`/users/${this.user.id}`)
-          .send(this.user.serializeForAPI())
-          .end((err, res) => {
-            if (err) {
-              deferred.reject(err);
-            } else {
-              if (this.user) {
-                this.user.fresh = false;
-              }
-
-              deferred.resolve();
-            }
-          });
-      }
+      return deferred.reject(new Error('No user loaded to save.'));
     }
+
+    if (this.user.isAnonymous()) {
+      return deferred.reject(new Error('User is anonymous and cannot be updated in the API. Use load(<id>) or signup a user using auth.'));
+    }
+
+    this.client.patch(`/users/${this.user.id}`)
+      .send(this.user.serializeForAPI())
+      .end((err, res) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          if (this.user) {
+            this.user.fresh = false;
+          }
+
+          deferred.resolve();
+        }
+      });
 
     return deferred.promise;
   }
