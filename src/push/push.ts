@@ -230,8 +230,8 @@ export class Push implements IPush {
             deferred.resolve(this.token);
           });
           this.plugin.on('error', (err) => {
-            this.logger.error('Ionic Push: ', err);
-            deferred.reject(new Error('Push plugin failed to initialize! See logs.'));
+            this.logger.error('Ionic Push:', err);
+            deferred.reject(err);
           });
           this._callbackRegistration();
           this.registered = true;
