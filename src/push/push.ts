@@ -104,7 +104,7 @@ export class Push implements IPush {
   /**
    * @private
    */
-  private _token: PushToken | null;
+  private _token?: PushToken;
 
   constructor(
     deps: PushDependencies,
@@ -136,15 +136,15 @@ export class Push implements IPush {
     this.options = options;
   }
 
-  public get token(): PushToken | null {
+  public get token(): PushToken | undefined {
     if (!this._token) {
-      this._token = this.storage.get('push_token');
+      this._token = this.storage.get('push_token') || undefined;
     }
 
     return this._token;
   }
 
-  public set token(val: PushToken | null) {
+  public set token(val: PushToken | undefined) {
     if (!val) {
       this.storage.delete('push_token');
     } else {
@@ -225,7 +225,7 @@ export class Push implements IPush {
           this.plugin = pushPlugin.init(this.options.pluginConfig);
           this.plugin.on('registration', (data) => {
             this.blockRegistration = false;
-            this.token = { 'token': data.registrationId };
+            this.token = { 'token': data.registrationId, 'registered': false, 'saved': false };
             this.token.registered = true;
             deferred.resolve(this.token);
           });
@@ -274,7 +274,7 @@ export class Push implements IPush {
               deferred.reject(err);
             } else {
               this.logger.info('Ionic Push: unregistered push token');
-              this.token = null;
+              delete this.token;
               deferred.resolve();
             }
           });
@@ -293,8 +293,6 @@ export class Push implements IPush {
    */
   private _callbackRegistration() {
     this.plugin.on('registration', (data: PushPluginRegistration) => {
-      this.token = { 'token': data.registrationId };
-
       if (this.options.debug) {
         this.logger.info('Ionic Push (debug): device token registered: ' + this.token);
       }
