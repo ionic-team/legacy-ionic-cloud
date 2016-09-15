@@ -50,7 +50,7 @@ export class UserContext implements IUserContext {
     this.storage.set(this.label, user.serializeForStorage());
   }
 
-  public load(user: IUser): IUser {
+  public load(user: IUser): IUser | null {
     let data = this.storage.get(this.label);
 
     if (data) {
@@ -136,7 +136,7 @@ export class User implements IUser {
   /**
    * The UUID of this user.
    */
-  public id: string;
+  public id?: string;
 
   /**
    * Is this user fresh, meaning they haven't been persisted?
@@ -225,7 +225,7 @@ export class User implements IUser {
    * Revert this user to a fresh, anonymous state.
    */
   public clear() {
-    this.id = null;
+    this.id = undefined;
     this.data = new UserData();
     this.details = {};
     this.fresh = true;
@@ -320,7 +320,7 @@ export class SingleUserService implements ISingleUserService {
   /**
    * @private
    */
-  private user: IUser;
+  private user: IUser | null;
 
   constructor(deps: SingleUserServiceDependencies, public config: SingleUserServiceOptions = {}) {
     this.client = deps.client;
@@ -371,18 +371,22 @@ export class SingleUserService implements ISingleUserService {
   public delete(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
 
-    if (this.user.isAnonymous()) {
-      deferred.reject(new Error('User is anonymous and cannot be deleted from the API.'));
+    if (!this.user) {
+      deferred.reject(new Error('No user loaded to delete.'));
     } else {
-      this.unstore();
-      this.client.delete(`/users/${this.user.id}`)
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            deferred.resolve();
-          }
-        });
+      if (this.user.isAnonymous()) {
+        deferred.reject(new Error('User is anonymous and cannot be deleted from the API.'));
+      } else {
+        this.unstore();
+        this.client.delete(`/users/${this.user.id}`)
+          .end((err, res) => {
+            if (err) {
+              deferred.reject(err);
+            } else {
+              deferred.resolve();
+            }
+          });
+      }
     }
 
     return deferred.promise;
@@ -393,19 +397,26 @@ export class SingleUserService implements ISingleUserService {
 
     this.store();
 
-    if (this.user.isAnonymous()) {
-      deferred.reject(new Error('User is anonymous and cannot be updated in the API. Use load(<id>) or signup a user using auth.'));
+    if (!this.user) {
+      deferred.reject(new Error('No user loaded to save.'));
     } else {
-      this.client.patch(`/users/${this.user.id}`)
-        .send(this.user.serializeForAPI())
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            this.user.fresh = false;
-            deferred.resolve();
-          }
-        });
+      if (this.user.isAnonymous()) {
+        deferred.reject(new Error('User is anonymous and cannot be updated in the API. Use load(<id>) or signup a user using auth.'));
+      } else {
+        this.client.patch(`/users/${this.user.id}`)
+          .send(this.user.serializeForAPI())
+          .end((err, res) => {
+            if (err) {
+              deferred.reject(err);
+            } else {
+              if (this.user) {
+                this.user.fresh = false;
+              }
+
+              deferred.resolve();
+            }
+          });
+      }
     }
 
     return deferred.promise;

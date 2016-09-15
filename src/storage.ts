@@ -10,7 +10,7 @@ import {
  */
 export class LocalStorageStrategy implements IStorageStrategy {
 
-  public get(key: string): string {
+  public get(key: string): string | null {
     return localStorage.getItem(key);
   }
 
@@ -29,7 +29,7 @@ export class LocalStorageStrategy implements IStorageStrategy {
  */
 export class SessionStorageStrategy implements IStorageStrategy {
 
-  public get(key: string): string {
+  public get(key: string): string | null {
     return sessionStorage.getItem(key);
   }
 
@@ -99,7 +99,7 @@ export class Storage<T> implements IStorage<T> {
    *
    * @param key - The storage key to get.
    */
-  public get(key: string): T {
+  public get(key: string): T | null {
     key = this.standardizeKey(key);
     if (this.options.cache) {
       let cached = this.storageCache[key];

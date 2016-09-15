@@ -118,7 +118,7 @@ export class EventEmitter implements IEventEmitter {
    * @param data
    *  An object to pass to every callback.
    */
-  public emit(event: string, data: Object = null) {
+  public emit(event: string, data?: Object) {
     if (typeof this.eventReceivers[event] === 'undefined') {
       this.eventReceivers[event] = {};
     }
