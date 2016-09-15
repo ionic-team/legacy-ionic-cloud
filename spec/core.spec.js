@@ -1,4 +1,3 @@
-var pkg = require('../package.json');
 var Config = require('../dist/es5/config').Config;
 var Core = require('../dist/es5/core').Core;
 var Logger = require('../dist/es5/logger').Logger;
@@ -18,7 +17,12 @@ describe("core", function() {
       "emitter": emitter,
       "insights": insightsSpy
     });
-    expect(c.version).toBe(pkg.version);
+
+    expect(c.config).toBeDefined();
+    expect(c.logger).toBeDefined();
+    expect(c.emitter).toBeDefined();
+    expect(c.insights).toBeDefined();
+    expect(c.version).toBeDefined();
   });
 
 });
