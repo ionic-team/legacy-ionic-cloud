@@ -389,59 +389,59 @@ export abstract class AuthType implements IAuthType {
     let deferred = new DeferredPromise<AuthLoginResult, Error>();
 
     if (!window || !window.cordova || !window.cordova.InAppBrowser) {
-      deferred.reject(new Error('InAppBrowser plugin missing'));
-    } else {
-      this.client.post(`/auth/login/${moduleId}`)
-        .send({
-          'app_id': this.config.get('app_id'),
-          'callback': window.location.href,
-          'data': data
-        })
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            let w = window.cordova.InAppBrowser.open(
-              res.body.data.url,
-              '_blank',
-              this.parseInAppBrowserOptions(options.inAppBrowserOptions)
-            );
-
-            let onExit = () => {
-              deferred.reject(new Error('InAppBrowser exit'));
-            };
-
-            let onLoadError = () => {
-              deferred.reject(new Error('InAppBrowser loaderror'));
-            };
-
-            let onLoadStart = (data) => {
-              if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-                let queryString = data.url.split('#')[0].split('?')[1];
-                let paramParts = queryString.split('&');
-                let params = {};
-                for (let i = 0; i < paramParts.length; i++) {
-                  let part = paramParts[i].split('=');
-                  params[part[0]] = part[1];
-                }
-
-                w.removeEventListener('exit', onExit);
-                w.removeEventListener('loaderror', onLoadError);
-                w.close();
-
-                deferred.resolve({
-                  'token': params['token'],
-                  'signup': Boolean(parseInt(params['signup'], 10))
-                });
-              }
-            };
-
-            w.addEventListener('exit', onExit);
-            w.addEventListener('loaderror', onLoadError);
-            w.addEventListener('loadstart', onLoadStart);
-          }
-        });
+      return deferred.reject(new Error('InAppBrowser plugin missing'));
     }
+
+    this.client.post(`/auth/login/${moduleId}`)
+      .send({
+        'app_id': this.config.get('app_id'),
+        'callback': window.location.href,
+        'data': data
+      })
+      .end((err, res) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          let w = window.cordova.InAppBrowser.open(
+            res.body.data.url,
+            '_blank',
+            this.parseInAppBrowserOptions(options.inAppBrowserOptions)
+          );
+
+          let onExit = () => {
+            deferred.reject(new Error('InAppBrowser exit'));
+          };
+
+          let onLoadError = () => {
+            deferred.reject(new Error('InAppBrowser loaderror'));
+          };
+
+          let onLoadStart = (data) => {
+            if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
+              let queryString = data.url.split('#')[0].split('?')[1];
+              let paramParts = queryString.split('&');
+              let params = {};
+              for (let i = 0; i < paramParts.length; i++) {
+                let part = paramParts[i].split('=');
+                params[part[0]] = part[1];
+              }
+
+              w.removeEventListener('exit', onExit);
+              w.removeEventListener('loaderror', onLoadError);
+              w.close();
+
+              deferred.resolve({
+                'token': params['token'],
+                'signup': Boolean(parseInt(params['signup'], 10))
+              });
+            }
+          };
+
+          w.addEventListener('exit', onExit);
+          w.addEventListener('loaderror', onLoadError);
+          w.addEventListener('loadstart', onLoadStart);
+        }
+      });
 
     return deferred.promise;
   }
@@ -457,24 +457,24 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     var deferred = new DeferredPromise<AuthLoginResult, Error>();
 
     if (!data.email || !data.password) {
-      deferred.reject(new Error('email and password are required for basic authentication'));
-    } else {
-      this.client.post('/auth/login')
-        .send({
-          'app_id': this.config.get('app_id'),
-          'email': data.email,
-          'password': data.password
-        })
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            deferred.resolve({
-              'token': res.body.data.token
-            });
-          }
-        });
+      return deferred.reject(new Error('email and password are required for basic authentication'));
     }
+
+    this.client.post('/auth/login')
+      .send({
+        'app_id': this.config.get('app_id'),
+        'email': data.email,
+        'password': data.password
+      })
+      .end((err, res) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve({
+            'token': res.body.data.token
+          });
+        }
+      });
 
     return deferred.promise;
   }
@@ -483,22 +483,22 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     let deferred = new DeferredPromise<void, Error>();
 
     if (!email) {
-      deferred.reject(new Error('Email is required for password reset request.'));
-    } else {
-      this.client.post('/users/password/reset')
-        .send({
-          'app_id': this.config.get('app_id'),
-          'email': email,
-          'flow': 'app'
-        })
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            deferred.resolve();
-          }
-        });
+      return deferred.reject(new Error('Email is required for password reset request.'));
     }
+
+    this.client.post('/users/password/reset')
+      .send({
+        'app_id': this.config.get('app_id'),
+        'email': email,
+        'flow': 'app'
+      })
+      .end((err, res) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve();
+        }
+      });
 
     return deferred.promise;
   }
@@ -507,22 +507,22 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     let deferred = new DeferredPromise<void, Error>();
 
     if (!code || !email || !newPassword) {
-      deferred.reject(new Error('Code, new password, and email are required.'));
-    } else {
-      this.client.post('/users/password')
-        .send({
-          'reset_token': code,
-          'new_password': newPassword,
-          'email': email
-        })
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            deferred.resolve();
-          }
-        });
+      return deferred.reject(new Error('Code, new password, and email are required.'));
     }
+
+    this.client.post('/users/password')
+      .send({
+        'reset_token': code,
+        'new_password': newPassword,
+        'email': email
+      })
+      .end((err, res) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve();
+        }
+      });
 
     return deferred.promise;
   }
