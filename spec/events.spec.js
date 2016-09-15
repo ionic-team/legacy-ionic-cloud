@@ -20,7 +20,7 @@ describe("event emitter", function() {
     emitter.emit('cool-event');
     emitter.emit('cool-event', {});
     emitter.emit('cool-event', { 'foo': 'bar' });
-    expect(spy.calls.allArgs()).toEqual([[null], [{}], [{ 'foo': 'bar' }]]);
+    expect(spy.calls.allArgs()).toEqual([[undefined], [{}], [{ 'foo': 'bar' }]]);
   });
 
   it("should work with multiple events", function() {
