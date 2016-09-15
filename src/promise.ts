@@ -21,7 +21,7 @@ export class DeferredPromise<T, E extends Error> {
       this.reject = (e) => {
         reject(e);
         return this.promise;
-      }
+      };
     });
   }
 

@@ -533,14 +533,14 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
 
     if (data.email) {
       if (!isValidEmail(data.email)) {
-        return deferred.reject(new DetailedError("Invalid email supplied.", ['invalid_email']));
+        return deferred.reject(new DetailedError('Invalid email supplied.', ['invalid_email']));
       }
     } else {
-      return deferred.reject(new DetailedError("Email is required for email/password auth signup.", ['required_email']));
+      return deferred.reject(new DetailedError('Email is required for email/password auth signup.', ['required_email']));
     }
 
     if (!data.password) {
-      return deferred.reject(new DetailedError("Password is required for email/password auth signup.", ['required_password']));
+      return deferred.reject(new DetailedError('Password is required for email/password auth signup.', ['required_password']));
     }
 
     var userData: any = {
