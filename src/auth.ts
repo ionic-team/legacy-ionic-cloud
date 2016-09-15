@@ -299,7 +299,7 @@ export class Auth implements IAuth {
     let email = this.storage.get('auth_password_reset_email');
 
     if (!email) {
-      return DeferredPromise.immediatelyReject<void, Error>(new Error('email address not found in local storage'));
+      return DeferredPromise.rejectImmediately<void, Error>(new Error('email address not found in local storage'));
     } else {
       return this.authModules.basic.confirmPasswordReset(email, code, newPassword);
     }

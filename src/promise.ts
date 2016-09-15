@@ -25,7 +25,7 @@ export class DeferredPromise<T, E extends Error> {
     });
   }
 
-  public static immediatelyReject<T, E extends Error>(err?: E): Promise<T> {
+  public static rejectImmediately<T, E extends Error>(err?: E): Promise<T> {
     return new Promise((resolve, reject) => {
       reject(err);
     });
