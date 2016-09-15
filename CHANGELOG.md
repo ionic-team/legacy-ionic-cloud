@@ -21,7 +21,7 @@
 * **(breaking)** Configuration Update (see the [docs](http://docs.ionic.io) for usage)
 * **(breaking)** Remove bower support
 * Add CommonJS ES5 distribution files
-* Start tests (`gulp test`)
+* Start tests
 * Standardize ES and TS linting
 * Switch everything to use dependency injection
 * **(breaking)** Remove Analytics (will be added back soon in a later version)
