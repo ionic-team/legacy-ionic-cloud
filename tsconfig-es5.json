@@ -10,6 +10,7 @@
         "noImplicitAny": false,
         "noImplicitReturns": true,
         "outDir": "dist/es5",
+        "pretty": true,
         "removeComments": false,
         "sourceMap": true,
         "strictNullChecks": true,
