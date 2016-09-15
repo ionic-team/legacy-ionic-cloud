@@ -1208,7 +1208,7 @@ export interface IPush {
    * @param token - The token.
    * @param options
    */
-  saveToken(token: PushToken, options: PushSaveTokenOptions): Promise<PushToken>;
+  saveToken(token: PushToken, options?: PushSaveTokenOptions): Promise<PushToken>;
 
   /**
    * Registers the device with GCM/APNS to get a push token.
