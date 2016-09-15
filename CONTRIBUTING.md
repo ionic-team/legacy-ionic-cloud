@@ -17,10 +17,10 @@ The source code is TypeScript and lives in `src/`. Tests live in `spec/`.
 
 ### Local Setup
 
-After cloning and installing npm dependencies, there are a variety of gulp
-tasks to help you during development.
+After cloning and installing npm dependencies, there are a variety of npm
+scripts to help you during development.
 
-* `gulp test` - Run the tests. (jasmine/karma/phantomjs).
-* `gulp lint` - Lint your code.
-* `gulp build` - Run lint, transpile the TypeScript source files, and bundle them up.
-* `gulp watch-es5` - Watch changes in `src/`, transpile the source files when changes occur.
+* `npm run test` - Run the tests. (jasmine/karma/phantomjs).
+* `npm run lint` - Lint your code.
+* `npm run build` - Run lint, transpile the TypeScript source files, and bundle
+  them up.
