@@ -41,4 +41,19 @@ describe("promise", function() {
     expect(spy).not.toHaveBeenCalled();
   });
 
+  it("should return promise during deferred reject", function() {
+    var spy = jasmine.createSpy('spy');
+
+    function doIt() {
+      var deferred = new DeferredPromise();
+      return deferred.reject('msg');
+    }
+
+    doIt().then(spy, function(err) {
+      expect(err).toBe('msg');
+    });
+
+    expect(spy).not.toHaveBeenCalled();
+  });
+
 });
