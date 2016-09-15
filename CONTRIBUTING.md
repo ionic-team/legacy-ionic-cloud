@@ -21,6 +21,8 @@ After cloning and installing npm dependencies, there are a variety of npm
 scripts to help you during development.
 
 * `npm run test` - Run the tests. (jasmine/karma/phantomjs).
+* `npm run tsc:es5 -- -w` - Compile `.js`/`.d.ts` files and watch for changes.
+  (run this in combination with `npm run test`).
 * `npm run lint` - Lint your code.
 * `npm run build` - Run lint, transpile the TypeScript source files, and bundle
   them up.
