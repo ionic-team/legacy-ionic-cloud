@@ -1,8 +1,6 @@
 import {
   AppStatus,
   IAuth,
-  IFacebookNativeAuth,
-  IGoogleNativeAuth,
   IAuthModules,
   IClient,
   ICombinedTokenContext,
@@ -14,6 +12,8 @@ import {
   IEventEmitter,
   IInsights,
   ILogger,
+  IFacebookAuth,
+  IGoogleAuth,
   IPush,
   ISingleUserService,
   IStorageStrategy,
@@ -28,10 +28,10 @@ import {
   CombinedAuthTokenContext,
   CustomAuth,
   FacebookAuth,
-  FacebookNativeAuth,
-  GoogleNativeAuth,
+  FacebookAuthType,
   GithubAuth,
   GoogleAuth,
+  GoogleAuthType,
   InstagramAuth,
   LinkedInAuth,
   TwitterAuth
@@ -179,9 +179,9 @@ export class Container {
       'basic': new BasicAuth({'config': this.config, 'client': this.client}),
       'custom': new CustomAuth({'config': this.config, 'client': this.client}),
       'twitter': new TwitterAuth({'config': this.config, 'client': this.client}),
-      'facebook': new FacebookAuth({'config': this.config, 'client': this.client}),
+      'facebook': new FacebookAuthType({'config': this.config, 'client': this.client}),
       'github': new GithubAuth({'config': this.config, 'client': this.client}),
-      'google': new GoogleAuth({'config': this.config, 'client': this.client}),
+      'google': new GoogleAuthType({'config': this.config, 'client': this.client}),
       'instagram': new InstagramAuth({'config': this.config, 'client': this.client}),
       'linkedin': new LinkedInAuth({'config': this.config, 'client': this.client})
     };
@@ -200,18 +200,26 @@ export class Container {
   }
 
   @cache
-  public get facebookNativeAuth(): IFacebookNativeAuth {
-    return new FacebookNativeAuth({
+  public get facebookAuth(): IFacebookAuth {
+    return new FacebookAuth({
       'config': this.config,
-      'client': this.client
+      'client': this.client,
+      'userService': this.singleUserService,
+      'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
+      'tokenContext': this.authTokenContext,
+      'emitter': this.eventEmitter
     });
   }
 
   @cache
-  public get googleNativeAuth(): IGoogleNativeAuth {
-    return new GoogleNativeAuth({
+  public get googleAuth(): IGoogleAuth {
+    return new GoogleAuth({
       'config': this.config,
-      'client': this.client
+      'client': this.client,
+      'userService': this.singleUserService,
+      'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
+      'tokenContext': this.authTokenContext,
+      'emitter': this.eventEmitter
     });
   }
 

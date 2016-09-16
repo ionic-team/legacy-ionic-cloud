@@ -6,10 +6,10 @@ export {
   BasicAuth,
   CustomAuth,
   FacebookAuth,
-  FacebookNativeAuth,
-  GoogleNativeAuth,
+  FacebookAuthType,
   GithubAuth,
   GoogleAuth,
+  GoogleAuthType,
   InstagramAuth,
   LinkedInAuth,
   TwitterAuth

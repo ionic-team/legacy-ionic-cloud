@@ -5,8 +5,11 @@ import {
   AuthModuleId,
   AuthOptions,
   AuthTypeDependencies,
+  NativeAuthDependencies,
   BasicLoginCredentials,
   CombinedTokenContextDependencies,
+  FacebookScopes,
+  GoogleScopes,
   IAuth,
   IAuthModules,
   IAuthType,
@@ -16,6 +19,8 @@ import {
   ICombinedTokenContextStoreOptions,
   IConfig,
   IEventEmitter,
+  IFacebookAuth,
+  IGoogleAuth,
   ISingleUserService,
   IStorage,
   ITokenContext,
@@ -548,29 +553,73 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
   }
 }
 
+/**
+ * hidden
+ */
 export abstract class NativeAuthType {
   protected config: IConfig;
   protected client: IClient;
+  protected userService: ISingleUserService;
+  private tokenContext: ICombinedTokenContext;
+  private emitter: IEventEmitter;
+  private authToken: string;
 
-  constructor(deps: AuthTypeDependencies) {
+  constructor(deps: NativeAuthDependencies) {
     this.config = deps.config;
     this.client = deps.client;
+    this.userService = deps.userService;
+    this.tokenContext = deps.tokenContext;
+    this.emitter = deps.emitter;
   }
+
+  /**
+   * Get the raw auth token of the active user from local storage.
+   */
+  public getToken(): string {
+    return this.tokenContext.get();
+  }
+
+  /**
+   * @hidden
+   */
+  public storeToken(token: string) {
+    let originalToken = this.authToken;
+    this.authToken = token;
+    this.tokenContext.store(this.authToken, {'permanent': true});
+    this.emitter.emit('auth:token-changed', {'old': originalToken, 'new': this.authToken});
+  }
+
 }
 
-export class GoogleNativeAuth extends NativeAuthType {
-  public authenticate(data?: any, options?: any): Promise<any> {
+/**
+ * GoogleNativeAuth handles logging into googleplus through the cordova-plugin-googleplus plugin.'
+ * @featured
+ */
+export class GoogleAuth extends NativeAuthType implements IGoogleAuth {
+  public login(scope: GoogleScopes[]): Promise<any> {
     let deferred = new DeferredPromise<any, Error>();
-    const clientID = this.config.settings.nativeAuth['webClientId'];
+    const clientID = this.config.settings.auth.google.webClientId;
 
     if (!clientID) {
       deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
     }
 
-    GooglePlus.login({'webClientId': clientID, 'offline': true}).then((success) => {
-      const request_object = {
+    // Reqire basic profile data.
+    if (scope.indexOf('profile') === -1) {
+      scope.push('profile');
+    }
+
+    // Require email scope.
+    if (scope.indexOf('email') === -1 ) {
+      scope.push('email');
+    }
+
+    const scopes = scope.join(' ');
+    GooglePlus.login({'webClientId': clientID, 'offline': true, 'scopes': scopes}).then((success) => {
+      let request_object = {
         'app_id': this.config.get('app_id'),
         'access_token': success.oauthToken,
+        'additional_fields': scopes,
         'flow': 'googleplus'
       };
       this.client.post('/auth/login/google')
@@ -579,7 +628,12 @@ export class GoogleNativeAuth extends NativeAuthType {
           if (err) {
             deferred.reject(err);
           } else {
-            deferred.resolve(res.body.data);
+            this.storeToken(res.body.data.token);
+            this.userService.load().then(() => {
+              let user = this.userService.current();
+              user.store();
+            });
+            deferred.resolve();
           }
         });
     }, (err) => {
@@ -589,35 +643,45 @@ export class GoogleNativeAuth extends NativeAuthType {
   }
 }
 
-
-export class FacebookNativeAuth extends NativeAuthType {
-  public authenticate(fields: string[] = []): Promise<FacebookLoginResponse> {
+/**
+ * FacebookNative handles logging into facebook through the cordova-plugin-facebook4 plugin.
+ * @featured
+ */
+export class FacebookAuth extends NativeAuthType implements IFacebookAuth {
+  public login(scope: FacebookScopes[]): Promise<FacebookLoginResponse> {
     let deferred = new DeferredPromise<FacebookLoginResponse, Error>();
 
+    // Reqire basic profile data.
+    if (scope.indexOf('public_profile') === -1) {
+      scope.push('public_profile');
+    }
+
     // Require email scope.
-    if (fields.indexOf('email') === -1 ) {
-      fields.push('email');
+    if (scope.indexOf('email') === -1 ) {
+      scope.push('email');
     }
 
-    // Require public_profile scope.
-    if (fields.indexOf('public_profile') === -1) {
-      fields.push('public_profile');
-    }
-
-    Facebook.login(fields).then((r: FacebookLoginResponse) => {
+    Facebook.login(scope).then((r: FacebookLoginResponse) => {
+      scope.splice(scope.indexOf('public_profile'), 1);
       const request_object = {
         'app_id': this.config.get('app_id'),
         'access_token': r.authResponse.accessToken,
-        'fields': fields,
+        'additional_fields': scope.join(','),
         'flow': 'facebook4'
       };
+
       this.client.post('/auth/login/facebook')
         .send(request_object)
         .end((err, res) => {
           if (err) {
             deferred.reject(err);
           } else {
-            deferred.resolve(r);
+            this.storeToken(res.body.data.token);
+            this.userService.load().then(() => {
+              let user = this.userService.current();
+              user.store();
+            });
+            deferred.resolve();
           }
         });
     }, (err: Error) => {
@@ -648,7 +712,7 @@ export class TwitterAuth extends AuthType {
 /**
  * @hidden
  */
-export class FacebookAuth extends AuthType {
+export class FacebookAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('facebook', data, options);
   }
@@ -666,7 +730,7 @@ export class GithubAuth extends AuthType {
 /**
  * @hidden
  */
-export class GoogleAuth extends AuthType {
+export class GoogleAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('google', data, options);
   }

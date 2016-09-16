@@ -97,7 +97,9 @@ export interface NativeAuthOptions {
   /**
    * Your webClientId (aka, reverseId)
    */
-  webClientId: string;
+  google: {
+    webClientId: string;
+  };
 }
 
 /**
@@ -123,7 +125,7 @@ export interface CloudSettings {
   /**
    * Settings for native auth.
    */
-  nativeAuth?: NativeAuthOptions;
+  auth?: NativeAuthOptions;
 
   /**
    * Log settings.
@@ -497,6 +499,11 @@ export interface UserSocialProviderDetails {
   uid: string;
 
   /**
+   * The access token of the user.
+   */
+  access_token: string;
+
+  /**
    * More general information from the social network.
    */
   data: UserSocialProviderDetailsData;
@@ -669,6 +676,16 @@ export interface ICombinedTokenContext extends ITokenContext {
 }
 
 /**
+ * Facebook native login field permissions
+ */
+export type FacebookScopes = 'basic' | 'public_profile' | 'email';
+
+/**
+ * Google native login field permissions.
+ */
+export type GoogleScopes = 'profile' | 'email';
+
+/**
  * These are the IDs of the valid [authentication
  * providers](/services/users/#providers).
  *
@@ -773,23 +790,43 @@ export interface AuthDependencies {
   storage: IStorage<string>;
 }
 
+/**
+ * @hidden 
+ */
+export interface NativeAuthDependencies {
+  config: IConfig;
+  userService: ISingleUserService;
+  client: IClient;
+  storage: IStorage<string>;
+  tokenContext: ICombinedTokenContext;
+  emitter: IEventEmitter;
+}
 
+/**
+ * @hidden
+ */
 export interface IGoogleData {
   webClientId: string;
-}
-
-export interface IFacebookNativeAuth {
-  authenticate(fields: string[]): Promise<any>;
-}
-
-export interface IGoogleNativeAuth {
-  authenticate(data?: any, options?: any): Promise<any>;
 }
 
 /**
  * @hidden
  */
 export interface AuthOptions {}
+
+/**
+ * Represents Facebook Auth, which uses native login via cordova-plugin-facebook4.
+ */
+export interface IFacebookAuth {
+  login(scope: FacebookScopes[]): Promise<any>;
+}
+
+/**
+ * Represents Google Auth, which uses native login via cordova-plugin-googleplus.
+ */
+export interface IGoogleAuth {
+  login(scope: GoogleScopes[]): Promise<any>;
+}
 
 /**
  * Represents [`Auth`](/api/client/auth/).
