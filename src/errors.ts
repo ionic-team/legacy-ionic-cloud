@@ -8,7 +8,7 @@ export class Exception extends Error {
   public name: string;
   public stack: string;
 
-  constructor(public message?: string) {
+  constructor(public message: string) {
     super(message);
     this.name = 'Exception';
     this.stack = (<any>new Error()).stack;
@@ -42,7 +42,7 @@ export class DetailedError<D> extends Exception implements IDetailedError<D> {
     /**
      * The error message.
      */
-    public message?: string,
+    public message: string,
 
     /**
      * The error details.

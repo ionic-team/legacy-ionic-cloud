@@ -17,7 +17,12 @@ describe("core", function() {
       "emitter": emitter,
       "insights": insightsSpy
     });
-    expect(c.version).toBe('VERSION_STRING');
+
+    expect(c.config).toBeDefined();
+    expect(c.logger).toBeDefined();
+    expect(c.emitter).toBeDefined();
+    expect(c.insights).toBeDefined();
+    expect(c.version).toBeDefined();
   });
 
 });

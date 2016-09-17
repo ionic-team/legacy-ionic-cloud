@@ -1,4 +1,7 @@
+import { Facebook, FacebookLoginResponse, GooglePlus } from 'ionic-native';
+
 import {
+  APIResponseErrorDetails,
   AuthDependencies,
   AuthLoginOptions,
   AuthLoginResult,
@@ -26,12 +29,14 @@ import {
   ITokenContext,
   InAppBrowserPluginOptions,
   TokenContextDependencies,
+  SuperAgentResponse,
   UserDetails
 } from './definitions';
 
+import { isAPIResponseError } from './guards';
 import { DetailedError } from './errors';
 import { DeferredPromise } from './promise';
-import { Facebook, FacebookLoginResponse, GooglePlus } from 'ionic-native';
+import { isValidEmail } from './util';
 
 declare var window: any;
 
@@ -49,7 +54,7 @@ export class AuthTokenContext implements ITokenContext {
     this.storage = deps.storage;
   }
 
-  public get(): string {
+  public get(): string | null {
     return this.storage.get(this.label);
   }
 
@@ -82,7 +87,7 @@ export class CombinedAuthTokenContext implements ICombinedTokenContext {
     this.tempStorage = deps.tempStorage;
   }
 
-  public get(): string {
+  public get(): string | null {
     let permToken = this.storage.get(this.label);
     let tempToken = this.tempStorage.get(this.label);
     let token = tempToken || permToken;
@@ -300,13 +305,18 @@ export class Auth implements IAuth {
    */
   public confirmPasswordReset(code: number, newPassword: string): Promise<void> {
     let email = this.storage.get('auth_password_reset_email');
-    return this.authModules.basic.confirmPasswordReset(email, code, newPassword);
+
+    if (!email) {
+      return DeferredPromise.rejectImmediately<void, Error>(new Error('email address not found in local storage'));
+    } else {
+      return this.authModules.basic.confirmPasswordReset(email, code, newPassword);
+    }
   }
 
   /**
    * Get the raw auth token of the active user from local storage.
    */
-  public getToken(): string {
+  public getToken(): string | null {
     return this.tokenContext.get();
   }
 
@@ -323,13 +333,13 @@ export class Auth implements IAuth {
   /**
    * @hidden
    */
-  public static getDetailedErrorFromResponse(res): DetailedError<string[]> {
-    let errors = [];
-    let details = [];
+  public static getDetailedErrorFromResponse(res: SuperAgentResponse): DetailedError<string[]> {
+    let errors: string[] = [];
+    let details: APIResponseErrorDetails[] = [];
 
-    try {
+    if (isAPIResponseError(res.body) && typeof res.body.error.details !== 'undefined') {
       details = res.body.error.details;
-    } catch (e) {}
+    }
 
     for (let i = 0; i < details.length; i++) {
       let detail = details[i];
@@ -382,64 +392,64 @@ export abstract class AuthType implements IAuthType {
   protected inAppBrowserFlow(
     moduleId: AuthModuleId,
     data: Object = {},
-    options?: AuthLoginOptions
+    options: AuthLoginOptions = {}
   ): Promise<AuthLoginResult> {
     let deferred = new DeferredPromise<AuthLoginResult, Error>();
 
     if (!window || !window.cordova || !window.cordova.InAppBrowser) {
-      deferred.reject(new Error('InAppBrowser plugin missing'));
-    } else {
-      this.client.post(`/auth/login/${moduleId}`)
-        .send({
-          'app_id': this.config.get('app_id'),
-          'callback': window.location.href,
-          'data': data
-        })
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            let w = window.cordova.InAppBrowser.open(
-              res.body.data.url,
-              '_blank',
-              this.parseInAppBrowserOptions(options.inAppBrowserOptions)
-            );
-
-            let onExit = () => {
-              deferred.reject(new Error('InAppBrowser exit'));
-            };
-
-            let onLoadError = () => {
-              deferred.reject(new Error('InAppBrowser loaderror'));
-            };
-
-            let onLoadStart = (data) => {
-              if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-                let queryString = data.url.split('#')[0].split('?')[1];
-                let paramParts = queryString.split('&');
-                let params = {};
-                for (let i = 0; i < paramParts.length; i++) {
-                  let part = paramParts[i].split('=');
-                  params[part[0]] = part[1];
-                }
-
-                w.removeEventListener('exit', onExit);
-                w.removeEventListener('loaderror', onLoadError);
-                w.close();
-
-                deferred.resolve({
-                  'token': params['token'],
-                  'signup': Boolean(parseInt(params['signup'], 10))
-                });
-              }
-            };
-
-            w.addEventListener('exit', onExit);
-            w.addEventListener('loaderror', onLoadError);
-            w.addEventListener('loadstart', onLoadStart);
-          }
-        });
+      return deferred.reject(new Error('InAppBrowser plugin missing'));
     }
+
+    this.client.post(`/auth/login/${moduleId}`)
+      .send({
+        'app_id': this.config.get('app_id'),
+        'callback': window.location.href,
+        'data': data
+      })
+      .end((err, res) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          let w = window.cordova.InAppBrowser.open(
+            res.body.data.url,
+            '_blank',
+            this.parseInAppBrowserOptions(options.inAppBrowserOptions)
+          );
+
+          let onExit = () => {
+            deferred.reject(new Error('InAppBrowser exit'));
+          };
+
+          let onLoadError = () => {
+            deferred.reject(new Error('InAppBrowser loaderror'));
+          };
+
+          let onLoadStart = (data) => {
+            if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
+              let queryString = data.url.split('#')[0].split('?')[1];
+              let paramParts = queryString.split('&');
+              let params = {};
+              for (let i = 0; i < paramParts.length; i++) {
+                let part = paramParts[i].split('=');
+                params[part[0]] = part[1];
+              }
+
+              w.removeEventListener('exit', onExit);
+              w.removeEventListener('loaderror', onLoadError);
+              w.close();
+
+              deferred.resolve({
+                'token': params['token'],
+                'signup': Boolean(parseInt(params['signup'], 10))
+              });
+            }
+          };
+
+          w.addEventListener('exit', onExit);
+          w.addEventListener('loaderror', onLoadError);
+          w.addEventListener('loadstart', onLoadStart);
+        }
+      });
 
     return deferred.promise;
   }
@@ -455,24 +465,25 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     var deferred = new DeferredPromise<AuthLoginResult, Error>();
 
     if (!data.email || !data.password) {
-      deferred.reject(new Error('email and password are required for basic authentication'));
-    } else {
-      this.client.post('/auth/login')
-        .send({
-          'app_id': this.config.get('app_id'),
-          'email': data.email,
-          'password': data.password
-        })
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            deferred.resolve({
-              'token': res.body.data.token
-            });
-          }
-        });
+      return deferred.reject(new Error('email and password are required for basic authentication'));
     }
+
+    this.client.post('/auth/login')
+      .send({
+        'app_id': this.config.get('app_id'),
+        'email': data.email,
+        'password': data.password
+      })
+      .end((err, res) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve({
+            'token': res.body.data.token
+          });
+        }
+      });
+
     return deferred.promise;
   }
 
@@ -480,22 +491,22 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     let deferred = new DeferredPromise<void, Error>();
 
     if (!email) {
-      deferred.reject(new Error('Email is required for password reset request.'));
-    } else {
-      this.client.post('/users/password/reset')
-        .send({
-          'app_id': this.config.get('app_id'),
-          'email': email,
-          'flow': 'app'
-        })
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            deferred.resolve();
-          }
-        });
+      return deferred.reject(new Error('Email is required for password reset request.'));
     }
+
+    this.client.post('/users/password/reset')
+      .send({
+        'app_id': this.config.get('app_id'),
+        'email': email,
+        'flow': 'app'
+      })
+      .end((err, res) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve();
+        }
+      });
 
     return deferred.promise;
   }
@@ -504,28 +515,40 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
     let deferred = new DeferredPromise<void, Error>();
 
     if (!code || !email || !newPassword) {
-      deferred.reject(new Error('Code, new password, and email are required.'));
-    } else {
-      this.client.post('/users/password')
-        .send({
-          'reset_token': code,
-          'new_password': newPassword,
-          'email': email
-        })
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            deferred.resolve();
-          }
-        });
+      return deferred.reject(new Error('Code, new password, and email are required.'));
     }
+
+    this.client.post('/users/password')
+      .send({
+        'reset_token': code,
+        'new_password': newPassword,
+        'email': email
+      })
+      .end((err, res) => {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve();
+        }
+      });
 
     return deferred.promise;
   }
 
   public signup(data: UserDetails): Promise<void> {
     let deferred = new DeferredPromise<void, DetailedError<string[]>>();
+
+    if (data.email) {
+      if (!isValidEmail(data.email)) {
+        return deferred.reject(new DetailedError('Invalid email supplied.', ['invalid_email']));
+      }
+    } else {
+      return deferred.reject(new DetailedError('Email is required for email/password auth signup.', ['required_email']));
+    }
+
+    if (!data.password) {
+      return deferred.reject(new DetailedError('Password is required for email/password auth signup.', ['required_password']));
+    }
 
     var userData: any = {
       'app_id': this.config.get('app_id'),

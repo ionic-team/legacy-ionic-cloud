@@ -30,3 +30,6 @@ export { Push } from './push/push';
 export { PushMessage } from './push/message';
 export { Storage, LocalStorageStrategy, SessionStorageStrategy } from './storage';
 export { UserContext, User, SingleUserService } from './user/user';
+
+import { bootstrapAngular1 } from './angular';
+bootstrapAngular1();

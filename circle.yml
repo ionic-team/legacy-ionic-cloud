@@ -1,16 +1,22 @@
 # dependencies:
-#     pre:
-#         - ./scripts/docs/prepare.sh
-#     cache_directories:
-#         - "~/ionic-platform-docs" # cache ionic-site
+#   pre:
+#     - ./scripts/docs/prepare.sh
+#   cache_directories:
+#     - "~/ionic-platform-docs" # cache ionic-site
+
 machine:
-    node:
-        version: 4.1.0
+  node:
+    version: stable
+
 test:
-    override:
-        - gulp test
+  override:
+    - npm run lint
+    - npm run tsc:es5
+    - npm run version
+    - npm run test
+
 # deployment:
-#     tasks:
-#         branch: "master"
-#         commands:
-#             - ./scripts/docs/deploy.sh
+#   tasks:
+#     branch: "master"
+#     commands:
+#       - ./scripts/docs/deploy.sh

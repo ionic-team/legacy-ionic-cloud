@@ -25,14 +25,14 @@ describe("client", function() {
     tokenContext.store("token");
     var c = new Client(tokenContext, "url");
     var req = c.get('/test');
-    expect(req.get('Authorization')).toBe("Bearer token");
+    expect(req.getHeader('Authorization')).toBe("Bearer token");
     expect(req.url).toBe("url/test");
   });
 
   it("should supplement but not add auth header", function() {
     var c = new Client(tokenContext, "url");
     var req = c.get('/test');
-    expect(req.get('Authorization')).toBe(undefined);
+    expect(req.getHeader('Authorization')).toBe(undefined);
     expect(req.url).toBe("url/test");
   });
 
@@ -40,7 +40,7 @@ describe("client", function() {
     tokenContext.store("token");
     var c = new Client(tokenContext, 'url');
     var req = c.request('GET', '/test');
-    expect(req.get('Authorization')).toBe('Bearer token');
+    expect(req.getHeader('Authorization')).toBe('Bearer token');
     expect(req.url).toBe("url/test");
     expect(req.method).toBe("GET");
   });

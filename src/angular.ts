@@ -1,16 +1,28 @@
-// Angular 1 modules and factories for the bundle
+import { Container as DIContainer } from './di';
+import { EventEmitter } from './events';
+import { DeferredPromise } from './promise';
 
-if (typeof angular === 'object' && angular.module) {
+declare var angular;
+
+/**
+ * Angular 1 modules and factories for the bundle
+ */
+export function bootstrapAngular1() {
+  if (typeof angular === 'undefined') {
+    return; // No global angular--this is not an AngularJS project.
+  }
+
+  let container = new DIContainer();
 
   angular.element(document).ready(function() {
-    Ionic.core.init();
-    Ionic.cordova.bootstrap();
+    container.core.init();
+    container.cordova.bootstrap();
   });
 
   angular.module('ionic.cloud', [])
 
   .provider('$ionicCloudConfig', function() {
-    var config = Ionic.config;
+    var config = container.config;
 
     this.register = function(settings) {
       config.register(settings);
@@ -27,48 +39,47 @@ if (typeof angular === 'object' && angular.module) {
     };
 
     this.$get = [function() {
-      return Ionic.core;
+      return container.core;
     }];
   }])
 
   .factory('$ionicCloudClient', [function() {
-    return Ionic.client;
+    return container.client;
   }])
 
   .factory('$ionicUser', [function() {
-    return Ionic.singleUserService.current();
+    return container.singleUserService.current();
   }])
 
   .factory('$ionicAuth', [function() {
-    return Ionic.auth;
+    return container.auth;
   }])
 
   .factory('$ionicPush', [function() {
-    return Ionic.push;
+    return container.push;
   }])
 
   .factory('$ionicDeploy', [function() {
-    return Ionic.deploy;
+    return container.deploy;
   }])
 
   .run(['$window', '$q', '$rootScope', function($window, $q, $rootScope) {
     if (typeof $window.Promise === 'undefined') {
       $window.Promise = $q;
     } else {
-      var init = Ionic.Cloud.DeferredPromise.prototype.init;
+      var init = DeferredPromise.prototype.init;
 
-      Ionic.Cloud.DeferredPromise.prototype.init = function() {
+      DeferredPromise.prototype.init = function() {
         init.apply(this, arguments);
         this.promise = $q.when(this.promise);
       };
     }
 
-    var emit = Ionic.Cloud.EventEmitter.prototype.emit;
+    var emit = EventEmitter.prototype.emit;
 
-    Ionic.Cloud.EventEmitter.prototype.emit = function(name, data) {
+    EventEmitter.prototype.emit = function(name, data) {
       $rootScope.$broadcast('cloud:' + name, data);
       return emit.apply(this, arguments);
     };
   }]);
-
 }
