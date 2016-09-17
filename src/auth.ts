@@ -598,7 +598,7 @@ export abstract class NativeAuthType {
   /**
    * Get the raw auth token of the active user from local storage.
    */
-  public getToken(): string {
+  public getToken(): string | null {
     return this.tokenContext.get();
   }
 
@@ -621,10 +621,10 @@ export abstract class NativeAuthType {
 export class GoogleAuth extends NativeAuthType implements IGoogleAuth {
   public login(scope: GoogleScopes[]): Promise<any> {
     let deferred = new DeferredPromise<any, Error>();
-    const clientID = this.config.settings.auth.google.webClientId;
+    const authConfig = this.config.settings.auth;
 
-    if (!clientID) {
-      deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
+    if (!authConfig || !authConfig.google || !authConfig.google.webClientId) {
+      return deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
     }
 
     // Reqire basic profile data.
@@ -638,7 +638,7 @@ export class GoogleAuth extends NativeAuthType implements IGoogleAuth {
     }
 
     const scopes = scope.join(' ');
-    GooglePlus.login({'webClientId': clientID, 'offline': true, 'scopes': scopes}).then((success) => {
+    GooglePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scopes}).then((success) => {
       let request_object = {
         'app_id': this.config.get('app_id'),
         'access_token': success.oauthToken,
