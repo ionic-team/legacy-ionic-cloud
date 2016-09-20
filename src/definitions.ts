@@ -95,12 +95,20 @@ export interface CoreSettings {
   urls?: CloudSettingsUrls;
 }
 
-export interface NativeAuthOptions {
+export interface AuthOptions {
   /**
    * Your webClientId (aka, reverseId)
    */
   google: {
     webClientId: string;
+    scope: GoogleScope[];
+  };
+
+  /**
+   * Your facebook scopes.
+   */
+  facebook: {
+    scope: FacebookScope[];
   };
 }
 
@@ -127,7 +135,7 @@ export interface CloudSettings {
   /**
    * Settings for native auth.
    */
-  auth?: NativeAuthOptions;
+  auth?: AuthOptions;
 
   /**
    * Log settings.
@@ -682,12 +690,12 @@ export interface ICombinedTokenContext extends ITokenContext {
 /**
  * Facebook native login field permissions
  */
-export type FacebookScopes = 'basic' | 'public_profile' | 'email';
+export type FacebookScope = 'basic' | 'public_profile' | 'email';
 
 /**
  * Google native login field permissions.
  */
-export type GoogleScopes = 'profile' | 'email';
+export type GoogleScope = 'profile' | 'email';
 
 /**
  * These are the IDs of the valid [authentication
@@ -814,22 +822,17 @@ export interface IGoogleData {
 }
 
 /**
- * @hidden
- */
-export interface AuthOptions {}
-
-/**
  * Represents Facebook Auth, which uses native login via cordova-plugin-facebook4.
  */
 export interface IFacebookAuth {
-  login(scope: FacebookScopes[]): Promise<any>;
+  login(): Promise<any>;
 }
 
 /**
  * Represents Google Auth, which uses native login via cordova-plugin-googleplus.
  */
 export interface IGoogleAuth {
-  login(scope: GoogleScopes[]): Promise<any>;
+  login(): Promise<any>;
 }
 
 /**

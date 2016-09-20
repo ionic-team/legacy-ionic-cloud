@@ -1,18 +1,14 @@
 import { Facebook, FacebookLoginResponse, GooglePlus } from 'ionic-native';
 
 import {
-  APIResponseErrorDetails,
   AuthDependencies,
   AuthLoginOptions,
   AuthLoginResult,
   AuthModuleId,
-  AuthOptions,
   AuthTypeDependencies,
   NativeAuthDependencies,
   BasicLoginCredentials,
   CombinedTokenContextDependencies,
-  FacebookScopes,
-  GoogleScopes,
   IAuth,
   IAuthModules,
   IAuthType,
@@ -153,11 +149,6 @@ export class Auth implements IAuth {
 
   constructor(
     deps: AuthDependencies,
-
-    /**
-     * @hidden
-     */
-    public options: AuthOptions = {}
   ) {
     this.config = deps.config;
     this.emitter = deps.emitter;
@@ -579,7 +570,7 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
 /**
  * hidden
  */
-export abstract class NativeAuthType {
+export abstract class NativeAuth {
   protected config: IConfig;
   protected client: IClient;
   protected userService: ISingleUserService;
@@ -618,10 +609,11 @@ export abstract class NativeAuthType {
  * GoogleNativeAuth handles logging into googleplus through the cordova-plugin-googleplus plugin.'
  * @featured
  */
-export class GoogleAuth extends NativeAuthType implements IGoogleAuth {
-  public login(scope: GoogleScopes[]): Promise<any> {
+export class GoogleAuth extends NativeAuth implements IGoogleAuth {
+  public login(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>();
     const authConfig = this.config.settings.auth;
+    let scope = authConfig.google.scope || [];
 
     if (!authConfig || !authConfig.google || !authConfig.google.webClientId) {
       return deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
@@ -655,8 +647,8 @@ export class GoogleAuth extends NativeAuthType implements IGoogleAuth {
             this.userService.load().then(() => {
               let user = this.userService.current();
               user.store();
+              deferred.resolve();
             });
-            deferred.resolve();
           }
         });
     }, (err) => {
@@ -670,9 +662,11 @@ export class GoogleAuth extends NativeAuthType implements IGoogleAuth {
  * FacebookNative handles logging into facebook through the cordova-plugin-facebook4 plugin.
  * @featured
  */
-export class FacebookAuth extends NativeAuthType implements IFacebookAuth {
-  public login(scope: FacebookScopes[]): Promise<FacebookLoginResponse> {
+export class FacebookAuth extends NativeAuth implements IFacebookAuth {
+  public login(): Promise<FacebookLoginResponse> {
     let deferred = new DeferredPromise<FacebookLoginResponse, Error>();
+    const authConfig = this.config.settings.auth;
+    let scope = authConfig.facebook.scope || [];
 
     // Reqire basic profile data.
     if (scope.indexOf('public_profile') === -1) {
@@ -703,8 +697,8 @@ export class FacebookAuth extends NativeAuthType implements IFacebookAuth {
             this.userService.load().then(() => {
               let user = this.userService.current();
               user.store();
+              deferred.resolve();
             });
-            deferred.resolve();
           }
         });
     }, (err: Error) => {
@@ -717,7 +711,7 @@ export class FacebookAuth extends NativeAuthType implements IFacebookAuth {
 /**
  * @hidden
  */
-export class CustomAuth extends AuthType {
+export class CustomAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('custom', data, options);
   }
@@ -726,7 +720,7 @@ export class CustomAuth extends AuthType {
 /**
  * @hidden
  */
-export class TwitterAuth extends AuthType {
+export class TwitterAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('twitter', data, options);
   }
@@ -744,7 +738,7 @@ export class FacebookAuthType extends AuthType {
 /**
  * @hidden
  */
-export class GithubAuth extends AuthType {
+export class GithubAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('github', data, options);
   }
@@ -762,7 +756,7 @@ export class GoogleAuthType extends AuthType {
 /**
  * @hidden
  */
-export class InstagramAuth extends AuthType {
+export class InstagramAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('instagram', data, options);
   }
@@ -771,7 +765,7 @@ export class InstagramAuth extends AuthType {
 /**
  * @hidden
  */
-export class LinkedInAuth extends AuthType {
+export class LinkedInAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('linkedin', data, options);
   }
