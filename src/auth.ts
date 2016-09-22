@@ -1,6 +1,7 @@
 import { Facebook, FacebookLoginResponse, GooglePlus } from 'ionic-native';
 
 import {
+  APIResponseErrorDetails,
   AuthDependencies,
   AuthLoginOptions,
   AuthLoginResult,
@@ -450,7 +451,7 @@ export abstract class AuthType implements IAuthType {
 /**
  * @hidden
  */
-export class BasicAuth extends AuthType implements IBasicAuthType {
+export class BasicAuthType extends AuthType implements IBasicAuthType {
 
   public authenticate(data: BasicLoginCredentials, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     var deferred = new DeferredPromise<AuthLoginResult, Error>();
@@ -613,20 +614,17 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
   public login(): Promise<any> {
     let deferred = new DeferredPromise<any, Error>();
     const authConfig = this.config.settings.auth;
-    let scope = authConfig.google.scope || [];
 
     if (!authConfig || !authConfig.google || !authConfig.google.webClientId) {
       return deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
     }
 
-    // Reqire basic profile data.
-    if (scope.indexOf('profile') === -1) {
-      scope.push('profile');
-    }
-
-    // Require email scope.
-    if (scope.indexOf('email') === -1 ) {
-      scope.push('email');
+    // let scope = authConfig.facebook.scope ? authConfig.facebook.scope : [];
+    let scope = ['profile', 'email'];
+    if (authConfig.google.scope) {
+      authConfig.google.scope.forEach((item) => {
+        scope.push(item);
+      });
     }
 
     const scopes = scope.join(' ');
@@ -666,16 +664,12 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
   public login(): Promise<FacebookLoginResponse> {
     let deferred = new DeferredPromise<FacebookLoginResponse, Error>();
     const authConfig = this.config.settings.auth;
-    let scope = authConfig.facebook.scope || [];
-
-    // Reqire basic profile data.
-    if (scope.indexOf('public_profile') === -1) {
-      scope.push('public_profile');
-    }
-
-    // Require email scope.
-    if (scope.indexOf('email') === -1 ) {
-      scope.push('email');
+    // let scope = authConfig.facebook.scope ? authConfig.facebook.scope : [];
+    let scope = ['public_profile', 'email'];
+    if (authConfig.facebook.scope) {
+      authConfig.facebook.scope.forEach((item) => {
+        scope.push(item);
+      });
     }
 
     Facebook.login(scope).then((r: FacebookLoginResponse) => {

@@ -28,17 +28,17 @@ import {
 
 import {
   Auth,
-  BasicAuth,
+  BasicAuthType,
   CombinedAuthTokenContext,
-  CustomAuth,
+  CustomAuthType,
   FacebookAuth,
   FacebookAuthType,
-  GithubAuth,
+  GithubAuthType,
   GoogleAuth,
   GoogleAuthType,
-  InstagramAuth,
-  LinkedInAuth,
-  TwitterAuth
+  InstagramAuthType,
+  LinkedInAuthType,
+  TwitterAuthType
 } from './auth';
 
 import { Client } from './client';
@@ -180,14 +180,14 @@ export class Container {
   @cache
   public get authModules(): IAuthModules {
     return {
-      'basic': new BasicAuth({'config': this.config, 'client': this.client}),
-      'custom': new CustomAuth({'config': this.config, 'client': this.client}),
-      'twitter': new TwitterAuth({'config': this.config, 'client': this.client}),
+      'basic': new BasicAuthType({'config': this.config, 'client': this.client}),
+      'custom': new CustomAuthType({'config': this.config, 'client': this.client}),
+      'twitter': new TwitterAuthType({'config': this.config, 'client': this.client}),
       'facebook': new FacebookAuthType({'config': this.config, 'client': this.client}),
-      'github': new GithubAuth({'config': this.config, 'client': this.client}),
+      'github': new GithubAuthType({'config': this.config, 'client': this.client}),
       'google': new GoogleAuthType({'config': this.config, 'client': this.client}),
-      'instagram': new InstagramAuth({'config': this.config, 'client': this.client}),
-      'linkedin': new LinkedInAuth({'config': this.config, 'client': this.client})
+      'instagram': new InstagramAuthType({'config': this.config, 'client': this.client}),
+      'linkedin': new LinkedInAuthType({'config': this.config, 'client': this.client})
     };
   }
 
