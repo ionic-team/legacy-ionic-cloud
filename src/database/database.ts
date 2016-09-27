@@ -1,5 +1,5 @@
 import * as Horizon from '@horizon/client';
-import { DBSettings, IConfig, IEventEmitter, IClient, IStorage, DBDependencies, IDatabase } from '../definitions';
+import { DBSettings, IConfig, IEventEmitter, IClient, IStorage, DBDependencies } from '../definitions';
 
 
 type HorizonAuthType = 'anonymous' | 'token' | 'unauthenticated';
