@@ -1,6 +1,5 @@
 import * as Horizon from '@horizon/client';
 import { DBSettings, IConfig, IEventEmitter, IClient, IStorage, DBDependencies, IDatabase } from '../definitions';
-import { DeferredPromise } from '../promise';
 
 
 type HorizonAuthType = "anonymous" | "token" | "unauthenticated";
@@ -30,8 +29,8 @@ export class Database {
     this.client = deps.client;
     this.storage = deps.storage;
     this.emitter = deps.emitter;
-    let authType:HorizonAuthType = 'anonymous';
-    switch(settings.authType){
+    let authType: HorizonAuthType = 'anonymous';
+    switch (settings.authType) {
       case 'unauthenticated':
         authType = 'unauthenticated';
         break;
@@ -45,10 +44,10 @@ export class Database {
     this._hz_settings = {
       lazyWrites: settings.lazyWrites || false,
       authType: authType,
-      host: settings.host || 'db.ionic.io', //TODO: This will eventually be api.ionic.io!
+      host: settings.host || 'db.ionic.io', // TODO: This will eventually be api.ionic.io!
       path: settings.path || 'horizon/' + this.config.get('app_id') + '/horizon',
       secure: true
-    }; 
+    };
 
     if (settings.secure !== undefined) {
       this._hz_settings.secure = settings.secure;
@@ -60,18 +59,18 @@ export class Database {
   connect(): void {
     this.horizon = Horizon(this._hz_settings);
     this._registerListeners();
-    if(this.settings.authType === 'ionic'){
+    if (this.settings.authType === 'ionic') {
       this.client.post('/db/login')
       .end( (err, res) => {
-        if(err){
-           throw err; 
-        }else{
+        if (err) {
+           throw err;
+        }else {
           this.storage.set('horizon-jwt', res.body.data);
           this._retrying = false;
           this.horizon.connect();
         }
       });
-    }else{
+    }else {
       this._retrying = false;
       this.horizon.connect();
     }
@@ -84,7 +83,7 @@ export class Database {
     });
 
     this.horizon.onDisconnected( () => {
-      if(!this._retrying){
+      if (!this._retrying) {
         this._reconnect();
       }
     });
@@ -97,14 +96,14 @@ export class Database {
       let message = '';
       let remain = 0;
       let delay = 0;
-      if(!shouldRetry){
+      if (!shouldRetry) {
         message = 'Retry Limit Reached. Failed to connect to DB.';
         this.emitter.emit('db:connection-failed',
           {'message': message,
            'retrying': false
           }
         );
-      }else{
+      }else {
         remain = this.settings.retries - this._curr_retry;
         message = 'Retrying connection. Remaining attempts: ' + remain;
         delay = 50 * Math.pow(2, this._curr_retry);
@@ -122,4 +121,3 @@ export class Database {
   }
 
 }
-

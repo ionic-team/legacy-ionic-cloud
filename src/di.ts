@@ -232,7 +232,7 @@ export class Container {
     return new Database({
       'config': this.config,
       'client': this.client,
-      'storage': new Storage<any>({'strategy': this.localStorageStrategy}, {'prefix': ""}),
+      'storage': new Storage<any>({'strategy': this.localStorageStrategy}, {'prefix': ''}),
       'emitter': this.eventEmitter
     }, this.config.settings.database);
   }
