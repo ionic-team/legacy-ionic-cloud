@@ -32,6 +32,7 @@
     "superagent": "1.7.2"
   },
   "devDependencies": {
+    "babel-plugin-external-helpers": "^6.8.0",
     "browserify": "^13.1.0",
     "concurrently": "^2.2.0",
     "cpr": "^2.0.0",
