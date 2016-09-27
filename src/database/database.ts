@@ -2,7 +2,7 @@ import * as Horizon from '@horizon/client';
 import { DBSettings, IConfig, IEventEmitter, IClient, IStorage, DBDependencies, IDatabase } from '../definitions';
 
 
-type HorizonAuthType = "anonymous" | "token" | "unauthenticated";
+type HorizonAuthType = 'anonymous' | 'token' | 'unauthenticated';
 
 interface HorizonSettings {
   lazyWrites?: boolean;

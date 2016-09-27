@@ -86,7 +86,7 @@ export interface IDatabase {
  */
 export interface DBSettings {
   lazyWrites?: boolean;
-  authType?: "anonymous" | "ionic" | "unauthenticated" | "token";
+  authType?: 'anonymous' | 'ionic' | 'unauthenticated' | 'token';
   host?: string;
   path?: string;
   secure?: boolean;
