@@ -1,4 +1,4 @@
-import * as Horizon from '@horizon/client';
+import Horizon from '@horizon/client';
 import { DBSettings, IConfig, IEventEmitter, IClient, IStorage, DBDependencies } from '../definitions';
 
 

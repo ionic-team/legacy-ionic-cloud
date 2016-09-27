@@ -4,6 +4,6 @@ declare module "@horizon/client" {
   module Horizon {
     function clearAuthTokens(): any;
   }
-  export = Horizon;
+  export default Horizon;
 
 }

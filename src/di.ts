@@ -2,6 +2,7 @@ import { Device as NativeDevice } from 'ionic-native';
 
 import {
   AppStatus,
+  DBSettings,
   IAuth,
   IAuthModules,
   IClient,
@@ -233,12 +234,19 @@ export class Container {
 
   @cache
   get database(): IDatabase {
+    let config = this.config;
+    let c: DBSettings = {};
+
+    if (typeof config.settings !== 'undefined' && typeof config.settings.database !== 'undefined') {
+      c = config.settings.database;
+    }
+
     return new Database({
       'config': this.config,
       'client': this.client,
       'storage': new Storage<any>({'strategy': this.localStorageStrategy}, {'prefix': ''}),
       'emitter': this.eventEmitter
-    }, this.config.settings.database);
+    }, c);
   }
 
 }
