@@ -666,6 +666,10 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
     const authConfig = this.config.settings.auth;
     // let scope = authConfig.facebook.scope ? authConfig.facebook.scope : [];
     let scope = ['public_profile', 'email'];
+
+    if (!authConfig || !authConfig.facebook) {
+      return deferred.reject(new Error('Missing Facebook authConfig.'));
+    }
     if (authConfig.facebook.scope) {
       authConfig.facebook.scope.forEach((item) => {
         scope.push(item);
