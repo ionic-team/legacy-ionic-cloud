@@ -176,15 +176,21 @@ export class Container {
 
   @cache
   public get authModules(): IAuthModules {
+    let authModuleDeps = {
+      'config': this.config,
+      'client': this.client,
+      'emitter': this.eventEmitter
+    };
+
     return {
-      'basic': new BasicAuth({'config': this.config, 'client': this.client}),
-      'custom': new CustomAuth({'config': this.config, 'client': this.client}),
-      'twitter': new TwitterAuth({'config': this.config, 'client': this.client}),
-      'facebook': new FacebookAuth({'config': this.config, 'client': this.client}),
-      'github': new GithubAuth({'config': this.config, 'client': this.client}),
-      'google': new GoogleAuth({'config': this.config, 'client': this.client}),
-      'instagram': new InstagramAuth({'config': this.config, 'client': this.client}),
-      'linkedin': new LinkedInAuth({'config': this.config, 'client': this.client})
+      'basic': new BasicAuth(authModuleDeps),
+      'custom': new CustomAuth(authModuleDeps),
+      'twitter': new TwitterAuth(authModuleDeps),
+      'facebook': new FacebookAuth(authModuleDeps),
+      'github': new GithubAuth(authModuleDeps),
+      'google': new GoogleAuth(authModuleDeps),
+      'instagram': new InstagramAuth(authModuleDeps),
+      'linkedin': new LinkedInAuth(authModuleDeps)
     };
   }
 

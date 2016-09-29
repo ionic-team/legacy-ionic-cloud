@@ -352,10 +352,12 @@ export class Auth implements IAuth {
 export abstract class AuthType implements IAuthType {
   protected config: IConfig;
   protected client: IClient;
+  protected emitter: IEventEmitter;
 
   constructor(deps: AuthTypeDependencies) {
     this.config = deps.config;
     this.client = deps.client;
+    this.emitter = deps.emitter;
   }
 
   public abstract authenticate(data?: Object, options?: AuthLoginOptions): Promise<AuthLoginResult>;
@@ -389,60 +391,68 @@ export abstract class AuthType implements IAuthType {
   ): Promise<AuthLoginResult> {
     let deferred = new DeferredPromise<AuthLoginResult, Error>();
 
-    if (!window || !window.cordova || !window.cordova.InAppBrowser) {
-      return deferred.reject(new Error('InAppBrowser plugin missing'));
+
+    if (!window || !window.cordova) {
+      return deferred.reject(new Error('Cordova is missing--can\'t login with InAppBrowser flow.'));
     }
 
-    this.client.post(`/auth/login/${moduleId}`)
-      .send({
-        'app_id': this.config.get('app_id'),
-        'callback': window.location.href,
-        'data': data
-      })
-      .end((err, res) => {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          let w = window.cordova.InAppBrowser.open(
-            res.body.data.url,
-            '_blank',
-            this.parseInAppBrowserOptions(options.inAppBrowserOptions)
-          );
+    this.emitter.once('cordova:deviceready', () => {
+      if (!window.cordova.InAppBrowser) {
+        deferred.reject(new Error('InAppBrowser plugin missing'));
+        return;
+      }
 
-          let onExit = () => {
-            deferred.reject(new Error('InAppBrowser exit'));
-          };
+      this.client.post(`/auth/login/${moduleId}`)
+        .send({
+          'app_id': this.config.get('app_id'),
+          'callback': window.location.href,
+          'data': data
+        })
+        .end((err, res) => {
+          if (err) {
+            deferred.reject(err);
+          } else {
+            let w = window.cordova.InAppBrowser.open(
+              res.body.data.url,
+              '_blank',
+              this.parseInAppBrowserOptions(options.inAppBrowserOptions)
+            );
 
-          let onLoadError = () => {
-            deferred.reject(new Error('InAppBrowser loaderror'));
-          };
+            let onExit = () => {
+              deferred.reject(new Error('InAppBrowser exit'));
+            };
 
-          let onLoadStart = (data) => {
-            if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
-              let queryString = data.url.split('#')[0].split('?')[1];
-              let paramParts = queryString.split('&');
-              let params = {};
-              for (let i = 0; i < paramParts.length; i++) {
-                let part = paramParts[i].split('=');
-                params[part[0]] = part[1];
+            let onLoadError = () => {
+              deferred.reject(new Error('InAppBrowser loaderror'));
+            };
+
+            let onLoadStart = (data) => {
+              if (data.url.slice(0, 20) === 'http://auth.ionic.io') {
+                let queryString = data.url.split('#')[0].split('?')[1];
+                let paramParts = queryString.split('&');
+                let params = {};
+                for (let i = 0; i < paramParts.length; i++) {
+                  let part = paramParts[i].split('=');
+                  params[part[0]] = part[1];
+                }
+
+                w.removeEventListener('exit', onExit);
+                w.removeEventListener('loaderror', onLoadError);
+                w.close();
+
+                deferred.resolve({
+                  'token': params['token'],
+                  'signup': Boolean(parseInt(params['signup'], 10))
+                });
               }
+            };
 
-              w.removeEventListener('exit', onExit);
-              w.removeEventListener('loaderror', onLoadError);
-              w.close();
-
-              deferred.resolve({
-                'token': params['token'],
-                'signup': Boolean(parseInt(params['signup'], 10))
-              });
-            }
-          };
-
-          w.addEventListener('exit', onExit);
-          w.addEventListener('loaderror', onLoadError);
-          w.addEventListener('loadstart', onLoadStart);
-        }
-      });
+            w.addEventListener('exit', onExit);
+            w.addEventListener('loaderror', onLoadError);
+            w.addEventListener('loadstart', onLoadStart);
+          }
+        });
+    });
 
     return deferred.promise;
   }

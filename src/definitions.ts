@@ -683,6 +683,7 @@ export type AuthModuleId = 'basic' | 'custom' | 'facebook' | 'github' | 'google'
 export interface AuthTypeDependencies {
   config: IConfig;
   client: IClient;
+  emitter: IEventEmitter;
 }
 
 /**
