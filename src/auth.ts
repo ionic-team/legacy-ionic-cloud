@@ -575,9 +575,9 @@ export abstract class NativeAuth {
   protected config: IConfig;
   protected client: IClient;
   protected userService: ISingleUserService;
-  private tokenContext: ICombinedTokenContext;
-  private emitter: IEventEmitter;
-  private authToken: string;
+  protected tokenContext: ICombinedTokenContext;
+  protected emitter: IEventEmitter;
+  protected authToken: string;
 
   constructor(deps: NativeAuthDependencies) {
     this.config = deps.config;
@@ -627,30 +627,37 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
       });
     }
 
-    const scopes = scope.join(' ');
-    GooglePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scopes}).then((success) => {
-      let request_object = {
-        'app_id': this.config.get('app_id'),
-        'access_token': success.oauthToken,
-        'additional_fields': scopes,
-        'flow': 'googleplus'
-      };
-      this.client.post('/auth/login/google')
-        .send(request_object)
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            this.storeToken(res.body.data.token);
-            this.userService.load().then(() => {
-              let user = this.userService.current();
-              user.store();
-              deferred.resolve();
-            });
-          }
-        });
-    }, (err) => {
-      deferred.reject(err);
+    // TODO: check if cordova exists
+
+    this.emitter.once('cordova:deviceready', () => {
+      if (!GooglePlus) {
+        // deferred.reject
+        return;
+      }
+      GooglePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scope.join(' ')}).then((success) => {
+        let request_object = {
+          'app_id': this.config.get('app_id'),
+          'access_token': success.oauthToken,
+          'additional_fields': scope,
+          'flow': 'native-mobile'
+        };
+        this.client.post('/auth/login/google')
+          .send(request_object)
+          .end((err, res) => {
+            if (err) {
+              deferred.reject(err);
+            } else {
+              this.storeToken(res.body.data.token);
+              this.userService.load().then(() => {
+                let user = this.userService.current();
+                user.store();
+                deferred.resolve();
+              });
+            }
+          });
+      }, (err) => {
+        deferred.reject(err);
+      });
     });
     return deferred.promise;
   }
@@ -676,31 +683,41 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
       });
     }
 
-    Facebook.login(scope).then((r: FacebookLoginResponse) => {
-      scope.splice(scope.indexOf('public_profile'), 1);
-      const request_object = {
-        'app_id': this.config.get('app_id'),
-        'access_token': r.authResponse.accessToken,
-        'additional_fields': scope.join(','),
-        'flow': 'facebook4'
-      };
+    // TODO: check if cordova exists
 
-      this.client.post('/auth/login/facebook')
-        .send(request_object)
-        .end((err, res) => {
-          if (err) {
-            deferred.reject(err);
-          } else {
-            this.storeToken(res.body.data.token);
-            this.userService.load().then(() => {
-              let user = this.userService.current();
-              user.store();
-              deferred.resolve();
-            });
-          }
-        });
-    }, (err: Error) => {
-      deferred.reject(err);
+    this.emitter.once('cordova:deviceready', () => {
+      if (!Facebook) {
+        // deferred.reject
+        return; // TODO: nice message about facebook plugin not being installed
+      }
+
+      Facebook.login(scope).then((r: FacebookLoginResponse) => {
+        scope.splice(scope.indexOf('public_profile'), 1);
+        const request_object = {
+          'app_id': this.config.get('app_id'),
+          'access_token': r.authResponse.accessToken,
+          // id,name,email,picture,first_name,last_name
+          'additional_fields': scope,
+          'flow': 'native-mobile'
+        };
+
+        this.client.post('/auth/login/facebook')
+          .send(request_object)
+          .end((err, res) => {
+            if (err) {
+              deferred.reject(err);
+            } else {
+              this.storeToken(res.body.data.token);
+              this.userService.load().then(() => {
+                let user = this.userService.current();
+                user.store();
+                deferred.resolve();
+              });
+            }
+          });
+      }, (err: Error) => {
+        deferred.reject(err);
+      });
     });
     return deferred.promise;
   }

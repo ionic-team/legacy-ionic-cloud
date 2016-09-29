@@ -699,12 +699,12 @@ export interface ICombinedTokenContext extends ITokenContext {
 /**
  * Facebook native login field permissions
  */
-export type FacebookScope = 'basic' | 'public_profile' | 'email';
+export type FacebookScope = 'user_birthday' | 'user_about_me' | 'user_hometown' | 'user_website' | string;
 
 /**
  * Google native login field permissions.
  */
-export type GoogleScope = 'profile' | 'email';
+export type GoogleScope = 'profile' | 'email' | string;
 
 /**
  * These are the IDs of the valid [authentication
