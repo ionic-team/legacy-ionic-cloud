@@ -134,6 +134,7 @@ export class Container {
       'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
       'config': this.config,
       'client': this.client,
+      'device': this.device,
       'logger': this.logger
     });
   }
