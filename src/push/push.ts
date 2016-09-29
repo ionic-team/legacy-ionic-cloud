@@ -21,7 +21,6 @@ import { DeferredPromise } from '../promise';
 import { PushMessage } from './message';
 
 declare var window: any;
-declare var PushNotification: any;
 
 interface ServiceTokenData {
   token: string;

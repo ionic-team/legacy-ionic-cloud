@@ -13,7 +13,6 @@ import {
 import { DeferredPromise } from '../promise';
 
 declare var window: any;
-declare var IonicDeploy: any;
 
 const NO_PLUGIN = new Error('Missing deploy plugin: `ionic-plugin-deploy`');
 

@@ -8,8 +8,6 @@ import {
   ILogger
 } from './definitions';
 
-declare var cordova: any;
-
 /**
  * @hidden
  */
