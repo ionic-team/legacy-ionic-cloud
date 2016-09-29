@@ -615,18 +615,6 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
     let deferred = new DeferredPromise<any, Error>();
     const authConfig = this.config.settings.auth;
 
-    if (!authConfig || !authConfig.google || !authConfig.google.webClientId) {
-      return deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
-    }
-
-    // let scope = authConfig.facebook.scope ? authConfig.facebook.scope : [];
-    let scope = ['profile', 'email'];
-    if (authConfig.google.scope) {
-      authConfig.google.scope.forEach((item) => {
-        scope.push(item);
-      });
-    }
-
     // TODO: check if cordova exists
 
     this.emitter.once('cordova:deviceready', () => {
@@ -634,6 +622,20 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
         // deferred.reject
         return;
       }
+
+      if (!authConfig || !authConfig.google || !authConfig.google.webClientId) {
+        deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
+        return;
+      }
+
+      // let scope = authConfig.facebook.scope ? authConfig.facebook.scope : [];
+      let scope = ['profile', 'email'];
+      if (authConfig.google.scope) {
+        authConfig.google.scope.forEach((item) => {
+          scope.push(item);
+        });
+      }
+
       GooglePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scope.join(' ')}).then((success) => {
         let request_object = {
           'app_id': this.config.get('app_id'),

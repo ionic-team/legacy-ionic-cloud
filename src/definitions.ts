@@ -108,15 +108,15 @@ export interface AuthOptions {
   /**
    * Your webClientId (aka, reverseId)
    */
-  google: {
+  google?: {
     webClientId: string;
-    scope: GoogleScope[];
+    scope?: GoogleScope[];
   };
 
   /**
    * Your facebook scopes.
    */
-  facebook: {
+  facebook?: {
     scope: FacebookScope[];
   };
 }
