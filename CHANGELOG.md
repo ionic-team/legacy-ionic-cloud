@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.0
+
+* **(breaking)** Move to Typescript 2.0
+* Add Push Plugin error handling
+  (https://github.com/driftyco/ionic-cloud/pull/47)
+* Always include `registered` and `saved` boolean values in push token
+  (https://github.com/driftyco/ionic-cloud/issues/48)
+* Client-side validation for email/password signups
+  (https://github.com/driftyco/ionic-cloud/commit/dd468e785110670b847b61649e1604f3bf35d382)
+
 ## 0.9.0
 
 * Fix deploy extract boolean--promise resolves/rejects properly.

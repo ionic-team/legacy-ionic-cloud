@@ -1,6 +1,15 @@
 import { Device as NativeDevice } from 'ionic-native';
 
 /**
+ * @hidden
+ */
+export interface SemanticVersion {
+  major: number;
+  minor?: number;
+  patch?: number;
+}
+
+/**
  * Represents [`DetailedError`](/api/client/detailederror/).
  */
 export interface IDetailedError<D> extends Error {
@@ -1398,6 +1407,7 @@ export interface InsightsDependencies {
   storage: IStorage<string>;
   config: IConfig;
   client: IClient;
+  device: IDevice;
   logger: ILogger;
 }
 
@@ -1405,8 +1415,8 @@ export interface InsightsDependencies {
  * @hidden
  */
 export interface InsightsOptions {
-  intervalSubmit?: number;
-  intervalActiveCheck?: number;
+  intervalSubmit?: number | boolean;
+  intervalActiveCheck?: number | boolean;
   submitCount?: number;
 }
 
