@@ -19,14 +19,14 @@ describe("stat", function() {
   });
 
   it("should serialize", function() {
-    var baseTime = new Date(2016, 9, 28);
+    var baseTime = new Date('2016-09-28T00:00:00.000Z');
     jasmine.clock().mockDate(baseTime);
     var stat = new insights.Stat('abcd', 'name');
     expect(stat.toJSON()).toEqual({
       'app_id': 'abcd',
       'stat': 'name',
       'value': 1,
-      'created': '2016-10-28T05:00:00.000Z'
+      'created': '2016-09-28T00:00:00.000Z'
     });
   });
 
