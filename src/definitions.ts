@@ -702,9 +702,9 @@ export interface ICombinedTokenContext extends ITokenContext {
 export type FacebookScope = 'user_birthday' | 'user_about_me' | 'user_hometown' | 'user_website' | string;
 
 /**
- * Google native login field permissions.
+ * Google native login field permissions. Note that we already include email and profile by default.
  */
-export type GoogleScope = 'profile' | 'email' | string;
+export type GoogleScope = string;
 
 /**
  * These are the IDs of the valid [authentication

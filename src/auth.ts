@@ -628,7 +628,6 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
         return;
       }
 
-      // let scope = authConfig.facebook.scope ? authConfig.facebook.scope : [];
       let scope = ['profile', 'email'];
       if (authConfig.google.scope) {
         authConfig.google.scope.forEach((item) => {
@@ -637,12 +636,17 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
       }
 
       GooglePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scope.join(' ')}).then((success) => {
+        if (!success.serverAuthCode) {
+          deferred.reject(new Error('Failed to retrieve offline access token.');
+          return;
+        }
         let request_object = {
           'app_id': this.config.get('app_id'),
-          'access_token': success.oauthToken,
+          'serverAuthCode': success.serverAuthCode,
           'additional_fields': scope,
           'flow': 'native-mobile'
         };
+
         this.client.post('/auth/login/google')
           .send(request_object)
           .end((err, res) => {
