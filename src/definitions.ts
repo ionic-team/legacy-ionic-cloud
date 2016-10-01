@@ -1,4 +1,5 @@
 import { Device as NativeDevice } from 'ionic-native';
+import { Observable } from 'rxjs';
 
 /**
  * Represents [`DetailedError`](/api/client/detailederror/).
@@ -78,21 +79,85 @@ export interface DBDependencies {
   emitter: IEventEmitter;
 }
 
-export interface IDatabase {
-  horizon: any;
-  connect(): void;
+
+/**
+ * Horizon Type defs
+ *
+ */
+export interface Feed {
+    watch (options?: { rawChanges: boolean }): Observable<any>;
+    fetch (): Observable<any>;
+}
+
+export type Bound = 'open' | 'closed';
+export type Primitive = boolean | number | string | Date;
+export type IdValue = Primitive | Primitive[] | Object;
+export type WriteOp = Object | Object[];
+
+export interface TermBase extends Feed {
+    find (value: IdValue): TermBase;
+    findAll (...values: IdValue[]): TermBase;
+
+    order (...fields: string[]): TermBase;
+    limit (size: Number): TermBase;
+    above (spec: any, bound?: Bound): TermBase;
+    below (spec: any, bound?: Bound): TermBase;
+}
+
+export interface Collection extends TermBase {
+    store (docs: WriteOp): Observable<any>;
+    upsert (docs: WriteOp): Observable<any>;
+    insert (docs: WriteOp): Observable<any>;
+    replace (docs: WriteOp): Observable<any>;
+    update (docs: WriteOp): Observable<any>;
+
+    remove (docs: IdValue): Observable<any>;
+    removeAll (docs: IdValue[]): Observable<any>;
+}
+
+export interface User extends Feed {}
+
+export interface HorizonInstance {
+    (name: string): Collection;
+
+    currentUser (): User;
+
+    hasAuthToken (): boolean;
+    authEndpoint (name: string): Observable<string>;
+
+    aggregate (aggs: any): TermBase;
+    model (fn: Function): TermBase;
+
+    disconnect (): void;
+    connect (): void;
+
+    status (): Observable<any>;
+    onReady (): Observable<any>;
+    onDisconnected (): Observable<any>;
+    onSocketError (): Observable<any>;
+}
+
+export interface HorizonOptions {
+    host?: string;
+    path?: string;
+    secure?: boolean;
+
+    authType?: string;
+    lazyWrites?: boolean;
+    keepalive?: number;
+
+    WebSocketCtor?: any;
 }
 
 /**
- * Settings for Ionic DB
+ * Settings for IonicDB
  */
-export interface DBSettings {
-  lazyWrites?: boolean;
+export interface DBSettings extends HorizonOptions {
   authType?: 'anonymous' | 'ionic' | 'unauthenticated' | 'token';
-  host?: string;
-  path?: string;
-  secure?: boolean;
-  retries?: number;
+}
+
+export interface IDatabase {
+  horizon: HorizonInstance;
 }
 
 /**
