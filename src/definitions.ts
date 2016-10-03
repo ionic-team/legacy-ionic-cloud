@@ -158,6 +158,7 @@ export interface DBSettings extends HorizonOptions {
 
 export interface IDatabase {
   horizon: HorizonInstance;
+  _wrap_with(Function): void;
 }
 
 /**

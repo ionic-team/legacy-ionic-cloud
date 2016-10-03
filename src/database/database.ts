@@ -64,7 +64,7 @@ class TermBaseWrapper implements TermBase {
     for (let query in this.query_map) {
       q = q[this.query_map[query].name].apply(q, this.query_map[query].args);
     }
-    return q.fetch();
+    return q.fetch().do(() => this.db_internals.$apply());
   }
 
   watch(options?: { rawChanges: boolean }): Observable<any> {
@@ -75,7 +75,7 @@ class TermBaseWrapper implements TermBase {
                   (data) => { subscriber.error(data); },
                   () => { subscriber.complete(); });
       this.db_internals.subscriber.next(this.db_internals.hz);
-    });
+    }).do(() => this.db_internals.$apply());
   }
 
   private _query_builder(query_map: QueryOperation[], table: string, options?: { rawChanges: boolean }): any {
@@ -97,18 +97,19 @@ class UserWrapper implements User {
   }
 
   fetch(): Observable<any> {
-    return this.db_internals.hz.currentUser().fetch();
+    return this.db_internals.hz.currentUser().fetch().do(() => this.db_internals.$apply());
   }
 
   watch(options?: { rawChanges: boolean }): Observable<any> {
     return Observable.create( subscriber => {
       this.db_internals.hzReconnector.distinctUntilChanged()
       .switchMap( (hz) => { return hz.currentUser().watch(options); })
+      .do(() => this.db_internals.$apply())
       .subscribe( (data) => { subscriber.next(data); },
                   (data) => { subscriber.error(data); },
                   () => { subscriber.complete(); });
       this.db_internals.subscriber.next(this.db_internals.hz);
-    });
+    }).do(() => this.db_internals.$apply());
   }
 }
 
@@ -173,6 +174,9 @@ interface IDBInternals {
   error_sub?: Observer<any>;
   status_sub?: Observer<any>;
   hz: HorizonInstance;
+  $timeout?: Function;
+  wrap_with(Function): void;
+  $apply(): void;
 }
 
 class DBInternals implements IDBInternals {
@@ -194,6 +198,7 @@ class DBInternals implements IDBInternals {
   error_sub?: Observer<any>;
   status_sub?: Observer<any>;
   hz: HorizonInstance;
+  $timeout?: Function;
 
   constructor(deps: DBDependencies, hz_options: HorizonOptions) {
     this.config = deps.config;
@@ -259,6 +264,16 @@ class DBInternals implements IDBInternals {
     this._new_horizon();
     this.subscriber.next(this.hz);
     this.hz.connect();
+  }
+
+  wrap_with($timeout: Function): void {
+    this.$timeout = $timeout;
+  }
+
+  $apply(): void {
+    if (this.$timeout) {
+      this.$timeout( () => { return; }, 0);
+    }
   }
 
 }
@@ -334,7 +349,7 @@ class Database {
       .switchMap( (hz) => { return hz.authEndpoint(name); })
       .subscribe( (data) => { subscriber.next(data); });
       this._internals.subscriber.next(this._internals.hz);
-    });
+    }).do(() => this._internals.$apply());
   }
 
   aggregate(aggs: any): TermBase {
@@ -361,12 +376,17 @@ class Database {
     return this._subOrObserve(this._internals.onSocketError).apply(this, arguments);
   }
 
+  wrap_with($timeout: Function): void {
+    this._internals.wrap_with($timeout);
+  }
+
+
   private _subOrObserve(observable: Observable<any>): Function {
     return function(next?: (value: any) => void, error?: (error: any) => void, complete?: () => void): Observable<any> | Subscription {
       if (arguments.length > 0) {
-        return observable.subscribe(next, error, complete);
+        return observable.do(() => this._internals.$apply()).subscribe(next, error, complete);
       } else {
-        return observable;
+        return observable.do(() => this._internals.$apply());
       }
     };
   }
@@ -391,5 +411,10 @@ export class IonicDB {
     hz.onDisconnected = this._db.onDisconnected.bind(this._db);
     hz.onSocketError = this._db.onSocketError.bind(this._db);
     this.horizon = hz;
+  }
+
+
+  _wrap_with($timeout): void {
+    this._db.wrap_with($timeout);
   }
 }
