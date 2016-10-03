@@ -157,8 +157,8 @@ export interface DBSettings extends HorizonOptions {
 }
 
 export interface IDatabase {
-  horizon: HorizonInstance;
-  _wrap_with(Function): void;
+  hz: HorizonInstance;
+  _wrap_with($timeout: Function, $stringify: Function): void;
 }
 
 /**

@@ -64,7 +64,7 @@ export function bootstrapAngular1() {
   }])
 
   .factory('$ionicDatabase', ['$timeout', function($timeout) {
-    container.database._wrap_with($timeout);
+    container.database._wrap_with($timeout, angular.toJson);
     return container.database;
   }])
 
