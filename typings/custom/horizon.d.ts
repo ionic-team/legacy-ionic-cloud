@@ -43,10 +43,10 @@ declare module '@horizon/client' {
       authEndpoint (name: string): Observable<string>;
 
       aggregate (aggs: any): TermBase;
-      model (fn: Function): TermBase;
+      model (fn: Function): Function;
 
       disconnect (): void;
-      connect (): void;
+      connect (): Promise<any>;
 
       status (): Observable<any>;
       onReady (): Observable<any>;

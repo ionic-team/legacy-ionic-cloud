@@ -2,6 +2,7 @@ import { Collection, HorizonOptions, HorizonInstance, TermBase, User }  from '..
 import Horizon from '@horizon/client';
 import { Observable, Observer, Subscription } from 'rxjs';
 import { DBSettings, IConfig, IEventEmitter, IClient, IStorage, DBDependencies } from '../definitions';
+import { DeferredPromise } from '../promise';
 
 
 type HorizonAuthType = 'anonymous' | 'token' | 'unauthenticated';
@@ -165,7 +166,6 @@ interface IDBInternals {
   emitter: IEventEmitter;
   storage: IStorage<string>;
   hz_settings: HorizonOptions;
-  connect_called: boolean;
   hzReconnector: Observable<any>;
   onDisconnect: Observable<any>;
   onReady: Observable<any>;
@@ -191,7 +191,6 @@ class DBInternals implements IDBInternals {
   emitter: IEventEmitter;
   storage: IStorage<string>;
   hz_settings: HorizonOptions;
-  connect_called: boolean;
   hzReconnector: Observable<any>;
   onDisconnect: Observable<any>;
   onReady: Observable<any>;
@@ -212,7 +211,6 @@ class DBInternals implements IDBInternals {
     this.storage = deps.storage;
     this.emitter = deps.emitter;
     this.hz_settings = hz_options;
-    this.connect_called = false;
 
     this._new_horizon();
 
@@ -328,20 +326,24 @@ class Database {
     return new CollectionWrapper(name, this._internals);
   }
 
-  connect(): void {
+  connect(): Promise<any> {
+    let p = new DeferredPromise();
     if (this.settings.authType === 'ionic') {
       this._internals.client.post('/db/login')
       .end( (err, res) => {
         if (err) {
-           throw err;
+          p.reject(err);
         }else {
           this._internals.storage.set('horizon-jwt', res.body.data);
           this._internals.hz.connect();
+          p.resolve();
         }
       });
     }else {
       this._internals.hz.connect();
+      p.resolve();
     }
+    return p.promise;
   }
 
   disconnect(): void {
@@ -372,7 +374,7 @@ class Database {
     return this._internals.hz.aggregate(aggs);
   }
 
-  model(fn: Function): TermBase {
+  model(fn: Function): Function {
     return this._internals.hz.model(fn);
   }
 
