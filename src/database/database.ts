@@ -70,7 +70,7 @@ class TermBaseWrapper implements TermBase {
     if (this.term.table) {
       q = this.db_internals.hz(this.term.table);
     } else {
-      q = this.db_internals.hz[this.term.fnc].apply(this.term.args);
+      q = this.db_internals.hz[this.term.fnc].apply(this.db_internals.hz, this.term.args);
     }
     for (let query in this.query_map) {
       q = q[this.query_map[query].name].apply(q, this.query_map[query].args);
@@ -82,7 +82,9 @@ class TermBaseWrapper implements TermBase {
     return Observable.create( subscriber => {
       this.db_internals.hzReconnector.distinctUntilChanged()
       .switchMap(this._query_builder(this.query_map, this.term, options))
-      .subscribe( (data) => { subscriber.next(data); });
+      .subscribe( (data) => { subscriber.next(data); },
+                  (data) => { subscriber.error(data); },
+                  () => { subscriber.complete(); });
       this.db_internals.subscriber.next(this.db_internals.hz);
     });
   }
@@ -93,7 +95,7 @@ class TermBaseWrapper implements TermBase {
       if (term.table) {
         q = hz(term.table);
       } else {
-        q = hz[term.fnc].apply(term.args);
+        q = hz[term.fnc].apply(hz, term.args);
       }
       for (let query in query_map) {
         q = q[query_map[query].name].apply(q, query_map[query].args);
@@ -118,7 +120,9 @@ class UserWrapper implements User {
     return Observable.create( subscriber => {
       this.db_internals.hzReconnector.distinctUntilChanged()
       .switchMap( (hz) => { return hz.currentUser().watch(options); })
-      .subscribe( (data) => { subscriber.next(data); });
+      .subscribe( (data) => { subscriber.next(data); },
+                  (data) => { subscriber.error(data); },
+                  () => { subscriber.complete(); });
       this.db_internals.subscriber.next(this.db_internals.hz);
     });
   }
@@ -352,11 +356,11 @@ class Database {
   }
 
   aggregate(aggs: any): TermBase {
-    return new TermBaseWrapper({fnc: 'aggregate', args: arguments}, this._internals);
+    return this._internals.hz.aggregate(aggs);
   }
 
   model(fn: Function): TermBase {
-    return new TermBaseWrapper({fnc: 'model', args: arguments}, this._internals);
+    return this._internals.hz.model(fn);
   }
 
   status(): Observable<any> | Subscription {
