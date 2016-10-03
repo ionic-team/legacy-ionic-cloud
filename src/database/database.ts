@@ -12,66 +12,55 @@ interface QueryOperation {
   args: IArguments;
 }
 
-interface TermType {
-  table?: string;
-  fnc: string;
-  args?: IArguments;
-}
-
 class TermBaseWrapper implements TermBase {
-  term: TermType;
+  table: string;
   db_internals: IDBInternals;
   query_map: QueryOperation[];
 
-  constructor(term: TermType, internal: IDBInternals, query?: QueryOperation[]) {
+  constructor(table: string, internal: IDBInternals, query?: QueryOperation[]) {
     this.db_internals = internal;
-    this.term = term;
+    this.table = table;
     this.query_map = query || [];
   }
 
   find(): TermBaseWrapper {
     let new_map = this.query_map.slice();
     new_map.push({name: 'find', args: arguments});
-    return new TermBaseWrapper(this.term, this.db_internals, new_map);
+    return new TermBaseWrapper(this.table, this.db_internals, new_map);
   }
 
   findAll(): TermBaseWrapper {
     let new_map = this.query_map.slice();
     new_map.push({name: 'findAll', args: arguments});
-    return new TermBaseWrapper(this.term, this.db_internals, new_map);
+    return new TermBaseWrapper(this.table, this.db_internals, new_map);
   }
 
   order(): TermBaseWrapper {
     let new_map = this.query_map.slice();
     new_map.push({name: 'order', args: arguments});
-    return new TermBaseWrapper(this.term, this.db_internals, new_map);
+    return new TermBaseWrapper(this.table, this.db_internals, new_map);
   }
 
   limit(): TermBaseWrapper {
     let new_map = this.query_map.slice();
     new_map.push({name: 'limit', args: arguments});
-    return new TermBaseWrapper(this.term, this.db_internals, new_map);
+    return new TermBaseWrapper(this.table, this.db_internals, new_map);
   }
 
   above(): TermBaseWrapper {
     let new_map = this.query_map.slice();
     new_map.push({name: 'above', args: arguments});
-    return new TermBaseWrapper(this.term, this.db_internals, new_map);
+    return new TermBaseWrapper(this.table, this.db_internals, new_map);
   }
 
   below(): TermBaseWrapper {
     let new_map = this.query_map.slice();
     new_map.push({name: 'below', args: arguments});
-    return new TermBaseWrapper(this.term, this.db_internals, new_map);
+    return new TermBaseWrapper(this.table, this.db_internals, new_map);
   }
 
   fetch(): Observable<any> {
-    let q: any;
-    if (this.term.table) {
-      q = this.db_internals.hz(this.term.table);
-    } else {
-      q = this.db_internals.hz[this.term.fnc].apply(this.db_internals.hz, this.term.args);
-    }
+    let q = this.db_internals.hz(this.table);
     for (let query in this.query_map) {
       q = q[this.query_map[query].name].apply(q, this.query_map[query].args);
     }
@@ -81,7 +70,7 @@ class TermBaseWrapper implements TermBase {
   watch(options?: { rawChanges: boolean }): Observable<any> {
     return Observable.create( subscriber => {
       this.db_internals.hzReconnector.distinctUntilChanged()
-      .switchMap(this._query_builder(this.query_map, this.term, options))
+      .switchMap(this._query_builder(this.query_map, this.table, options))
       .subscribe( (data) => { subscriber.next(data); },
                   (data) => { subscriber.error(data); },
                   () => { subscriber.complete(); });
@@ -89,14 +78,9 @@ class TermBaseWrapper implements TermBase {
     });
   }
 
-  private _query_builder(query_map: QueryOperation[], term: TermType, options?: { rawChanges: boolean }): any {
+  private _query_builder(query_map: QueryOperation[], table: string, options?: { rawChanges: boolean }): any {
     return (hz) => {
-      let q: any;
-      if (term.table) {
-        q = hz(term.table);
-      } else {
-        q = hz[term.fnc].apply(hz, term.args);
-      }
+      let q = hz(table);
       for (let query in query_map) {
         q = q[query_map[query].name].apply(q, query_map[query].args);
       }
@@ -132,9 +116,7 @@ class CollectionWrapper extends TermBaseWrapper {
   table: string;
 
   constructor(table: string, internal: IDBInternals) {
-    const term: TermType = {table: table, fnc: 'none'};
-    super(term, internal);
-    this.table = table;
+    super(table, internal);
   }
 
   store(): Observable<any> {
