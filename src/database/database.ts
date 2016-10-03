@@ -301,7 +301,7 @@ class Database {
       authType: authType,
       host: settings.host || 'db.ionic.io',
       path: settings.path || 'horizon/' + deps.config.get('app_id') + '/horizon',
-      secure: settings.secure,
+      secure: (settings.secure === undefined) ? true : settings.secure,
       keepalive: settings.keepalive || 50 // Load balancer kills at 60
     };
     this._internals = new DBInternals(deps, options);
