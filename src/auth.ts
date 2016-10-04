@@ -615,16 +615,25 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
     let deferred = new DeferredPromise<any, Error>();
     const authConfig = this.config.settings.auth;
 
-    // TODO: check if cordova exists
-
     this.emitter.once('cordova:deviceready', () => {
-      if (!GooglePlus) {
-        // deferred.reject
-        return;
-      }
 
       if (!authConfig || !authConfig.google || !authConfig.google.webClientId) {
         deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
+        return;
+      }
+
+      if (!GooglePlus) {
+        deferred.reject(new Error('Ionic native is not installed'));
+        return;
+      }
+
+      if (!window || !window.cordova) {
+        deferred.reject(new Error('Cordova is missing'));
+        return;
+      }
+
+      if (!window.plugins.googleplus) {
+        deferred.reject(new Error('GooglePlus cordova plugin is missing.'));
         return;
       }
 
@@ -637,7 +646,7 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
 
       GooglePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scope.join(' ')}).then((success) => {
         if (!success.serverAuthCode) {
-          deferred.reject(new Error('Failed to retrieve offline access token.');
+          deferred.reject(new Error('Failed to retrieve offline access token.'));
           return;
         }
         let request_object = {
@@ -677,24 +686,32 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
   public login(): Promise<FacebookLoginResponse> {
     let deferred = new DeferredPromise<FacebookLoginResponse, Error>();
     const authConfig = this.config.settings.auth;
-    // let scope = authConfig.facebook.scope ? authConfig.facebook.scope : [];
     let scope = ['public_profile', 'email'];
 
     if (!authConfig || !authConfig.facebook) {
       return deferred.reject(new Error('Missing Facebook authConfig.'));
     }
+
     if (authConfig.facebook.scope) {
       authConfig.facebook.scope.forEach((item) => {
         scope.push(item);
       });
     }
 
-    // TODO: check if cordova exists
-
     this.emitter.once('cordova:deviceready', () => {
       if (!Facebook) {
-        // deferred.reject
-        return; // TODO: nice message about facebook plugin not being installed
+        deferred.reject(new Error('Ionic native is not installed'));
+        return;
+      }
+
+      if (!window || !window.cordova) {
+        deferred.reject(new Error('Cordova is missing.'));
+        return;
+      }
+
+      if (!window.facebookConnectPlugin) {
+        deferred.reject(new Error('Please install the cordova-plugin-facebook4 plugin'));
+        return;
       }
 
       Facebook.login(scope).then((r: FacebookLoginResponse) => {
@@ -702,7 +719,6 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
         const request_object = {
           'app_id': this.config.get('app_id'),
           'access_token': r.authResponse.accessToken,
-          // id,name,email,picture,first_name,last_name
           'additional_fields': scope,
           'flow': 'native-mobile'
         };
