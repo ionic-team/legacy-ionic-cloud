@@ -156,7 +156,6 @@ export class Auth implements IAuth {
     this.authModules = deps.authModules;
     this.tokenContext = deps.tokenContext;
     this.userService = deps.userService;
-    this.storage = deps.storage;
   }
 
   /**
@@ -611,8 +610,8 @@ export abstract class NativeAuth {
  * @featured
  */
 export class GoogleAuth extends NativeAuth implements IGoogleAuth {
-  public login(): Promise<any> {
-    let deferred = new DeferredPromise<any, Error>();
+  public login(): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
     const authConfig = this.config.settings.auth;
 
     this.emitter.once('cordova:deviceready', () => {
@@ -640,7 +639,9 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
       let scope = ['profile', 'email'];
       if (authConfig.google.scope) {
         authConfig.google.scope.forEach((item) => {
-          scope.push(item);
+          if (scope.indexOf(item) === -1) {
+            scope.push(item);
+          }
         });
       }
 
@@ -683,8 +684,8 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
  * @featured
  */
 export class FacebookAuth extends NativeAuth implements IFacebookAuth {
-  public login(): Promise<FacebookLoginResponse> {
-    let deferred = new DeferredPromise<FacebookLoginResponse, Error>();
+  public login(): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
     const authConfig = this.config.settings.auth;
     let scope = ['public_profile', 'email'];
 
@@ -694,7 +695,9 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
 
     if (authConfig.facebook.scope) {
       authConfig.facebook.scope.forEach((item) => {
-        scope.push(item);
+        if (scope.indexOf(item) === -1) {
+          scope.push(item);
+        }
       });
     }
 

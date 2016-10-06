@@ -104,6 +104,9 @@ export interface CoreSettings {
   urls?: CloudSettingsUrls;
 }
 
+/**
+ * Settings for native logins with Facebook and/or Google.
+ */
 export interface AuthOptions {
   /**
    * Your webClientId (aka, reverseId)
@@ -808,7 +811,6 @@ export interface AuthDependencies {
   authModules: IAuthModules;
   tokenContext: ICombinedTokenContext;
   userService: ISingleUserService;
-  storage: IStorage<string>;
 }
 
 /**
