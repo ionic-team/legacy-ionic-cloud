@@ -187,14 +187,14 @@ export class Container {
     };
 
     return {
-      'basic': new BasicAuth(authModuleDeps),
-      'custom': new CustomAuth(authModuleDeps),
-      'twitter': new TwitterAuth(authModuleDeps),
-      'facebook': new FacebookAuth(authModuleDeps),
-      'github': new GithubAuth(authModuleDeps),
-      'google': new GoogleAuth(authModuleDeps),
-      'instagram': new InstagramAuth(authModuleDeps),
-      'linkedin': new LinkedInAuth(authModuleDeps)
+      'basic': new BasicAuthType(authModuleDeps),
+      'custom': new CustomAuthType(authModuleDeps),
+      'twitter': new TwitterAuthType(authModuleDeps),
+      'facebook': new FacebookAuthType(authModuleDeps),
+      'github': new GithubAuthType(authModuleDeps),
+      'google': new GoogleAuthType(authModuleDeps),
+      'instagram': new InstagramAuthType(authModuleDeps),
+      'linkedin': new LinkedInAuthType(authModuleDeps)
     };
   }
 
