@@ -674,7 +674,6 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
       }
 
       GooglePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scope.join(' ')}).then((success) => {
-        console.log(success);
         if (!success.serverAuthCode) {
           deferred.reject(new Error('Failed to retrieve offline access token.'));
           return;
