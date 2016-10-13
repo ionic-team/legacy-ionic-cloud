@@ -14,6 +14,8 @@ import {
   IEventEmitter,
   IInsights,
   ILogger,
+  IFacebookAuth,
+  IGoogleAuth,
   IPush,
   ISingleUserService,
   IStorageStrategy,
@@ -26,15 +28,17 @@ import {
 
 import {
   Auth,
-  BasicAuth,
+  BasicAuthType,
   CombinedAuthTokenContext,
-  CustomAuth,
+  CustomAuthType,
   FacebookAuth,
-  GithubAuth,
+  FacebookAuthType,
+  GithubAuthType,
   GoogleAuth,
-  InstagramAuth,
-  LinkedInAuth,
-  TwitterAuth
+  GoogleAuthType,
+  InstagramAuthType,
+  LinkedInAuthType,
+  TwitterAuthType
 } from './auth';
 
 import { Client } from './client';
@@ -183,14 +187,14 @@ export class Container {
     };
 
     return {
-      'basic': new BasicAuth(authModuleDeps),
-      'custom': new CustomAuth(authModuleDeps),
-      'twitter': new TwitterAuth(authModuleDeps),
-      'facebook': new FacebookAuth(authModuleDeps),
-      'github': new GithubAuth(authModuleDeps),
-      'google': new GoogleAuth(authModuleDeps),
-      'instagram': new InstagramAuth(authModuleDeps),
-      'linkedin': new LinkedInAuth(authModuleDeps)
+      'basic': new BasicAuthType(authModuleDeps),
+      'custom': new CustomAuthType(authModuleDeps),
+      'twitter': new TwitterAuthType(authModuleDeps),
+      'facebook': new FacebookAuthType(authModuleDeps),
+      'github': new GithubAuthType(authModuleDeps),
+      'google': new GoogleAuthType(authModuleDeps),
+      'instagram': new InstagramAuthType(authModuleDeps),
+      'linkedin': new LinkedInAuthType(authModuleDeps)
     };
   }
 
@@ -201,8 +205,31 @@ export class Container {
       'emitter': this.eventEmitter,
       'authModules': this.authModules,
       'tokenContext': this.authTokenContext,
+      'userService': this.singleUserService
+    });
+  }
+
+  @cache
+  public get facebookAuth(): IFacebookAuth {
+    return new FacebookAuth({
+      'config': this.config,
+      'client': this.client,
       'userService': this.singleUserService,
-      'storage': new Storage<string>({'strategy': this.localStorageStrategy})
+      'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
+      'tokenContext': this.authTokenContext,
+      'emitter': this.eventEmitter
+    });
+  }
+
+  @cache
+  public get googleAuth(): IGoogleAuth {
+    return new GoogleAuth({
+      'config': this.config,
+      'client': this.client,
+      'userService': this.singleUserService,
+      'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
+      'tokenContext': this.authTokenContext,
+      'emitter': this.eventEmitter
     });
   }
 

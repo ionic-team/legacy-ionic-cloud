@@ -1,11 +1,13 @@
+import { Facebook, FacebookLoginResponse, GooglePlus } from 'ionic-native';
+
 import {
   APIResponseErrorDetails,
   AuthDependencies,
   AuthLoginOptions,
   AuthLoginResult,
   AuthModuleId,
-  AuthOptions,
   AuthTypeDependencies,
+  NativeAuthDependencies,
   BasicLoginCredentials,
   CombinedTokenContextDependencies,
   IAuth,
@@ -17,6 +19,8 @@ import {
   ICombinedTokenContextStoreOptions,
   IConfig,
   IEventEmitter,
+  IFacebookAuth,
+  IGoogleAuth,
   ISingleUserService,
   IStorage,
   ITokenContext,
@@ -146,18 +150,12 @@ export class Auth implements IAuth {
 
   constructor(
     deps: AuthDependencies,
-
-    /**
-     * @hidden
-     */
-    public options: AuthOptions = {}
   ) {
     this.config = deps.config;
     this.emitter = deps.emitter;
     this.authModules = deps.authModules;
     this.tokenContext = deps.tokenContext;
     this.userService = deps.userService;
-    this.storage = deps.storage;
   }
 
   /**
@@ -462,7 +460,7 @@ export abstract class AuthType implements IAuthType {
 /**
  * @hidden
  */
-export class BasicAuth extends AuthType implements IBasicAuthType {
+export class BasicAuthType extends AuthType implements IBasicAuthType {
 
   public authenticate(data: BasicLoginCredentials, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     var deferred = new DeferredPromise<AuthLoginResult, Error>();
@@ -580,9 +578,228 @@ export class BasicAuth extends AuthType implements IBasicAuthType {
 }
 
 /**
+ * hidden
+ */
+export abstract class NativeAuth {
+  protected config: IConfig;
+  protected client: IClient;
+  protected userService: ISingleUserService;
+  protected tokenContext: ICombinedTokenContext;
+  protected emitter: IEventEmitter;
+  protected authToken: string;
+
+  constructor(deps: NativeAuthDependencies) {
+    this.config = deps.config;
+    this.client = deps.client;
+    this.userService = deps.userService;
+    this.tokenContext = deps.tokenContext;
+    this.emitter = deps.emitter;
+  }
+
+  /**
+   * Get the raw auth token of the active user from local storage.
+   * @hidden
+   */
+  public getToken(): string | null {
+    return this.tokenContext.get();
+  }
+
+  /**
+   * @hidden
+   */
+  public storeToken(token: string) {
+    let originalToken = this.authToken;
+    this.authToken = token;
+    this.tokenContext.store(this.authToken, {'permanent': true});
+    this.emitter.emit('auth:token-changed', {'old': originalToken, 'new': this.authToken});
+  }
+
+}
+
+/**
+ * GoogleNativeAuth handles logging into googleplus through the cordova-plugin-googleplus plugin.'
+ * @featured
+ */
+export class GoogleAuth extends NativeAuth implements IGoogleAuth {
+
+  public logout(): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
+    this.tokenContext.delete();
+    let user = this.userService.current();
+    user.unstore();
+    user.clear();
+
+    GooglePlus.logout().then( () => {
+      deferred.resolve();
+    }, (err) => {
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
+  public login(): Promise<AuthLoginResult> {
+    let deferred = new DeferredPromise<AuthLoginResult, Error>();
+    const authConfig = this.config.settings.auth;
+
+    this.emitter.once('cordova:deviceready', () => {
+      let scope = ['profile', 'email'];
+
+      if (!GooglePlus) {
+        deferred.reject(new Error('Ionic native is not installed'));
+        return;
+      }
+
+      if (!window || !window.cordova) {
+        deferred.reject(new Error('Cordova is missing'));
+        return;
+      }
+
+      if (!window.plugins || !window.plugins.googleplus) {
+        deferred.reject(new Error('GooglePlus cordova plugin is missing.'));
+        return;
+      }
+
+      if (!authConfig || !authConfig.google || !authConfig.google.webClientId) {
+          deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
+          return;
+      }
+
+      if (authConfig.google.scope) {
+        authConfig.google.scope.forEach((item) => {
+          if (scope.indexOf(item) === -1) {
+            scope.push(item);
+          }
+        });
+      }
+
+      GooglePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scope.join(' ')}).then((success) => {
+        if (!success.serverAuthCode) {
+          deferred.reject(new Error('Failed to retrieve offline access token.'));
+          return;
+        }
+        let request_object = {
+          'app_id': this.config.get('app_id'),
+          'serverAuthCode': success.serverAuthCode,
+          'additional_fields': scope,
+          'flow': 'native-mobile'
+        };
+
+        this.client.post('/auth/login/google')
+          .send(request_object)
+          .end((err, res) => {
+            if (err) {
+              deferred.reject(err);
+            } else {
+              this.storeToken(res.body.data.token);
+              this.userService.load().then(() => {
+                let user = this.userService.current();
+                user.store();
+                deferred.resolve({
+                  'token': res.body.data.token,
+                  'signup': Boolean(parseInt(res.body.data.signup, 10))
+                });
+              });
+            }
+          });
+      }, (err) => {
+        deferred.reject(err);
+      });
+    });
+    return deferred.promise;
+  }
+}
+
+/**
+ * FacebookNative handles logging into facebook through the cordova-plugin-facebook4 plugin.
+ * @featured
+ */
+export class FacebookAuth extends NativeAuth implements IFacebookAuth {
+
+  public logout(): Promise<void> {
+    let deferred = new DeferredPromise<void, Error>();
+    this.tokenContext.delete();
+    let user = this.userService.current();
+    user.unstore();
+    user.clear();
+
+    // Clear the facebook auth.
+    Facebook.logout().then( () => {
+      deferred.resolve();
+    }, (err) => {
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
+  public login(): Promise<AuthLoginResult> {
+    let deferred = new DeferredPromise<AuthLoginResult, Error>();
+    const authConfig = this.config.settings.auth;
+    let scope = ['public_profile', 'email'];
+
+    if (authConfig && authConfig.facebook && authConfig.facebook.scope) {
+      authConfig.facebook.scope.forEach((item) => {
+        if (scope.indexOf(item) === -1) {
+          scope.push(item);
+        }
+      });
+    }
+
+    this.emitter.once('cordova:deviceready', () => {
+      if (!Facebook) {
+        deferred.reject(new Error('Ionic native is not installed'));
+        return;
+      }
+
+      if (!window || !window.cordova) {
+        deferred.reject(new Error('Cordova is missing.'));
+        return;
+      }
+
+      if (!window.facebookConnectPlugin) {
+        deferred.reject(new Error('Please install the cordova-plugin-facebook4 plugin'));
+        return;
+      }
+
+      Facebook.login(scope).then((r: FacebookLoginResponse) => {
+        scope.splice(scope.indexOf('public_profile'), 1);
+        const request_object = {
+          'app_id': this.config.get('app_id'),
+          'access_token': r.authResponse.accessToken,
+          'additional_fields': scope,
+          'flow': 'native-mobile'
+        };
+
+        this.client.post('/auth/login/facebook')
+          .send(request_object)
+          .end((err, res) => {
+            if (err) {
+              deferred.reject(err);
+            } else {
+              this.storeToken(res.body.data.token);
+              this.userService.load().then(() => {
+                let user = this.userService.current();
+                user.store();
+                deferred.resolve({
+                  'token': res.body.data.token,
+                  'signup': Boolean(parseInt(res.body.data.signup, 10))
+                });
+              });
+            }
+          });
+      }, (err: Error) => {
+        deferred.reject(err);
+      });
+    });
+    return deferred.promise;
+  }
+}
+
+/**
  * @hidden
  */
-export class CustomAuth extends AuthType {
+export class CustomAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('custom', data, options);
   }
@@ -591,7 +808,7 @@ export class CustomAuth extends AuthType {
 /**
  * @hidden
  */
-export class TwitterAuth extends AuthType {
+export class TwitterAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('twitter', data, options);
   }
@@ -600,7 +817,7 @@ export class TwitterAuth extends AuthType {
 /**
  * @hidden
  */
-export class FacebookAuth extends AuthType {
+export class FacebookAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('facebook', data, options);
   }
@@ -609,7 +826,7 @@ export class FacebookAuth extends AuthType {
 /**
  * @hidden
  */
-export class GithubAuth extends AuthType {
+export class GithubAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('github', data, options);
   }
@@ -618,7 +835,7 @@ export class GithubAuth extends AuthType {
 /**
  * @hidden
  */
-export class GoogleAuth extends AuthType {
+export class GoogleAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('google', data, options);
   }
@@ -627,7 +844,7 @@ export class GoogleAuth extends AuthType {
 /**
  * @hidden
  */
-export class InstagramAuth extends AuthType {
+export class InstagramAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('instagram', data, options);
   }
@@ -636,7 +853,7 @@ export class InstagramAuth extends AuthType {
 /**
  * @hidden
  */
-export class LinkedInAuth extends AuthType {
+export class LinkedInAuthType extends AuthType {
   public authenticate(data: Object = {}, options?: AuthLoginOptions): Promise<AuthLoginResult> {
     return this.inAppBrowserFlow('linkedin', data, options);
   }
