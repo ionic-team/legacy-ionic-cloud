@@ -598,6 +598,7 @@ export abstract class NativeAuth {
 
   /**
    * Get the raw auth token of the active user from local storage.
+   * @hidden
    */
   public getToken(): string | null {
     return this.tokenContext.get();
@@ -620,16 +621,29 @@ export abstract class NativeAuth {
  * @featured
  */
 export class GoogleAuth extends NativeAuth implements IGoogleAuth {
-  public login(): Promise<void> {
+
+  public logout(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
+    this.tokenContext.delete();
+    let user = this.userService.current();
+    user.unstore();
+    user.clear();
+
+    GooglePlus.logout().then( () => {
+      deferred.resolve();
+    }, (err) => {
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
+  public login(): Promise<AuthLoginResult> {
+    let deferred = new DeferredPromise<AuthLoginResult, Error>();
     const authConfig = this.config.settings.auth;
 
     this.emitter.once('cordova:deviceready', () => {
-
-      if (!authConfig || !authConfig.google || !authConfig.google.webClientId) {
-        deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
-        return;
-      }
+      let scope = ['profile', 'email'];
 
       if (!GooglePlus) {
         deferred.reject(new Error('Ionic native is not installed'));
@@ -641,12 +655,16 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
         return;
       }
 
-      if (!window.plugins.googleplus) {
+      if (!window.plugins || !window.plugins.googleplus) {
         deferred.reject(new Error('GooglePlus cordova plugin is missing.'));
         return;
       }
 
-      let scope = ['profile', 'email'];
+      if (!authConfig || !authConfig.google || !authConfig.google.webClientId) {
+          deferred.reject(new Error('Missing google web client id. Please visit http://docs.ionic.io/services/users/google-auth.html#native'));
+          return;
+      }
+
       if (authConfig.google.scope) {
         authConfig.google.scope.forEach((item) => {
           if (scope.indexOf(item) === -1) {
@@ -656,6 +674,7 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
       }
 
       GooglePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scope.join(' ')}).then((success) => {
+        console.log(success);
         if (!success.serverAuthCode) {
           deferred.reject(new Error('Failed to retrieve offline access token.'));
           return;
@@ -677,7 +696,10 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
               this.userService.load().then(() => {
                 let user = this.userService.current();
                 user.store();
-                deferred.resolve();
+                deferred.resolve({
+                  'token': res.body.data.token,
+                  'signup': Boolean(parseInt(res.body.data.signup, 10))
+                });
               });
             }
           });
@@ -694,16 +716,30 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
  * @featured
  */
 export class FacebookAuth extends NativeAuth implements IFacebookAuth {
-  public login(): Promise<void> {
+
+  public logout(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
+    this.tokenContext.delete();
+    let user = this.userService.current();
+    user.unstore();
+    user.clear();
+
+    // Clear the facebook auth.
+    Facebook.logout().then( () => {
+      deferred.resolve();
+    }, (err) => {
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
+  public login(): Promise<AuthLoginResult> {
+    let deferred = new DeferredPromise<AuthLoginResult, Error>();
     const authConfig = this.config.settings.auth;
     let scope = ['public_profile', 'email'];
 
-    if (!authConfig || !authConfig.facebook) {
-      return deferred.reject(new Error('Missing Facebook authConfig.'));
-    }
-
-    if (authConfig.facebook.scope) {
+    if (authConfig && authConfig.facebook && authConfig.facebook.scope) {
       authConfig.facebook.scope.forEach((item) => {
         if (scope.indexOf(item) === -1) {
           scope.push(item);
@@ -746,7 +782,10 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
               this.userService.load().then(() => {
                 let user = this.userService.current();
                 user.store();
-                deferred.resolve();
+                deferred.resolve({
+                  'token': res.body.data.token,
+                  'signup': Boolean(parseInt(res.body.data.signup, 10))
+                });
               });
             }
           });

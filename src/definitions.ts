@@ -837,14 +837,16 @@ export interface IGoogleData {
  * Represents Facebook Auth, which uses native login via cordova-plugin-facebook4.
  */
 export interface IFacebookAuth {
-  login(): Promise<any>;
+  login(): Promise<AuthLoginResult>;
+  logout(): Promise<void>;
 }
 
 /**
  * Represents Google Auth, which uses native login via cordova-plugin-googleplus.
  */
 export interface IGoogleAuth {
-  login(): Promise<any>;
+  login(): Promise<AuthLoginResult>;
+  logout(): Promise<void>;
 }
 
 /**
