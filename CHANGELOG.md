@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.12.0
+
+* Added custom auth error handling. Addresses a portion of issue
+  [#53](https://github.com/driftyco/ionic-cloud/issues/53).
+
+## 0.11.0
+
+* Added Facebook and Google Native Auth. See the native auth
+  [milestone](https://github.com/driftyco/ionic-cloud/milestone/2?closed=1).
+
 ## 0.10.0
 
 * **(breaking)** Move to Typescript 2.0
