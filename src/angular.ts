@@ -14,15 +14,15 @@ export function bootstrapAngular1() {
 
   let container = new DIContainer();
 
+  angular.element(document).ready(function() {
+    container.core.init();
+    container.cordova.bootstrap();
+  });
+
   angular.module('ionic.cloud', [])
 
   .provider('$ionicCloudConfig', function() {
     var config = container.config;
-
-    angular.element(document).ready(function() {
-      container.core.init();
-      container.cordova.bootstrap();
-    });
 
     this.register = function(settings) {
       config.register(settings);

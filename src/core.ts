@@ -45,10 +45,6 @@ export class Core implements ICore {
     this.logger = deps.logger;
     this.emitter = deps.emitter;
     this.insights = deps.insights;
-
-    if (!this.config.settings || !this.config.settings.core || !this.config.settings.core.app_id) {
-      throw new Error('Missing app_id in cloud settings. Have you configured your app properly?');
-    }
   }
 
   public init(): void {
