@@ -438,10 +438,14 @@ export abstract class AuthType implements IAuthType {
                 w.removeEventListener('loaderror', onLoadError);
                 w.close();
 
-                deferred.resolve({
-                  'token': params['token'],
-                  'signup': Boolean(parseInt(params['signup'], 10))
-                });
+                if (params['error']) {
+                  deferred.reject(new Error(decodeURIComponent(params['error'])));
+                } else {
+                  deferred.resolve({
+                    'token': params['token'],
+                    'signup': Boolean(parseInt(params['signup'], 10))
+                  });
+                }
               }
             };
 
