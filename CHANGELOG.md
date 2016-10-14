@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.13.0
+
+* **(breaking)** For angular 1, native auth services were renamed.
+  `$GoogleAuth` -> `$ionicGoogleAuth` and `$FacebookAuth` ->
+  `$ionicFacebookAuth`.
+* Remove error about missing `app_id` due to possible race condition.
+
 ## 0.12.0
 
 * Added custom auth error handling. Addresses a portion of issue
