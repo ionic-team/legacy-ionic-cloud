@@ -55,11 +55,11 @@ export function bootstrapAngular1() {
     return container.auth;
   }])
 
-  .factory('$ionicFacebookAuth', [function() {
+  .factory('$FacebookAuth', [function() {
     return container.facebookAuth;
   }])
 
-  .factory('$ionicGoogleAuth', [function() {
+  .factory('$GoogleAuth', [function() {
     return container.googleAuth;
   }])
 
