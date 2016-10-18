@@ -127,7 +127,7 @@ export class Insights implements IInsights {
    * @param value - The number by which to increment this insight.
    */
   public track(stat: string, value: number = 1): void {
-    this.trackStat(new Stat(this.config.settings.core.app_id, stat, value));
+    this.trackStat(new Stat(this.config.get('app_id'), stat, value));
   }
 
   protected checkActivity(): void {
@@ -160,6 +160,7 @@ export class Insights implements IInsights {
       this.track(`mobileapp.active.platform.${platform}.${platformVersion}`);
       this.track(`mobileapp.active.cordova.${cordovaVersion}`);
     }
+
     this.storage.set('insights_session', new Date().toISOString());
   }
 
