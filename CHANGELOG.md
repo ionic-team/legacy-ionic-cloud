@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.14.0
+
+* **(breaking)** Actually renaming the angular 1 services would be nice.
+
 ## 0.13.0
 
 * **(breaking)** For angular 1, native auth services were renamed.
