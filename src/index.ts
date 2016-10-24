@@ -3,14 +3,16 @@ export * from './definitions';
 export {
   Auth,
   AuthType,
-  BasicAuth,
-  CustomAuth,
+  BasicAuthType,
+  CustomAuthType,
   FacebookAuth,
-  GithubAuth,
+  FacebookAuthType,
+  GithubAuthType,
   GoogleAuth,
-  InstagramAuth,
-  LinkedInAuth,
-  TwitterAuth
+  GoogleAuthType,
+  InstagramAuthType,
+  LinkedInAuthType,
+  TwitterAuthType
 } from './auth';
 
 export { Client } from './client';

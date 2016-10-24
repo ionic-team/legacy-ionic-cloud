@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.14.0
+
+* **(breaking)** Actually renaming the angular 1 services would be nice.
+
+## 0.13.0
+
+* **(breaking)** For angular 1, native auth services were renamed.
+  `$GoogleAuth` -> `$ionicGoogleAuth` and `$FacebookAuth` ->
+  `$ionicFacebookAuth`.
+* Remove error about missing `app_id` due to possible race condition.
+
+## 0.12.0
+
+* Added custom auth error handling. Addresses a portion of issue
+  [#53](https://github.com/driftyco/ionic-cloud/issues/53).
+
+## 0.11.0
+
+* Added Facebook and Google Native Auth. See the native auth
+  [milestone](https://github.com/driftyco/ionic-cloud/milestone/2?closed=1).
+
+## 0.10.0
+
+* **(breaking)** Move to Typescript 2.0
+* Add Push Plugin error handling
+  (https://github.com/driftyco/ionic-cloud/pull/47)
+* Always include `registered` and `saved` boolean values in push token
+  (https://github.com/driftyco/ionic-cloud/issues/48)
+* Client-side validation for email/password signups
+  (https://github.com/driftyco/ionic-cloud/commit/dd468e785110670b847b61649e1604f3bf35d382)
+
 ## 0.9.0
 
 * Fix deploy extract boolean--promise resolves/rejects properly.

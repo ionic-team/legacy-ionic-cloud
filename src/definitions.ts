@@ -2,6 +2,15 @@ import { Device as NativeDevice } from 'ionic-native';
 import { Observable } from 'rxjs';
 
 /**
+ * @hidden
+ */
+export interface SemanticVersion {
+  major: number;
+  minor?: number;
+  patch?: number;
+}
+
+/**
  * Represents [`DetailedError`](/api/client/detailederror/).
  */
 export interface IDetailedError<D> extends Error {
@@ -186,6 +195,26 @@ export interface CoreSettings {
 }
 
 /**
+ * Settings for native logins with Facebook and/or Google.
+ */
+export interface AuthOptions {
+  /**
+   * Your webClientId (aka, reverseId)
+   */
+  google?: {
+    webClientId: string;
+    scope?: GoogleScope[];
+  };
+
+  /**
+   * Your facebook scopes.
+   */
+  facebook?: {
+    scope: FacebookScope[];
+  };
+}
+
+/**
  * The settings object for the Cloud Client.
  *
  * `CloudSettings` contains various specific configuration sections, acting more
@@ -209,6 +238,11 @@ export interface CloudSettings {
    * Settings for Ionic DB.
    */
   database?: DBSettings;
+
+  /**
+   * Settings for native auth.
+   */
+  auth?: AuthOptions;
 
   /**
    * Log settings.
@@ -584,6 +618,11 @@ export interface UserSocialProviderDetails {
   uid: string;
 
   /**
+   * The access token of the user.
+   */
+  access_token: string;
+
+  /**
    * More general information from the social network.
    */
   data: UserSocialProviderDetailsData;
@@ -756,6 +795,16 @@ export interface ICombinedTokenContext extends ITokenContext {
 }
 
 /**
+ * Facebook native login field permissions
+ */
+export type FacebookScope = 'user_birthday' | 'user_about_me' | 'user_hometown' | 'user_website' | string;
+
+/**
+ * Google native login field permissions. Note that we already include email and profile by default.
+ */
+export type GoogleScope = string;
+
+/**
  * These are the IDs of the valid [authentication
  * providers](/services/users/#providers).
  *
@@ -769,6 +818,7 @@ export type AuthModuleId = 'basic' | 'custom' | 'facebook' | 'github' | 'google'
 export interface AuthTypeDependencies {
   config: IConfig;
   client: IClient;
+  emitter: IEventEmitter;
 }
 
 /**
@@ -857,13 +907,42 @@ export interface AuthDependencies {
   authModules: IAuthModules;
   tokenContext: ICombinedTokenContext;
   userService: ISingleUserService;
+}
+
+/**
+ * @hidden 
+ */
+export interface NativeAuthDependencies {
+  config: IConfig;
+  userService: ISingleUserService;
+  client: IClient;
   storage: IStorage<string>;
+  tokenContext: ICombinedTokenContext;
+  emitter: IEventEmitter;
 }
 
 /**
  * @hidden
  */
-export interface AuthOptions {}
+export interface IGoogleData {
+  webClientId: string;
+}
+
+/**
+ * Represents Facebook Auth, which uses native login via cordova-plugin-facebook4.
+ */
+export interface IFacebookAuth {
+  login(): Promise<AuthLoginResult>;
+  logout(): Promise<void>;
+}
+
+/**
+ * Represents Google Auth, which uses native login via cordova-plugin-googleplus.
+ */
+export interface IGoogleAuth {
+  login(): Promise<AuthLoginResult>;
+  logout(): Promise<void>;
+}
 
 /**
  * Represents [`Auth`](/api/client/auth/).
@@ -1428,6 +1507,7 @@ export interface InsightsDependencies {
   storage: IStorage<string>;
   config: IConfig;
   client: IClient;
+  device: IDevice;
   logger: ILogger;
 }
 
@@ -1435,8 +1515,8 @@ export interface InsightsDependencies {
  * @hidden
  */
 export interface InsightsOptions {
-  intervalSubmit?: number;
-  intervalActiveCheck?: number;
+  intervalSubmit?: number | boolean;
+  intervalActiveCheck?: number | boolean;
   submitCount?: number;
 }
 

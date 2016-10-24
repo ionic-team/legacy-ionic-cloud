@@ -2,6 +2,7 @@ import {
   AppStatus,
   IClient,
   IConfig,
+  IDevice,
   IInsights,
   ILogger,
   IStatSerialized,
@@ -9,6 +10,8 @@ import {
   InsightsDependencies,
   InsightsOptions
 } from './definitions';
+
+import { parseSemanticVersion } from './util';
 
 /**
  * @hidden
@@ -66,6 +69,11 @@ export class Insights implements IInsights {
   /**
    * @private
    */
+  private device: IDevice;
+
+  /**
+   * @private
+   */
   private logger: ILogger;
 
   /**
@@ -75,28 +83,41 @@ export class Insights implements IInsights {
 
   constructor(
     deps: InsightsDependencies,
-    public options: InsightsOptions = {
-      'intervalSubmit': 60 * 1000,
-      'intervalActiveCheck': 1000,
-      'submitCount': 100
-    }
+    public options: InsightsOptions = {}
   ) {
     this.app = deps.appStatus;
     this.storage = deps.storage;
     this.config = deps.config;
     this.client = deps.client;
+    this.device = deps.device;
     this.logger = deps.logger;
     this.batch = [];
 
-    setInterval(() => {
-      this.submit();
-    }, this.options.intervalSubmit);
+    if (typeof this.options.intervalSubmit === 'undefined') {
+      this.options.intervalSubmit = 60 * 1000;
+    }
 
-    setInterval(() => {
-      if (!this.app.closed) {
-        this.checkActivity();
-      }
-    }, this.options.intervalActiveCheck);
+    if (typeof this.options.intervalActiveCheck === 'undefined') {
+      this.options.intervalActiveCheck = 1000;
+    }
+
+    if (typeof this.options.submitCount === 'undefined') {
+      this.options.submitCount = 100;
+    }
+
+    if (this.options.intervalSubmit) {
+      setInterval(() => {
+        this.submit();
+      }, this.options.intervalSubmit);
+    }
+
+    if (this.options.intervalActiveCheck) {
+      setInterval(() => {
+        if (!this.app.closed) {
+          this.checkActivity();
+        }
+      }, this.options.intervalActiveCheck);
+    }
   }
 
   /**
@@ -109,7 +130,7 @@ export class Insights implements IInsights {
     this.trackStat(new Stat(this.config.get('app_id'), stat, value));
   }
 
-  protected checkActivity() {
+  protected checkActivity(): void {
     let session = this.storage.get('insights_session');
 
     if (!session) {
@@ -124,9 +145,39 @@ export class Insights implements IInsights {
     }
   }
 
-  protected markActive() {
-    this.storage.set('insights_session', new Date().toISOString());
+  protected markActive(): void {
     this.track('mobileapp.active');
+
+    if (!this.device.native || !this.device.native.device || !this.device.native.device.platform) {
+      this.logger.warn('Ionic Insights: Device information unavailable.');
+    } else {
+      let device = this.device.native.device;
+      let platform = this.normalizeDevicePlatform(device.platform);
+      let platformVersion = this.normalizeVersion(device.version);
+      let cordovaVersion = this.normalizeVersion(device.cordova);
+
+      this.track(`mobileapp.active.platform.${platform}`);
+      this.track(`mobileapp.active.platform.${platform}.${platformVersion}`);
+      this.track(`mobileapp.active.cordova.${cordovaVersion}`);
+    }
+
+    this.storage.set('insights_session', new Date().toISOString());
+  }
+
+  protected normalizeDevicePlatform(platform: string): string {
+    return platform.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+  }
+
+  protected normalizeVersion(s: string): string {
+    let v: string;
+
+    try {
+      v = String(parseSemanticVersion(s).major);
+    } catch (e)  {
+      v = 'unknown';
+    }
+
+    return v;
   }
 
   protected trackStat(stat: Stat): void {

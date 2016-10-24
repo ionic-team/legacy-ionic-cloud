@@ -4,17 +4,25 @@ var Logger = require('../dist/es5/logger').Logger;
 var EventEmitter = require('../dist/es5/events').EventEmitter;
 
 describe("core", function() {
+  var configSpy;
+  var loggerSpy;
+  var emitterSpy;
+  var insightsSpy;
+
+  beforeEach(function() {
+    configSpy = new Config();
+    loggerSpy = new Logger();
+    emitterSpy = new EventEmitter();
+    insightsSpy = jasmine.createSpyObj('insights', ['track']);
+
+    configSpy.register({ 'core': { 'app_id': 'abcd' } });
+  });
 
   it("should instantiate", function() {
-    var config = new Config();
-    var logger = new Logger();
-    var emitter = new EventEmitter();
-    var insightsSpy = jasmine.createSpyObj('insights', ['track']);
-
     var c = new Core({
-      "config": config,
-      "logger": logger,
-      "emitter": emitter,
+      "config": configSpy,
+      "logger": loggerSpy,
+      "emitter": emitterSpy,
       "insights": insightsSpy
     });
 

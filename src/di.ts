@@ -16,6 +16,8 @@ import {
   IEventEmitter,
   IInsights,
   ILogger,
+  IFacebookAuth,
+  IGoogleAuth,
   IPush,
   ISingleUserService,
   IStorageStrategy,
@@ -28,15 +30,17 @@ import {
 
 import {
   Auth,
-  BasicAuth,
+  BasicAuthType,
   CombinedAuthTokenContext,
-  CustomAuth,
+  CustomAuthType,
   FacebookAuth,
-  GithubAuth,
+  FacebookAuthType,
+  GithubAuthType,
   GoogleAuth,
-  InstagramAuth,
-  LinkedInAuth,
-  TwitterAuth
+  GoogleAuthType,
+  InstagramAuthType,
+  LinkedInAuthType,
+  TwitterAuthType
 } from './auth';
 
 import { Client } from './client';
@@ -137,6 +141,7 @@ export class Container {
       'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
       'config': this.config,
       'client': this.client,
+      'device': this.device,
       'logger': this.logger
     });
   }
@@ -178,15 +183,21 @@ export class Container {
 
   @cache
   public get authModules(): IAuthModules {
+    let authModuleDeps = {
+      'config': this.config,
+      'client': this.client,
+      'emitter': this.eventEmitter
+    };
+
     return {
-      'basic': new BasicAuth({'config': this.config, 'client': this.client}),
-      'custom': new CustomAuth({'config': this.config, 'client': this.client}),
-      'twitter': new TwitterAuth({'config': this.config, 'client': this.client}),
-      'facebook': new FacebookAuth({'config': this.config, 'client': this.client}),
-      'github': new GithubAuth({'config': this.config, 'client': this.client}),
-      'google': new GoogleAuth({'config': this.config, 'client': this.client}),
-      'instagram': new InstagramAuth({'config': this.config, 'client': this.client}),
-      'linkedin': new LinkedInAuth({'config': this.config, 'client': this.client})
+      'basic': new BasicAuthType(authModuleDeps),
+      'custom': new CustomAuthType(authModuleDeps),
+      'twitter': new TwitterAuthType(authModuleDeps),
+      'facebook': new FacebookAuthType(authModuleDeps),
+      'github': new GithubAuthType(authModuleDeps),
+      'google': new GoogleAuthType(authModuleDeps),
+      'instagram': new InstagramAuthType(authModuleDeps),
+      'linkedin': new LinkedInAuthType(authModuleDeps)
     };
   }
 
@@ -197,8 +208,31 @@ export class Container {
       'emitter': this.eventEmitter,
       'authModules': this.authModules,
       'tokenContext': this.authTokenContext,
+      'userService': this.singleUserService
+    });
+  }
+
+  @cache
+  public get facebookAuth(): IFacebookAuth {
+    return new FacebookAuth({
+      'config': this.config,
+      'client': this.client,
       'userService': this.singleUserService,
-      'storage': new Storage<string>({'strategy': this.localStorageStrategy})
+      'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
+      'tokenContext': this.authTokenContext,
+      'emitter': this.eventEmitter
+    });
+  }
+
+  @cache
+  public get googleAuth(): IGoogleAuth {
+    return new GoogleAuth({
+      'config': this.config,
+      'client': this.client,
+      'userService': this.singleUserService,
+      'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
+      'tokenContext': this.authTokenContext,
+      'emitter': this.eventEmitter
     });
   }
 

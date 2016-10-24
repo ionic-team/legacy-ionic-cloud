@@ -21,7 +21,6 @@ import { DeferredPromise } from '../promise';
 import { PushMessage } from './message';
 
 declare var window: any;
-declare var PushNotification: any;
 
 interface ServiceTokenData {
   token: string;
@@ -121,7 +120,7 @@ export class Push implements IPush {
 
     // Check for the required values to use this service
     if (this.device.isAndroid() && !this.options.sender_id) {
-      this.logger.error('Ionic Push: GCM project number not found (http://docs.ionic.io/docs/push-android-setup)');
+      this.logger.error('Ionic Push: GCM project number not found (https://docs.ionic.io/services/push/)');
       return;
     }
 

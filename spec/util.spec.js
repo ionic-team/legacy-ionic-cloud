@@ -18,4 +18,19 @@ describe("util", function() {
     }
   });
 
+  it("should parse semantic versions", function() {
+    expect(util.parseSemanticVersion(' 5  ')).toEqual({ 'major': 5 });
+    expect(util.parseSemanticVersion('v5')).toEqual({ 'major': 5 });
+    expect(util.parseSemanticVersion('5')).toEqual({ 'major': 5 });
+    expect(util.parseSemanticVersion('1.0')).toEqual({ 'major': 1, 'minor': 0 });
+    expect(util.parseSemanticVersion('1.0.5')).toEqual({ 'major': 1, 'minor': 0, 'patch': 5 });
+    expect(util.parseSemanticVersion('1.0.5.600')).toEqual({ 'major': 1, 'minor': 0, 'patch': 5 });
+    expect(util.parseSemanticVersion('1.0-beta.1')).toEqual({ 'major': 1, 'minor': 0 });
+  });
+
+  it("should reject invalid semantic versions", function() {
+    expect(util.parseSemanticVersion.bind(util.parseSemanticVersion, 'asdf')).toThrowError("Invalid semantic version.");
+    expect(util.parseSemanticVersion.bind(util.parseSemanticVersion, 'a0')).toThrowError("Invalid semantic version.");
+  });
+
 });
