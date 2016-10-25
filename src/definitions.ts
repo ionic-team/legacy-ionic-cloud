@@ -144,6 +144,8 @@ export interface HorizonInstance {
     onReady (): Observable<any>;
     onDisconnected (): Observable<any>;
     onSocketError (): Observable<any>;
+
+    useAuthentication (enable: boolean): void;
 }
 
 export interface HorizonOptions {
@@ -162,7 +164,7 @@ export interface HorizonOptions {
  * Settings for IonicDB
  */
 export interface DBSettings extends HorizonOptions {
-  authType?: 'anonymous' | 'ionic' | 'unauthenticated' | 'token';
+  authType?: 'unauthenticated' | 'authenticated';
 }
 
 export interface IDatabase {

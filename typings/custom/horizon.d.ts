@@ -52,6 +52,8 @@ declare module '@horizon/client' {
       onReady (): Observable<any>;
       onDisconnected (): Observable<any>;
       onSocketError (): Observable<any>;
+
+      useAuthentication (enable: boolean): void;
   }
 
   interface HorizonOptions {
