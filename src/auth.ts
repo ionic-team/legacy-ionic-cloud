@@ -264,6 +264,7 @@ export class Auth implements IAuth {
    * an unauthenticated state.
    */
   public logout(): void {
+    this.emitter.emit('auth:token-changed', {'old': this.tokenContext.get(), 'new': undefined});
     this.tokenContext.delete();
     let user = this.userService.current();
     user.unstore();
@@ -628,6 +629,7 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
 
   public logout(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
+    this.emitter.emit('auth:token-changed', {'old': this.tokenContext.get(), 'new': undefined});
     this.tokenContext.delete();
     let user = this.userService.current();
     user.unstore();
@@ -722,6 +724,7 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
 
   public logout(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
+    this.emitter.emit('auth:token-changed', {'old': this.tokenContext.get(), 'new': undefined});
     this.tokenContext.delete();
     let user = this.userService.current();
     user.unstore();
