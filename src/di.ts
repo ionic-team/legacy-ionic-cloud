@@ -47,7 +47,7 @@ import { Client } from './client';
 import { Config } from './config';
 import { Cordova } from './cordova';
 import { Core } from './core';
-import { IonicDB} from './database/database';
+import { Database } from './database/database';
 import { Deploy } from './deploy/deploy';
 import { Device } from './device';
 import { EventEmitter } from './events';
@@ -275,7 +275,7 @@ export class Container {
       c = config.settings.database;
     }
 
-    return new IonicDB({
+    return new Database({
       'config': this.config,
       'client': this.client,
       'storage': new Storage<any>({'strategy': this.localStorageStrategy}, {'prefix': ''}),

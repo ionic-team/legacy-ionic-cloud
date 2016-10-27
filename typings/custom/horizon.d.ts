@@ -34,7 +34,7 @@ declare module '@horizon/client' {
 
   interface User extends Feed {}
 
-  interface HorizonInstance {
+  export interface HorizonInstance {
       (name: string): Collection;
 
       currentUser (): User;
@@ -46,7 +46,7 @@ declare module '@horizon/client' {
       model (fn: Function): Function;
 
       disconnect (): void;
-      connect (): Promise<any>;
+      connect (): any;
 
       status (): Observable<any>;
       onReady (): Observable<any>;
@@ -54,6 +54,7 @@ declare module '@horizon/client' {
       onSocketError (): Observable<any>;
 
       useAuthentication (enable: boolean): void;
+      _wrap_with($timeout: Function, $stringify: Function): void;
   }
 
   interface HorizonOptions {

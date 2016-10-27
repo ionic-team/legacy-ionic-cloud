@@ -1,5 +1,5 @@
 import { Device as NativeDevice } from 'ionic-native';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 /**
  * @hidden
@@ -126,26 +126,26 @@ export interface Collection extends TermBase {
 
 export interface User extends Feed {}
 
-export interface HorizonInstance {
-    (name: string): Collection;
+export interface IDatabase {
+    collection(name: string): Collection;
 
     currentUser (): User;
 
     hasAuthToken (): boolean;
-    authEndpoint (name: string): Observable<string>;
 
     aggregate (aggs: any): TermBase;
     model (fn: Function): Function;
 
+    connect (): void;
     disconnect (): void;
-    connect (): Promise<any>;
 
-    status (): Observable<any>;
-    onReady (): Observable<any>;
-    onDisconnected (): Observable<any>;
-    onSocketError (): Observable<any>;
+    status (sub?: Function): Observable<any> | Subscription;
+    onReady (sub?: Function): Observable<any> | Subscription;
+    onDisconnected (sub?: Function): Observable<any> | Subscription;
+    onSocketError (sub?: Function): Observable<any> | Subscription;
 
-    useAuthentication (enable: boolean): void;
+    // Ionic Custom
+    _wrap_with($timeout: Function, $stringify: Function): void;
 }
 
 export interface HorizonOptions {
@@ -165,11 +165,6 @@ export interface HorizonOptions {
  */
 export interface DBSettings extends HorizonOptions {
   authType?: 'unauthenticated' | 'authenticated';
-}
-
-export interface IDatabase {
-  hz: HorizonInstance;
-  _wrap_with($timeout: Function, $stringify: Function): void;
 }
 
 /**
