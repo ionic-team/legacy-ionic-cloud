@@ -1,11 +1,11 @@
-import { Collection, DBSettings, HorizonOptions, IDatabase, TermBase, User }  from '../definitions';
-import Horizon from '@horizon/client';
-import { HorizonInstance } from '@horizon/client';
+import { Collection, DBSettings, DBOptions, IDatabase, TermBase, User }  from '../definitions';
+import IonicDB from '@ionic/db-client';
+import { IonicDBInstance } from '@ionic/db-client';
 import { Observable, Observer, Subscription } from 'rxjs';
 import { IConfig, IEventEmitter, IClient, IStorage, DBDependencies } from '../definitions';
 
 
-type HorizonAuthType = 'anonymous' | 'token' | 'unauthenticated';
+type DBAuthType = 'anonymous' | 'token' | 'unauthenticated';
 
 
 interface QueryOperation {
@@ -64,7 +64,7 @@ class TermBaseWrapper implements TermBase {
     if (!this.db_internals.allowConnect()) {
       return Observable.throw('Must be logged in to connect to db.');
     }
-    let q = this.db_internals.hz(this.table);
+    let q = this.db_internals.db(this.table);
     for (let query in this.query_map) {
       q = q[this.query_map[query].name].apply(q, this.query_map[query].args);
     }
@@ -76,9 +76,9 @@ class TermBaseWrapper implements TermBase {
       return Observable.throw('Must be logged in to connect to db.');
     }
     return Observable.create( subscriber => {
-      this.db_internals.hzReconnector.distinctUntilChanged()
-      .subscribe( (hz) => {
-        this._query_builder(this.query_map, this.table, hz, options)
+      this.db_internals.dbReconnector.distinctUntilChanged()
+      .subscribe( (db) => {
+        this._query_builder(this.query_map, this.table, db, options)
         .subscribe( (data) => {
           subscriber.next(data);
         }, (err) => {/*eat this*/});
@@ -87,13 +87,13 @@ class TermBaseWrapper implements TermBase {
       }, () => {
         subscriber.complete();
       });
-      this.db_internals.subscriber.next(this.db_internals.hz);
+      this.db_internals.subscriber.next(this.db_internals.db);
     }).distinctUntilChanged(this.db_internals.$compare.bind(this.db_internals))
     .do(() => this.db_internals.$apply());
   }
 
-  private _query_builder(query_map: QueryOperation[], table: string, hz: any, options?: { rawChanges: boolean }): any {
-    let q = hz(table);
+  private _query_builder(query_map: QueryOperation[], table: string, db: any, options?: { rawChanges: boolean }): any {
+    let q = db(table);
     for (let query in query_map) {
       q = q[query_map[query].name].apply(q, query_map[query].args);
     }
@@ -112,7 +112,7 @@ class UserWrapper implements User {
     if (!this.db_internals.allowConnect()) {
       return Observable.throw('Must be logged in to connect to db.');
     }
-    return this.db_internals.hz.currentUser().fetch().do(() => this.db_internals.$apply());
+    return this.db_internals.db.currentUser().fetch().do(() => this.db_internals.$apply());
   }
 
   watch(options?: { rawChanges: boolean }): Observable<any> {
@@ -120,9 +120,9 @@ class UserWrapper implements User {
       return Observable.throw('Must be logged in to connect to db.');
     }
     return Observable.create( subscriber => {
-      this.db_internals.hzReconnector.distinctUntilChanged()
-      .subscribe( (hz) => {
-        hz.currentUser().watch(options)
+      this.db_internals.dbReconnector.distinctUntilChanged()
+      .subscribe( (db) => {
+        db.currentUser().watch(options)
         .subscribe( (data) => {
           subscriber.next(data);
         }, (err) => {/*eat this*/});
@@ -131,7 +131,7 @@ class UserWrapper implements User {
       }, () => {
         subscriber.complete();
       });
-      this.db_internals.subscriber.next(this.db_internals.hz);
+      this.db_internals.subscriber.next(this.db_internals.db);
     }).distinctUntilChanged(this.db_internals.$compare.bind(this.db_internals))
     .do(() => this.db_internals.$apply());
   }
@@ -148,7 +148,7 @@ class CollectionWrapper extends TermBaseWrapper {
     if (!this.db_internals.allowConnect()) {
       return Observable.throw('Must be logged in to connect to db.');
     }
-    const table = this.db_internals.hz(this.table);
+    const table = this.db_internals.db(this.table);
     return table.store.apply(table, arguments);
   }
 
@@ -156,7 +156,7 @@ class CollectionWrapper extends TermBaseWrapper {
     if (!this.db_internals.allowConnect()) {
       return Observable.throw('Must be logged in to connect to db.');
     }
-    const table = this.db_internals.hz(this.table);
+    const table = this.db_internals.db(this.table);
     return table.upsert.apply(table, arguments);
   }
 
@@ -164,7 +164,7 @@ class CollectionWrapper extends TermBaseWrapper {
     if (!this.db_internals.allowConnect()) {
       return Observable.throw('Must be logged in to connect to db.');
     }
-    const table = this.db_internals.hz(this.table);
+    const table = this.db_internals.db(this.table);
     return table.insert.apply(table, arguments);
   }
 
@@ -172,7 +172,7 @@ class CollectionWrapper extends TermBaseWrapper {
     if (!this.db_internals.allowConnect()) {
       return Observable.throw('Must be logged in to connect to db.');
     }
-    const table = this.db_internals.hz(this.table);
+    const table = this.db_internals.db(this.table);
     return table.replace.apply(table, arguments);
   }
 
@@ -180,7 +180,7 @@ class CollectionWrapper extends TermBaseWrapper {
     if (!this.db_internals.allowConnect()) {
       return Observable.throw('Must be logged in to connect to db.');
     }
-    const table = this.db_internals.hz(this.table);
+    const table = this.db_internals.db(this.table);
     return table.update.apply(table, arguments);
   }
 
@@ -188,7 +188,7 @@ class CollectionWrapper extends TermBaseWrapper {
     if (!this.db_internals.allowConnect()) {
       return Observable.throw('Must be logged in to connect to db.');
     }
-    const table = this.db_internals.hz(this.table);
+    const table = this.db_internals.db(this.table);
     return table.remove.apply(table, arguments);
   }
 
@@ -196,7 +196,7 @@ class CollectionWrapper extends TermBaseWrapper {
     if (!this.db_internals.allowConnect()) {
       return Observable.throw('Must be logged in to connect to db.');
     }
-    const table = this.db_internals.hz(this.table);
+    const table = this.db_internals.db(this.table);
     return table.removeAll.apply(table, arguments);
   }
 }
@@ -206,8 +206,8 @@ interface IDBInternals {
   client: IClient;
   emitter: IEventEmitter;
   storage: IStorage<any>;
-  hz_settings: HorizonOptions;
-  hzReconnector: Observable<any>;
+  db_settings: DBOptions;
+  dbReconnector: Observable<any>;
   onDisconnect: Observable<any>;
   onReady: Observable<any>;
   onSocketError: Observable<any>;
@@ -218,7 +218,7 @@ interface IDBInternals {
   error_sub?: Observer<any>;
   status_sub?: Observer<any>;
   autoreconnect: boolean;
-  hz: HorizonInstance;
+  db: IonicDBInstance;
   reconnect(): void;
   $timeout?: Function;
   $stringify?: Function;
@@ -235,8 +235,8 @@ class DBInternals implements IDBInternals {
   client: IClient;
   emitter: IEventEmitter;
   storage: IStorage<any>;
-  hz_settings: HorizonOptions;
-  hzReconnector: Observable<any>;
+  db_settings: DBOptions;
+  dbReconnector: Observable<any>;
   onDisconnect: Observable<any>;
   onReady: Observable<any>;
   onSocketError: Observable<any>;
@@ -247,23 +247,23 @@ class DBInternals implements IDBInternals {
   error_sub?: Observer<any>;
   status_sub?: Observer<any>;
   autoreconnect: boolean;
-  hz: HorizonInstance;
+  db: IonicDBInstance;
   $timeout?: Function;
   $stringify?: Function;
 
-  constructor(deps: DBDependencies, hz_options: HorizonOptions) {
+  constructor(deps: DBDependencies, db_options: DBOptions) {
     this.config = deps.config;
     this.client = deps.client;
     this.storage = deps.storage;
     this.emitter = deps.emitter;
-    this.hz_settings = hz_options;
+    this.db_settings = db_options;
     this.autoreconnect = true;
 
-    this._new_horizon();
+    this._new_connection();
 
-    this.hzReconnector = Observable.create(subscriber => {
+    this.dbReconnector = Observable.create(subscriber => {
       this.subscriber = subscriber;
-      this.subscriber.next(this.hz);
+      this.subscriber.next(this.db);
     }).share();
 
     this.onDisconnect = Observable.create(subscriber => {
@@ -283,26 +283,26 @@ class DBInternals implements IDBInternals {
     }).share();
 
     this.emitter.on('auth:token-changed', (token) => {
-      Horizon.clearAuthTokens();
+      IonicDB.clearAuthTokens();
       if (!token || !token['new']) {
         // Ionic logout
-        this.storage.delete('horizon-jwt');
-        if (this.hz_settings.authType === 'token') {
+        this.storage.delete('ionicdb-jwt');
+        if (this.db_settings.authType === 'token') {
           this.disconnect();
         }
-      } else if (this.hz_settings.authType === 'token') {
+      } else if (this.db_settings.authType === 'token') {
         // Ionic login
-        let path: string = this.hz_settings.path || 'horizon';
+        let path: string = this.db_settings.path || 'ionicdb';
         let credential = {};
         credential[path] = token['new'];
-        this.storage.set('horizon-jwt', credential);
+        this.storage.set('ionicdb-jwt', credential);
       }
     });
 
   }
 
   allowConnect(): boolean {
-    if (this.hz_settings.authType === 'unauthenticated' || !!this.storage.get('horizon-jwt')) {
+    if (this.db_settings.authType === 'unauthenticated' || !!this.storage.get('ionicdb-jwt')) {
         this.autoreconnect = true;
         return true;
     }
@@ -310,29 +310,29 @@ class DBInternals implements IDBInternals {
   }
 
   disconnect(): void {
-    Horizon.clearAuthTokens();
+    IonicDB.clearAuthTokens();
     this.autoreconnect = false;
-    this.hz.disconnect();
+    this.db.disconnect();
   }
 
-  private _new_horizon(): void {
-    this.hz = Horizon(this.hz_settings);
+  private _new_connection(): void {
+    this.db = IonicDB(this.db_settings);
 
-    this.hz.onDisconnected().subscribe(this._reconnector.bind(this));
+    this.db.onDisconnected().subscribe(this._reconnector.bind(this));
 
-    this.hz.onReady().subscribe( (...args) => {
+    this.db.onReady().subscribe( (...args) => {
       if (this.ready_sub) {
         this.ready_sub.next.apply(this.ready_sub, args);
       }
     });
 
-    this.hz.onSocketError().subscribe( (...args) => {
+    this.db.onSocketError().subscribe( (...args) => {
       if (this.error_sub) {
         this.error_sub.next.apply(this.error_sub, args);
       }
     });
 
-    this.hz.status().subscribe( (...args) => {
+    this.db.status().subscribe( (...args) => {
       if (this.status_sub) {
         this.status_sub.next.apply(this.status_sub, args);
       }
@@ -349,9 +349,9 @@ class DBInternals implements IDBInternals {
   }
 
   reconnect(): void {
-    this._new_horizon();
-    this.subscriber.next(this.hz);
-    this.hz.connect();
+    this._new_connection();
+    this.subscriber.next(this.db);
+    this.db.connect();
   }
 
   wrap_with($timeout: Function, $stringify: Function): void {
@@ -382,7 +382,7 @@ export class Database implements IDatabase {
 
   constructor(private deps: DBDependencies, private settings: DBSettings ) {
     this.settings = settings;
-    let authType: HorizonAuthType = 'unauthenticated';
+    let authType: DBAuthType = 'unauthenticated';
     if (settings.authType === 'authenticated') {
       authType = 'token';
     }
@@ -407,7 +407,7 @@ export class Database implements IDatabase {
       console.error('Must be logged in to connect to db.');
       return;
     }
-    this._internals.hz.connect();
+    this._internals.db.connect();
   }
 
   disconnect(): void {
@@ -419,15 +419,15 @@ export class Database implements IDatabase {
   }
 
   hasAuthToken(): boolean {
-    return this._internals.hz.hasAuthToken();
+    return this._internals.db.hasAuthToken();
   }
 
   aggregate(aggs: any): TermBase {
-    return this._internals.hz.aggregate(aggs);
+    return this._internals.db.aggregate(aggs);
   }
 
   model(fn: Function): Function {
-    return this._internals.hz.model(fn);
+    return this._internals.db.model(fn);
   }
 
   status(sub?: Function): Observable<any> | Subscription {

@@ -90,7 +90,7 @@ export interface DBDependencies {
 
 
 /**
- * Horizon Type defs
+ * IonicDB Type defs
  *
  */
 export interface Feed {
@@ -148,7 +148,7 @@ export interface IDatabase {
     _wrap_with($timeout: Function, $stringify: Function): void;
 }
 
-export interface HorizonOptions {
+export interface DBOptions {
     host?: string;
     path?: string;
     secure?: boolean;
@@ -163,7 +163,7 @@ export interface HorizonOptions {
 /**
  * Settings for IonicDB
  */
-export interface DBSettings extends HorizonOptions {
+export interface DBSettings extends DBOptions {
   authType?: 'unauthenticated' | 'authenticated';
 }
 

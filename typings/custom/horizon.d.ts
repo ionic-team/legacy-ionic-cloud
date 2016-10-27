@@ -1,4 +1,4 @@
-declare module '@horizon/client' {
+declare module '@ionic/db-client' {
   import { Observable } from 'rxjs';
 
   interface Feed {
@@ -34,7 +34,7 @@ declare module '@horizon/client' {
 
   interface User extends Feed {}
 
-  export interface HorizonInstance {
+  export interface IonicDBInstance {
       (name: string): Collection;
 
       currentUser (): User;
@@ -70,11 +70,11 @@ declare module '@horizon/client' {
   }
 
   interface HorizonCtor {
-      (options: HorizonOptions): HorizonInstance;
+      (options: HorizonOptions): IonicDBInstance;
 
       clearAuthTokens (): void;
   }
 
-  const Horizon: HorizonCtor;
-  export default Horizon;
+  const IonicDB: HorizonCtor;
+  export default IonicDB;
 }
