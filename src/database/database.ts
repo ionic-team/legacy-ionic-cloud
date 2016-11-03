@@ -81,7 +81,7 @@ class TermBaseWrapper implements TermBase {
         this._query_builder(this.query_map, this.table, db, options)
         .subscribe( (data) => {
           subscriber.next(data);
-        }, (err) => {/*eat this*/});
+        }, (err) => { subscriber.error(err); });
       }, (err) => {
         subscriber.error(err);
       }, () => {
@@ -125,7 +125,7 @@ class UserWrapper implements User {
         db.currentUser().watch(options)
         .subscribe( (data) => {
           subscriber.next(data);
-        }, (err) => {/*eat this*/});
+        }, (err) => { subscriber.error(err);});
       }, (err) => {
         subscriber.error(err);
       }, () => {
