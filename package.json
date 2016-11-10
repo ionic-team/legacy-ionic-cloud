@@ -29,7 +29,8 @@
   "module": "dist/esm/index.js",
   "dependencies": {
     "ionic-native": "^2.0.3",
-    "superagent": "1.7.2"
+    "superagent": "1.7.2",
+    "@ionic/db": "0.0.1"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.8.0",
