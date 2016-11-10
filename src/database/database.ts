@@ -1,6 +1,6 @@
 import { Collection, DBSettings, DBOptions, IDatabase, TermBase, User }  from '../definitions';
-import IonicDB from '@ionic/db-client';
-import { IonicDBInstance } from '@ionic/db-client';
+import IonicDB from '@ionic/db';
+import { IonicDBInstance } from '@ionic/db';
 import { Observable, Observer, Subscription } from 'rxjs';
 import { IConfig, IEventEmitter, IClient, IStorage, DBDependencies } from '../definitions';
 

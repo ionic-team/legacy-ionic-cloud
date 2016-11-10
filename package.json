@@ -1,6 +1,6 @@
 {
   "name": "@ionic/cloud",
-  "version": "0.14.0",
+  "version": "0.14.0-db.alpha.0",
   "description": "Ionic Cloud Client",
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
   "dependencies": {
     "ionic-native": "^2.0.3",
     "superagent": "1.7.2",
-    "@ionic/db": "0.0.1"
+    "@ionic/db": "latest"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.8.0",
