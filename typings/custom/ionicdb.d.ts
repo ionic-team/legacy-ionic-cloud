@@ -1,4 +1,4 @@
-declare module '@ionic/db-client' {
+declare module '@ionic/db' {
   import { Observable } from 'rxjs';
 
   interface Feed {
@@ -57,7 +57,7 @@ declare module '@ionic/db-client' {
       _wrap_with($timeout: Function, $stringify: Function): void;
   }
 
-  interface HorizonOptions {
+  interface IonicDBOptions {
       host?: string;
       path?: string;
       secure?: boolean;
@@ -69,12 +69,11 @@ declare module '@ionic/db-client' {
       WebSocketCtor?: any;
   }
 
-  interface HorizonCtor {
-      (options: HorizonOptions): IonicDBInstance;
+  interface IonicDBCtor {
+      (options: IonicDBOptions): IonicDBInstance;
 
       clearAuthTokens (): void;
   }
 
-  const IonicDB: HorizonCtor;
-  export default IonicDB;
+  export const IonicDB: IonicDBCtor;
 }

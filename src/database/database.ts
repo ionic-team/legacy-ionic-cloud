@@ -1,9 +1,7 @@
 import { Collection, DBSettings, DBOptions, IDatabase, TermBase, User }  from '../definitions';
-import IonicDB from '@ionic/db';
-import { IonicDBInstance } from '@ionic/db';
+import { IonicDB, IonicDBInstance } from '@ionic/db';
 import { Observable, Observer, Subscription } from 'rxjs';
 import { IConfig, IEventEmitter, IClient, IStorage, DBDependencies } from '../definitions';
-
 
 type DBAuthType = 'anonymous' | 'token' | 'unauthenticated';
 
