@@ -125,7 +125,7 @@ class UserWrapper implements User {
         db.currentUser().watch(options)
         .subscribe( (data) => {
           subscriber.next(data);
-        }, (err) => { subscriber.error(err);});
+        }, (err) => { subscriber.error(err); });
       }, (err) => {
         subscriber.error(err);
       }, () => {
