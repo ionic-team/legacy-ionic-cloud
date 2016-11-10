@@ -500,7 +500,7 @@ export class BasicAuthType extends AuthType implements IBasicAuthType {
       return deferred.reject(new Error('Email is required for password reset request.'));
     }
 
-    this.client.post('/users/password/reset')
+    this.client.post('/auth/users/password/reset')
       .send({
         'app_id': this.config.get('app_id'),
         'email': email,
@@ -524,7 +524,7 @@ export class BasicAuthType extends AuthType implements IBasicAuthType {
       return deferred.reject(new Error('Code, new password, and email are required.'));
     }
 
-    this.client.post('/users/password')
+    this.client.post('/auth/users/password')
       .send({
         'reset_token': code,
         'new_password': newPassword,
@@ -568,7 +568,7 @@ export class BasicAuthType extends AuthType implements IBasicAuthType {
     if (data.name) { userData.name = data.name; }
     if (data.custom) { userData.custom = data.custom; }
 
-    this.client.post('/users')
+    this.client.post('/auth/users')
       .send(userData)
       .end((err, res) => {
         if (err) {

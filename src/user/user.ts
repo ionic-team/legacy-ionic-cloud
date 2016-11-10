@@ -351,7 +351,7 @@ export class SingleUserService implements ISingleUserService {
     let deferred = new DeferredPromise<void, Error>();
     let user = this.current();
 
-    this.client.get(`/users/${id}`)
+    this.client.get(`/auth/users/${id}`)
       .end((err, res) => {
         if (err) {
           deferred.reject(err);
@@ -380,7 +380,7 @@ export class SingleUserService implements ISingleUserService {
     }
 
     this.unstore();
-    this.client.delete(`/users/${this.user.id}`)
+    this.client.delete(`/auth/users/${this.user.id}`)
       .end((err, res) => {
         if (err) {
           deferred.reject(err);
@@ -405,7 +405,7 @@ export class SingleUserService implements ISingleUserService {
       return deferred.reject(new Error('User is anonymous and cannot be updated in the API. Use load(<id>) or signup a user using auth.'));
     }
 
-    this.client.patch(`/users/${this.user.id}`)
+    this.client.patch(`/auth/users/${this.user.id}`)
       .send(this.user.serializeForAPI())
       .end((err, res) => {
         if (err) {
