@@ -492,34 +492,24 @@ export class Database implements IDatabase {
     return this._internals.db.model(fn);
   }
 
-  status(sub?: Function): Observable<any> | Subscription {
-    return this._subOrObserve(this._internals.status).apply(this, arguments);
+
+  status(): Observable<any> {
+    return this._internals.status.do(() => this._internals.$apply());
   }
 
-  onReady(sub?: Function): Observable<any> | Subscription {
-    return this._subOrObserve(this._internals.onReady).apply(this, arguments);
+  onReady(): Observable<any> {
+    return this._internals.onReady.do(() => this._internals.$apply());
   }
 
-  onDisconnected(sub?: Function): Observable<any> | Subscription {
-    return this._subOrObserve(this._internals.onDisconnect).apply(this, arguments);
+  onDisconnected(): Observable<any> {
+    return this._internals.onDisconnect.do(() => this._internals.$apply());
   }
 
-  onSocketError(sub?: Function): Observable<any> | Subscription {
-    return this._subOrObserve(this._internals.onSocketError).apply(this, arguments);
+  onSocketError(): Observable<any> {
+    return this._internals.onSocketError.do(() => this._internals.$apply());
   }
 
   _wrap_with($timeout: Function, $stringify: Function): void {
     this._internals.wrap_with($timeout, $stringify);
-  }
-
-
-  private _subOrObserve(observable: Observable<any>): Function {
-    return function(next?: (value: any) => void, error?: (error: any) => void, complete?: () => void): Observable<any> | Subscription {
-      if (arguments.length > 0) {
-        return observable.do(() => this._internals.$apply()).subscribe(next, error, complete);
-      } else {
-        return observable.do(() => this._internals.$apply());
-      }
-    };
   }
 }
