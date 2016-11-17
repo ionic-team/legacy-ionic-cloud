@@ -59,27 +59,40 @@ class TermBaseWrapper implements TermBase {
   }
 
   fetch(): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
+    if (!this.db_internals.autoreconnect) {
+      return Observable.throw('Connect must be called before attempting to use the db.');
     }
     let q = this.db_internals.db(this.table);
     for (let query in this.query_map) {
       q = q[this.query_map[query].name].apply(q, this.query_map[query].args);
     }
-    return q.fetch().do(() => this.db_internals.$apply());
+    if (this.db_internals.Ready) {
+      return q.fetch().do(() => this.db_internals.$apply());
+    } else {
+      return this.db_internals.onReady.first().switchMap( () => {
+        return q.fetch().do(() => this.db_internals.$apply());
+      });
+    }
   }
 
   watch(options?: { rawChanges: boolean }): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
+    if (!this.db_internals.autoreconnect) {
+      return Observable.throw('Connect must be called before attempting to use the db.');
     }
-    return Observable.create( subscriber => {
+    let realSub = Observable.create( subscriber => {
+      this.db_internals.manualDisconnect.subscribe( () => {
+        subscriber.complete(); // triggers unsubscribe in case of manual disconnect/logout
+      });
       this.db_internals.dbReconnector.distinctUntilChanged()
       .subscribe( (db) => {
         this._query_builder(this.query_map, this.table, db, options)
         .subscribe( (data) => {
           subscriber.next(data);
-        }, (err) => { subscriber.error(err); });
+        }, (err) => {
+          if (this.db_internals.Ready) {
+            subscriber.error(err);
+          }
+        });
       }, (err) => {
         subscriber.error(err);
       }, () => {
@@ -88,6 +101,14 @@ class TermBaseWrapper implements TermBase {
       this.db_internals.subscriber.next(this.db_internals.db);
     }).distinctUntilChanged(this.db_internals.$compare.bind(this.db_internals))
     .do(() => this.db_internals.$apply());
+
+    if (this.db_internals.Ready) {
+      return realSub;
+    } else {
+      return this.db_internals.onReady.first().switchMap( (a) => {
+        return realSub;
+      });
+    }
   }
 
   private _query_builder(query_map: QueryOperation[], table: string, db: any, options?: { rawChanges: boolean }): any {
@@ -107,23 +128,36 @@ class UserWrapper implements User {
   }
 
   fetch(): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
+    if (!this.db_internals.autoreconnect) {
+      return Observable.throw('Connect must be called before attempting to use the db.');
     }
-    return this.db_internals.db.currentUser().fetch().do(() => this.db_internals.$apply());
+    if (this.db_internals.Ready) {
+      return this.db_internals.db.currentUser().fetch().do(() => this.db_internals.$apply());
+    } else {
+      return this.db_internals.onReady.first().switchMap( () => {
+        return this.db_internals.db.currentUser().fetch().do(() => this.db_internals.$apply());
+      });
+    }
   }
 
   watch(options?: { rawChanges: boolean }): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
+    if (!this.db_internals.autoreconnect) {
+      return Observable.throw('Connect must be called before attempting to use the db.');
     }
-    return Observable.create( subscriber => {
+    let realSub = Observable.create( subscriber => {
+      this.db_internals.manualDisconnect.subscribe( () => {
+        subscriber.complete(); // triggers unsubscribe in case of manual disconnect/logout
+      });
       this.db_internals.dbReconnector.distinctUntilChanged()
       .subscribe( (db) => {
         db.currentUser().watch(options)
         .subscribe( (data) => {
           subscriber.next(data);
-        }, (err) => { subscriber.error(err); });
+        }, (err) => {
+          if (this.db_internals.Ready) {
+            subscriber.error(err);
+          }
+        });
       }, (err) => {
         subscriber.error(err);
       }, () => {
@@ -132,6 +166,14 @@ class UserWrapper implements User {
       this.db_internals.subscriber.next(this.db_internals.db);
     }).distinctUntilChanged(this.db_internals.$compare.bind(this.db_internals))
     .do(() => this.db_internals.$apply());
+
+    if (this.db_internals.Ready) {
+      return realSub;
+    } else {
+      return this.db_internals.onReady.first().switchMap( (a) => {
+        return realSub;
+      });
+    }
   }
 }
 
@@ -142,60 +184,48 @@ class CollectionWrapper extends TermBaseWrapper {
     super(table, internal);
   }
 
-  store(): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
+  make_call(op: string, args: IArguments): Observable<any> {
+    if (!this.db_internals.autoreconnect) {
+      console.error('Connect must be called before attempting to use the db.');
+      return Observable.throw('Connect must be called before attempting to use the db.');
     }
-    const table = this.db_internals.db(this.table);
-    return table.store.apply(table, arguments);
+    if (this.db_internals.Ready) {
+      const table = this.db_internals.db(this.table);
+      return table[op].apply(table, args);
+    } else {
+      return this.db_internals.onReady.first().switchMap( () => {
+        const table = this.db_internals.db(this.table);
+        return table[op].apply(table, args);
+      });
+    }
+  }
+
+  store(): Observable<any> {
+    return this.make_call('store', arguments);
   }
 
   upsert(): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
-    }
-    const table = this.db_internals.db(this.table);
-    return table.upsert.apply(table, arguments);
+    return this.make_call('upsert', arguments);
   }
 
   insert(): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
-    }
-    const table = this.db_internals.db(this.table);
-    return table.insert.apply(table, arguments);
+    return this.make_call('insert', arguments);
   }
 
   replace(): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
-    }
-    const table = this.db_internals.db(this.table);
-    return table.replace.apply(table, arguments);
+    return this.make_call('replace', arguments);
   }
 
   update(): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
-    }
-    const table = this.db_internals.db(this.table);
-    return table.update.apply(table, arguments);
+    return this.make_call('update', arguments);
   }
 
   remove(): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
-    }
-    const table = this.db_internals.db(this.table);
-    return table.remove.apply(table, arguments);
+    return this.make_call('remove', arguments);
   }
 
   removeAll(): Observable<any> {
-    if (!this.db_internals.allowConnect()) {
-      return Observable.throw('Must be logged in to connect to db.');
-    }
-    const table = this.db_internals.db(this.table);
-    return table.removeAll.apply(table, arguments);
+    return this.make_call('removeAll', arguments);
   }
 }
 
@@ -208,6 +238,9 @@ interface IDBInternals {
   dbReconnector: Observable<any>;
   onDisconnect: Observable<any>;
   onReady: Observable<any>;
+  manualDisconnect: Observable<any>;
+  man_disconnect: Observer<any>;
+  Ready: boolean;
   onSocketError: Observable<any>;
   status: Observable<any>;
   subscriber: Observer<any>;
@@ -237,7 +270,10 @@ class DBInternals implements IDBInternals {
   dbReconnector: Observable<any>;
   onDisconnect: Observable<any>;
   onReady: Observable<any>;
+  Ready: boolean;
   onSocketError: Observable<any>;
+  manualDisconnect: Observable<any>;
+  man_disconnect: Observer<any>;
   status: Observable<any>;
   subscriber: Observer<any>;
   disconnect_sub?: Observer<any>;
@@ -255,7 +291,8 @@ class DBInternals implements IDBInternals {
     this.storage = deps.storage;
     this.emitter = deps.emitter;
     this.db_settings = db_options;
-    this.autoreconnect = true;
+    this.autoreconnect = false;
+    this.Ready = false;
 
     this._new_connection();
 
@@ -264,13 +301,28 @@ class DBInternals implements IDBInternals {
       this.subscriber.next(this.db);
     }).share();
 
+    this.dbReconnector.subscribe( () => { /*This forces creation of subscriber*/});
+
     this.onDisconnect = Observable.create(subscriber => {
       this.disconnect_sub = subscriber;
     }).share();
 
+    this.onDisconnect.subscribe( () => {
+      this.Ready = false;
+    });
+
+    this.manualDisconnect = Observable.create(subscriber => {
+      this.man_disconnect = subscriber;
+    }).share();
+    this.manualDisconnect.subscribe( () => { /*This forces creation of subscriber*/});
+
     this.onReady = Observable.create(subscriber => {
       this.ready_sub = subscriber;
     }).share();
+
+    this.onReady.subscribe( () => {
+      this.Ready = true;
+    });
 
     this.onSocketError = Observable.create(subscriber => {
       this.error_sub = subscriber;
@@ -300,16 +352,28 @@ class DBInternals implements IDBInternals {
   }
 
   allowConnect(): boolean {
-    if (this.db_settings.authType === 'unauthenticated' || !!this.storage.get('ionicdb-jwt')) {
+    if (this.db_settings.authType === 'unauthenticated') {
         this.autoreconnect = true;
         return true;
+    } else {
+        // Ionic login
+        let token = this.storage.get('ionic_auth_' + this.config.get('app_id'));
+        if (!token) {
+          return false;
+        }
+        this.autoreconnect = true;
+        let path: string = this.db_settings.path || 'ionicdb';
+        let credential = {};
+        credential[path] = token;
+        this.storage.set('ionicdb-jwt', credential);
+        return true;
     }
-    return false;
   }
 
   disconnect(): void {
     IonicDB.clearAuthTokens();
     this.autoreconnect = false;
+    this.man_disconnect.next(true);
     this.db.disconnect();
   }
 
