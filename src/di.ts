@@ -208,7 +208,8 @@ export class Container {
       'emitter': this.eventEmitter,
       'authModules': this.authModules,
       'tokenContext': this.authTokenContext,
-      'userService': this.singleUserService
+      'userService': this.singleUserService,
+      'storage': new Storage<string>({'strategy': this.localStorageStrategy})
     });
   }
 

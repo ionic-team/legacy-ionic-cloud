@@ -904,6 +904,7 @@ export interface AuthDependencies {
   authModules: IAuthModules;
   tokenContext: ICombinedTokenContext;
   userService: ISingleUserService;
+  storage: IStorage<string>;
 }
 
 /**
