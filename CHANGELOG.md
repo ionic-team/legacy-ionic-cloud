@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.14.1
+
+* **(breaking)** Fix [#81](https://github.com/driftyco/ionic-cloud/issues/81)
+
 ## 0.14.0
 
 * **(breaking)** Actually renaming the angular 1 services would be nice.
