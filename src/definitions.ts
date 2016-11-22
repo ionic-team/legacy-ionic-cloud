@@ -83,7 +83,6 @@ export interface ILogger {
 
 export interface DBDependencies {
   config: IConfig;
-  client: IClient;
   storage: IStorage<any>;
   emitter: IEventEmitter;
 }

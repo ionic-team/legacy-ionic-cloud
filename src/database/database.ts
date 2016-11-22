@@ -1,7 +1,7 @@
 import { Collection, DBSettings, DBOptions, IDatabase, TermBase, User }  from '../definitions';
 import { IonicDB, IonicDBInstance } from '@ionic/db';
 import { Observable, Observer } from 'rxjs';
-import { IConfig, IEventEmitter, IClient, IStorage, DBDependencies } from '../definitions';
+import { IConfig, IEventEmitter, IStorage, DBDependencies } from '../definitions';
 
 type DBAuthType = 'anonymous' | 'token' | 'unauthenticated';
 
@@ -231,7 +231,6 @@ class CollectionWrapper extends TermBaseWrapper {
 
 interface IDBInternals {
   config: IConfig;
-  client: IClient;
   emitter: IEventEmitter;
   storage: IStorage<any>;
   db_settings: DBOptions;
@@ -263,7 +262,6 @@ interface IDBInternals {
 class DBInternals implements IDBInternals {
 
   config: IConfig;
-  client: IClient;
   emitter: IEventEmitter;
   storage: IStorage<any>;
   db_settings: DBOptions;
@@ -287,7 +285,6 @@ class DBInternals implements IDBInternals {
 
   constructor(deps: DBDependencies, db_options: DBOptions) {
     this.config = deps.config;
-    this.client = deps.client;
     this.storage = deps.storage;
     this.emitter = deps.emitter;
     this.db_settings = db_options;
