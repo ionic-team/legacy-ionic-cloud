@@ -156,6 +156,7 @@ export class Auth implements IAuth {
     this.authModules = deps.authModules;
     this.tokenContext = deps.tokenContext;
     this.userService = deps.userService;
+    this.storage = deps.storage;
   }
 
   /**
