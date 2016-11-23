@@ -302,6 +302,7 @@ class DBInternals implements IDBInternals {
     this.db.onReady().subscribe( () => {
       this.currentDbRef.next(this.db);
       this.status.next(CONNECTED);
+      this.backoff = 0;
     });
 
   }
