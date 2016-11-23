@@ -1,5 +1,5 @@
 import { Device as NativeDevice } from 'ionic-native';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 
 /**
  * @hidden
@@ -130,18 +130,13 @@ export interface IDatabase {
 
     currentUser (): User;
 
-    hasAuthToken (): boolean;
-
     aggregate (aggs: any): TermBase;
     model (fn: Function): Function;
 
     connect (): void;
     disconnect (): void;
 
-    status (sub?: Function): Observable<any> | Subscription;
-    onReady (sub?: Function): Observable<any> | Subscription;
-    onDisconnected (sub?: Function): Observable<any> | Subscription;
-    onSocketError (sub?: Function): Observable<any> | Subscription;
+    status (): Observable<any>;
 
     // Ionic Custom
     _wrap_with($timeout: Function, $stringify: Function): void;
