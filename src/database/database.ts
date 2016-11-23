@@ -312,7 +312,6 @@ class DBInternals implements IDBInternals {
       }
       this.status.next(DISCONNECTED);
       this._new_connection();
-      console.log(this.backoff);
       setTimeout( () => {
       this.db.connect();
       }, this.backoff);
