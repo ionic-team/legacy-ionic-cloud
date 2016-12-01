@@ -147,10 +147,16 @@ class CollectionWrapper extends TermBaseWrapper {
   }
 
   make_call(op: string, args: IArguments): Observable<any> {
-    return this.db_internals.whenReady( () => {
+    let observable = this.db_internals.whenReady( () => {
       const table = this.db_internals.db(this.table);
       return table[op].apply(table, args);
     });
+
+    if (!this.db_internals.db_settings.lazyWrites){
+      observable = observable.publishReplay().refCount();
+      observable.subscribe();
+    }
+    return observable;
   }
 
   store(): Observable<any> {
