@@ -152,7 +152,7 @@ class CollectionWrapper extends TermBaseWrapper {
       return table[op].apply(table, args);
     });
 
-    if (!this.db_internals.db_settings.lazyWrites){
+    if (!this.db_internals.db_settings.lazyWrites) {
       observable = observable.publishReplay().refCount();
       observable.subscribe();
     }
