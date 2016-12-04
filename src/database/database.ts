@@ -361,7 +361,7 @@ export class Database implements IDatabase {
       lazyWrites: settings.lazyWrites || false,
       authType: authType,
       host: settings.host || 'db.ionic.io',
-      path: settings.path || 'ionicdb/' + deps.config.get('app_id') + '/horizon',
+      path: settings.path || 'ionicdb/' + deps.config.get('app_id'),
       secure: (settings.secure === undefined) ? true : settings.secure,
       keepalive: settings.keepalive || 50, // Load balancer kills at 60
     };
