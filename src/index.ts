@@ -21,7 +21,7 @@ export { Cordova } from './cordova';
 export { Core } from './core';
 export { Deploy } from './deploy/deploy';
 export { Device } from './device';
-export { Database } from './database/database';
+export { Database } from './database';
 export { Exception, DetailedError } from './errors';
 export { Container as DIContainer } from './di';
 export { EventEmitter } from './events';

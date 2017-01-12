@@ -1,5 +1,5 @@
 import { Device as NativeDevice } from 'ionic-native';
-import { Observable } from 'rxjs';
+import { IonicDBOptions } from '@ionic/db';
 
 /**
  * @hidden
@@ -82,83 +82,7 @@ export interface ILogger {
 }
 
 export interface DBDependencies {
-  config: IConfig;
-  storage: IStorage<any>;
   emitter: IEventEmitter;
-}
-
-
-/**
- * IonicDB Type defs
- *
- */
-export interface Feed {
-    watch (options?: { rawChanges: boolean }): Observable<any>;
-    fetch (): Observable<any>;
-}
-
-export type Bound = 'open' | 'closed';
-export type Primitive = boolean | number | string | Date;
-export type IdValue = Primitive | Primitive[] | Object;
-export type WriteOp = Object | Object[];
-
-export interface TermBase extends Feed {
-    find (value: IdValue): TermBase;
-    findAll (...values: IdValue[]): TermBase;
-
-    order (...fields: string[]): TermBase;
-    limit (size: Number): TermBase;
-    above (spec: any, bound?: Bound): TermBase;
-    below (spec: any, bound?: Bound): TermBase;
-}
-
-export interface Collection extends TermBase {
-    store (docs: WriteOp): Observable<any>;
-    upsert (docs: WriteOp): Observable<any>;
-    insert (docs: WriteOp): Observable<any>;
-    replace (docs: WriteOp): Observable<any>;
-    update (docs: WriteOp): Observable<any>;
-
-    remove (docs: IdValue): Observable<any>;
-    removeAll (docs: IdValue[]): Observable<any>;
-}
-
-export interface User extends Feed {}
-
-export interface IDatabase {
-    collection(name: string): Collection;
-
-    currentUser (): User;
-
-    aggregate (aggs: any): TermBase;
-    model (fn: Function): Function;
-
-    connect (): void;
-    disconnect (): void;
-
-    status (): Observable<any>;
-
-    // Ionic Custom
-    _wrap_with($timeout: Function, $stringify: Function): void;
-}
-
-export interface DBOptions {
-    host?: string;
-    path?: string;
-    secure?: boolean;
-
-    authType?: string;
-    lazyWrites?: boolean;
-    keepalive?: number;
-
-    WebSocketCtor?: any;
-}
-
-/**
- * Settings for IonicDB
- */
-export interface DBSettings extends DBOptions {
-  authType?: 'unauthenticated' | 'authenticated';
 }
 
 /**
@@ -228,7 +152,7 @@ export interface CloudSettings {
   /**
    * Settings for Ionic DB.
    */
-  database?: DBSettings;
+  database?: IonicDBOptions;
 
   /**
    * Settings for native auth.
