@@ -72,7 +72,7 @@ export function bootstrapAngular1() {
   }])
 
   .factory('$ionicDB', ['$timeout', function($timeout) {
-    container.database._digest = () => $timeout( () => { console.log('called $timeout'); }, 0);
+    container.database._digest = () => $timeout( () => { return; }, 0);
     return container.database;
   }])
 

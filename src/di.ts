@@ -278,6 +278,8 @@ export class Container {
       } else {
         c.app_id = c.app_id || config.get('app_id');
       }
+    } else {
+      c.app_id = config.get('app_id');
     }
 
     return new Database({
