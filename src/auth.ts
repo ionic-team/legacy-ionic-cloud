@@ -178,6 +178,7 @@ export class Auth implements IAuth {
   public isAuthenticated(): boolean {
     let token = this.tokenContext.get();
     if (token) {
+      this.emitter.emit('auth:login', {token: token});
       return true;
     }
     return false;
