@@ -30,7 +30,7 @@
   "dependencies": {
     "ionic-native": "^2.0.3",
     "superagent": "1.7.2",
-    "@ionic/db": "latest"
+    "@ionic/db": "^0.1.0"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.8.0",
