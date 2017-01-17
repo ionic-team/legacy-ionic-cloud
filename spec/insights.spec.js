@@ -136,7 +136,7 @@ describe("insights", function() {
 
   it("should track active stats", function() {
     i = instantiateWithOptions({ 'intervalSubmit': false, 'intervalActiveCheck': false });
-    i.device.native = { 'device': { 'platform': 'Android', 'version': '2.2', 'cordova': '6.2.1' } };
+    i.device.native = { 'platform': 'Android', 'version': '2.2', 'cordova': '6.2.1' };
     expect(i.batch).toEqual([]);
     i.markActive();
 
