@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.15.0
+
+* IonicDB integration :tada:
+* Fix error due to Ionic Native device breaking change
+
 ## 0.14.1
 
 * **(breaking)** Fix [#81](https://github.com/driftyco/ionic-cloud/issues/81)
