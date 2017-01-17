@@ -60,7 +60,7 @@ export class Storage<T> implements IStorage<T> {
     [key: string]: T;
   };
 
-  constructor(deps: StorageDependencies, public options: StorageOptions = {'prefix': 'ionic_', 'cache': true}) {
+  constructor(deps: StorageDependencies, public options: StorageOptions = {'prefix': 'ionic', 'cache': true}) {
     this.strategy = deps.strategy;
     this.storageCache = {};
   }
@@ -128,7 +128,7 @@ export class Storage<T> implements IStorage<T> {
    * @private
    */
   private standardizeKey(key: string): string {
-    return `${this.options.prefix}${key}`;
+    return `${this.options.prefix}_${key}`;
   }
 
 }
