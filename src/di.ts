@@ -1,4 +1,5 @@
 import { Device as NativeDevice } from 'ionic-native';
+import { IonicDBOptions } from '@ionic/db';
 
 import {
   AppStatus,
@@ -45,6 +46,7 @@ import { Client } from './client';
 import { Config } from './config';
 import { Cordova } from './cordova';
 import { Core } from './core';
+import { Database } from './database';
 import { Deploy } from './deploy/deploy';
 import { Device } from './device';
 import { EventEmitter } from './events';
@@ -262,6 +264,27 @@ export class Container {
       'emitter': this.eventEmitter,
       'logger': this.logger
     });
+  }
+
+  @cache
+  get database(): Database {
+    let config = this.config;
+    let c: IonicDBOptions = {};
+
+    if (typeof config.settings !== 'undefined' && typeof config.settings.database !== 'undefined') {
+      c = config.settings.database;
+      if (c.app_id === 'none') {
+        delete c.app_id;
+      } else {
+        c.app_id = c.app_id || config.get('app_id');
+      }
+    } else {
+      c.app_id = config.get('app_id');
+    }
+
+    return new Database({
+      'emitter': this.eventEmitter
+    }, c);
   }
 
 }

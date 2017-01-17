@@ -178,6 +178,7 @@ export class Auth implements IAuth {
   public isAuthenticated(): boolean {
     let token = this.tokenContext.get();
     if (token) {
+      this.emitter.emit('auth:login', {token: token});
       return true;
     }
     return false;
@@ -265,6 +266,8 @@ export class Auth implements IAuth {
    * an unauthenticated state.
    */
   public logout(): void {
+    this.emitter.emit('auth:token-changed', {'old': this.tokenContext.get(), 'new': undefined});
+    this.emitter.emit('auth:logout', {});
     this.tokenContext.delete();
     let user = this.userService.current();
     user.unstore();
@@ -320,6 +323,7 @@ export class Auth implements IAuth {
     this.authToken = token;
     this.tokenContext.store(this.authToken, {'permanent': options.remember});
     this.emitter.emit('auth:token-changed', {'old': originalToken, 'new': this.authToken});
+    this.emitter.emit('auth:login', {token: this.authToken});
   }
 
   /**
@@ -617,6 +621,7 @@ export abstract class NativeAuth {
     this.authToken = token;
     this.tokenContext.store(this.authToken, {'permanent': true});
     this.emitter.emit('auth:token-changed', {'old': originalToken, 'new': this.authToken});
+    this.emitter.emit('auth:login', {token: this.authToken});
   }
 
 }
@@ -629,6 +634,8 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
 
   public logout(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
+    this.emitter.emit('auth:token-changed', {'old': this.tokenContext.get(), 'new': undefined});
+    this.emitter.emit('auth:logout', {});
     this.tokenContext.delete();
     let user = this.userService.current();
     user.unstore();
@@ -723,6 +730,8 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
 
   public logout(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
+    this.emitter.emit('auth:token-changed', {'old': this.tokenContext.get(), 'new': undefined});
+    this.emitter.emit('auth:logout', {});
     this.tokenContext.delete();
     let user = this.userService.current();
     user.unstore();
