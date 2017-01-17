@@ -28,7 +28,7 @@
   "typings": "dist/es5/index.d.ts",
   "module": "dist/esm/index.js",
   "dependencies": {
-    "ionic-native": "^2.0.3",
+    "ionic-native": "^2.2.11",
     "superagent": "1.7.2",
     "@ionic/db": "^0.1.0"
   },
