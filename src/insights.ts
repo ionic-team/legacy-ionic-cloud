@@ -148,7 +148,7 @@ export class Insights implements IInsights {
   protected markActive(): void {
     this.track('mobileapp.active');
 
-    if (!this.device.native || !this.device.native.platform) {
+    if (!this.device.native || typeof this.device.native.platform !== 'string') {
       this.logger.warn('Ionic Insights: Device information unavailable.');
     } else {
       let device = this.device.native;
