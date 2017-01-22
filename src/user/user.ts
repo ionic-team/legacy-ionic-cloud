@@ -82,7 +82,7 @@ export class UserData implements IUserData {
     }
   }
 
-  public get(key: string, defaultValue: any) {
+  public get(key: string, defaultValue?: any) {
     if (this.data.hasOwnProperty(key)) {
       return this.data[key];
     } else {
