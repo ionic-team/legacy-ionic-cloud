@@ -376,7 +376,7 @@ export interface StoredUser {
 export interface IUserData {
   data: Object;
 
-  get(key: string, defaultValue: any);
+  get(key: string, defaultValue?: any);
   set(key: string, value: any);
   unset(key: string);
 }
