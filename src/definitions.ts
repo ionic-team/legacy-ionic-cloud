@@ -1447,13 +1447,13 @@ export interface InsightsOptions {
 
   /**
    * The interval (number of milliseconds) at which to submit insights.
-   * Defaults to 60 seconds.
+   * Defaults to 60 seconds. Set to `false` to disable.
    */
   intervalSubmit?: number | boolean;
 
   /**
    * The interval (number of milliseconds) at which to check whether a user is
-   * active. Defaults to 1 second.
+   * active. Defaults to 1 second. Set to `false` to disable.
    */
   intervalActiveCheck?: number | boolean;
 
