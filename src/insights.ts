@@ -93,6 +93,10 @@ export class Insights implements IInsights {
     this.logger = deps.logger;
     this.batch = [];
 
+    if (typeof this.options.enabled === 'undefined') {
+      this.options.enabled = true;
+    }
+
     if (typeof this.options.intervalSubmit === 'undefined') {
       this.options.intervalSubmit = 60 * 1000;
     }
@@ -105,18 +109,20 @@ export class Insights implements IInsights {
       this.options.submitCount = 100;
     }
 
-    if (this.options.intervalSubmit) {
-      setInterval(() => {
-        this.submit();
-      }, this.options.intervalSubmit);
-    }
+    if (this.options.enabled) {
+      if (this.options.intervalSubmit) {
+        setInterval(() => {
+          this.submit();
+        }, this.options.intervalSubmit);
+      }
 
-    if (this.options.intervalActiveCheck) {
-      setInterval(() => {
-        if (!this.app.closed) {
-          this.checkActivity();
-        }
-      }, this.options.intervalActiveCheck);
+      if (this.options.intervalActiveCheck) {
+        setInterval(() => {
+          if (!this.app.closed) {
+            this.checkActivity();
+          }
+        }, this.options.intervalActiveCheck);
+      }
     }
   }
 
@@ -127,7 +133,11 @@ export class Insights implements IInsights {
    * @param value - The number by which to increment this insight.
    */
   public track(stat: string, value: number = 1): void {
-    this.trackStat(new Stat(this.config.get('app_id'), stat, value));
+    if (this.options.enabled) {
+      this.trackStat(new Stat(this.config.get('app_id'), stat, value));
+    } else {
+      this.logger.warn('Ionic Insights: Will not track(), insights are not enabled.');
+    }
   }
 
   protected checkActivity(): void {

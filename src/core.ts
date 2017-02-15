@@ -60,7 +60,9 @@ export class Core implements ICore {
    * @private
    */
   private onResume(): void {
-    this.insights.track('mobileapp.opened');
+    if (this.insights.options.enabled) {
+      this.insights.track('mobileapp.opened');
+    }
   }
 
   /**
@@ -73,7 +75,9 @@ export class Core implements ICore {
 
     this.emitter.on('push:notification', (data: PushNotificationEvent) => {
       if (data.message.app.asleep || data.message.app.closed) {
-        this.insights.track('mobileapp.opened.push');
+        if (this.insights.options.enabled) {
+          this.insights.track('mobileapp.opened.push');
+        }
       }
     });
   }

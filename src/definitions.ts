@@ -160,6 +160,11 @@ export interface CloudSettings {
   auth?: AuthOptions;
 
   /**
+   * Settings for collected user insights.
+   */
+  insights?: InsightsOptions;
+
+  /**
    * Log settings.
    */
   logger?: LoggerOptions;
@@ -1428,9 +1433,10 @@ export interface InsightsDependencies {
 }
 
 /**
- * @hidden
+ * Settings for automatically collected user insights.
  */
 export interface InsightsOptions {
+  enabled?: boolean;
   intervalSubmit?: number | boolean;
   intervalActiveCheck?: number | boolean;
   submitCount?: number;
@@ -1440,6 +1446,7 @@ export interface InsightsOptions {
  * @hidden
  */
 export interface IInsights {
+  options: InsightsOptions;
   track(stat: string, value?: number): void;
 }
 

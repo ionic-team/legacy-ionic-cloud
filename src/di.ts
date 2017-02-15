@@ -13,18 +13,19 @@ import {
   IDeploy,
   IDevice,
   IEventEmitter,
-  IInsights,
-  ILogger,
   IFacebookAuth,
   IGoogleAuth,
+  IInsights,
+  ILogger,
   IPush,
   ISingleUserService,
   IStorageStrategy,
   IUserContext,
+  InsightsOptions,
   LoggerOptions,
   PushOptions,
   PushToken,
-  StoredUser
+  StoredUser,
 } from './definitions';
 
 import {
@@ -39,7 +40,7 @@ import {
   GoogleAuthType,
   InstagramAuthType,
   LinkedInAuthType,
-  TwitterAuthType
+  TwitterAuthType,
 } from './auth';
 
 import { Client } from './client';
@@ -135,6 +136,13 @@ export class Container {
 
   @cache
   public get insights(): IInsights {
+    let config = this.config;
+    let c: InsightsOptions = {};
+
+    if (typeof config.settings !== 'undefined' && typeof config.settings.insights !== 'undefined') {
+      c = config.settings.insights;
+    }
+
     return new Insights({
       'appStatus': this.appStatus,
       'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
@@ -142,7 +150,7 @@ export class Container {
       'client': this.client,
       'device': this.device,
       'logger': this.logger
-    });
+    }, c);
   }
 
   @cache
