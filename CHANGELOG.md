@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.16.0
+
+* Add option to disable Ionic Insights collection
+
+## 0.15.1
+
+* Fix `platform.toLowerCase` issue with Ionic Native on browser
+
 ## 0.15.0
 
 * IonicDB integration :tada:
