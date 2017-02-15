@@ -2,7 +2,7 @@
 #   pre:
 #     - ./scripts/docs/prepare.sh
 #   cache_directories:
-#     - "~/ionic-platform-docs" # cache ionic-site
+#     - "~/ionic-cloud-docs" # cache ionic-site
 
 machine:
   node:

@@ -1,5 +1,5 @@
 {
-  "sitePath": "../ionic-platform-docs",
+  "sitePath": "../ionic-cloud-docs",
   "clientDocsDir": "content/api/client",
-  "docsDest": "../ionic-platform-docs/content/api/client"
+  "docsDest": "../ionic-cloud-docs/content/api/client"
 }

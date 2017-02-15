@@ -25,7 +25,7 @@ module.exports = function jekyll(renderDocsProcessor) {
 
         // shorten the path for components in their own dir IE deploy/Deploy
         var parts = [];
-        var skip = ['..','ionic-platform-docs','content','api','client','index.md'];
+        var skip = ['..','ionic-cloud-docs','content','api','client','index.md'];
         docs[i].outputPath.split('/').forEach(function(segment) {
           if(skip.indexOf(segment) !== -1) {
             return;
@@ -62,7 +62,7 @@ module.exports = function jekyll(renderDocsProcessor) {
                                     .replace('/' + process.cwd() + '/src', '')
                                     .replace('//', '/')
                                     .replace('.md', '.html')
-                                    .replace('/ionic-platform-docs/', '/')
+                                    .replace('/ionic-cloud-docs/', '/')
                                     .replace('content/', '');
 
 
