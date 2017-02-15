@@ -81,6 +81,9 @@ export interface ILogger {
   error(message?: any, ...optionalParams: any[]);
 }
 
+/**
+ * @hidden
+ */
 export interface DBDependencies {
   emitter: IEventEmitter;
 }
@@ -1436,14 +1439,33 @@ export interface InsightsDependencies {
  * Settings for automatically collected user insights.
  */
 export interface InsightsOptions {
+
+  /**
+   * Whether or not insights collection is enabled.
+   */
   enabled?: boolean;
+
+  /**
+   * The interval (number of milliseconds) at which to submit insights.
+   * Defaults to 60 seconds.
+   */
   intervalSubmit?: number | boolean;
+
+  /**
+   * The interval (number of milliseconds) at which to check whether a user is
+   * active. Defaults to 1 second.
+   */
   intervalActiveCheck?: number | boolean;
+
+  /**
+   * The maximum size of the insights submission queue. When reached, insights
+   * are submitted in batch.
+   */
   submitCount?: number;
 }
 
 /**
- * @hidden
+ * Represents [`Insights`](/api/client/insights/).
  */
 export interface IInsights {
   options: InsightsOptions;

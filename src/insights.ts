@@ -42,7 +42,7 @@ export class Stat {
  * A client for Insights that handles batching, user activity insight, and
  * sending insights at an interval.
  *
- * @hidden
+ * @featured
  */
 export class Insights implements IInsights {
 
@@ -129,8 +129,15 @@ export class Insights implements IInsights {
   /**
    * Track an insight.
    *
-   * @param stat - The insight name.
-   * @param value - The number by which to increment this insight.
+   * Insights are put into a submission queue for batching to save network
+   * usage. This means that insights aren't sent immediately when this method
+   * is called.
+   *
+   * @param stat - The insight name. Insights tracked by the Cloud Client must
+   * have the prefix `mobileapp`. For example, an insight would track the
+   * number of login button clicks could be named
+   * `mobileapp.login_button.clicks`.
+   * @param value - The number by which to increment this insight (defaults to 1).
    */
   public track(stat: string, value: number = 1): void {
     if (this.options.enabled) {
@@ -140,6 +147,9 @@ export class Insights implements IInsights {
     }
   }
 
+  /**
+   * @private
+   */
   protected checkActivity(): void {
     let session = this.storage.get('insights_session');
 
@@ -155,6 +165,9 @@ export class Insights implements IInsights {
     }
   }
 
+  /**
+   * @private
+   */
   protected markActive(): void {
     this.track('mobileapp.active');
 
@@ -174,10 +187,16 @@ export class Insights implements IInsights {
     this.storage.set('insights_session', new Date().toISOString());
   }
 
+  /**
+   * @private
+   */
   protected normalizeDevicePlatform(platform: string): string {
     return platform.toLowerCase().replace(/[^a-z0-9_]/g, '_');
   }
 
+  /**
+   * @private
+   */
   protected normalizeVersion(s: string): string {
     let v: string;
 
@@ -190,6 +209,9 @@ export class Insights implements IInsights {
     return v;
   }
 
+  /**
+   * @private
+   */
   protected trackStat(stat: Stat): void {
     this.batch.push(stat);
 
@@ -198,11 +220,22 @@ export class Insights implements IInsights {
     }
   }
 
+  /**
+   * @private
+   */
   protected shouldSubmit(): boolean {
     return this.batch.length >= this.options.submitCount;
   }
 
-  protected submit() {
+  /**
+   * Manually submit the insights that have been tracked and stored in the
+   * submission queue.
+   *
+   * Unless configured differently, insights are automatically sent to Ionic
+   * every minute, by default. It may be prudent, however, to call this when
+   * you know your app is about to be put to sleep.
+   */
+  submit() {
     if (this.batch.length === 0) {
       return;
     }
