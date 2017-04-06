@@ -10,7 +10,12 @@ app. Check out [our documentation](http://docs.ionic.io).
 Coming from `ionic-platform-web-client`? Things have changed! See our
 [migration guide](http://docs.ionic.io/migration.html).
 
-## Issues & Local Development
+## Issues
+
+* For bugs and issues with this library specifically, feel free to post a github issue here.
+* For issues with the Ionic API and/or the services, file a ticket [here](https://ionic.zendesk.com/hc/en-us/requests/new).
+
+## Local Development
 
 See the [`CONTRIBUTING.md`
 file](https://github.com/driftyco/ionic-cloud/blob/master/CONTRIBUTING.md).
