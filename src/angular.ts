@@ -1,3 +1,7 @@
+import { Device as NativeDevice } from '@ionic-native/device';
+import { Facebook } from '@ionic-native/facebook';
+import { GooglePlus } from '@ionic-native/google-plus';
+
 import { Container as DIContainer } from './di';
 import { EventEmitter } from './events';
 import { DeferredPromise } from './promise';
@@ -12,7 +16,7 @@ export function bootstrapAngular1() {
     return; // No global angular--this is not an AngularJS project.
   }
 
-  let container = new DIContainer();
+  let container = new DIContainer(new NativeDevice(), new Facebook(), new GooglePlus());
 
   angular.element(document).ready(function() {
     container.core.init();

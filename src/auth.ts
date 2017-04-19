@@ -1,4 +1,5 @@
-import { Facebook, FacebookLoginResponse, GooglePlus } from 'ionic-native';
+import { Facebook, FacebookLoginResponse } from '@ionic-native/facebook';
+import { GooglePlus } from '@ionic-native/google-plus';
 
 import {
   APIResponseErrorDetails,
@@ -631,6 +632,13 @@ export abstract class NativeAuth {
  * @featured
  */
 export class GoogleAuth extends NativeAuth implements IGoogleAuth {
+  private googlePlus: GooglePlus;
+
+  constructor(deps: NativeAuthDependencies) {
+    super(deps);
+
+    this.googlePlus = deps.googlePlus;
+  }
 
   public logout(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
@@ -641,7 +649,7 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
     user.unstore();
     user.clear();
 
-    GooglePlus.logout().then( () => {
+    this.googlePlus.logout().then( () => {
       deferred.resolve();
     }, (err) => {
       deferred.reject(err);
@@ -657,7 +665,7 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
     this.emitter.once('cordova:deviceready', () => {
       let scope = ['profile', 'email'];
 
-      if (!GooglePlus) {
+      if (!this.googlePlus) {
         deferred.reject(new Error('Ionic native is not installed'));
         return;
       }
@@ -685,7 +693,7 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
         });
       }
 
-      GooglePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scope.join(' ')}).then((success) => {
+      this.googlePlus.login({'webClientId': authConfig.google.webClientId, 'offline': true, 'scopes': scope.join(' ')}).then((success) => {
         if (!success.serverAuthCode) {
           deferred.reject(new Error('Failed to retrieve offline access token.'));
           return;
@@ -727,6 +735,13 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
  * @featured
  */
 export class FacebookAuth extends NativeAuth implements IFacebookAuth {
+  private facebook: Facebook;
+
+  constructor(deps: NativeAuthDependencies) {
+    super(deps);
+
+    this.facebook = deps.facebook;
+  }
 
   public logout(): Promise<void> {
     let deferred = new DeferredPromise<void, Error>();
@@ -738,7 +753,7 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
     user.clear();
 
     // Clear the facebook auth.
-    Facebook.logout().then( () => {
+    this.facebook.logout().then( () => {
       deferred.resolve();
     }, (err) => {
       deferred.reject(err);
@@ -761,7 +776,7 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
     }
 
     this.emitter.once('cordova:deviceready', () => {
-      if (!Facebook) {
+      if (!this.facebook) {
         deferred.reject(new Error('Ionic native is not installed'));
         return;
       }
@@ -776,7 +791,7 @@ export class FacebookAuth extends NativeAuth implements IFacebookAuth {
         return;
       }
 
-      Facebook.login(scope).then((r: FacebookLoginResponse) => {
+      this.facebook.login(scope).then((r: FacebookLoginResponse) => {
         scope.splice(scope.indexOf('public_profile'), 1);
         const request_object = {
           'app_id': this.config.get('app_id'),

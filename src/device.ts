@@ -1,4 +1,4 @@
-import { Device as NativeDevice } from 'ionic-native';
+import { Device as NativeDevice } from '@ionic-native/device';
 
 import {
   DeviceDependencies,
@@ -15,7 +15,7 @@ declare var navigator: any;
  */
 export class Device implements IDevice {
 
-  public native: typeof NativeDevice;
+  public native: NativeDevice;
 
   public type: string;
 

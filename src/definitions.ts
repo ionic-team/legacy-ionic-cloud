@@ -1,4 +1,6 @@
-import { Device as NativeDevice } from 'ionic-native';
+import { Facebook } from '@ionic-native/facebook';
+import { GooglePlus } from '@ionic-native/google-plus';
+import { Device as NativeDevice } from '@ionic-native/device';
 import { IonicDBOptions } from '@ionic/db';
 
 /**
@@ -290,7 +292,7 @@ export interface DeviceIsConnectedToNetworkOptions {
  * @hidden
  */
 export interface DeviceDependencies {
-  nativeDevice: typeof NativeDevice;
+  nativeDevice: NativeDevice;
   emitter: IEventEmitter;
 }
 
@@ -298,7 +300,7 @@ export interface DeviceDependencies {
  * @hidden
  */
 export interface IDevice {
-  native: typeof NativeDevice;
+  native: NativeDevice;
   type: string;
 
   isAndroid(): boolean;
@@ -834,7 +836,7 @@ export interface AuthDependencies {
 }
 
 /**
- * @hidden 
+ * @hidden
  */
 export interface NativeAuthDependencies {
   config: IConfig;
@@ -843,6 +845,8 @@ export interface NativeAuthDependencies {
   storage: IStorage<string>;
   tokenContext: ICombinedTokenContext;
   emitter: IEventEmitter;
+  facebook: Facebook;
+  googlePlus: GooglePlus;
 }
 
 /**
