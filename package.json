@@ -72,6 +72,7 @@
     "version": "node scripts/version.js",
     "minify": "uglifyjs --compress --mangle --screw-ie8 --source-map dist/bundle/ionic.cloud.min.js.map -o dist/bundle/ionic.cloud.min.js -p relative -- dist/bundle/ionic.cloud.js",
     "build": "npm run lint && npm run tsc && npm run rollup && npm run version && npm run minify",
+    "prepublish": "npm run build",
     "test": "karma start --singleRun",
     "docs": "node scripts/docs.js",
     "watch": "scripts/watch.sh"
