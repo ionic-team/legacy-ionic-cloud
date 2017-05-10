@@ -1,6 +1,6 @@
 {
   "name": "@ionic/cloud",
-  "version": "0.16.0",
+  "version": "0.16.1-beta.1",
   "description": "Ionic Cloud Client",
   "repository": {
     "type": "git",
