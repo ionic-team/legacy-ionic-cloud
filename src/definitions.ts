@@ -1,5 +1,4 @@
 import { Device as NativeDevice } from 'ionic-native';
-import { IonicDBOptions } from '@ionic/db';
 
 /**
  * @hidden
@@ -84,13 +83,6 @@ export interface ILogger {
 /**
  * @hidden
  */
-export interface DBDependencies {
-  emitter: IEventEmitter;
-}
-
-/**
- * @hidden
- */
 export interface CloudSettingsUrls {
   api?: string;
   web?: string;
@@ -151,11 +143,6 @@ export interface CloudSettings {
    * Settings for Push Notifications.
    */
   push?: PushOptions;
-
-  /**
-   * Settings for Ionic DB.
-   */
-  database?: IonicDBOptions;
 
   /**
    * Settings for native auth.
