@@ -28,9 +28,7 @@
   "typings": "dist/es5/index.d.ts",
   "module": "dist/esm/index.js",
   "dependencies": {
-    "ionic-native": "^2.2.11",
-    "superagent": "1.7.2",
-    "@ionic/db": "^0.1.0"
+    "superagent": "1.7.2"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.8.0",
@@ -75,7 +73,6 @@
     "minify": "uglifyjs --compress --mangle --screw-ie8 --source-map dist/bundle/ionic.cloud.min.js.map -o dist/bundle/ionic.cloud.min.js -p relative -- dist/bundle/ionic.cloud.js",
     "build": "npm run lint && npm run tsc && npm run rollup && npm run version && npm run minify",
     "test": "karma start --singleRun",
-    "prepublish": "npm run build",
     "docs": "node scripts/docs.js",
     "watch": "scripts/watch.sh"
   }

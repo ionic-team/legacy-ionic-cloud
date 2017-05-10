@@ -1,5 +1,3 @@
-import { Device as NativeDevice } from 'ionic-native';
-
 /**
  * @hidden
  */
@@ -277,7 +275,7 @@ export interface DeviceIsConnectedToNetworkOptions {
  * @hidden
  */
 export interface DeviceDependencies {
-  nativeDevice: typeof NativeDevice;
+  nativeDevice: any;
   emitter: IEventEmitter;
 }
 
@@ -285,7 +283,7 @@ export interface DeviceDependencies {
  * @hidden
  */
 export interface IDevice {
-  native: typeof NativeDevice;
+  native: any;
   type: string;
 
   isAndroid(): boolean;
@@ -821,7 +819,7 @@ export interface AuthDependencies {
 }
 
 /**
- * @hidden 
+ * @hidden
  */
 export interface NativeAuthDependencies {
   config: IConfig;

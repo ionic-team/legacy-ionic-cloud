@@ -1,5 +1,3 @@
-import { Device as NativeDevice } from 'ionic-native';
-
 import {
   DeviceDependencies,
   DeviceIsConnectedToNetworkOptions,
@@ -15,7 +13,7 @@ declare var navigator: any;
  */
 export class Device implements IDevice {
 
-  public native: typeof NativeDevice;
+  public native: any;
 
   public type: string;
 
