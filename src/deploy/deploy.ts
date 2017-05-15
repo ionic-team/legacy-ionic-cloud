@@ -71,6 +71,7 @@ export class Deploy implements IDeploy {
       }
 
       this.emitter.emit('deploy:ready');
+      this.load();
     });
   }
 
