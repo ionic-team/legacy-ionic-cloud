@@ -98,7 +98,7 @@ export class Push implements IPush {
   /**
    * @private
    */
-  private registered: boolean = false;
+  private _registered: boolean = false;
 
   /**
    * @private
@@ -151,6 +151,10 @@ export class Push implements IPush {
     }
 
     this._token = val;
+  }
+
+  public get registered(): boolean {
+      return this._registered;
   }
 
   /**
@@ -234,7 +238,7 @@ export class Push implements IPush {
           deferred.reject(err);
         });
         this._callbackRegistration();
-        this.registered = true;
+        this._registered = true;
       } else {
         deferred.reject(new Error('Push plugin not found! See logs.'));
       }
@@ -265,7 +269,9 @@ export class Push implements IPush {
     };
 
     if (this.plugin) {
-      this.plugin.unregister(function() {}, function() {});
+      this.plugin.unregister(function() {
+          this._registered = false;
+      }, function() {});
     }
 
     this.client.post('/push/tokens/invalidate')
@@ -286,6 +292,23 @@ export class Push implements IPush {
     this.blockUnregister = true;
 
     return deferred.promise;
+  }
+
+  /**
+   * Checks whether the push notification permission has been granted.
+   */
+  public hasPermission(): boolean {
+    this.emitter.once('device:ready', () => {
+      let pushPlugin = this._getPushPlugin();
+
+      if (pushPlugin) {
+        pushPlugin.hasPermission(function (data) {
+          return data.isEnabled;
+        });
+      }
+    });
+
+    return false;
   }
 
   /**
