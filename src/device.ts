@@ -14,9 +14,7 @@ declare var navigator: any;
  * @hidden
  */
 export class Device implements IDevice {
-
   public native: NativeDevice;
-
   public type: string;
 
   /**

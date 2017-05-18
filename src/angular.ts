@@ -75,11 +75,6 @@ export function bootstrapAngular1() {
     return container.deploy;
   }])
 
-  .factory('$ionicDB', ['$timeout', function($timeout) {
-    container.database._digest = () => $timeout( () => { return; }, 0);
-    return container.database;
-  }])
-
   .run(['$window', '$q', '$rootScope', function($window, $q, $rootScope) {
     if (typeof $window.Promise === 'undefined') {
       $window.Promise = $q;

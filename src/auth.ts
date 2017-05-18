@@ -676,7 +676,7 @@ export class GoogleAuth extends NativeAuth implements IGoogleAuth {
       }
 
       if (!window.plugins || !window.plugins.googleplus) {
-        deferred.reject(new Error('GooglePlus cordova plugin is missing.'));
+        deferred.reject(new Error('GooglePlus cordova plugin is missing. Install the plugin by following the instructions here: https://github.com/EddyVerbruggen/cordova-plugin-googleplus'));
         return;
       }
 

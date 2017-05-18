@@ -1,6 +1,6 @@
 {
   "name": "@ionic/cloud",
-  "version": "0.16.0",
+  "version": "0.16.1-beta.1",
   "description": "Ionic Cloud Client",
   "repository": {
     "type": "git",
@@ -28,14 +28,14 @@
   "typings": "dist/es5/index.d.ts",
   "module": "dist/esm/index.js",
   "dependencies": {
-    "superagent": "1.7.2",
-    "@ionic/db": "^0.1.0"
+    "superagent": "1.7.2"
   },
   "peerDependencies": {
     "@ionic-native/core": "^3.6.1",
     "@ionic-native/device": "^3.6.1",
     "@ionic-native/facebook": "^3.6.1",
-    "@ionic-native/google-plus": "^3.6.1"
+    "@ionic-native/google-plus": "^3.6.1",
+    "@ionic/db": "^0.1.0"
   },
   "devDependencies": {
     "@ionic-native/core": "^3.6.1",
@@ -83,8 +83,8 @@
     "version": "node scripts/version.js",
     "minify": "uglifyjs --compress --mangle --screw-ie8 --source-map dist/bundle/ionic.cloud.min.js.map -o dist/bundle/ionic.cloud.min.js -p relative -- dist/bundle/ionic.cloud.js",
     "build": "npm run lint && npm run tsc && npm run rollup && npm run version && npm run minify",
-    "test": "karma start --singleRun",
     "prepublish": "npm run build",
+    "test": "karma start --singleRun",
     "docs": "node scripts/docs.js",
     "watch": "scripts/watch.sh"
   }
