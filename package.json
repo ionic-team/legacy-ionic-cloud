@@ -4,7 +4,7 @@
   "description": "Ionic Cloud Client",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/driftyco/ionic-cloud.git"
+    "url": "git+https://github.com/ionic-team/ionic-cloud.git"
   },
   "keywords": [
     "Ionic",
@@ -21,9 +21,9 @@
   ],
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/driftyco/ionic-cloud/issues"
+    "url": "https://github.com/ionic-team/ionic-cloud/issues"
   },
-  "homepage": "https://github.com/driftyco/ionic-cloud#readme",
+  "homepage": "https://github.com/ionic-team/ionic-cloud#readme",
   "main": "dist/es5/index.js",
   "typings": "dist/es5/index.d.ts",
   "module": "dist/esm/index.js",

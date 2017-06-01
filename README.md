@@ -1,5 +1,5 @@
 [![npm](https://img.shields.io/npm/v/@ionic/cloud.svg)](https://www.npmjs.com/package/@ionic/cloud)
-[![CircleCI](https://circleci.com/gh/driftyco/ionic-cloud.svg?style=shield)](https://circleci.com/gh/driftyco/ionic-cloud)
+[![CircleCI](https://circleci.com/gh/ionic-team/ionic-cloud.svg?style=shield)](https://circleci.com/gh/driftyco/ionic-cloud)
 
 # Ionic Cloud Client
 
@@ -18,4 +18,4 @@ Coming from `ionic-platform-web-client`? Things have changed! See our
 ## Local Development
 
 See the [`CONTRIBUTING.md`
-file](https://github.com/driftyco/ionic-cloud/blob/master/CONTRIBUTING.md).
+file](https://github.com/ionic-team/ionic-cloud/blob/master/CONTRIBUTING.md).
