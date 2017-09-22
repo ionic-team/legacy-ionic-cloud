@@ -1,5 +1,4 @@
-[![npm](https://img.shields.io/npm/v/@ionic/cloud.svg)](https://www.npmjs.com/package/@ionic/cloud)
-[![CircleCI](https://circleci.com/gh/driftyco/ionic-cloud.svg?style=shield)](https://circleci.com/gh/driftyco/ionic-cloud)
+## NOTE: Ionic Cloud is evolving into Ionic Pro and this client is deprecated. See the [Migration Guide](http://ionicframework.com/docs/pro/migration/) for more info.
 
 # Ionic Cloud Client
 
