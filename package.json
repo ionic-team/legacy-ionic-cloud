@@ -13,12 +13,6 @@
     "client"
   ],
   "author": "Ionic",
-  "contributors": [
-    "Eric Bobbitt <eric@ionic.io>",
-    "William Pelrine <rudy@ionic.io>",
-    "Dan Imhoff <dan@ionic.io>",
-    "Nick Hyatt <nick@ionic.io>"
-  ],
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/driftyco/ionic-cloud/issues"
