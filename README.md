@@ -2,12 +2,12 @@
 
 # Ionic Cloud Client
 
-The client for using the [Ionic Cloud](http://ionic.io/) (powerful user &
+The client for using the [Ionic Cloud](https://ionic.io/) (powerful user &
 social authentication, native push notifications, live deploys, etc.) in your
-app. Check out [our documentation](http://docs.ionic.io).
+app. Check out [our documentation](https://docs.ionic.io).
 
 Coming from `ionic-platform-web-client`? Things have changed! See our
-[migration guide](http://docs.ionic.io/migration.html).
+[migration guide](https://docs.ionic.io/migration.html).
 
 ## Issues
 
