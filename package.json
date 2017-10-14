@@ -22,7 +22,7 @@
   "typings": "dist/es5/index.d.ts",
   "module": "dist/esm/index.js",
   "dependencies": {
-    "superagent": "1.7.2"
+    "superagent": "3.6.0"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.8.0",
