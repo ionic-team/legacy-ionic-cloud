@@ -224,7 +224,7 @@ export class Insights implements IInsights {
    * @private
    */
   protected shouldSubmit(): boolean {
-    return this.batch.length >= this.options.submitCount;
+    return this.batch.length >= (this.options.submitCount || 0);
   }
 
   /**

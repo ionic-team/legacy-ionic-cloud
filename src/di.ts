@@ -1,3 +1,8 @@
+import { Device as NativeDevice } from '@ionic-native/device';
+import { Facebook } from '@ionic-native/facebook';
+import { GooglePlus } from '@ionic-native/google-plus';
+import { IonicDBOptions } from '@ionic/db';
+
 import {
   AppStatus,
   IAuth,
@@ -78,6 +83,7 @@ function cache<T>(target: any, propertyKey: string, descriptor: TypedPropertyDes
  * @hidden
  */
 export class Container {
+  constructor(private nativeDevice: NativeDevice, private facebook: Facebook, private googlePlus: GooglePlus) { }
 
   @cache
   public get appStatus(): AppStatus {
@@ -161,8 +167,7 @@ export class Container {
 
   @cache
   public get device(): IDevice {
-    const cordovaDevice = (window as any).device;
-    return new Device({'nativeDevice': cordovaDevice, 'emitter': this.eventEmitter});
+    return new Device({'nativeDevice': this.nativeDevice, 'emitter': this.eventEmitter});
   }
 
   @cache
@@ -225,7 +230,9 @@ export class Container {
       'userService': this.singleUserService,
       'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
       'tokenContext': this.authTokenContext,
-      'emitter': this.eventEmitter
+      'emitter': this.eventEmitter,
+      'facebook': this.facebook,
+      'googlePlus': this.googlePlus
     });
   }
 
@@ -237,7 +244,9 @@ export class Container {
       'userService': this.singleUserService,
       'storage': new Storage<string>({'strategy': this.localStorageStrategy}),
       'tokenContext': this.authTokenContext,
-      'emitter': this.eventEmitter
+      'emitter': this.eventEmitter,
+      'facebook': this.facebook,
+      'googlePlus': this.googlePlus
     });
   }
 

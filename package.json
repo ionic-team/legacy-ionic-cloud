@@ -24,7 +24,18 @@
   "dependencies": {
     "superagent": "3.6.0"
   },
+  "peerDependencies": {
+    "@ionic-native/core": "^3.6.1",
+    "@ionic-native/device": "^3.6.1",
+    "@ionic-native/facebook": "^3.6.1",
+    "@ionic-native/google-plus": "^3.6.1",
+    "@ionic/db": "^0.1.0"
+  },
   "devDependencies": {
+    "@ionic-native/core": "^3.6.1",
+    "@ionic-native/device": "^3.6.1",
+    "@ionic-native/facebook": "^3.6.1",
+    "@ionic-native/google-plus": "^3.6.1",
     "babel-plugin-external-helpers": "^6.8.0",
     "babel-preset-es2015": "^6.14.0",
     "browserify": "^13.1.0",
